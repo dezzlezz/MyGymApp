@@ -1,0 +1,14 @@
+<navigation ...>
+<fragment
+android:id="@+id/exerciseList"
+android:name="com.example.mygymapp.ui.exercises.ExerciseListFragment"
+android:label="Exercises">
+<action
+    android:id="@+id/action_list_to_add"
+    app:destination="@id/addExercise" />
+</fragment>
+<fragment
+android:id="@+id/addExercise"
+android:name="com.example.mygymapp.ui.exercises.AddExerciseFragment"
+android:label="Add Exercise" />
+    </navigation>

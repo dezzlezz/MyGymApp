@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MyGymApp</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+
+    <!-- Correct -->
+    <string name="my_string">This &amp;amp; that</string>
+    <string name="welcome_message">Welcome to my app &amp; enjoy!</string> <!-- Error might be here -->
+    <string name="another_string">Another value</string>
+
+</resources>
