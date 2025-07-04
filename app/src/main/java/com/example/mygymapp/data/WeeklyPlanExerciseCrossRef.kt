@@ -1,3 +1,4 @@
+// WeeklyPlanExerciseCrossRef.kt
 package com.example.mygymapp.data
 
 import androidx.room.Entity
@@ -10,7 +11,7 @@ import androidx.room.Index
     foreignKeys = [
         ForeignKey(
             entity = WeeklyPlan::class,
-            parentColumns = ["planId"],
+            parentColumns = ["planId"],    // muss mit dem PK-Feld in WeeklyPlan übereinstimmen
             childColumns = ["planId"],
             onDelete = ForeignKey.CASCADE
         ),
@@ -21,7 +22,7 @@ import androidx.room.Index
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["exerciseId"])]
+    indices = [ Index(value = ["exerciseId"]) ]
 )
 data class WeeklyPlanExerciseCrossRef(
     val planId: String,

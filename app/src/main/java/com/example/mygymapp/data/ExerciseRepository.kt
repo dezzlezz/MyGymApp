@@ -15,4 +15,7 @@ class ExerciseRepository(private val dao: ExerciseDao) {
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         dao.deleteById(id)
     }
+
+    fun getAllExercises(): Flow<List<Exercise>> = dao.getAllExercises()
+    suspend fun insert(exercise: Exercise) = dao.insert(exercise)
 }

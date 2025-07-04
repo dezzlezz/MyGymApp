@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- TabLayout weiter nach oben rücken -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabIndicatorFullWidth="false"/>
+        android:layout_marginTop="5dp"
+    app:tabIndicatorFullWidth="false"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"

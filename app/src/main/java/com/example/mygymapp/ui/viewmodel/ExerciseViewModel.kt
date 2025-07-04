@@ -25,4 +25,7 @@ class ExerciseViewModel(application: Application) : AndroidViewModel(application
     fun delete(id: Long) = viewModelScope.launch(Dispatchers.IO) {
         repo.delete(id)
     }
+
+
+
 }

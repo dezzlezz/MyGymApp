@@ -18,7 +18,7 @@ class DailyPlanRepository(private val dao: DailyPlanDao) {
     }
 
     suspend fun addExercise(planId: String, exerciseId: Long) = withContext(Dispatchers.IO) {
-        dao.addExerciseToPlan(PlanExerciseCrossRef(planId, exerciseId))
+        dao.addExerciseToPlan(DailyPlanExerciseCrossRef(planId, exerciseId))
     }
 
     suspend fun removeExercise(planId: String, exerciseId: Long) = withContext(Dispatchers.IO) {
