@@ -1,9 +1,18 @@
 package com.example.mygymapp.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 class ExerciseRepository(private val dao: ExerciseDao) {
-    fun getAllExercises(): Flow<List<Exercise>> = dao.getAllExercises()
-    fun insert(ex: Exercise): Long = dao.insert(ex)
-    fun delete(id: Long) = dao.deleteById(id)
+    fun getAll() = dao.getAllExercises()
+
+    suspend fun add(ex: Exercise) = withContext(Dispatchers.IO) {
+        dao.insert(ex)
+    }
+
+    suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
+        dao.deleteById(id)
+    }
 }

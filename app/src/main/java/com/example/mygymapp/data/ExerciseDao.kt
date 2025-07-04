@@ -11,9 +11,11 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises")
     fun getAllExercises(): Flow<List<Exercise>>
 
+    // synchroner Insert
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(exercise: Exercise): Long
 
-    @Query("DELETE FROM exercises WHERE id = :id")
-    fun deleteById(id: Long)
+    // synchroner Delete-by-ID
+    @Query("DELETE FROM exercises WHERE id = :exerciseId")
+    fun deleteById(exerciseId: Long): Int
 }
