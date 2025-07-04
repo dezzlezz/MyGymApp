@@ -55,3 +55,13 @@ dependencies {
     kapt("androidx.room:room-compiler:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
 }
+kapt {
+    javacOptions {
+        // Das "-J" vorne sorgt dafür, dass KAPT das Flag an die eigentliche
+        // Java-Compiler-JVM weiterreicht.
+        option("-J--add-modules=jdk.compiler")
+        option("-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED")
+        option("-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED")
+        option("-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED")
+    }
+}

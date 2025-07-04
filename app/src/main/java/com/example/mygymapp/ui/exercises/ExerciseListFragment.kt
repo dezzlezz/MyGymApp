@@ -13,7 +13,7 @@ import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.databinding.FragmentExerciseListBinding
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModelFactory
-
+import com.example.mygymapp.R
 class ExerciseListFragment : Fragment() {
     private var _b: FragmentExerciseListBinding? = null
     private val b get() = _b!!
