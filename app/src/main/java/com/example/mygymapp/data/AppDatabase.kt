@@ -12,13 +12,17 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): AppDatabase =
+        fun getDatabase(ctx: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
-                    context.applicationContext,
+                val inst = Room.databaseBuilder(
+                    ctx.applicationContext,
                     AppDatabase::class.java,
-                    "myapp.db"
-                ).build().also { INSTANCE = it }
+                    "app_database"
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+                INSTANCE = inst
+                inst
             }
     }
 }

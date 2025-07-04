@@ -3,6 +3,8 @@ package com.example.mygymapp.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExerciseDao {
@@ -11,4 +13,7 @@ interface ExerciseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(exercise: Exercise): Long
+
+    @Query("DELETE FROM exercises WHERE id = :id")
+    fun deleteById(id: Long)
 }

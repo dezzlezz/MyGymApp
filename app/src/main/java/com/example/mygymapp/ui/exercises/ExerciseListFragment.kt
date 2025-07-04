@@ -1,44 +1,50 @@
 package com.example.mygymapp.ui.exercises
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.mygymapp.data.AppDatabase
-import com.example.mygymapp.data.ExerciseRepository
+import com.example.mygymapp.R
 import com.example.mygymapp.databinding.FragmentExerciseListBinding
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
-import com.example.mygymapp.ui.viewmodel.ExerciseViewModelFactory
-import com.example.mygymapp.R
-class ExerciseListFragment : Fragment() {
-    private var _b: FragmentExerciseListBinding? = null
-    private val b get() = _b!!
-    private lateinit var vm: ExerciseViewModel
+import androidx.navigation.fragment.findNavController
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _b = FragmentExerciseListBinding.inflate(inflater, container, false)
+class ExerciseListFragment : Fragment(R.layout.fragment_exercise_list) {
+    private var _binding: FragmentExerciseListBinding? = null
+    private val binding get() = _binding!!
+    private val vm: ExerciseViewModel by viewModels()
+    private lateinit var adapter: ExerciseAdapter
 
-        val db = AppDatabase.getInstance(requireContext())
-        val repo = ExerciseRepository(db.exerciseDao())
-        val fac = ExerciseViewModelFactory(repo)
-        vm = ViewModelProvider(this, fac).get(ExerciseViewModel::class.java)
+    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?) =
+        FragmentExerciseListBinding.inflate(i, c, false).also { _binding = it }.root
 
-        val adapter = ExerciseAdapter()
-        b.rvExercises.layoutManager = LinearLayoutManager(requireContext())
-        b.rvExercises.adapter = adapter
+    override fun onViewCreated(v: View, s: Bundle?) {
+        super.onViewCreated(v, s)
+        adapter = ExerciseAdapter { ex ->
+            // auf Klick: löschen?
+            vm.delete(ex.id)
+        }
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.adapter = adapter
+        binding.recycler.addItemDecoration(
+            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+        )
 
-        vm.exercises.observe(viewLifecycleOwner) { adapter.submitList(it) }
-        b.fabAdd.setOnClickListener { findNavController().navigate(R.id.action_list_to_add) }
+        vm.allExercises.observe(viewLifecycleOwner, Observer { list ->
+            adapter.submitList(list)
+            binding.emptyView.isVisible = list.isEmpty()
+        })
 
-        return b.root
+        binding.fabAdd.setOnClickListener {
+            findNavController().navigate(R.id.action_exerciseList_to_addExercise)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _b = null
+        _binding = null
     }
 }

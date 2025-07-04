@@ -1,10 +1,9 @@
 package com.example.mygymapp.data
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 
 class ExerciseRepository(private val dao: ExerciseDao) {
-    suspend fun add(exercise: Exercise) {
-        dao.insert(exercise)
-    }
+    fun getAllExercises(): Flow<List<Exercise>> = dao.getAllExercises()
+    fun insert(ex: Exercise): Long = dao.insert(ex)
+    fun delete(id: Long) = dao.deleteById(id)
 }
-
