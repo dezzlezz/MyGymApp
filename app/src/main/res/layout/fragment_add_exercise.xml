@@ -1,66 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="?attr/colorSurface"
-    >
+    android:padding="24dp"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nameLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Übungsname"
-        app:boxStrokeColor="?attr/colorPrimary"
-        app:boxBackgroundMode="outline"
-        app:hintTextColor="@color/purple_200"
+        app:boxStrokeColor="?attr/colorSecondary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/nameInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Wiederhole für reps & sets mit vertical chain -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/repsLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Wiederholungen"
-        app:boxStrokeColor="?attr/colorPrimary"
-        app:boxBackgroundMode="outline"
-        app:layout_constraintTop_toBottomOf="@id/nameInput"
+        app:boxStrokeColor="?attr/colorSecondary"
+        app:layout_constraintTop_toBottomOf="@id/nameLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/repsInput"
-            android:inputType="number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_marginTop="16dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/setsLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Sätze"
-        app:boxStrokeColor="?attr/colorPrimary"
-        app:boxBackgroundMode="outline"
-        app:layout_constraintTop_toBottomOf="@id/repsInput"
+        app:boxStrokeColor="?attr/colorSecondary"
+        app:layout_constraintTop_toBottomOf="@id/repsLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/setsInput"
-            android:inputType="number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_marginTop="16dp"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/saveButton"
@@ -68,9 +47,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Speichern"
-        app:strokeColor="?attr/colorPrimary"
+        app:strokeColor="?attr/colorSecondary"
         app:strokeWidth="2dp"
-        app:layout_constraintTop_toBottomOf="@id/setsInput"
+        app:layout_constraintTop_toBottomOf="@id/setsLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"/>
