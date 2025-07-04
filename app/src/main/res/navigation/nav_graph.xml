@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
     app:startDestination="@id/exerciseListFragment">
 
+    <!-- 1) Bestehende Exercise-Flow -->
     <fragment
         android:id="@+id/exerciseListFragment"
         android:name="com.example.mygymapp.ui.exercises.ExerciseListFragment"
-        android:label="Exercises">
+        android:label="Exercises" >
         <action
             android:id="@+id/action_exerciseListFragment_to_addExerciseFragment"
             app:destination="@id/addExerciseFragment" />
@@ -17,4 +19,17 @@
         android:id="@+id/addExerciseFragment"
         android:name="com.example.mygymapp.ui.exercises.AddExerciseFragment"
         android:label="Add Exercise" />
+
+    <!-- 2) Neuer Plans-Tab -->
+    <fragment
+        android:id="@+id/plansFragment"
+        android:name="com.example.mygymapp.ui.plans.PlansFragment"
+        android:label="Plans" />
+
+    <!-- 3) Neuer (vorerst leerer) Workout-Tab -->
+    <fragment
+        android:id="@+id/workoutFragment"
+        android:name="com.example.mygymapp.ui.workout.WorkoutFragment"
+        android:label="Workout" />
+
 </navigation>
