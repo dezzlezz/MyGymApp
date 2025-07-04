@@ -1,14 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_exercises"
+        android:id="@+id/exerciseListFragment"
         android:icon="@drawable/ic_exercise"
         android:title="Exercises" />
     <item
-        android:id="@+id/nav_plans"
+        android:id="@+id/plansFragment"
         android:icon="@drawable/ic_plans"
         android:title="Plans" />
     <item
-        android:id="@+id/nav_workout"
+        android:id="@+id/workoutFragment"
         android:icon="@drawable/ic_workout"
         android:title="Workout" />
 </menu>
