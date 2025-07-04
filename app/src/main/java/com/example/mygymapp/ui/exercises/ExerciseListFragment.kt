@@ -19,20 +19,17 @@ class ExerciseListFragment : Fragment() {
     private val b get() = _b!!
     private lateinit var vm: ExerciseViewModel
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        c: ViewGroup?, s: Bundle?
-    ): View {
-        _b = FragmentExerciseListBinding.inflate(inflater, c, false)
-        val db   = AppDatabase.getInstance(requireContext())
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _b = FragmentExerciseListBinding.inflate(inflater, container, false)
+
+        val db = AppDatabase.getInstance(requireContext())
         val repo = ExerciseRepository(db.exerciseDao())
-        val fac  = ExerciseViewModelFactory(repo)
-        vm      = ViewModelProvider(this, fac)
-            .get(ExerciseViewModel::class.java)
+        val fac = ExerciseViewModelFactory(repo)
+        vm = ViewModelProvider(this, fac).get(ExerciseViewModel::class.java)
 
         val adapter = ExerciseAdapter()
         b.rvExercises.layoutManager = LinearLayoutManager(requireContext())
-        b.rvExercises.adapter       = adapter
+        b.rvExercises.adapter = adapter
 
         vm.exercises.observe(viewLifecycleOwner) { adapter.submitList(it) }
         b.fabAdd.setOnClickListener { findNavController().navigate(R.id.action_list_to_add) }

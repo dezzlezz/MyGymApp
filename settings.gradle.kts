@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MyGymApp"  // Name anpassen
+rootProject.name = "MyGymApp"
 include(":app")

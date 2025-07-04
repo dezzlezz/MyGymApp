@@ -24,47 +24,40 @@ class AddExerciseFragment : Fragment() {
     private val TAGS = listOf("calisthanics","flexibility","warmup","cardio","gym")
     private val BROAD = listOf("legs","arms","core","back","chest")
     private val SPEC = mapOf(
-        "legs"  to listOf("quads","hamstrings","glutes"),
-        "arms"  to listOf("biceps","triceps","forearms"),
-        "core"  to listOf("abs","obliques"),
-        "back"  to listOf("lats","traps"),
+        "legs" to listOf("quads","hamstrings","glutes"),
+        "arms" to listOf("biceps","triceps","forearms"),
+        "core" to listOf("abs","obliques"),
+        "back" to listOf("lats","traps"),
         "chest" to listOf("pecs")
     )
 
-    override fun onCreateView(
-        inflater: LayoutInflater, c: ViewGroup?, s: Bundle?
-    ): View {
-        _b = FragmentAddExerciseBinding.inflate(inflater, c, false)
-        val db   = AppDatabase.getInstance(requireContext())
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _b = FragmentAddExerciseBinding.inflate(inflater, container, false)
+
+        val db = AppDatabase.getInstance(requireContext())
         val repo = ExerciseRepository(db.exerciseDao())
-        val f    = ExerciseViewModelFactory(repo)
-        vm       = ViewModelProvider(this, f)
-            .get(ExerciseViewModel::class.java)
+        val f = ExerciseViewModelFactory(repo)
+        vm = ViewModelProvider(this, f).get(ExerciseViewModel::class.java)
 
-        b.spinnerTag.adapter   =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, TAGS)
-        b.spinnerBroad.adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, BROAD)
-
-        b.spinnerBroad.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(a: AdapterView<*>, v: View?, p: Int, id: Long) {
-                    val list = SPEC[BROAD[p]] ?: emptyList()
-                    b.spinnerSpecific.adapter = ArrayAdapter(
-                        requireContext(), android.R.layout.simple_spinner_item, list)
-                }
-                override fun onNothingSelected(a: AdapterView<*>) {}
+        b.spinnerTag.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, TAGS)
+        b.spinnerBroad.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, BROAD)
+        b.spinnerBroad.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {
+                val list = SPEC[BROAD[pos]] ?: emptyList()
+                b.spinnerSpecific.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, list)
             }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
         b.spinnerBroad.setSelection(0)
 
         b.btnSave.setOnClickListener {
             val ex = Exercise(
-                name           = b.etName.text.toString(),
-                description    = b.etDescription.text.toString(),
-                imageUri       = b.etImageUri.text.toString(),
-                tag            = b.spinnerTag.selectedItem as String,
-                rating         = b.ratingBar.rating.toInt(),
-                muscleGroup    = b.spinnerBroad.selectedItem as String,
+                name = b.etName.text.toString(),
+                description = b.etDescription.text.toString(),
+                imageUri = b.etImageUri.text.toString(),
+                tag = b.spinnerTag.selectedItem as String,
+                rating = b.ratingBar.rating.toInt(),
+                muscleGroup = b.spinnerBroad.selectedItem as String,
                 specificMuscle = b.spinnerSpecific.selectedItem as String
             )
             vm.insert(ex)
