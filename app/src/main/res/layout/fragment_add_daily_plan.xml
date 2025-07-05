@@ -24,6 +24,12 @@
             android:layout_height="wrap_content"
             android:hint="Beschreibung" />
 
+        <EditText
+            android:id="@+id/etPlanId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Plan ID (optional)" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvExercises"
             android:layout_width="match_parent"

@@ -1,4 +1,3 @@
-// Path: app/src/main/java/com/example/mygymapp/ui/plans/DailyPlansFragment.kt
 package com.example.mygymapp.ui.plans
 
 import android.os.Bundle
@@ -32,11 +31,16 @@ class DailyPlansFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // RecyclerView setup
+        // RecyclerView setup with reps/sets handling
         val adapter = DailyPlanAdapter(
-            onAddExercise = { planId, exId -> vm.addExerciseToDailyPlan(planId, exId) },
-            onRemoveExercise = { planId, exId -> vm.removeExerciseFromDailyPlan(planId, exId) }
+            onAddExercise = { planId, exId, reps, sets ->
+                vm.addExerciseToDailyPlan(planId, exId, reps, sets)
+            },
+            onRemoveExercise = { planId, exId ->
+                vm.removeExerciseFromDailyPlan(planId, exId)
+            }
         )
+
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
         binding.recycler.addItemDecoration(

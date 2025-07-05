@@ -32,11 +32,17 @@ class AddDailyPlanFragment : Fragment() {
         adapter = SelectedExerciseAdapter()
         binding.rvExercises.layoutManager = LinearLayoutManager(requireContext())
         binding.rvExercises.adapter = adapter
+        // Inside AddDailyPlanFragment.kt
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) =
-                adapter.moveItem(vh.adapterPosition, target.adapterPosition)
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val fromPosition = vh.adapterPosition
+                val toPosition = target.adapterPosition
+                adapter.moveItem(fromPosition, toPosition) // Assuming this method handles the list update and notifies the adapter
+                return true // Indicate the move was handled
+            }
             override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) = Unit
         }).attachToRecyclerView(binding.rvExercises)
+
 
         // Übungen laden
         viewModel.dailyPlansWithExercises.observe(viewLifecycleOwner) {
