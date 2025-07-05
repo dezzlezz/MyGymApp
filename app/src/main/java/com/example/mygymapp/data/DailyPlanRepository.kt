@@ -1,29 +1,44 @@
 package com.example.mygymapp.data
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 
 class DailyPlanRepository(
-    private val planDao: DailyPlanDao,
+    private val dailyPlanDao: DailyPlanDao,
     private val crossRefDao: DailyPlanExerciseCrossRefDao
 ) {
-    fun getAllPlansWithExercises(): Flow<List<DailyPlanWithExercises>> =
-        planDao.getDailyPlansWithExercises()
 
-    suspend fun insertDailyPlan(plan: DailyPlan): Long = withContext(Dispatchers.IO) {
-        planDao.insert(plan)
-    }
+    suspend fun insertDailyPlan(plan: DailyPlan): Long =
+        dailyPlanDao.insertDailyPlan(plan)
 
-    suspend fun addExerciseToPlan(planId: String, exerciseId: Long) = withContext(Dispatchers.IO) {
+    suspend fun deleteDailyPlanById(planId: String): Int =
+        dailyPlanDao.deleteDailyPlanById(planId)
+
+    suspend fun addExerciseToPlan(planId: String, exerciseId: Long) {
+        // nutzt nun dao.insert(...) anstatt insertCrossRefs
         crossRefDao.insert(DailyPlanExerciseCrossRef(planId, exerciseId))
     }
 
-    suspend fun removeExerciseFromPlan(planId: String, exerciseId: Long) = withContext(Dispatchers.IO) {
+    suspend fun removeExerciseFromPlan(planId: String, exerciseId: Long): Int =
         crossRefDao.delete(planId, exerciseId)
-    }
 
-    suspend fun deleteDailyPlanById(planId: String) = withContext(Dispatchers.IO) {
-        planDao.deleteDailyPlanById(planId)
+    fun getAllPlansWithExercises(): Flow<List<DailyPlanWithExercises>> =
+        dailyPlanDao.getAllDailyPlansWithExercises()
+
+    suspend fun insertDailyPlanWithDetails(
+        planId: String,
+        name: String,
+        description: String,
+        exerciseIds: List<Long>,
+        reps: List<Int>,      // nur falls du reps/sets weiter verwenden willst
+        sets: List<Int>
+    ): Long {
+        val plan = DailyPlan(planId, name, description)
+        val newId = dailyPlanDao.insertDailyPlan(plan)
+        exerciseIds.forEachIndexed { idx, exId ->
+            crossRefDao.insert(
+                DailyPlanExerciseCrossRef(planId, exId, reps[idx], sets[idx])
+            )
+        }
+        return newId
     }
 }

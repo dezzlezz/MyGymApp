@@ -1,41 +1,36 @@
-// DailyPlanExerciseCrossRef.kt
 package com.example.mygymapp.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-@Dao
-interface DailyPlanExerciseCrossRefDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(crossRef: DailyPlanExerciseCrossRef): Long
 
-    @Query("DELETE FROM daily_plan_exercises WHERE planId = :planId AND exerciseId = :exerciseId")
-    fun delete(planId: String, exerciseId: Long): Int
-}
+/**
+ * Entity für Many-to-Many zwischen DailyPlan und Exercise,
+ * inklusive Wiederholungen (reps) und Sätze (sets).
+ */
 @Entity(
     tableName = "daily_plan_exercises",
     primaryKeys = ["planId", "exerciseId"],
     foreignKeys = [
         ForeignKey(
             entity = DailyPlan::class,
-            parentColumns = ["planId"],    // muss mit dem PK-Feld in DailyPlan übereinstimmen
+            parentColumns = ["planId"],
             childColumns = ["planId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Exercise::class,
-            parentColumns = ["id"],        // PK in Exercise
+            parentColumns = ["id"],
             childColumns = ["exerciseId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [ Index(value = ["exerciseId"]) ]
+    indices = [Index("exerciseId")]
 )
 data class DailyPlanExerciseCrossRef(
-    val planId: String,
-    val exerciseId: Long
+    @ColumnInfo(name = "planId") val planId: String,
+    @ColumnInfo(name = "exerciseId") val exerciseId: Long,
+    @ColumnInfo(name = "reps") val reps: Int,
+    @ColumnInfo(name = "sets") val sets: Int
 )

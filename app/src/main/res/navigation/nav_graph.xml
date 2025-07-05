@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/exerciseListFragment">
+    app:startDestination="@id/exerciseListFragment"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 1) Exercises Flow -->
     <fragment
@@ -69,4 +70,18 @@
         android:id="@+id/workoutFragment"
         android:name="com.example.mygymapp.ui.workout.WorkoutFragment"
         android:label="Workout" />
+
+
+    <fragment
+        android:id="@+id/addDailyPlanFragment"
+        android:name="com.example.mygymapp.ui.plans.AddDailyPlanFragment"
+        tools:layout="@layout/fragment_add_daily_plan">
+        <argument
+            android:name="date"
+            app:argType="string" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_dailyPlansFragment_to_addDailyPlanFragment"
+        app:destination="@id/addDailyPlanFragment" />
 </navigation>
