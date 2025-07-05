@@ -1,4 +1,3 @@
-// Path: app/src/main/java/com/example/mygymapp/ui/plans/DailyPlanAdapter.kt
 package com.example.mygymapp.ui.plans
 
 import android.view.LayoutInflater
@@ -11,7 +10,7 @@ import com.example.mygymapp.data.DailyPlanWithExercises
 import com.example.mygymapp.databinding.ItemDailyPlanBinding
 
 class DailyPlanAdapter(
-    private val onAddExercise: (planId: String, exerciseId: Long) -> Unit,
+    private val onAddExercise: (planId: String, exerciseId: Long, reps: Int, sets: Int) -> Unit,
     private val onRemoveExercise: (planId: String, exerciseId: Long) -> Unit
 ) : ListAdapter<DailyPlanWithExercises, DailyPlanAdapter.VH>(DIFF) {
 
@@ -35,10 +34,21 @@ class DailyPlanAdapter(
         fun bind(item: DailyPlanWithExercises) {
             b.title.text = item.plan.name
             b.emptyView.isVisible = item.exercises.isEmpty()
+
+            // Beispielhaft Exercise-ID = 1L (ggf. anpassen!)
+            val exerciseId = 1L
+
             b.btnAdd.setOnClickListener {
-                onAddExercise(item.plan.planId, 1L)
+                // Annahme: editReps und editSets sind EditText-Felder im Layout!
+                val reps = b.editReps.text.toString().toIntOrNull() ?: 0
+                val sets = b.editSets.text.toString().toIntOrNull() ?: 0
+                onAddExercise(item.plan.planId, exerciseId, reps, sets)
             }
-            // TODO: implement onRemoveExercise UI
+
+            // Beispiel: Remove-Button, falls vorhanden
+            b.btnRemove?.setOnClickListener {
+                onRemoveExercise(item.plan.planId, exerciseId)
+            }
         }
     }
 }
