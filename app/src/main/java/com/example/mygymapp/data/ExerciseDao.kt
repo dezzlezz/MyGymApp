@@ -11,11 +11,11 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises")
     fun getAllExercises(): Flow<List<Exercise>>
 
-    // synchroner Insert
+    // kein suspend mehr, klare Rückgabe Long
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(exercise: Exercise): Long
 
-    // synchroner Delete-by-ID
+    // Rückgabe Int = Anzahl gelöschter Zeilen
     @Query("DELETE FROM exercises WHERE id = :exerciseId")
     fun deleteById(exerciseId: Long): Int
 }

@@ -1,33 +1,62 @@
+// Path: app/src/main/java/com/example/mygymapp/ui/plans/WeeklyPlansFragment.kt
 package com.example.mygymapp.ui.plans
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mygymapp.R
-import com.example.mygymapp.MyApp
-import com.example.mygymapp.data.WeeklyPlanRepository
-import com.example.mygymapp.ui.viewmodel.WeeklyPlansViewModel
-import com.example.mygymapp.ui.viewmodel.WeeklyPlansViewModelFactory
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.mygymapp.databinding.FragmentWeeklyPlansBinding
+import com.example.mygymapp.ui.viewmodel.PlansViewModel
 
-class WeeklyPlansFragment : Fragment(R.layout.fragment_weekly_plans) {
+class WeeklyPlansFragment : Fragment() {
+    private var _binding: FragmentWeeklyPlansBinding? = null
+    private val binding get() = _binding!!
+    private val vm: PlansViewModel by viewModels()
 
-    private val viewModel: WeeklyPlansViewModel by viewModels {
-        WeeklyPlansViewModelFactory(
-            (requireActivity().application as MyApp).weeklyPlanRepository
-        )
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentWeeklyPlansBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.weeklyPlans.observe(viewLifecycleOwner) { plans ->
-            // TODO: Adapter updaten
+        // RecyclerView setup
+        val adapter = WeeklyPlanAdapter(
+            onAddExercise = { planId, exId -> vm.addExerciseToWeeklyPlan(planId, exId) },
+            onRemoveExercise = { planId, exId -> vm.removeExerciseFromWeeklyPlan(planId, exId) }
+        )
+        binding.recycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.adapter = adapter
+        binding.recycler.addItemDecoration(
+            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+        )
+
+        // Observe LiveData
+        vm.weeklyPlansWithExercises.observe(viewLifecycleOwner) { list ->
+            adapter.submitList(list)
+            binding.emptyView.isVisible = list.isEmpty()
         }
 
-        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-            // TODO: Dialog öffnen und viewModel.addPlan(...) aufrufen
+        // FAB to add a new Weekly Plan
+        binding.fab.setOnClickListener {
+            findNavController().navigate(R.id.action_weeklyPlansFragment_to_addWeeklyPlanFragment)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

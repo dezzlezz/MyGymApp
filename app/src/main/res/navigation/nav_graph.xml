@@ -5,7 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/exerciseListFragment">
 
-    <!-- 1) Bestehende Exercise-Flow -->
+    <!-- 1) Exercises Flow -->
     <fragment
         android:id="@+id/exerciseListFragment"
         android:name="com.example.mygymapp.ui.exercises.ExerciseListFragment"
@@ -20,16 +20,53 @@
         android:name="com.example.mygymapp.ui.exercises.AddExerciseFragment"
         android:label="Add Exercise" />
 
-    <!-- 2) Neuer Plans-Tab -->
+    <!-- 2) Plans Tab as Navigation Graph -->
     <fragment
         android:id="@+id/plansFragment"
         android:name="com.example.mygymapp.ui.plans.PlansFragment"
-        android:label="Plans" />
+        android:label="Plans" >
+        <!-- zu den Unter-Tabs: Daily und Weekly -->
+        <action
+            android:id="@+id/action_plansFragment_to_dailyPlansFragment"
+            app:destination="@id/dailyPlansFragment" />
+        <action
+            android:id="@+id/action_plansFragment_to_weeklyPlansFragment"
+            app:destination="@id/weeklyPlansFragment" />
+    </fragment>
 
-    <!-- 3) Neuer (vorerst leerer) Workout-Tab -->
+    <!-- Daily Plans -->
+    <fragment
+        android:id="@+id/dailyPlansFragment"
+        android:name="com.example.mygymapp.ui.plans.DailyPlansFragment"
+        android:label="Daily Plans" >
+        <action
+            android:id="@+id/action_dailyPlansFragment_to_addDailyPlanFragment"
+            app:destination="@id/addDailyPlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addDailyPlanFragment"
+        android:name="com.example.mygymapp.ui.plans.AddDailyPlanFragment"
+        android:label="Add Daily Plan" />
+
+    <!-- Weekly Plans -->
+    <fragment
+        android:id="@+id/weeklyPlansFragment"
+        android:name="com.example.mygymapp.ui.plans.WeeklyPlansFragment"
+        android:label="Weekly Plans" >
+        <action
+            android:id="@+id/action_weeklyPlansFragment_to_addWeeklyPlanFragment"
+            app:destination="@id/addWeeklyPlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addWeeklyPlanFragment"
+        android:name="com.example.mygymapp.ui.plans.AddWeeklyPlanFragment"
+        android:label="Add Weekly Plan" />
+
+    <!-- 3) Workout Tab -->
     <fragment
         android:id="@+id/workoutFragment"
         android:name="com.example.mygymapp.ui.workout.WorkoutFragment"
         android:label="Workout" />
-
 </navigation>

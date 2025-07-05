@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
         DailyPlanExerciseCrossRef::class,
         WeeklyPlanExerciseCrossRef::class
     ],
-    version = 1,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -22,21 +22,24 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dailyPlanDao(): DailyPlanDao
     abstract fun weeklyPlanDao(): WeeklyPlanDao
 
-    companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(ctx: Context): AppDatabase =
+    // Hier hinzufügen:
+    abstract fun dailyPlanExerciseCrossRefDao(): DailyPlanExerciseCrossRefDao
+    abstract fun weeklyPlanExerciseCrossRefDao(): WeeklyPlanExerciseCrossRefDao
+
+    companion object {
+        @Volatile private var INSTANCE: AppDatabase? = null
+
+        fun getDatabase(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
-                val inst = Room.databaseBuilder(
-                    ctx.applicationContext,
+                Room.databaseBuilder(
+                    context.applicationContext,
                     AppDatabase::class.java,
-                    "mygym-db"
+                    "mygymapp.db"
                 )
                     .fallbackToDestructiveMigration()
                     .build()
-                INSTANCE = inst
-                inst
+                    .also { INSTANCE = it }
             }
     }
 }

@@ -1,6 +1,9 @@
+// app/build.gradle.kts
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // KAPT-Plugin für Annotation Processing
     id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
 }
@@ -42,27 +45,35 @@ android {
 }
 
 dependencies {
+    // Kotlin + AndroidX
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    // Lifecycle & Navigation
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.0")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.0")
+
+    // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    implementation("androidx.room:room-runtime:2.5.1")
+
+    // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.1.0")
-    // Room
-    implementation("androidx.room:room-runtime:2.5.0")
-    kapt("androidx.room:room-compiler:2.5.0")
-    implementation("androidx.room:room-ktx:2.5.0")
+
+    // --- ROOM (einheitliche Version) ---
+    val roomVersion = "2.5.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    // -------------------------------------
 }
+
 kapt {
     javacOptions {
-        // Das "-J" vorne sorgt dafür, dass KAPT das Flag an die eigentliche
-        // Java-Compiler-JVM weiterreicht.
         option("-J--add-modules=jdk.compiler")
         option("-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED")
         option("-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED")

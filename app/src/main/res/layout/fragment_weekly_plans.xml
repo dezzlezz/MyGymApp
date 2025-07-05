@@ -2,23 +2,33 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- TODO: RecyclerView + FAB hier später -->
+    <!-- Liste der Weekly Plans -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    <!-- Sichtbar, wenn keine Elemente vorhanden sind -->
     <TextView
-        android:layout_gravity="center"
+        android:id="@+id/emptyView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Weekly Plans"
-        android:textSize="18sp" />
+        android:text="Keine Weekly Plans vorhanden"
+        android:textSize="16sp"
+        android:layout_gravity="center"/>
 
+    <!-- FAB zum Anlegen eines neuen Weekly Plan -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="160dp"
-        app:srcCompat="@drawable/ic_add" />
-
+        android:layout_margin="16dp"
+        app:srcCompat="@drawable/ic_add"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

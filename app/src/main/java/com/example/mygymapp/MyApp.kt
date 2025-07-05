@@ -1,28 +1,24 @@
 package com.example.mygymapp
 
 import android.app.Application
-import androidx.room.Room
-import com.example.mygymapp.data.*
+import com.example.mygymapp.data.AppDatabase
+import com.example.mygymapp.data.DailyPlanDao
+import com.example.mygymapp.data.WeeklyPlanDao
 
 class MyApp : Application() {
 
-    // Room-Datenbank
-    val database: AppDatabase by lazy {
-        Room.databaseBuilder(
-            this,
-            AppDatabase::class.java,
-            "mygym-db"
-        ).build()
-    }
+    // Datenbank-Instanz
+    private val database by lazy { AppDatabase.getDatabase(this) }
 
-    // Repositories
-    val exerciseRepository: ExerciseRepository by lazy {
-        ExerciseRepository(database.exerciseDao())
-    }
-    val dailyPlanRepository: DailyPlanRepository by lazy {
-        DailyPlanRepository(database.dailyPlanDao())
-    }
-    val weeklyPlanRepository: WeeklyPlanRepository by lazy {
-        WeeklyPlanRepository(database.weeklyPlanDao())
+    // DAOs zum globalen Zugriff
+    val dailyPlanDao: DailyPlanDao
+        get() = database.dailyPlanDao()
+
+    val weeklyPlanDao: WeeklyPlanDao
+        get() = database.weeklyPlanDao()
+
+    override fun onCreate() {
+        super.onCreate()
+        // hier könntest du noch Logging oder Initialisierung machen
     }
 }
