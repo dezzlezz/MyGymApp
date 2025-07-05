@@ -29,7 +29,8 @@ class ExerciseAdapter(
         RecyclerView.ViewHolder(b.root) {
         fun bind(ex: Exercise) {
             b.name.text = ex.name
-            b.detail.text = "${ex.sets}×${ex.reps}"
+            // Zeigt jetzt Kategorie, Muskelgruppe, Muskel
+            b.detail.text = "${ex.category} • ${ex.muscleGroup} • ${ex.muscle}"
             b.root.setOnLongClickListener {
                 onDelete(ex)
                 true

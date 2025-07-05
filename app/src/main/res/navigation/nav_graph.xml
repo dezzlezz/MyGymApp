@@ -14,12 +14,30 @@
         <action
             android:id="@+id/action_exerciseListFragment_to_addExerciseFragment"
             app:destination="@id/addExerciseFragment" />
+        <action
+            android:id="@+id/actionExerciseListFragmentToEditExerciseFragment"
+            app:destination="@id/editExerciseFragment">
+            <argument
+                android:name="exerciseId"
+                app:argType="long" />
+        </action>
     </fragment>
+
 
     <fragment
         android:id="@+id/addExerciseFragment"
         android:name="com.example.mygymapp.ui.exercises.AddExerciseFragment"
         android:label="Add Exercise" />
+
+    <fragment
+        android:id="@+id/editExerciseFragment"
+        android:name="com.example.mygymapp.ui.exercises.EditExerciseFragment"
+        android:label="Edit Exercise">
+        <argument
+            android:name="exerciseId"
+            app:argType="long" />
+    </fragment>
+
 
     <!-- 2) Plans Tab as Navigation Graph -->
     <fragment
@@ -45,10 +63,6 @@
             app:destination="@id/addDailyPlanFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/addDailyPlanFragment"
-        android:name="com.example.mygymapp.ui.plans.AddDailyPlanFragment"
-        android:label="Add Daily Plan" />
 
     <!-- Weekly Plans -->
     <fragment
