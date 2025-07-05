@@ -19,13 +19,16 @@ class ExerciseViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun insert(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
-        repo.insert(ex)
+        repo.insertExercise(ex)
     }
 
     fun delete(id: Long) = viewModelScope.launch(Dispatchers.IO) {
-        repo.delete(id)
+        repo.deleteExerciseById(id)
     }
 
+    fun update(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
+        repo.updateExercise(ex)
+    }
 
-
+    fun getById(id: Long): Exercise? = repo.getExerciseById(id)
 }

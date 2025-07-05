@@ -32,6 +32,10 @@ android {
         }
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14" // <- Immer aktuell halten!
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -41,6 +45,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 }
 
@@ -50,6 +55,43 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+        // ... other dependencies
+    implementation("androidx.compose.material3:material3:1.2.1") // Or the latest version
+
+
+    // Compose BOM (Bill Of Materials, steuert alle Versionen)
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+// Compose UI (wird vom BOM gesteuert)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.material:material")
+
+// Compose Lifecycle (damit observeAsState funktioniert)
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+// Compose tooling (nur für Debug)
+    debugImplementation("androidx.compose.ui:ui-tooling")
+
+// Optional (hilfreich für Animationen, Swipe usw.)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+    // Jetpack Compose
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.runtime:runtime-livedata")
+// Preview & Debug
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+// Compose Activity & Lifecycle
+    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+// Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
 
     // Lifecycle & Navigation
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")

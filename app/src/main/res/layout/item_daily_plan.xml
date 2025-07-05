@@ -6,6 +6,27 @@
     android:layout_height="wrap_content"
     android:padding="12dp">
 
+
+    <EditText
+        android:id="@+id/editReps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Reps"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editSets"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Sets"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/btnRemove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Entfernen" />
+
     <!-- Plan Name -->
     <TextView
         android:id="@+id/title"
@@ -36,7 +57,7 @@
         android:layout_height="wrap_content"
         android:text="Keine Übungen"
         android:textSize="14sp"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="?attr/colorOnSurface"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"

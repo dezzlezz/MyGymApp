@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-
+import androidx.room.TypeConverters
 @Database(
     entities = [
         Exercise::class,
@@ -13,9 +13,10 @@ import androidx.room.RoomDatabase
         DailyPlanExerciseCrossRef::class,
         WeeklyPlanExerciseCrossRef::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
+@TypeConverters(ExerciseConverters::class) // <---- Diese Zeile ergänzen!
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun exerciseDao(): ExerciseDao

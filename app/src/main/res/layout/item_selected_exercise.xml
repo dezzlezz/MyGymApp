@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Drag Handle -->
+    <ImageView
+        android:id="@+id/ivHandle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_drag_handle"
+        android:contentDescription="Reihenfolge ändern"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Übungsname -->
+    <TextView
+        android:id="@+id/tvExerciseName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Übungsname"
+        android:textSize="16sp" />
+
+    <!-- Reps -->
+    <EditText
+        android:id="@+id/etReps"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Wdh" />
+
+    <!-- Sets -->
+    <EditText
+        android:id="@+id/etSets"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Sätze"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout>

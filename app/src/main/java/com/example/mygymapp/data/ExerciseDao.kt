@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -11,11 +12,18 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises")
     fun getAllExercises(): Flow<List<Exercise>>
 
-    // kein suspend mehr, klare Rückgabe Long
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(exercise: Exercise): Long
 
-    // Rückgabe Int = Anzahl gelöschter Zeilen
+    @Update
+    fun update(exercise: Exercise): Int
+
+
+    // Lösche per ID, wie gehabt:
     @Query("DELETE FROM exercises WHERE id = :exerciseId")
     fun deleteById(exerciseId: Long): Int
+
+    // Hole einzelnen Exercise per ID:
+    @Query("SELECT * FROM exercises WHERE id = :exerciseId")
+    fun getById(exerciseId: Long): Exercise?
 }

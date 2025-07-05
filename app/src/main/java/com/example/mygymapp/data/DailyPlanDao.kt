@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DailyPlanDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(plan: DailyPlan): Long
+    fun insertDailyPlan(plan: DailyPlan): Long
 
+    // Parametername muss exakt `planId` sein:
     @Query("DELETE FROM daily_plans WHERE planId = :planId")
     fun deleteDailyPlanById(planId: String): Int
 
     @Transaction
     @Query("SELECT * FROM daily_plans")
-    fun getDailyPlansWithExercises(): Flow<List<DailyPlanWithExercises>>
+    fun getAllPlansWithExercises(): Flow<List<DailyPlanWithExercises>>
 }
