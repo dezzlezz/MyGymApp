@@ -1,6 +1,9 @@
 package com.example.mygymapp.data
 
 import androidx.room.TypeConverter
+import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.MuscleGroup
+
 
 class ExerciseConverters {
     @TypeConverter
