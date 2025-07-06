@@ -5,7 +5,7 @@ import androidx.room.*
 
 @Database(
     entities = [Exercise::class, Plan::class, PlanExerciseCrossRef::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(ExerciseConverters::class, PlanConverters::class)
