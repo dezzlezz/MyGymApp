@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Exercise
-import com.example.mygymapp.data.ExerciseCategory
-import com.example.mygymapp.data.MuscleGroup
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.StarRating
 import androidx.compose.material.ExperimentalMaterialApi
