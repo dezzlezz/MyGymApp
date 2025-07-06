@@ -1,22 +1,29 @@
 package com.example.mygymapp.data
 
-import kotlinx.coroutines.flow.Flow
+/**
+ * Repository kapselt den Zugriff auf den Room-DAO für Pläne.
+ */
+class PlanRepository(
+    private val dao: PlanDao
+) {
+    /** Liefert alle wöchentlichen Pläne als Flow */
+    fun getWeeklyPlans() = dao.getPlansByType(PlanType.WEEKLY)
 
-class PlanRepository(private val dao: PlanDao) {
-    fun getWeeklyPlans(): Flow<List<PlanWithExercises>> = dao.getPlansByType(PlanType.WEEKLY)
-    fun getDailyPlans(): Flow<List<PlanWithExercises>> = dao.getPlansByType(PlanType.DAILY)
+    /** Liefert alle täglichen Pläne als Flow */
+    fun getDailyPlans() = dao.getPlansByType(PlanType.DAILY)
 
-    suspend fun getPlan(id: Long) = dao.getPlanWithExercises(id)
+    /** Fügt einen Plan hinzu und gibt dessen neue ID zurück */
+    suspend fun insertPlan(plan: Plan): Long = dao.insertPlan(plan)
 
-    suspend fun createOrUpdatePlan(plan: Plan, refs: List<PlanExerciseCrossRef>) {
-        val id = dao.insertPlan(plan)
-        dao.deleteCrossRefsForPlan(id)
-        val updatedRefs = refs.map { it.copy(planId = id) }
-        dao.insertCrossRefs(updatedRefs)
-    }
+    /** Speichert die Cross-Refs für Plan ↔ Exercise */
+    suspend fun insertCrossRefs(refs: List<PlanExerciseCrossRef>) = dao.insertCrossRefs(refs)
 
+    /** Löscht einen Plan inklusive aller Cross-Refs */
     suspend fun deletePlan(plan: Plan) {
         dao.deleteCrossRefsForPlan(plan.planId)
         dao.deletePlan(plan)
     }
+
+    /** Liefert einen Plan mitsamt Übungen */
+    suspend fun getPlanWithExercises(id: Long): PlanWithExercises? = dao.getPlanWithExercises(id)
 }

@@ -3,7 +3,6 @@ package com.example.mygymapp.data
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
-
 @Dao
 interface PlanDao {
     @RewriteQueriesToDropUnusedColumns

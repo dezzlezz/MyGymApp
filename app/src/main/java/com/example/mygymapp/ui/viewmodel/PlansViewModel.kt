@@ -1,35 +1,55 @@
 package com.example.mygymapp.ui.viewmodel
 
-import androidx.lifecycle.*
-import com.example.mygymapp.data.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.mygymapp.data.Plan
+import com.example.mygymapp.data.PlanExerciseCrossRef
+import com.example.mygymapp.data.PlanRepository
+import com.example.mygymapp.data.PlanWithExercises
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel für die Anzeige und Verwaltung von Plänen
+ */
 class PlansViewModel(
     private val repository: PlanRepository
-): ViewModel() {
-    val weeklyPlans = repository.getWeeklyPlans().asLiveData()
-    val dailyPlans = repository.getDailyPlans().asLiveData()
+) : ViewModel() {
 
-    private val _searchQuery = MutableLiveData("")
-    val searchQuery: LiveData<String> = _searchQuery
-    private val _showFavoritesOnly = MutableLiveData(false)
-    val showFavoritesOnly: LiveData<Boolean> = _showFavoritesOnly
+    val weeklyPlans: StateFlow<List<PlanWithExercises>> =
+        repository.getWeeklyPlans()
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun setSearch(query: String) { _searchQuery.value = query }
-    fun toggleFavorites() { _showFavoritesOnly.value = !(_showFavoritesOnly.value ?: false) }
+    val dailyPlans: StateFlow<List<PlanWithExercises>> =
+        repository.getDailyPlans()
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun deletePlan(plan: Plan) = viewModelScope.launch { repository.deletePlan(plan) }
-
-    fun savePlan(
-        plan: Plan,
-        refs: List<PlanExerciseCrossRef>
-    ) = viewModelScope.launch {
-        repository.createOrUpdatePlan(plan, refs)
+    /**
+     * Löscht einen Plan asynchron.
+     */
+    fun deletePlan(plan: Plan) {
+        viewModelScope.launch {
+            repository.deletePlan(plan)
+        }
     }
-}
 
-class PlansViewModelFactory(private val repository: PlanRepository): ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return PlansViewModel(repository) as T
+    /**
+     * Fügt einen neuen Plan hinzu.
+     */
+    fun insertPlan(plan: Plan) {
+        viewModelScope.launch {
+            repository.insertPlan(plan)
+        }
+    }
+
+    /**
+     * Speichert die Cross-Refs für einen Plan.
+     */
+    fun insertCrossRefs(refs: List<PlanExerciseCrossRef>) {
+        viewModelScope.launch {
+            repository.insertCrossRefs(refs)
+        }
     }
 }
