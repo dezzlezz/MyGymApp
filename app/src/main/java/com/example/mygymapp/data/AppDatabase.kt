@@ -8,26 +8,16 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [
-        Exercise::class,
-        DailyPlan::class,
-        WeeklyPlan::class,
-        DailyPlanExerciseCrossRef::class,
-        WeeklyPlanExerciseCrossRef::class
+        Exercise::class
+        // Nur Entities, die du wirklich noch brauchst!
     ],
-    version = 7,
+    version = 9, // <--- Wichtig: Version erhöhen, da Entities entfernt wurden!
     exportSchema = false
 )
-@TypeConverters(ExerciseConverters::class) // <---- Diese Zeile ergänzen!
+@TypeConverters(ExerciseConverters::class) // Falls noch für Enums benötigt
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun exerciseDao(): ExerciseDao
-    abstract fun dailyPlanDao(): DailyPlanDao
-    abstract fun weeklyPlanDao(): WeeklyPlanDao
-
-
-    // Hier hinzufügen:
-    abstract fun dailyPlanExerciseCrossRefDao(): DailyPlanExerciseCrossRefDao
-    abstract fun weeklyPlanExerciseCrossRefDao(): WeeklyPlanExerciseCrossRefDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
