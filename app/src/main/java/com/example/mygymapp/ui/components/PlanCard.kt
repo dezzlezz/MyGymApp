@@ -1,55 +1,70 @@
+// app/src/main/java/com/example/mygymapp/ui/components/PlanCard.kt
 package com.example.mygymapp.ui.components
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.mygymapp.data.Plan
-import com.example.mygymapp.data.Exercise
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 
 @Composable
 fun PlanCard(
-    plan: Plan,
-    exercises: List<Exercise>,
-    onDelete: () -> Unit
+    plan: PlanEntity,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clickable { /* TODO: open plan detail */ },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (plan.iconUri != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(plan.iconUri),
-                    contentDescription = plan.name,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .padding(end = 16.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = plan.name, style = MaterialTheme.typography.titleMedium)
-                Text(text = "${exercises.size} exercises", style = MaterialTheme.typography.bodySmall)
-            }
-            IconButton(onClick = onDelete) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlanIcon(plan.iconUri)
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = plan.name,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            if (plan.favorite) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete plan"
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Favorite",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun PlanIcon(iconUri: Uri?) {
+    if (iconUri != null) {
+        AsyncImage(
+            model = iconUri,
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+        )
+    } else {
+        Icon(
+            Icons.Filled.FitnessCenter,
+            contentDescription = null,
+            modifier = Modifier.size(40.dp)
+        )
     }
 }

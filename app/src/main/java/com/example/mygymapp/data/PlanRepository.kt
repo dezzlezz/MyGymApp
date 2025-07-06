@@ -1,29 +1,57 @@
+// app/src/main/java/com/example/mygymapp/data/PlanRepository.kt
 package com.example.mygymapp.data
 
-/**
- * Repository kapselt den Zugriff auf den Room-DAO für Pläne.
- */
-class PlanRepository(
-    private val dao: PlanDao
-) {
-    /** Liefert alle wöchentlichen Pläne als Flow */
-    fun getWeeklyPlans() = dao.getPlansByType(PlanType.WEEKLY)
+import com.example.mygymapp.data.PlanExerciseCrossRef
+import com.example.mygymapp.data.Plan
+import com.example.mygymapp.data.DailyPlanWithExercises
+import com.example.mygymapp.data.WeeklyPlanWithDays
+import com.example.mygymapp.model.PlanType
+import kotlinx.coroutines.flow.Flow
 
-    /** Liefert alle täglichen Pläne als Flow */
-    fun getDailyPlans() = dao.getPlansByType(PlanType.DAILY)
+class PlanRepository(private val dao: PlanDao) {
 
-    /** Fügt einen Plan hinzu und gibt dessen neue ID zurück */
-    suspend fun insertPlan(plan: Plan): Long = dao.insertPlan(plan)
+    /** Liefert alle Pläne des Typs (DAILY oder WEEKLY) als Flow */
+    fun getPlans(type: PlanType): Flow<List<Plan>> =
+        dao.loadPlans(type)
 
-    /** Speichert die Cross-Refs für Plan ↔ Exercise */
-    suspend fun insertCrossRefs(refs: List<PlanExerciseCrossRef>) = dao.insertCrossRefs(refs)
+    /** Lädt einen Tages-Plan inklusive aller Exercises (dayIndex = 0) */
+    suspend fun getDailyPlan(planId: Long): DailyPlanWithExercises =
+        dao.loadDailyPlan(planId)
 
-    /** Löscht einen Plan inklusive aller Cross-Refs */
-    suspend fun deletePlan(plan: Plan) {
-        dao.deleteCrossRefsForPlan(plan.planId)
-        dao.deletePlan(plan)
+    /** Lädt einen Wochen-Plan inklusive aller Exercises (dayIndex 0…6) */
+    suspend fun getWeeklyPlan(planId: Long): WeeklyPlanWithDays =
+        dao.loadWeeklyPlan(planId)
+
+    /** Speichert oder updated einen Tages-Plan */
+    suspend fun saveDailyPlan(
+        plan: Plan,
+        exercises: List<PlanExerciseCrossRef>
+    ) {
+        // Plan speichern
+        dao.upsertPlan(plan)
+        // alle alten CrossRefs löschen
+        dao.clearCrossRefs(plan.planId)
+        // neue CrossRefs mit dayIndex = 0 anlegen
+        val dailyRefs = exercises.map {
+            it.copy(planId = plan.planId, dayIndex = 0)
+        }
+        dao.upsertCrossRefs(dailyRefs)
     }
 
-    /** Liefert einen Plan mitsamt Übungen */
-    suspend fun getPlanWithExercises(id: Long): PlanWithExercises? = dao.getPlanWithExercises(id)
+    /** Speichert oder updated einen Wochen-Plan */
+    suspend fun saveWeeklyPlan(
+        plan: Plan,
+        exercises: List<PlanExerciseCrossRef>
+    ) {
+        dao.upsertPlan(plan)
+        dao.clearCrossRefs(plan.planId)
+        // Übungen kommen mit dayIndex (0…6) vom Aufrufer
+        val refs = exercises.map { it.copy(planId = plan.planId) }
+        dao.upsertCrossRefs(refs)
+    }
+
+    /** Löscht einen Plan */
+    suspend fun deletePlan(plan: Plan) {
+        dao.deletePlan(plan)
+    }
 }
