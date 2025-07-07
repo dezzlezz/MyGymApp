@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyGymAppTheme {
+            // default to dark theme for this preview activity
+            MyGymAppTheme(darkTheme = true) {
                 MainScreen()
             }
         }
