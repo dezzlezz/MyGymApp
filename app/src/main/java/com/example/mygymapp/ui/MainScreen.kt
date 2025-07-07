@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
-mport androidx.compose.material3.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.List
@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.mygymapp.ui.theme.MyGymAppTheme
@@ -27,7 +28,6 @@ import com.example.mygymapp.ui.screens.ExercisesScreen
 import com.example.mygymapp.ui.screens.PlansScreen
 import com.example.mygymapp.ui.screens.ProfileScreen
 import com.example.mygymapp.ui.screens.WorkoutScreen
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,14 +40,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     val currentDestination = navController
         .currentBackStackEntryAsState().value?.destination
-
-    val scope = rememberCoroutineScope()
 
     // Nav Tabs Definition
     val navTabs = listOf(
