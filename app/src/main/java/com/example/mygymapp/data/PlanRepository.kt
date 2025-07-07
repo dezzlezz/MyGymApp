@@ -1,57 +1,42 @@
-// app/src/main/java/com/example/mygymapp/data/PlanRepository.kt
 package com.example.mygymapp.data
 
-import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.Plan
-import com.example.mygymapp.data.DailyPlanWithExercises
-import com.example.mygymapp.data.WeeklyPlanWithDays
-import com.example.mygymapp.model.PlanType
+import com.example.mygymapp.data.PlanExerciseCrossRef
+import com.example.mygymapp.data.PlanWithExercises
+import com.example.mygymapp.data.PlanType as DbPlanType
+import com.example.mygymapp.model.PlanType as UiPlanType
 import kotlinx.coroutines.flow.Flow
 
-class PlanRepository(private val dao: PlanDao) {
+class PlanRepository(
+    private val dao: PlanDao
+) {
 
-    /** Liefert alle Pläne des Typs (DAILY oder WEEKLY) als Flow */
-    fun getPlans(type: PlanType): Flow<List<Plan>> =
-        dao.loadPlans(type)
+    /** Liefert alle Pläne eines Typs (DAILY oder WEEKLY) */
+    fun getPlans(type: UiPlanType): Flow<List<Plan>> =
+        dao.getPlansByType(
+            DbPlanType.valueOf(type.name)
+        )
 
-    /** Lädt einen Tages-Plan inklusive aller Exercises (dayIndex = 0) */
-    suspend fun getDailyPlan(planId: Long): DailyPlanWithExercises =
-        dao.loadDailyPlan(planId)
+    /** Lädt einen Plan inkl. aller Cross-Refs oder wirft, wenn nicht gefunden */
+    suspend fun getPlanWithExercises(planId: Long): PlanWithExercises =
+        dao.getPlanWithExercises(planId)
+            ?: throw NoSuchElementException("Kein Plan mit der ID $planId gefunden")
 
-    /** Lädt einen Wochen-Plan inklusive aller Exercises (dayIndex 0…6) */
-    suspend fun getWeeklyPlan(planId: Long): WeeklyPlanWithDays =
-        dao.loadWeeklyPlan(planId)
-
-    /** Speichert oder updated einen Tages-Plan */
-    suspend fun saveDailyPlan(
+    /**
+     * Speichert oder aktualisiert einen Plan + CrossRefs.
+     * @return die (neue) planId
+     */
+    suspend fun savePlan(
         plan: Plan,
         exercises: List<PlanExerciseCrossRef>
-    ) {
-        // Plan speichern
-        dao.upsertPlan(plan)
-        // alle alten CrossRefs löschen
-        dao.clearCrossRefs(plan.planId)
-        // neue CrossRefs mit dayIndex = 0 anlegen
-        val dailyRefs = exercises.map {
-            it.copy(planId = plan.planId, dayIndex = 0)
-        }
-        dao.upsertCrossRefs(dailyRefs)
+    ): Long {
+        val newPlanId = dao.insertPlan(plan)
+        dao.deleteCrossRefsForPlan(newPlanId)
+        dao.insertCrossRefs(exercises.map { it.copy(planId = newPlanId) })
+        return newPlanId
     }
 
-    /** Speichert oder updated einen Wochen-Plan */
-    suspend fun saveWeeklyPlan(
-        plan: Plan,
-        exercises: List<PlanExerciseCrossRef>
-    ) {
-        dao.upsertPlan(plan)
-        dao.clearCrossRefs(plan.planId)
-        // Übungen kommen mit dayIndex (0…6) vom Aufrufer
-        val refs = exercises.map { it.copy(planId = plan.planId) }
-        dao.upsertCrossRefs(refs)
-    }
-
-    /** Löscht einen Plan */
-    suspend fun deletePlan(plan: Plan) {
+    /** Löscht einen Plan komplett */
+    suspend fun deletePlan(plan: Plan) =
         dao.deletePlan(plan)
-    }
 }

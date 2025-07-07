@@ -1,50 +1,63 @@
-package com.example.mygymapp.ui.components
+package com.example.mygymapp.ui.screens
 
-import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment
 import com.example.mygymapp.data.PlanWithExercises
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanDetailSheet(
     planWithExercises: PlanWithExercises,
-    onDismiss: () -> Unit
+    onClose: () -> Unit
 ) {
-    Column(
-        Modifier
-            .fillMaxHeight(0.9f)
-            .padding(16.dp)
+    val plan = planWithExercises.plan
+
+    ModalBottomSheet(
+        onDismissRequest = onClose,
+        sheetState = rememberModalBottomSheetState()
     ) {
-        Text(
-            text = planWithExercises.plan.name,
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Text(
-            text = planWithExercises.plan.description,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = { /* expand/collapse */ }) {
-            Text("Show Exercises")
-        }
-        Spacer(Modifier.height(8.dp))
-        LazyColumn {
-            items(planWithExercises.exercises) { ex ->
-                Text(text = ex.name)
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Überschrift mit Plan-Name
+            Text(
+                text = plan.name,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // Beschreibung
+            Text(
+                text = plan.description,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(16.dp))
+
+            // Liste der Übungen
+            Text(
+                text = "Übungen:",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(Modifier.height(8.dp))
+
+            planWithExercises.exercises.forEach { ref ->
+                Text(
+                    text = "• Übung ID ${ref.exerciseId}, Sets: ${ref.sets}, Reps: ${ref.reps}",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
+                )
             }
-        }
-        Spacer(Modifier.height(12.dp))
-        Button(
-            onClick = onDismiss,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Close")
+
+            Spacer(Modifier.height(24.dp))
+            Button(
+                onClick = onClose,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Schließen")
+            }
         }
     }
 }

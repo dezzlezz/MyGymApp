@@ -12,6 +12,6 @@ class PlansViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return PlansViewModel(repo) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
