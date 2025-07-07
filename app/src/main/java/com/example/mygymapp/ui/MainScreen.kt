@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+mport androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.List
@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
+import com.example.mygymapp.ui.theme.MyGymAppTheme
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -33,8 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Falls du ein eigenes Theme hast, tausche hier MaterialTheme aus:
-            MaterialTheme {
+            MyGymAppTheme {
                 MainScreen()
             }
         }
@@ -59,11 +58,12 @@ fun MainScreen() {
     )
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            BottomNavigation {
+            NavigationBar {
                 navTabs.forEach { tab ->
                     val selected = currentDestination?.route == tab.route
-                    BottomNavigationItem(
+                    NavigationBarItem(
                         selected = selected,
                         onClick = {
                             navController.navigate(tab.route) {
