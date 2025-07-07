@@ -1,50 +1,42 @@
-package com.example.mygymapp.ui.components
+package com.example.mygymapp.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Plan
-import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.PlanExerciseCrossRef
-import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.data.PlanType as DataPlanType
+import com.example.mygymapp.model.PlanType as UiPlanType
 
-/**
- * Bottom Sheet zum Hinzufügen/Bearbeiten eines Plans inklusive Übungen
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditPlanSheet(
-    initialPlan: Plan?,
-    allExercises: List<Exercise>,
-    onSave: (plan: Plan, refs: List<PlanExerciseCrossRef>) -> Unit,
+    initialPlan: Plan = Plan(name = "", description = "", iconUri = null, type = DataPlanType.DAILY),
+    initialExercises: List<PlanExerciseCrossRef> = emptyList(),
+    onSave: (Plan, List<PlanExerciseCrossRef>) -> Unit,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf(initialPlan?.name.orEmpty()) }
-    var description by remember { mutableStateOf(initialPlan?.description.orEmpty()) }
-    var type by remember { mutableStateOf(initialPlan?.type ?: PlanType.DAILY) }
+    // Textfelder
+    var planName by remember { mutableStateOf(initialPlan.name) }
+    var description by remember { mutableStateOf(initialPlan.description) }
+    var iconUri by remember { mutableStateOf(initialPlan.iconUri ?: "") }
 
-    // Liste der ausgewählten Übungen mit Standardwerten
-    val selectedRefs = remember { mutableStateListOf<PlanExerciseCrossRef>() }
+    // UI-PlanType benutzen
+    var uiType by remember { mutableStateOf(UiPlanType.valueOf(initialPlan.type.name)) }
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .fillMaxHeight(0.9f)
-    ) {
-        Text(
-            text = if (initialPlan == null) "Neuen Plan erstellen" else "Plan bearbeiten",
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(Modifier.height(8.dp))
+    // CrossRef-States
+    var sets by remember { mutableStateOf(initialExercises.firstOrNull()?.sets ?: 3) }
+    var reps by remember { mutableStateOf(initialExercises.firstOrNull()?.reps ?: 10) }
+    var orderIndex by remember { mutableStateOf(initialExercises.firstOrNull()?.orderIndex ?: 0) }
+    val dayIndex = 0
+
+    Column(modifier = Modifier.padding(16.dp)) {
         OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
+            value = planName,
+            onValueChange = { planName = it },
+            label = { Text("Plan-Name") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
@@ -55,81 +47,96 @@ fun AddEditPlanSheet(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
-
-        Text("Typ:", style = MaterialTheme.typography.titleMedium)
-        Row(modifier = Modifier.fillMaxWidth()) {
-            PlanType.values().forEach { pt ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(end = 16.dp)
-                ) {
-                    RadioButton(
-                        selected = type == pt,
-                        onClick = { type = pt }
-                    )
-                    Text(pt.name)
-                }
-            }
-        }
+        OutlinedTextField(
+            value = iconUri,
+            onValueChange = { iconUri = it },
+            label = { Text("Icon URI") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(Modifier.height(8.dp))
 
-        Text("Übungen auswählen:", style = MaterialTheme.typography.titleMedium)
-        LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            items(allExercises) { exercise ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (selectedRefs.none { it.exerciseId == exercise.id }) {
-                                selectedRefs += PlanExerciseCrossRef(
-                                    planId = initialPlan?.planId ?: 0L,
-                                    exerciseId = exercise.id,
-                                    sets = 3,
-                                    reps = 10,
-                                    orderIndex = selectedRefs.size
-                                )
-                            }
-                        }
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(exercise.name, modifier = Modifier.weight(1f))
-                    Checkbox(
-                        checked = selectedRefs.any { it.exerciseId == exercise.id },
-                        onCheckedChange = { checked ->
-                            if (checked) {
-                                selectedRefs += PlanExerciseCrossRef(
-                                    planId = initialPlan?.planId ?: 0L,
-                                    exerciseId = exercise.id,
-                                    sets = 3,
-                                    reps = 10,
-                                    orderIndex = selectedRefs.size
-                                )
-                            } else {
-                                selectedRefs.removeAll { it.exerciseId == exercise.id }
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+        // Dropdown für UiPlanType
+        var expanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
         ) {
+            OutlinedTextField(
+                value = uiType.name,
+                onValueChange = {},
+                label = { Text("Typ") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                UiPlanType.values().forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.name) },
+                        onClick = {
+                            uiType = option
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // CrossRef-Einstellungen
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = sets.toString(),
+                onValueChange = { sets = it.toIntOrNull() ?: sets },
+                label = { Text("Sets") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = reps.toString(),
+                onValueChange = { reps = it.toIntOrNull() ?: reps },
+                label = { Text("Reps") },
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = orderIndex.toString(),
+                onValueChange = { orderIndex = it.toIntOrNull() ?: orderIndex },
+                label = { Text("Order") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Buttons
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = onCancel) { Text("Abbrechen") }
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(8.dp))
             Button(onClick = {
-                val plan = Plan(
-                    planId = initialPlan?.planId ?: 0L,
-                    name = name,
+                // Data-PlanType mappen
+                val dataType = DataPlanType.valueOf(uiType.name)
+                // Neues Plan-Objekt
+                val plan = initialPlan.copy(
+                    name = planName,
                     description = description,
-                    isFavorite = initialPlan?.isFavorite ?: false,
-                    type = type,
-                    iconUri = initialPlan?.iconUri
+                    iconUri = iconUri.ifBlank { null },
+                    type = dataType
                 )
-                onSave(plan, selectedRefs.toList())
+                // CrossRef-Liste erzeugen
+                val crossRefs = listOf(
+                    PlanExerciseCrossRef(
+                        planId = plan.planId,
+                        exerciseId = initialExercises.firstOrNull()?.exerciseId ?: 0L,
+                        sets = sets,
+                        reps = reps,
+                        orderIndex = orderIndex,
+                        dayIndex = dayIndex
+                    )
+                )
+                onSave(plan, crossRefs)
             }) {
                 Text("Speichern")
             }

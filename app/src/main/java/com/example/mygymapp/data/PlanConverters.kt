@@ -2,6 +2,7 @@ package com.example.mygymapp.data
 
 import android.net.Uri
 import androidx.room.TypeConverter
+import com.example.mygymapp.data.PlanType
 
 class PlanConverters {
     @TypeConverter

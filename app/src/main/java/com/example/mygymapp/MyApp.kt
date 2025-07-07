@@ -1,19 +1,22 @@
 package com.example.mygymapp
 
 import android.app.Application
+import androidx.room.Room
 import com.example.mygymapp.data.AppDatabase
 
 class MyApp : Application() {
-
-    // Datenbank-Instanz (Singleton)
-    private val database by lazy { AppDatabase.getDatabase(this) }
-
-    // Nur noch ExerciseDao zum globalen Zugriff
-    val exerciseDao
-        get() = database.exerciseDao()
+    companion object {
+        lateinit var database: AppDatabase
+    }
 
     override fun onCreate() {
         super.onCreate()
-        // Optional: Initialisierungen oder Logging
+        database = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "mygymapp.db"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

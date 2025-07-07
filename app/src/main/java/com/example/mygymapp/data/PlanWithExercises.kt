@@ -1,21 +1,18 @@
 package com.example.mygymapp.data
 
 import androidx.room.Embedded
-import androidx.room.Junction
 import androidx.room.Relation
-import com.example.mygymapp.data.Exercise
 
-/** Liefert einen Plan mitsamt seiner Übungen zurück */
+/**
+ * Stellt einen Plan mitsamt all seiner CrossRefs (Übungen + dayIndex usw.) dar.
+ * Wird von PlanDao.getPlanWithExercises() zurückgegeben.
+ */
 data class PlanWithExercises(
     @Embedded val plan: Plan,
     @Relation(
         parentColumn = "planId",
-        entityColumn = "id",               // das PK-Feld deiner Exercise-Entity
-        associateBy = Junction(
-            value = PlanExerciseCrossRef::class,
-            parentColumn = "planId",
-            entityColumn = "exerciseId"      // das FK-Feld in PlanExerciseCrossRef
-        )
+        entityColumn = "planId",
+        entity = PlanExerciseCrossRef::class
     )
-    val exercises: List<Exercise>
+    val exercises: List<PlanExerciseCrossRef>
 )
