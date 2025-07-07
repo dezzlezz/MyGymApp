@@ -13,6 +13,7 @@ import com.example.mygymapp.data.Plan
 import com.example.mygymapp.model.WeekProgress
 import com.example.mygymapp.model.PlanType
 import com.example.mygymapp.data.ExerciseRepository
+import com.example.mygymapp.data.Exercise
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.asLiveData
@@ -21,6 +22,8 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     private val repo = PlanRepository(AppDatabase.getDatabase(application).planDao())
     private val storage = WorkoutStorage(application)
     private val exerciseRepo = ExerciseRepository(AppDatabase.getDatabase(application).exerciseDao())
+    val exercises: LiveData<List<Exercise>> =
+        exerciseRepo.getAllExercises().asLiveData()
 
     val weeklyPlans: LiveData<List<Plan>> =
         repo.getPlans(PlanType.WEEKLY).asLiveData()
@@ -75,5 +78,5 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun getExerciseName(id: Long): String =
-        exerciseRepo.getExerciseById(id)?.name ?: "Exercise $id"
+        exercises.value?.firstOrNull { it.id == id }?.name ?: "Exercise $id"
 }

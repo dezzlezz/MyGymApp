@@ -14,7 +14,7 @@ import com.example.mygymapp.data.PlanDay
         Exercise::class,
         PlanDay::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(PlanConverters::class)

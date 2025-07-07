@@ -67,6 +67,7 @@ fun DailyPlansTab() {
     }
 
     detail?.let { pw ->
-        PlanDetailSheet(planWithExercises = pw, onClose = { detail = null })
+        val map = exercises.associate { it.id to it.name }
+        PlanDetailSheet(planWithExercises = pw, exerciseMap = map, onClose = { detail = null })
     }
 }

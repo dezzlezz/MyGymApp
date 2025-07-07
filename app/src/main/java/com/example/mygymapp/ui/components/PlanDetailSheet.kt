@@ -13,6 +13,7 @@ import com.example.mygymapp.data.PlanDay
 @Composable
 fun PlanDetailSheet(
     planWithExercises: PlanWithExercises,
+    exerciseMap: Map<Long, String>,
     onClose: () -> Unit
 ) {
     val plan = planWithExercises.plan
@@ -50,8 +51,9 @@ fun PlanDetailSheet(
                 planWithExercises.exercises
                     .filter { it.dayIndex == day.dayIndex }
                     .forEach { ref ->
+                        val name = exerciseMap[ref.exerciseId] ?: "Übung ID ${ref.exerciseId}"
                         Text(
-                            text = "• Übung ID ${ref.exerciseId}, Sets: ${ref.sets}, Reps: ${ref.reps}",
+                            text = "• $name, Sets: ${ref.sets}, Reps: ${ref.reps}",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
                         )
