@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.mygymapp.model.PlanType
+import com.example.mygymapp.ui.screens.WeeklyPlansTab
 
 @Composable
 fun PlansScreen() {
@@ -26,7 +27,7 @@ fun PlansScreen() {
         }
         when (selected) {
             PlanType.DAILY -> DailyPlansTab()
-            PlanType.WEEKLY -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Coming soon") }
+            PlanType.WEEKLY -> WeeklyPlansTab()
         }
     }
 }

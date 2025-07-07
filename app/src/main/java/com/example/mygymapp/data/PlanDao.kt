@@ -25,4 +25,10 @@ interface PlanDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCrossRefs(refs: List<PlanExerciseCrossRef>)
+
+    @Query("DELETE FROM plan_day WHERE planId = :planId")
+    fun deleteDaysForPlan(planId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertDays(days: List<PlanDay>)
 }

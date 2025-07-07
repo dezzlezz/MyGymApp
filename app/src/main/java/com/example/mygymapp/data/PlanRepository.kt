@@ -6,6 +6,7 @@ import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.data.PlanType as DbPlanType
 import com.example.mygymapp.model.PlanType as UiPlanType
 import kotlinx.coroutines.flow.Flow
+import com.example.mygymapp.data.PlanDay
 
 class PlanRepository(
     private val dao: PlanDao
@@ -28,11 +29,18 @@ class PlanRepository(
      */
     suspend fun savePlan(
         plan: Plan,
-        exercises: List<PlanExerciseCrossRef>
+        exercises: List<PlanExerciseCrossRef>,
+        dayNames: List<String> = emptyList()
     ): Long {
         val newPlanId = dao.insertPlan(plan)
         dao.deleteCrossRefsForPlan(newPlanId)
         dao.insertCrossRefs(exercises.map { it.copy(planId = newPlanId) })
+        dao.deleteDaysForPlan(newPlanId)
+        if (dayNames.isNotEmpty()) {
+            dao.insertDays(dayNames.mapIndexed { idx, name ->
+                PlanDay(planId = newPlanId, dayIndex = idx, name = name)
+            })
+        }
         return newPlanId
     }
 
