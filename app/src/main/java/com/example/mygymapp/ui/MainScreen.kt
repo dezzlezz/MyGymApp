@@ -6,20 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.mygymapp.ui.theme.MyGymAppTheme
+import com.example.mygymapp.ui.theme.AccentGreen
+import com.example.mygymapp.ui.theme.InactiveGray
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -48,16 +46,16 @@ fun MainScreen() {
 
     // Nav Tabs Definition
     val navTabs = listOf(
-        NavTab("exercises", "Exercises", Icons.Filled.FitnessCenter),
-        NavTab("plans",     "Plans",     Icons.Filled.List),
-        NavTab("workout",   "Workout",   Icons.Filled.Timeline),
-        NavTab("profile",   "Profile",   Icons.Filled.Person)
+        NavTab("exercises", "Exercises", Icons.Outlined.FitnessCenter),
+        NavTab("plans",     "Plans",     Icons.Outlined.List),
+        NavTab("workout",   "Workout",   Icons.Outlined.Timeline),
+        NavTab("profile",   "Profile",   Icons.Outlined.Person)
     )
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
                 navTabs.forEach { tab ->
                     val selected = currentDestination?.route == tab.route
                     NavigationBarItem(
@@ -70,7 +68,14 @@ fun MainScreen() {
                             }
                         },
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label) }
+                        label = { Text(tab.label) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = AccentGreen,
+                            selectedTextColor = AccentGreen,
+                            unselectedIconColor = InactiveGray,
+                            unselectedTextColor = InactiveGray,
+                            indicatorColor = Color.Transparent
+                        )
                     )
                 }
             }
