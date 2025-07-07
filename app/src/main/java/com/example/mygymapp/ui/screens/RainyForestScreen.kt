@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.mygymapp.ui.screens
 
 import androidx.compose.animation.core.LinearEasing
@@ -11,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
@@ -25,7 +27,6 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -62,7 +63,7 @@ private fun RainOverlay() {
         val spacing = size.width / 50f
         for (i in 0 until 50) {
             val y = (progress * totalHeight + i * 20f) % totalHeight - dropHeight
-            drawRect(
+            this.drawRect(
                 color = Color(0xFF1F9D55).copy(alpha = 0.3f),
                 topLeft = Offset(spacing * i, y),
                 size = Size(dropWidth, dropHeight)
@@ -117,7 +118,8 @@ private fun Header() {
                 containerColor = Color.Transparent,
                 focusedIndicatorColor = accent,
                 unfocusedIndicatorColor = accent,
-                textColor = Color(0xFFE2E8E6)
+                focusedTextColor = Color(0xFFE2E8E6),
+                unfocusedTextColor = Color(0xFFE2E8E6)
             )
         )
         Spacer(Modifier.width(16.dp))
