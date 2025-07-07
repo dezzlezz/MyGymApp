@@ -12,7 +12,7 @@ import androidx.room.TypeConverters
         PlanExerciseCrossRef::class,
         Exercise::class              // <<< hier hinzufügen!
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(PlanConverters::class)

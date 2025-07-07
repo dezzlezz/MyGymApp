@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.mygymapp.data.Plan
+import com.example.mygymapp.ui.widgets.DifficultyRating
 
 @Composable
 fun PlanCard(
@@ -39,11 +40,13 @@ fun PlanCard(
         ) {
             PlanIcon(iconUriString = plan.iconUri)
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = plan.name,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f)
-            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = plan.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                DifficultyRating(rating = plan.difficulty)
+            }
             if (plan.isFavorite) {
                 Icon(
                     imageVector = Icons.Filled.Star,

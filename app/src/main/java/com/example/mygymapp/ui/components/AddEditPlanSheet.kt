@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Plan
+import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType as DataPlanType
 import com.example.mygymapp.model.PlanType as UiPlanType
@@ -21,6 +22,7 @@ fun AddEditPlanSheet(
     // Textfelder
     var planName by remember { mutableStateOf(initialPlan.name) }
     var description by remember { mutableStateOf(initialPlan.description) }
+    var difficulty by remember { mutableStateOf(initialPlan.difficulty) }
     var iconUri by remember { mutableStateOf(initialPlan.iconUri ?: "") }
 
     // UI-PlanType benutzen
@@ -50,6 +52,9 @@ fun AddEditPlanSheet(
                 label = { Text("Beschreibung") },
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(Modifier.height(8.dp))
+            Text("Schwierigkeit")
+            DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = iconUri,
@@ -126,6 +131,7 @@ fun AddEditPlanSheet(
                     val plan = initialPlan.copy(
                         name = planName,
                         description = description,
+                        difficulty = difficulty,
                         iconUri = iconUri.ifBlank { null },
                         type = dataType
                     )
