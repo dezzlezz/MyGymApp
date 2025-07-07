@@ -16,6 +16,7 @@ import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.data.Exercise
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.NoSuchElementException
 import androidx.lifecycle.asLiveData
 
 class WorkoutViewModel(application: Application) : AndroidViewModel(application) {
@@ -53,7 +54,13 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
             state.weeklyPlanId
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val plan = repo.getPlanWithExercises(planId)
+            val plan = try {
+                repo.getPlanWithExercises(planId)
+            } catch (e: NoSuchElementException) {
+                storage.clear()
+                _progress.postValue(null)
+                null
+            }
             _todayPlan.postValue(plan)
         }
     }
