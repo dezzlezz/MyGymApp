@@ -16,10 +16,24 @@ private val DarkColorScheme = darkColorScheme(
     onError = OnDark
 )
 
+private val LightColorScheme = lightColorScheme(
+    primary = NatureGreen,
+    onPrimary = DeepBlack,
+    secondary = KaizenBeige,
+    onSecondary = DeepBlack,
+    background = OnDark,
+    onBackground = DeepBlack,
+    surface = OnDark,
+    onSurface = DeepBlack,
+    error = ErrorRed,
+    onError = DeepBlack
+)
+
 @Composable
-fun MyGymAppTheme(content: @Composable () -> Unit) {
+fun MyGymAppTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
+    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colors,
         typography = Typography(),
         content = content
     )

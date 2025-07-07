@@ -18,10 +18,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.NoSuchElementException
 import androidx.lifecycle.asLiveData
+import com.example.mygymapp.data.WorkoutHistoryStorage
+import com.example.mygymapp.data.WorkoutHistoryEntry
 
 class WorkoutViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = PlanRepository(AppDatabase.getDatabase(application).planDao())
     private val storage = WorkoutStorage(application)
+    private val historyStore = WorkoutHistoryStorage.getInstance(application)
     private val exerciseRepo = ExerciseRepository(AppDatabase.getDatabase(application).exerciseDao())
     val exercises: LiveData<List<Exercise>> =
         exerciseRepo.getAllExercises().asLiveData()
@@ -72,6 +75,14 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
 
     fun finishDay() {
         val current = _progress.value ?: return
+        val index = calculatePlanIndex(current)
+        val planId = if (current.day == 5 && current.modularPlanId != null && !current.modularRest) {
+            current.modularPlanId!!
+        } else {
+            current.weeklyPlanId
+        }
+        historyStore.add(WorkoutHistoryEntry(java.time.LocalDate.now(), planId, index))
+
         val next = current.copy(day = current.day + 1)
         if (next.day >= 7) {
             storage.clear()
@@ -82,6 +93,12 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
             _progress.postValue(next)
             updateTodayPlan(next)
         }
+    }
+    private fun calculatePlanIndex(state: WeekProgress): Int {
+        var idx = state.day
+        if (state.restDay in 0..6 && state.day > state.restDay) idx--
+        if (state.day > 5) idx--
+        return idx
     }
 
     fun getExerciseName(id: Long): String =
