@@ -13,18 +13,14 @@ import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import org.burnoutcrew.reorderable.*
-
+import com.example.mygymapp.model.ExerciseEntry
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
     if (from == to) return
     val item = removeAt(from)
     add(if (to > from) to - 1 else to, item)
 }
 
-private data class ExerciseEntry(
-    val exercise: Exercise,
-    var sets: Int = 3,
-    var reps: Int = 10
-)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

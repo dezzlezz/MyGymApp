@@ -12,6 +12,7 @@ import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import com.example.mygymapp.model.ExerciseEntry
 import org.burnoutcrew.reorderable.*
 
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
@@ -20,11 +21,6 @@ private fun <T> MutableList<T>.move(from: Int, to: Int) {
     add(if (to > from) to - 1 else to, item)
 }
 
-private data class ExerciseEntry(
-    val exercise: Exercise,
-    var sets: Int = 3,
-    var reps: Int = 10
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
