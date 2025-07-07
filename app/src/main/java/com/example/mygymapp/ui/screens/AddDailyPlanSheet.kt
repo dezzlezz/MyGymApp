@@ -106,7 +106,7 @@ fun AddDailyPlanSheet(
             LazyColumn(
                 state = reorderState.listState,
                 modifier = Modifier
-                    .fillMaxHeight(0.5f)
+                    .heightIn(max = 300.dp)
                     .reorderable(reorderState)
                     .detectReorderAfterLongPress(reorderState)
             ) {
