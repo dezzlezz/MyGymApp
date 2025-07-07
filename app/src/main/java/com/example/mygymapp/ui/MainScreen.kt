@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -20,22 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.mygymapp.MyApp
-import com.example.mygymapp.data.Plan
-import com.example.mygymapp.data.PlanExerciseCrossRef
-import com.example.mygymapp.data.PlanRepository
-import com.example.mygymapp.ui.screens.AddEditPlanSheet
 import com.example.mygymapp.ui.screens.ExercisesScreen
 import com.example.mygymapp.ui.screens.PlansScreen
 import com.example.mygymapp.ui.screens.ProfileScreen
 import com.example.mygymapp.ui.screens.WorkoutScreen
-import com.example.mygymapp.ui.viewmodel.PlansViewModel
-import com.example.mygymapp.ui.viewmodel.PlansViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -57,15 +48,7 @@ fun MainScreen() {
     val currentDestination = navController
         .currentBackStackEntryAsState().value?.destination
 
-    // Bottom Sheet State & Coroutine Scope
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
-
-    // Repository & ViewModel
-    val plansRepo = PlanRepository(MyApp.database.planDao())
-    val plansViewModel: PlansViewModel = viewModel(
-        factory = PlansViewModelFactory(plansRepo)
-    )
 
     // Nav Tabs Definition
     val navTabs = listOf(
@@ -75,60 +58,36 @@ fun MainScreen() {
         NavTab("profile",   "Profile",   Icons.Filled.Person)
     )
 
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            AddEditPlanSheet(
-                initialPlan = Plan(name = "", description = "", iconUri = null, type = com.example.mygymapp.data.PlanType.DAILY),
-                initialExercises = emptyList<PlanExerciseCrossRef>(),
-                onSave = { plan, refs ->
-                    scope.launch { sheetState.hide() }
-                    plansViewModel.save(plan, refs)
-                },
-                onCancel = {
-                    scope.launch { sheetState.hide() }
-                }
-            )
-        },
-        scrimColor = MaterialTheme.colors.onSurface.copy(alpha = 0.32f)
-    ) {
-        Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { scope.launch { sheetState.show() } },
-                    content = { Icon(Icons.Filled.Add, contentDescription = "Add Plan") }
-                )
-            },
-            bottomBar = {
-                BottomNavigation {
-                    navTabs.forEach { tab ->
-                        val selected = currentDestination?.route == tab.route
-                        BottomNavigationItem(
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(tab.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(tab.icon, contentDescription = tab.label) },
-                            label = { Text(tab.label) }
-                        )
-                    }
+    Scaffold(
+        bottomBar = {
+            BottomNavigation {
+                navTabs.forEach { tab ->
+                    val selected = currentDestination?.route == tab.route
+                    BottomNavigationItem(
+                        selected = selected,
+                        onClick = {
+                            navController.navigate(tab.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(tab.icon, contentDescription = tab.label) },
+                        label = { Text(tab.label) }
+                    )
                 }
             }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = navTabs.first().route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable("exercises") { ExercisesScreen() }
-                composable("plans")     { PlansScreen() }  // no onAddPlan parameter anymore
-                composable("workout")   { WorkoutScreen() }
-                composable("profile")   { ProfileScreen() }
-            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = navTabs.first().route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("exercises") { ExercisesScreen() }
+            composable("plans")     { PlansScreen() }
+            composable("workout")   { WorkoutScreen() }
+            composable("profile")   { ProfileScreen() }
         }
     }
 }

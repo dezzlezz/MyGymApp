@@ -26,6 +26,7 @@ import com.example.mygymapp.ui.components.SearchFilterBar
 import com.example.mygymapp.ui.viewmodel.PlansViewModel
 import com.example.mygymapp.ui.viewmodel.PlansViewModelFactory
 import kotlinx.coroutines.launch
+import com.example.mygymapp.ui.screens.AddEditPlanSheet
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -34,8 +35,7 @@ fun PlansScreen(
         factory = PlansViewModelFactory(
             PlanRepository(MyApp.database.planDao())
         )
-    ),
-    onAddPlan: () -> Unit                       // Callback für Add-Button
+    )
 ) {
     // Compose-State
     val plans by viewModel.plans.observeAsState(emptyList())
@@ -45,10 +45,11 @@ fun PlansScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var showAddSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddPlan) {
+            FloatingActionButton(onClick = { showAddSheet = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Plan")
             }
         },
@@ -78,32 +79,64 @@ fun PlansScreen(
             )
             Spacer(Modifier.height(16.dp))
 
+            val filteredPlans = plans.filter { plan ->
+                (query.isBlank() || plan.name.contains(query, ignoreCase = true)) &&
+                        (!favoritesOnly || plan.isFavorite)
+            }
+
             // Plan-Liste
-            LazyColumn {
-                items(plans, key = { it.planId }) { plan ->
-                    val dismissState = rememberDismissState { value ->
-                        when (value) {
-                            DismissValue.DismissedToEnd -> {
-                                scope.launch {
-                                    viewModel.delete(plan)
-                                    snackbarHostState.showSnackbar("Plan gelöscht", "Undo")
+            if (filteredPlans.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No plans yet!")
+                }
+            } else {
+                LazyColumn {
+                    items(filteredPlans, key = { it.planId }) { plan ->
+                        val dismissState = rememberDismissState { value ->
+                            when (value) {
+                                DismissValue.DismissedToEnd -> {
+                                    scope.launch {
+                                        viewModel.delete(plan)
+                                        snackbarHostState.showSnackbar("Plan gelöscht", "Undo")
+                                    }
+                                    true
                                 }
-                                true
+
+
+                                DismissValue.DismissedToStart -> true
+                                else -> false
                             }
-                            DismissValue.DismissedToStart -> true
-                            else -> false
                         }
+                        SwipeToDismiss(
+                            state = dismissState,
+                            directions = setOf(
+                                DismissDirection.StartToEnd,
+                                DismissDirection.EndToStart
+                            ),
+                            background = { /* optional */ },
+                            dismissContent = {
+                                PlanCard(plan = plan, onClick = { /* navigate to detail */ })
+                            }
+                        )
                     }
-                    SwipeToDismiss(
-                        state = dismissState,
-                        directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
-                        background = { /* optional */ },
-                        dismissContent = {
-                            PlanCard(plan = plan, onClick = { /* navigate to detail */ })
-                        }
-                    )
                 }
             }
         }
-    }
+        }
+        if (showAddSheet) {
+            AddEditPlanSheet(
+                initialPlan = com.example.mygymapp.data.Plan(
+                    name = "",
+                    description = "",
+                    iconUri = null,
+                    type = com.example.mygymapp.data.PlanType.valueOf(selectedType.name)
+                ),
+                onSave = { plan, refs ->
+                    viewModel.save(plan, refs)
+                    showAddSheet = false
+                },
+                onCancel = { showAddSheet = false }
+            )
+        }
+
 }
