@@ -7,7 +7,7 @@ import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.PlanType
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.Dispatchers
 class PlansViewModel(
     private val repo: PlanRepository
 ) : ViewModel() {
@@ -23,18 +23,18 @@ class PlansViewModel(
         _type.value = newType
     }
 
-    fun delete(plan: Plan) = viewModelScope.launch {
+    fun delete(plan: Plan) = viewModelScope.launch(Dispatchers.IO) {
         repo.deletePlan(plan)
     }
 
-    fun save(plan: Plan, exercises: List<PlanExerciseCrossRef>) = viewModelScope.launch {
+    fun save(plan: Plan, exercises: List<PlanExerciseCrossRef>) = viewModelScope.launch(Dispatchers.IO) {
         repo.savePlan(plan, exercises)
     }
 
     fun load(planId: Long): LiveData<PlanWithExercises> {
         val result = MutableLiveData<PlanWithExercises>()
-        viewModelScope.launch {
-            result.value = repo.getPlanWithExercises(planId)
+        viewModelScope.launch(Dispatchers.IO) {
+            result.postValue(repo.getPlanWithExercises(planId))
         }
         return result
     }
