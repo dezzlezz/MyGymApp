@@ -27,8 +27,12 @@ class PlansViewModel(
         repo.deletePlan(plan)
     }
 
-    fun save(plan: Plan, exercises: List<PlanExerciseCrossRef>) = viewModelScope.launch(Dispatchers.IO) {
-        repo.savePlan(plan, exercises)
+    fun save(
+        plan: Plan,
+        exercises: List<PlanExerciseCrossRef>,
+        dayNames: List<String> = emptyList()
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        repo.savePlan(plan, exercises, dayNames)
     }
 
     fun load(planId: Long): LiveData<PlanWithExercises> {

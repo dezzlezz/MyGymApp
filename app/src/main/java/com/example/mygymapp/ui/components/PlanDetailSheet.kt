@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import com.example.mygymapp.data.PlanDay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,19 +40,23 @@ fun PlanDetailSheet(
             )
             Spacer(Modifier.height(16.dp))
 
-            // Liste der Übungen
-            Text(
-                text = "Übungen:",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(Modifier.height(8.dp))
+            val days = if (planWithExercises.days.isNotEmpty()) {
+                planWithExercises.days.sortedBy { it.dayIndex }
+            } else listOf(PlanDay(plan.planId, 0, "Tag 1"))
 
-            planWithExercises.exercises.forEach { ref ->
-                Text(
-                    text = "• Übung ID ${ref.exerciseId}, Sets: ${ref.sets}, Reps: ${ref.reps}",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
-                )
+            days.forEach { day ->
+                Text(day.name, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                planWithExercises.exercises
+                    .filter { it.dayIndex == day.dayIndex }
+                    .forEach { ref ->
+                        Text(
+                            text = "• Übung ID ${ref.exerciseId}, Sets: ${ref.sets}, Reps: ${ref.reps}",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
+                        )
+                    }
+                Spacer(Modifier.height(8.dp))
             }
 
             Spacer(Modifier.height(24.dp))

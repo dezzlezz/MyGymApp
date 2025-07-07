@@ -5,14 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.mygymapp.data.PlanDay
 
 @Database(
     entities = [
         Plan::class,
         PlanExerciseCrossRef::class,
-        Exercise::class              // <<< hier hinzufügen!
+        Exercise::class,
+        PlanDay::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(PlanConverters::class)
