@@ -11,6 +11,7 @@ data class Plan(
     val planId: Long = 0L,
     val name: String,
     val description: String,
+    val difficulty: Int = 3,
     val isFavorite: Boolean = false,
     val iconUri: String?,
     val type: PlanType

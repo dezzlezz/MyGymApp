@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.screens
+package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.PlanWithExercises
+import com.example.mygymapp.ui.widgets.DifficultyRating
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +27,8 @@ fun PlanDetailSheet(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(Modifier.height(8.dp))
+            DifficultyRating(rating = plan.difficulty)
             Spacer(Modifier.height(8.dp))
 
             // Beschreibung

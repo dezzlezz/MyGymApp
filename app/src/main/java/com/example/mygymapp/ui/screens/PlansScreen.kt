@@ -1,20 +1,32 @@
 package com.example.mygymapp.ui.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-
+import com.example.mygymapp.model.PlanType
 
 @Composable
 fun PlansScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Plans", style = MaterialTheme.typography.headlineMedium)
+    var selected by remember { mutableStateOf(PlanType.DAILY) }
+
+    Column(Modifier.fillMaxSize()) {
+        TabRow(selectedTabIndex = if (selected == PlanType.DAILY) 0 else 1) {
+            Tab(
+                selected = selected == PlanType.DAILY,
+                onClick = { selected = PlanType.DAILY }
+            ) { Text("Daily") }
+            Tab(
+                selected = selected == PlanType.WEEKLY,
+                onClick = { selected = PlanType.WEEKLY }
+            ) { Text("Weekly") }
+        }
+        when (selected) {
+            PlanType.DAILY -> DailyPlansTab()
+            PlanType.WEEKLY -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Coming soon") }
+        }
     }
 }
