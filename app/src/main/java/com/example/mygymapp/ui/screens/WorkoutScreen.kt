@@ -10,7 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mygymapp.data.Plan
 import com.example.mygymapp.data.PlanExerciseCrossRef
+import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.WeekProgress
 import com.example.mygymapp.ui.viewmodel.WorkoutViewModel
 
@@ -41,13 +43,13 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
 
 @Composable
 private fun StartWeekScreen(
-    weeklyPlans: List<com.example.mygymapp.data.Plan>,
-    dailyPlans: List<com.example.mygymapp.data.Plan>,
+    weeklyPlans: List<Plan>,
+    dailyPlans: List<Plan>,
     onStart: (WeekProgress) -> Unit
 ) {
-    var selectedPlan by remember { mutableStateOf<com.example.mygymapp.data.Plan?>(null) }
+    var selectedPlan by remember { mutableStateOf<Plan?>(null) }
     var restDay by remember { mutableIntStateOf(-1) }
-    var modularOption by remember { mutableStateOf<com.example.mygymapp.data.Plan?>(null) }
+    var modularOption by remember { mutableStateOf<Plan?>(null) }
     var modularRest by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -83,9 +85,9 @@ private fun StartWeekScreen(
 @Composable
 private fun PlanDropdown(
     label: String,
-    plans: List<com.example.mygymapp.data.Plan>,
-    selected: com.example.mygymapp.data.Plan?,
-    onSelect: (com.example.mygymapp.data.Plan) -> Unit
+    plans: List<Plan>,
+    selected: Plan?,
+    onSelect: (Plan) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -107,8 +109,8 @@ private fun PlanDropdown(
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun DayDropdown(selected: Int, onSelect: (Int) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -131,6 +133,7 @@ private fun DayDropdown(selected: Int, onSelect: (Int) -> Unit) {
         }
     }
 }
+
 @Composable
 private fun RestDayScreen(dayIndex: Int, onFinish: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -141,7 +144,7 @@ private fun RestDayScreen(dayIndex: Int, onFinish: () -> Unit) {
 }
 
 @Composable
-private fun WorkoutDayScreen(plan: com.example.mygymapp.data.PlanWithExercises?, state: WeekProgress, viewModel: WorkoutViewModel) {
+private fun WorkoutDayScreen(plan: PlanWithExercises?, state: WeekProgress, viewModel: WorkoutViewModel) {
     val exercises = remember(plan, state) {
         val idx = calculatePlanIndex(state)
         plan?.exercises?.filter { it.dayIndex == idx } ?: emptyList()

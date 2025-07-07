@@ -2,7 +2,7 @@ package com.example.mygymapp.data
 
 import androidx.room.Entity
 
-@Entity(primaryKeys = ["planId","exerciseId"])
+@Entity(primaryKeys = ["planId", "exerciseId", "dayIndex"])
 data class PlanExerciseCrossRef(
     val planId: Long,
     val exerciseId: Long,
