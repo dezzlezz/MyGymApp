@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.mygymapp.ui.widgets.DifficultyRating
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
