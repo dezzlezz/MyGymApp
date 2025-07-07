@@ -13,6 +13,10 @@ import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import org.burnoutcrew.reorderable.*
+import com.example.mygymapp.model.ExerciseEntry
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.WindowInsets
 
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
     if (from == to) return
@@ -20,11 +24,7 @@ private fun <T> MutableList<T>.move(from: Int, to: Int) {
     add(if (to > from) to - 1 else to, item)
 }
 
-private data class ExerciseEntry(
-    val exercise: Exercise,
-    var sets: Int = 3,
-    var reps: Int = 10
-)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,8 +46,17 @@ fun AddDailyPlanSheet(
         selected.move(from.index, to.index)
     })
 
-    ModalBottomSheet(onDismissRequest = onCancel, sheetState = rememberModalBottomSheetState()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    ModalBottomSheet(
+        onDismissRequest = onCancel,
+        sheetState = rememberModalBottomSheetState(),
+        windowInsets = WindowInsets(0)
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(16.dp)
+        ) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },

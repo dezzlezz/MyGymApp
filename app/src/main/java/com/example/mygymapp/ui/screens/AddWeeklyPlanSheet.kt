@@ -3,6 +3,8 @@ package com.example.mygymapp.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,7 +14,9 @@ import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import com.example.mygymapp.model.ExerciseEntry
 import org.burnoutcrew.reorderable.*
+import androidx.compose.foundation.layout.WindowInsets
 
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
     if (from == to) return
@@ -20,11 +24,6 @@ private fun <T> MutableList<T>.move(from: Int, to: Int) {
     add(if (to > from) to - 1 else to, item)
 }
 
-private data class ExerciseEntry(
-    val exercise: Exercise,
-    var sets: Int = 3,
-    var reps: Int = 10
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,8 +42,17 @@ fun AddWeeklyPlanSheet(
     val dropdownState = remember { mutableStateListOf<Exercise?>(null, null, null, null, null) }
     val expandedList = remember { mutableStateListOf(false, false, false, false, false) }
 
-    ModalBottomSheet(onDismissRequest = onCancel, sheetState = rememberModalBottomSheetState()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    ModalBottomSheet(
+        onDismissRequest = onCancel,
+        sheetState = rememberModalBottomSheetState(),
+        windowInsets = WindowInsets(0)
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(16.dp)
+        ) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -74,7 +82,9 @@ fun AddWeeklyPlanSheet(
                 Spacer(Modifier.height(4.dp))
                 val chosen = dropdownState[index]
                 val expanded = expandedList[index]
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expandedList[index] = !expanded }) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expandedList[index] = !expanded }) {
                     OutlinedTextField(
                         readOnly = true,
                         value = chosen?.name ?: "Übung auswählen",
@@ -82,7 +92,9 @@ fun AddWeeklyPlanSheet(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier.menuAnchor().fillMaxWidth()
                     )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expandedList[index] = false }) {
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expandedList[index] = false }) {
                         exercises.forEach { ex ->
                             DropdownMenuItem(text = { Text(ex.name) }, onClick = {
                                 dropdownState[index] = ex
@@ -113,7 +125,9 @@ fun AddWeeklyPlanSheet(
                         .reorderable(reorderState)
                         .detectReorderAfterLongPress(reorderState)
                 ) {
-                    itemsIndexed(dayEntries[index], key = { _, item -> item.exercise.id }) { idx, item ->
+                    itemsIndexed(
+                        dayEntries[index],
+                        key = { _, item -> item.exercise.id }) { idx, item ->
                         ReorderableItem(reorderState, key = item.exercise.id) { _ ->
                             Row(
                                 Modifier
@@ -145,7 +159,13 @@ fun AddWeeklyPlanSheet(
                 TextButton(onClick = onCancel) { Text("Abbrechen") }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
-                    val plan = Plan(name = name, description = desc, difficulty = difficulty, iconUri = null, type = PlanType.WEEKLY)
+                    val plan = Plan(
+                        name = name,
+                        description = desc,
+                        difficulty = difficulty,
+                        iconUri = null,
+                        type = PlanType.WEEKLY
+                    )
                     val refs = mutableListOf<PlanExerciseCrossRef>()
                     dayEntries.forEachIndexed { day, list ->
                         list.forEachIndexed { idx, entry ->
