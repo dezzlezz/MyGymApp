@@ -84,44 +84,49 @@ fun PlansScreen(
                         (!favoritesOnly || plan.isFavorite)
             }
 
-            // Plan-Liste
-            if (filteredPlans.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No plans yet!")
-                }
-            } else {
-                LazyColumn {
-                    items(filteredPlans, key = { it.planId }) { plan ->
-                        val dismissState = rememberDismissState { value ->
-                            when (value) {
-                                DismissValue.DismissedToEnd -> {
-                                    scope.launch {
-                                        viewModel.delete(plan)
-                                        snackbarHostState.showSnackbar("Plan gelöscht", "Undo")
+            // Plan-Liste oder Placeholder
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                if (filteredPlans.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No plans yet!")
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(filteredPlans, key = { it.planId }) { plan ->
+                            val dismissState = rememberDismissState { value ->
+                                when (value) {
+                                    DismissValue.DismissedToEnd -> {
+                                        scope.launch {
+                                            viewModel.delete(plan)
+                                            snackbarHostState.showSnackbar("Plan gelöscht", "Undo")
+                                        }
+                                        true
                                     }
-                                    true
+
+
+                                    DismissValue.DismissedToStart -> true
+                                    else -> false
                                 }
-
-
-                                DismissValue.DismissedToStart -> true
-                                else -> false
                             }
+                            SwipeToDismiss(
+                                state = dismissState,
+                                directions = setOf(
+                                    DismissDirection.StartToEnd,
+                                    DismissDirection.EndToStart
+                                ),
+                                background = { /* optional */ },
+                                dismissContent = {
+                                    PlanCard(plan = plan, onClick = { /* navigate to detail */ })
+                                }
+                            )
                         }
-                        SwipeToDismiss(
-                            state = dismissState,
-                            directions = setOf(
-                                DismissDirection.StartToEnd,
-                                DismissDirection.EndToStart
-                            ),
-                            background = { /* optional */ },
-                            dismissContent = {
-                                PlanCard(plan = plan, onClick = { /* navigate to detail */ })
-                            }
-                        )
                     }
                 }
             }
-        }
         }
         if (showAddSheet) {
             AddEditPlanSheet(
@@ -139,4 +144,5 @@ fun PlansScreen(
             )
         }
 
+    }
 }
