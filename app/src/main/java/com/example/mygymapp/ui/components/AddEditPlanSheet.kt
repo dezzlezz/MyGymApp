@@ -1,9 +1,14 @@
 package com.example.mygymapp.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Plan
 import com.example.mygymapp.ui.widgets.DifficultyRating
@@ -29,8 +34,8 @@ fun AddEditPlanSheet(
     var uiType by remember { mutableStateOf(UiPlanType.valueOf(initialPlan.type.name)) }
 
     // CrossRef-States
-    var sets by remember { mutableStateOf(initialExercises.firstOrNull()?.sets ?: 3) }
-    var reps by remember { mutableStateOf(initialExercises.firstOrNull()?.reps ?: 10) }
+    var setsText by remember { mutableStateOf(initialExercises.firstOrNull()?.sets?.toString() ?: "") }
+    var repsText by remember { mutableStateOf(initialExercises.firstOrNull()?.reps?.toString() ?: "") }
     var orderIndex by remember { mutableStateOf(initialExercises.firstOrNull()?.orderIndex ?: 0) }
     val dayIndex = 0
 
@@ -38,7 +43,12 @@ fun AddEditPlanSheet(
         onDismissRequest = onCancel,
         sheetState = rememberModalBottomSheetState()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(16.dp)
+        ) {
             OutlinedTextField(
                 value = planName,
                 onValueChange = { planName = it },
@@ -99,15 +109,19 @@ fun AddEditPlanSheet(
             // CrossRef-Einstellungen
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
-                    value = sets.toString(),
-                    onValueChange = { sets = it.toIntOrNull() ?: sets },
+                    value = setsText,
+                    onValueChange = { setsText = it.filter { ch -> ch.isDigit() } },
                     label = { Text("Sets") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
-                    value = reps.toString(),
-                    onValueChange = { reps = it.toIntOrNull() ?: reps },
+                    value = repsText,
+                    onValueChange = { repsText = it.filter { ch -> ch.isDigit() } },
                     label = { Text("Reps") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
                     modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
@@ -140,8 +154,8 @@ fun AddEditPlanSheet(
                         PlanExerciseCrossRef(
                             planId = plan.planId,
                             exerciseId = initialExercises.firstOrNull()?.exerciseId ?: 0L,
-                            sets = sets,
-                            reps = reps,
+                            sets = setsText.toIntOrNull() ?: 0,
+                            reps = repsText.toIntOrNull() ?: 0,
                             orderIndex = orderIndex,
                             dayIndex = dayIndex
                         )

@@ -17,6 +17,8 @@ import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.model.ExerciseEntry
 import org.burnoutcrew.reorderable.*
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
     if (from == to) return
@@ -135,17 +137,29 @@ fun AddWeeklyPlanSheet(
                                     .padding(8.dp)
                             ) {
                                 Text(item.exercise.name, modifier = Modifier.weight(1f))
+                                var setsText by remember(item.exercise.id) { mutableStateOf(item.sets.toString()) }
                                 OutlinedTextField(
-                                    value = item.sets.toString(),
-                                    onValueChange = { item.sets = it.toIntOrNull() ?: item.sets },
+                                    value = setsText,
+                                    onValueChange = {
+                                        setsText = it.filter { ch -> ch.isDigit() }
+                                        item.sets = setsText.toIntOrNull() ?: 0
+                                    },
                                     label = { Text("Sets") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
                                     modifier = Modifier.width(72.dp)
                                 )
                                 Spacer(Modifier.width(4.dp))
+                                var repsText by remember(item.exercise.id) { mutableStateOf(item.reps.toString()) }
                                 OutlinedTextField(
-                                    value = item.reps.toString(),
-                                    onValueChange = { item.reps = it.toIntOrNull() ?: item.reps },
+                                    value = repsText,
+                                    onValueChange = {
+                                        repsText = it.filter { ch -> ch.isDigit() }
+                                        item.reps = repsText.toIntOrNull() ?: 0
+                                    },
                                     label = { Text("Reps") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
                                     modifier = Modifier.width(72.dp)
                                 )
                             }
