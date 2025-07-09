@@ -122,6 +122,7 @@ fun EditDailyPlanScreen(
                     tint = if (saveEnabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                 )
             }
+
         }
     ) { padding ->
         if (planWithExercises == null) {
@@ -209,7 +210,9 @@ fun EditDailyPlanScreen(
             LazyColumn {
                 items(exercises) { ex ->
                     ListItem(
+
                         headlineContent = { Text(ex.name) },
+
                         modifier = Modifier.clickable {
                             selected.add(ExerciseEntry(ex))
                             showChooser = false
