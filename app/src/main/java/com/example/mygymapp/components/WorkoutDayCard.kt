@@ -30,5 +30,4 @@ fun WorkoutDayCard(
             Text(exerciseName, style = MaterialTheme.typography.titleMedium)
             Text("${ref.sets} x ${ref.reps} • $muscleGroup", style = MaterialTheme.typography.bodySmall)
         }
-    }
-}
+    }}

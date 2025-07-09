@@ -317,5 +317,4 @@ private fun calculatePlanIndex(state: WeekProgress): Int {
     var idx = state.day
     if (state.restDay in 0..6 && state.day > state.restDay) idx--
     if (state.day > 5) idx--
-    return idx
-}
+    return idx}
