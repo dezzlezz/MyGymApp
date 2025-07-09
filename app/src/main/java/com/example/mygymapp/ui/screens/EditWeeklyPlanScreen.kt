@@ -107,6 +107,7 @@ fun EditWeeklyPlanScreen(
                             dayEntries.forEachIndexed { day, list ->
                                 list.forEachIndexed { idx, entry ->
                                     refs.add(
+
                                         PlanExerciseCrossRef(
                                             planId = plan.planId,
                                             exerciseId = entry.exercise.id,
@@ -122,6 +123,7 @@ fun EditWeeklyPlanScreen(
                             navController.popBackStack()
                         }
                     }
+
                 }
             ) {
                 Icon(
@@ -130,6 +132,7 @@ fun EditWeeklyPlanScreen(
                     tint = if (saveEnabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
                 )
             }
+
         }
     ) { padding ->
         if (planWithExercises == null) {
@@ -231,8 +234,9 @@ fun EditWeeklyPlanScreen(
         ModalBottomSheet(onDismissRequest = { showChooserForDay = -1 }, sheetState = rememberModalBottomSheetState()) {
             LazyColumn {
                 items(exercises) { ex ->
-                    ListItem(
+                    ListItem(<<<<<<< b1ljbp-codex/uberarbeite-workout-bereich-fur-android-app
                         headlineContent = { Text(ex.name) },
+
                         modifier = Modifier.clickable {
                             if (showChooserForDay in dayEntries.indices) {
                                 dayEntries[showChooserForDay].add(ExerciseEntry(ex))
