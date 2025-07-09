@@ -105,11 +105,13 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     fun getExerciseName(id: Long): String =
         exercises.value?.firstOrNull { it.id == id }?.name ?: "Exercise $id"
 
+    fun getExerciseGroup(id: Long): String =
+        exercises.value?.firstOrNull { it.id == id }?.muscleGroup?.display ?: ""
+
     fun loadPlan(planId: Long): LiveData<PlanWithExercises> {
         val result = MutableLiveData<PlanWithExercises>()
         viewModelScope.launch(Dispatchers.IO) {
             result.postValue(repo.getPlanWithExercises(planId))
         }
         return result
-    }
-}
+    }}
