@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.ZoneId
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val settings = SettingsStorage.getInstance(application)
@@ -48,8 +50,26 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val totalWorkouts: Int
         get() = history.value.size
 
+    val workoutsThisWeek: Int
+        get() {
+            val today = LocalDate.now(ZoneId.systemDefault())
+            val startOfWeek = today.with(DayOfWeek.MONDAY)
+            return history.value.keys.count { !it.isBefore(startOfWeek) }
+        }
+
+    val workoutStreak: Int
+        get() {
+            val today = LocalDate.now(ZoneId.systemDefault())
+            var day = today
+            var count = 0
+            while (history.value.containsKey(day)) {
+                count++
+                day = day.minusDays(1)
+            }
+            return count
+        }
+
     fun logout() {
         // For demo purposes we just clear progress
         WorkoutStorage(getApplication()).clear()
-    }
-}
+    }}
