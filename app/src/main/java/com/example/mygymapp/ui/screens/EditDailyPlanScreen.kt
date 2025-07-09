@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
-import androidx.compose.material3.ContentAlpha
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -119,7 +118,11 @@ fun EditDailyPlanScreen(
                 Icon(
                     Icons.Default.Check,
                     contentDescription = stringResource(id = R.string.save),
-                    tint = if (saveEnabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                    tint = if (saveEnabled) {
+                        LocalContentColor.current
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) // Updated line
+                    }
                 )
             }
 
