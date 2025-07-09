@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mygymapp.data.Exercise
 import androidx.navigation.NavController
+import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.StarRating
 
@@ -26,7 +26,6 @@ fun ExercisesScreen(
     onEditExercise: (Long) -> Unit = {}
 ) {
     val exercises by viewModel.allExercises.observeAsState(emptyList())
-
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("addExercise") }) {
@@ -54,9 +53,9 @@ fun ExercisesScreen(
                 }
             }
         }
-
     }
 }
+
 @Composable
 private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit) {
     Card(
