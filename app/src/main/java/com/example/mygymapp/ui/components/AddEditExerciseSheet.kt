@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,13 +56,14 @@ fun AddEditExerciseSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp)
+
         ) {
-            Text(if (initialName.isEmpty()) "Add Exercise" else "Edit Exercise", style = MaterialTheme.typography.titleLarge)
+            Text(if (initialName.isEmpty()) stringResource(id = R.string.add_exercise) else stringResource(id = R.string.edit_exercise), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(id = R.string.name_label)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -69,7 +72,7 @@ fun AddEditExerciseSheet(
                 if (imageUri != null) {
                     Image(
                         painter = rememberAsyncImagePainter(imageUri),
-                        contentDescription = "Exercise image",
+                        contentDescription = stringResource(id = R.string.exercise_image),
                         modifier = Modifier
                             .size(64.dp)
                             .clip(RoundedCornerShape(12.dp))
@@ -77,9 +80,9 @@ fun AddEditExerciseSheet(
                     Spacer(Modifier.width(8.dp))
                 }
                 OutlinedButton(onClick = { launcher.launch("image/*") }) {
-                    Icon(Icons.Default.Photo, contentDescription = "Select Image")
+                    Icon(Icons.Default.Photo, contentDescription = stringResource(id = R.string.select_image))
                     Spacer(Modifier.width(4.dp))
-                    Text("Select Image")
+                    Text(stringResource(id = R.string.select_image))
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -95,7 +98,7 @@ fun AddEditExerciseSheet(
                 onSelected = { muscleGroup = it ?: "" }
             )
             Spacer(Modifier.height(12.dp))
-            Text("Likeability")
+            Text(stringResource(id = R.string.likeability))
             StarRating(rating = rating, onRatingChanged = { rating = it })
             Spacer(Modifier.height(24.dp))
             Row {
@@ -108,11 +111,11 @@ fun AddEditExerciseSheet(
                     enabled = name.isNotBlank() && category.isNotBlank() && muscleGroup.isNotBlank(),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save")
+                    Text(stringResource(id = R.string.save))
                 }
                 Spacer(Modifier.width(12.dp))
                 OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
-                    Text("Cancel")
+                    Text(stringResource(id = R.string.cancel))
                 }
             }
         }

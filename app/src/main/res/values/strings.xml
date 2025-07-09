@@ -1,4 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="add_exercise">Add Exercise</string>
+    <string name="edit_exercise">Edit Exercise</string>
+    <string name="name_label">Name</string>
+    <string name="description_label">Description</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="category">Category</string>
+    <string name="muscle_group">Muscle group</string>
+    <string name="muscle">Muscle</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="exercise_placeholder">Select exercise</string>
+    <string name="add_exercise_button">Add Exercise</string>
+    <string name="sets">Sets</string>
+    <string name="reps">Reps</string>
+    <string name="select_image">Select Image</string>
+    <string name="exercise_image">Exercise image</string>
+    <string name="likeability">Likeability</string>
+    <string name="plan_name">Plan Name</string>
+    <string name="icon_uri">Icon URI</string>
+    <string name="type">Type</string>
+    <string name="order">Order</string>
+    <string name="close">Close</string>
+    <string name="search_plans">Search plans</string>
+    <string name="show_all">Show all</string>
+    <string name="show_favorites">Show favorites</string>
+    <string name="all">All</string>
+    <string name="favorite_marked">Marked as favorite</string>
+    <string name="day_label">Day %1$d</string>
     <string name="app_name">MyGymApp</string>
 </resources>

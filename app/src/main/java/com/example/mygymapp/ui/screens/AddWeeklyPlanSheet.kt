@@ -19,6 +19,8 @@ import org.burnoutcrew.reorderable.*
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 private fun <T> MutableList<T>.move(from: Int, to: Int) {
     if (from == to) return
@@ -58,19 +60,19 @@ fun AddWeeklyPlanSheet(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(id = R.string.name_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = desc,
                 onValueChange = { desc = it },
-                label = { Text("Beschreibung") },
+                label = { Text(stringResource(id = R.string.description_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
             Spacer(Modifier.height(8.dp))
-            Text("Schwierigkeit")
+            Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
             Spacer(Modifier.height(16.dp))
 
@@ -78,7 +80,7 @@ fun AddWeeklyPlanSheet(
                 TextField(
                     value = dayName,
                     onValueChange = { dayNames[index] = it },
-                    label = { Text("Tag ${index + 1}") },
+                    label = { Text(stringResource(id = R.string.day_label, index + 1)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(4.dp))
@@ -89,7 +91,7 @@ fun AddWeeklyPlanSheet(
                     onExpandedChange = { expandedList[index] = !expanded }) {
                     OutlinedTextField(
                         readOnly = true,
-                        value = chosen?.name ?: "Übung auswählen",
+                        value = chosen?.name ?: stringResource(id = R.string.exercise_placeholder),
                         onValueChange = {},
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier.menuAnchor().fillMaxWidth()
@@ -112,7 +114,7 @@ fun AddWeeklyPlanSheet(
                         dropdownState[index] = null
                     }
                 }, enabled = dropdownState[index] != null) {
-                    Text("Übung hinzufügen")
+                    Text(stringResource(id = R.string.add_exercise_button))
                 }
                 Spacer(Modifier.height(4.dp))
 
@@ -144,7 +146,7 @@ fun AddWeeklyPlanSheet(
                                         setsText = it.filter { ch -> ch.isDigit() }
                                         item.sets = setsText.toIntOrNull() ?: 0
                                     },
-                                    label = { Text("Sets") },
+                                    label = { Text(stringResource(id = R.string.sets)) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                     modifier = Modifier.width(72.dp)
@@ -157,7 +159,7 @@ fun AddWeeklyPlanSheet(
                                         repsText = it.filter { ch -> ch.isDigit() }
                                         item.reps = repsText.toIntOrNull() ?: 0
                                     },
-                                    label = { Text("Reps") },
+                                    label = { Text(stringResource(id = R.string.reps)) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                     modifier = Modifier.width(72.dp)
@@ -170,7 +172,7 @@ fun AddWeeklyPlanSheet(
             }
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onCancel) { Text("Abbrechen") }
+                TextButton(onClick = onCancel) { Text(stringResource(id = R.string.cancel)) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val plan = Plan(
@@ -197,7 +199,7 @@ fun AddWeeklyPlanSheet(
                     }
                     onSave(plan, refs, dayNames.toList())
                 }, enabled = name.isNotBlank()) {
-                    Text("Speichern")
+                    Text(stringResource(id = R.string.save))
                 }
             }
         }

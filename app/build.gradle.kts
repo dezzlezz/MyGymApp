@@ -68,6 +68,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
+
     // DEBUG/DEV
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

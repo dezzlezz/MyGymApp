@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.mygymapp.data.Plan
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @Composable
 fun PlanCard(
@@ -50,7 +52,7 @@ fun PlanCard(
             if (plan.isFavorite) {
                 Icon(
                     imageVector = Icons.Filled.Star,
-                    contentDescription = "Marked as favorite",
+                    contentDescription = stringResource(id = R.string.favorite_marked),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

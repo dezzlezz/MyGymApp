@@ -3,6 +3,7 @@ package com.example.mygymapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
 import com.example.mygymapp.ui.MainScreen
 import com.example.mygymapp.ui.theme.MyGymAppTheme
 import com.example.mygymapp.data.SettingsStorage

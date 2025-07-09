@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @Composable
 fun FilterChips(
@@ -19,7 +21,7 @@ fun FilterChips(
     Row {
         AssistChip(
             onClick = { onSelected(null) },
-            label = { Text("All") },
+            label = { Text(stringResource(id = R.string.all)) },
             colors = AssistChipDefaults.assistChipColors()
         )
         Spacer(Modifier.width(8.dp))
