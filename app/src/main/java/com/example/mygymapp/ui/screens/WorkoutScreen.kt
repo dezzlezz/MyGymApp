@@ -21,8 +21,21 @@ import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.WeekProgress
 import com.example.mygymapp.viewmodel.WorkoutViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
-private val days = listOf("Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag")
+private val dayStrings = listOf(
+    R.string.monday,
+    R.string.tuesday,
+    R.string.wednesday,
+    R.string.thursday,
+    R.string.friday,
+    R.string.saturday,
+    R.string.sunday
+)
+
+@Composable
+private fun dayName(index: Int): String = stringResource(id = dayStrings[index])
 
 @Composable
 fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
@@ -116,17 +129,17 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
 @Composable
 private fun StartWorkoutScreen(onStart: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = onStart) { Text("Start Week") }
+        Button(onClick = onStart) { Text(stringResource(id = R.string.start_week)) }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SelectPlanScreen(plans: List<Plan>, onSelect: (Plan) -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Select Plan") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.select_plan)) }) }) { padding ->
         if (plans.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("No weekly plans")
+                Text(stringResource(R.string.no_weekly_plans))
             }
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding)) {
@@ -140,7 +153,7 @@ private fun SelectPlanScreen(plans: List<Plan>, onSelect: (Plan) -> Unit) {
                                 Text(p.name, style = MaterialTheme.typography.titleMedium)
                                 Text(p.description, style = MaterialTheme.typography.bodySmall)
                             }
-                            Button(onClick = { onSelect(p) }) { Text("Select") }
+                            Button(onClick = { onSelect(p) }) { Text(stringResource(R.string.select)) }
                         }
                     }
                 }
@@ -152,16 +165,16 @@ private fun SelectPlanScreen(plans: List<Plan>, onSelect: (Plan) -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PreviewPlanScreen(plan: PlanWithExercises?, viewModel: WorkoutViewModel, onNext: () -> Unit) {
-    Scaffold(topBar = { TopAppBar(title = { Text("Preview Plan") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.preview_plan)) }) }) { padding ->
         if (plan == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { Text("Loading...") }
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { Text(stringResource(R.string.loading)) }
         } else {
             Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
                 Text(plan.plan.name, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
                 val daysSorted = if (plan.days.isNotEmpty()) plan.days.sortedBy { it.dayIndex } else List(7) { null }
                 daysSorted.forEachIndexed { idx, day ->
-                    val title = day?.name ?: days.getOrNull(idx) ?: "Day ${idx+1}"
+                    val title = day?.name ?: dayName(idx)
                     Text(title, style = MaterialTheme.typography.titleMedium)
                     plan.exercises.filter { it.dayIndex == idx }.forEach { ref ->
                         val name = viewModel.getExerciseName(ref.exerciseId)
@@ -170,7 +183,7 @@ private fun PreviewPlanScreen(plan: PlanWithExercises?, viewModel: WorkoutViewMo
                     Spacer(Modifier.height(8.dp))
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) { Text("Next") }
+                Button(onClick = onNext, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.next)) }
             }
         }
     }
@@ -180,9 +193,10 @@ private fun PreviewPlanScreen(plan: PlanWithExercises?, viewModel: WorkoutViewMo
 @Composable
 private fun SelectRestDayScreen(restDay: Int, onNext: (Int) -> Unit) {
     var selected by remember { mutableIntStateOf(restDay) }
-    Scaffold(topBar = { TopAppBar(title = { Text("Select Rest Day") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.select_rest_day)) }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            days.forEachIndexed { index, d ->
+            dayStrings.forEachIndexed { index, _ ->
+                val d = dayName(index)
                 val enabled = index != 5
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
@@ -190,15 +204,15 @@ private fun SelectRestDayScreen(restDay: Int, onNext: (Int) -> Unit) {
                         onClick = { if (enabled) selected = index },
                         enabled = enabled
                     )
-                    Text(if (index == 5) "$d (Modular Day)" else d)
+                    Text(if (index == 5) "$d (${stringResource(R.string.modular_day)})" else d)
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(selected = selected == -1, onClick = { selected = -1 })
-                Text("Keiner")
+                Text(stringResource(R.string.none))
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { onNext(selected) }, modifier = Modifier.fillMaxWidth()) { Text("Next") }
+            Button(onClick = { onNext(selected) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.next)) }
         }
     }
 }
@@ -213,11 +227,11 @@ private fun SelectModularDayScreen(
 ) {
     var modRest by remember { mutableStateOf(rest) }
     var planSel by remember { mutableStateOf(selected) }
-    Scaffold(topBar = { TopAppBar(title = { Text("Modular Day") }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.modular_day)) }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(checked = modRest, onCheckedChange = { modRest = it })
-                Text("Ruhetag")
+                Text(stringResource(R.string.rest_day))
             }
             if (!modRest) {
                 LazyColumn(Modifier.weight(1f, false)) {
@@ -235,7 +249,7 @@ private fun SelectModularDayScreen(
                 onClick = { onNext(modRest, planSel) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = modRest || planSel != null
-            ) { Text("Start Week") }
+            ) { Text(stringResource(R.string.start_week_button)) }
         }
     }
 }
@@ -243,9 +257,9 @@ private fun SelectModularDayScreen(
 @Composable
 private fun RestDayScreen(dayIndex: Int, onFinish: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text("${days[dayIndex]} - Ruhetag", style = MaterialTheme.typography.headlineSmall)
+        Text("${dayName(dayIndex)} - ${stringResource(R.string.rest_day)}", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
-        Button(onClick = onFinish) { Text("Next Day") }
+        Button(onClick = onFinish) { Text(stringResource(R.string.next_day)) }
     }
 }
 
@@ -262,13 +276,14 @@ private fun WorkoutDayScreen(
     }
     val doneMap = remember { mutableStateMapOf<Long, Boolean>() }
     Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text(days[state.day], style = MaterialTheme.typography.titleLarge)
+        Text(dayName(state.day), style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(exercises) { ref ->
                 WorkoutDayCard(
                     ref = ref,
                     exerciseName = viewModel.getExerciseName(ref.exerciseId),
+                    muscleGroup = viewModel.getExerciseGroup(ref.exerciseId),
                     done = doneMap[ref.exerciseId] == true,
                     onDone = { doneMap[ref.exerciseId] = it }
                 )
@@ -278,7 +293,7 @@ private fun WorkoutDayScreen(
             onClick = onFinish,
             enabled = exercises.all { doneMap[it.exerciseId] == true },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Finish Day") }
+        ) { Text(stringResource(R.string.finish_day)) }
     }
 }
 
@@ -287,8 +302,8 @@ private fun WorkoutDayScreen(
 
 @Composable
 private fun FinishDayScreen(progress: WeekProgress?, onContinue: () -> Unit) {
-    val text = if (progress == null) "Week complete!" else "${days[progress.day]} finished"
-    val button = if (progress == null) "Back to Start" else "Next Day"
+    val text = if (progress == null) stringResource(R.string.week_complete) else stringResource(R.string.day_finished, dayName(progress.day))
+    val button = if (progress == null) stringResource(R.string.back_to_start) else stringResource(R.string.next_day)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text, style = MaterialTheme.typography.titleLarge)
