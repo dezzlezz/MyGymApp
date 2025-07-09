@@ -24,6 +24,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.ui.screens.ExercisesScreen
 import com.example.mygymapp.ui.screens.AddExerciseScreen
+import com.example.mygymapp.ui.screens.EditExerciseScreen
+import com.example.mygymapp.ui.screens.EditPlanScreen
 import com.example.mygymapp.ui.screens.PlansScreen
 import com.example.mygymapp.ui.screens.ProfileScreen
 import com.example.mygymapp.ui.screens.WorkoutScreen
@@ -88,14 +90,35 @@ fun MainScreen() {
             startDestination = navTabs.first().route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("exercises") { ExercisesScreen(navController) }
+            composable("exercises") {
+                ExercisesScreen(
+                    navController = navController,
+                    onEditExercise = { navController.navigate("editExercise/$it") }
+                )
+            }
             composable("addExercise") {
                 AddExerciseScreen(
                     onDone = { navController.popBackStack() },
                     onCancel = { navController.popBackStack() }
                 )
             }
-            composable("plans")     { PlansScreen() }
+            composable("editExercise/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
+                EditExerciseScreen(
+                    exerciseId = id,
+                    onDone = { navController.popBackStack() },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
+            composable("plans")     { PlansScreen(navController) }
+            composable("editPlan/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
+                EditPlanScreen(
+                    planId = id,
+                    onDone = { navController.popBackStack() },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
             composable("workout")   { WorkoutScreen() }
             composable("profile")   { ProfileScreen() }
         }

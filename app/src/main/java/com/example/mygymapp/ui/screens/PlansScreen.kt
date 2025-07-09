@@ -7,11 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.example.mygymapp.model.PlanType
 import com.example.mygymapp.ui.screens.WeeklyPlansTab
 
+
 @Composable
-fun PlansScreen() {
+fun PlansScreen(navController: NavController) {
     var selected by remember { mutableStateOf(PlanType.DAILY) }
 
     Column(Modifier.fillMaxSize()) {
@@ -26,8 +28,8 @@ fun PlansScreen() {
             ) { Text("Weekly") }
         }
         when (selected) {
-            PlanType.DAILY -> DailyPlansTab()
-            PlanType.WEEKLY -> WeeklyPlansTab()
+            PlanType.DAILY -> DailyPlansTab(navController)
+            PlanType.WEEKLY -> WeeklyPlansTab(navController)
         }
     }
 }

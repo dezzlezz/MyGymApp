@@ -1,10 +1,18 @@
 package com.example.mygymapp.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -24,10 +32,14 @@ import com.example.mygymapp.ui.viewmodel.PlansViewModel
 import com.example.mygymapp.ui.viewmodel.PlansViewModelFactory
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import com.example.mygymapp.ui.theme.EditGray
+import com.example.mygymapp.ui.theme.NatureGreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun DailyPlansTab() {
+fun DailyPlansTab(navController: NavController) {
     val context = LocalContext.current
     val repo = remember(context) {
         PlanRepository(AppDatabase.getDatabase(context).planDao())
@@ -44,11 +56,47 @@ fun DailyPlansTab() {
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
             items(plans, key = { it.planId }) { plan ->
-                PlanCard(plan = plan, onClick = {
-                    viewModel.load(plan.planId).observeForever { pw ->
-                        detail = pw
+                val dismissState = rememberDismissState(
+                    confirmStateChange = {
+                        when (it) {
+                            DismissValue.DismissedToEnd -> {
+                                viewModel.delete(plan)
+                                true
+                            }
+                            DismissValue.DismissedToStart -> {
+                                navController.navigate("editPlan/${plan.planId}")
+                                false
+                            }
+                            else -> false
+                        }
                     }
-                })
+                )
+                SwipeToDismiss(
+                    state = dismissState,
+                    directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+                    background = {
+                        val dir = dismissState.dismissDirection ?: return@SwipeToDismiss
+                        val color = if (dir == DismissDirection.StartToEnd) Color.Red else EditGray
+                        val icon = if (dir == DismissDirection.StartToEnd) Icons.Filled.Delete else Icons.Filled.Edit
+                        val align = if (dir == DismissDirection.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color)
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = align
+                        ) {
+                            Icon(icon, contentDescription = null, tint = NatureGreen)
+                        }
+                    },
+                    dismissContent = {
+                        PlanCard(plan = plan, onClick = {
+                            viewModel.load(plan.planId).observeForever { pw ->
+                                detail = pw
+                            }
+                        })
+                    }
+                )
             }
         }
         FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
