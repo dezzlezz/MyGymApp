@@ -33,6 +33,7 @@ import com.example.mygymapp.viewmodel.PlansViewModelFactory
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -96,14 +97,17 @@ fun EditWeeklyPlanScreen(
             )
         },
         floatingActionButton = {
+            val saveEnabled = planWithExercises != null && name.isNotBlank()
             FloatingActionButton(
                 onClick = {
-                    planWithExercises?.let { pw ->
-                        val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
-                        val refs = mutableListOf<PlanExerciseCrossRef>()
-                        dayEntries.forEachIndexed { day, list ->
-                            list.forEachIndexed { idx, entry ->
-                                refs.add(
+                    if (saveEnabled) {
+                        planWithExercises?.let { pw ->
+                            val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
+                            val refs = mutableListOf<PlanExerciseCrossRef>()
+                            dayEntries.forEachIndexed { day, list ->
+                                list.forEachIndexed { idx, entry ->
+                                    refs.add(
+
                                     PlanExerciseCrossRef(
                                         planId = plan.planId,
                                         exerciseId = entry.exercise.id,
@@ -118,9 +122,16 @@ fun EditWeeklyPlanScreen(
                         viewModel.save(plan, refs, dayNames.toList())
                         navController.popBackStack()
                     }
-                },
-                enabled = planWithExercises != null && name.isNotBlank()
-            ) { Icon(Icons.Default.Check, contentDescription = stringResource(id = R.string.save)) }
+
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = stringResource(id = R.string.save),
+                    tint = if (saveEnabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                )
+            }
+
         }
     ) { padding ->
         if (planWithExercises == null) {
@@ -223,7 +234,9 @@ fun EditWeeklyPlanScreen(
             LazyColumn {
                 items(exercises) { ex ->
                     ListItem(
-                        headlineText = { Text(ex.name) },
+
+                        headlineContent = { Text(ex.name) },
+
                         modifier = Modifier.clickable {
                             if (showChooserForDay in dayEntries.indices) {
                                 dayEntries[showChooserForDay].add(ExerciseEntry(ex))

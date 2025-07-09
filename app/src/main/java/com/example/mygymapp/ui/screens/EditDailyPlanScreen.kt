@@ -34,6 +34,7 @@ import com.example.mygymapp.viewmodel.PlansViewModelFactory
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -93,25 +94,34 @@ fun EditDailyPlanScreen(
             )
         },
         floatingActionButton = {
+            val saveEnabled = planWithExercises != null && name.isNotBlank() && selected.isNotEmpty()
             FloatingActionButton(
                 onClick = {
-                    planWithExercises?.let { pw ->
-                        val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
-                        val refs = selected.mapIndexed { idx, e ->
-                            PlanExerciseCrossRef(
-                                planId = plan.planId,
-                                exerciseId = e.exercise.id,
-                                sets = e.sets,
-                                reps = e.reps,
-                                orderIndex = idx
-                            )
+                    if (saveEnabled) {
+                        planWithExercises?.let { pw ->
+                            val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
+                            val refs = selected.mapIndexed { idx, e ->
+                                PlanExerciseCrossRef(
+                                    planId = plan.planId,
+                                    exerciseId = e.exercise.id,
+                                    sets = e.sets,
+                                    reps = e.reps,
+                                    orderIndex = idx
+                                )
+                            }
+                            viewModel.save(plan, refs)
+                            navController.popBackStack()
                         }
-                        viewModel.save(plan, refs)
-                        navController.popBackStack()
                     }
-                },
-                enabled = planWithExercises != null && name.isNotBlank() && selected.isNotEmpty()
-            ) { Icon(Icons.Default.Check, contentDescription = stringResource(id = R.string.save)) }
+                }
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = stringResource(id = R.string.save),
+                    tint = if (saveEnabled) LocalContentColor.current else LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                )
+            }
+
         }
     ) { padding ->
         if (planWithExercises == null) {
@@ -199,7 +209,9 @@ fun EditDailyPlanScreen(
             LazyColumn {
                 items(exercises) { ex ->
                     ListItem(
-                        headlineText = { Text(ex.name) },
+
+                        headlineContent = { Text(ex.name) },
+
                         modifier = Modifier.clickable {
                             selected.add(ExerciseEntry(ex))
                             showChooser = false
