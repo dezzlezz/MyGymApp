@@ -13,6 +13,7 @@ import com.example.mygymapp.data.PlanExerciseCrossRef
 fun WorkoutDayCard(
     ref: PlanExerciseCrossRef,
     exerciseName: String,
+    muscleGroup: String,
     done: Boolean,
     onDone: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -27,7 +28,6 @@ fun WorkoutDayCard(
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
             Text(exerciseName, style = MaterialTheme.typography.titleMedium)
-            Text("${ref.sets} x ${ref.reps}", style = MaterialTheme.typography.bodySmall)
+            Text("${ref.sets} x ${ref.reps} • $muscleGroup", style = MaterialTheme.typography.bodySmall)
         }
-    }
-}
+    }}
