@@ -15,8 +15,6 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,9 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
-import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.components.PlanCard
-import com.example.mygymapp.ui.components.PlanDetailSheet
 import com.example.mygymapp.viewmodel.PlansViewModel
 import com.example.mygymapp.viewmodel.PlansViewModelFactory
 import com.example.mygymapp.viewmodel.ExerciseViewModel
@@ -43,14 +39,13 @@ fun DailyPlansTab(navController: NavController) {
     val repo = remember(context) {
         PlanRepository(AppDatabase.getDatabase(context).planDao())
     }
-    val viewModel: PlansViewModel = viewModel(factory = PlansViewModelFactory(repo))
+    val viewModel: PlansViewModel = viewModel(key = "dailyPlans", factory = PlansViewModelFactory(repo))
     val exerciseViewModel: ExerciseViewModel = viewModel()
 
     val plans by viewModel.plans.observeAsState(emptyList())
     val exercises by exerciseViewModel.allExercises.observeAsState(emptyList())
 
     var showAdd by remember { mutableStateOf(false) }
-    var detail by remember { mutableStateOf<PlanWithExercises?>(null) }
 
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
@@ -63,7 +58,7 @@ fun DailyPlansTab(navController: NavController) {
                                 true
                             }
                             DismissValue.DismissedToStart -> {
-                                navController.navigate("editPlan/${plan.planId}")
+                                navController.navigate("editDailyPlan/${plan.planId}")
                                 false
                             }
                             else -> false
@@ -90,10 +85,8 @@ fun DailyPlansTab(navController: NavController) {
                         }
                     },
                     dismissContent = {
-                        val scope = rememberCoroutineScope()
                         PlanCard(plan = plan, onClick = {
-                            scope.launch {
-                            }
+                            navController.navigate("planDetail/${plan.planId}")
                         })
                     }
                 )
@@ -105,17 +98,12 @@ fun DailyPlansTab(navController: NavController) {
     }
 
     if (showAdd) {
-        AddDailyPlanSheet(exercises = exercises,
+        AddDailyPlanSheet(
+            exercises = exercises,
             onSave = { plan, refs ->
                 viewModel.save(plan, refs)
                 showAdd = false
             },
             onCancel = { showAdd = false }
         )
-    }
-
-    detail?.let { pw ->
-        val map = exercises.associate { it.id to it.name }
-        PlanDetailSheet(planWithExercises = pw, exerciseMap = map, onClose = { detail = null })
-    }
-}
+    }}

@@ -87,13 +87,17 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
                 )
             }
             composable("plans") { PlansScreen(navController) }
-            composable("editPlan/{id}") { backStackEntry ->
+            composable("editDailyPlan/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
-                EditPlanScreen(
-                    planId = id,
-                    onDone = { navController.popBackStack() },
-                    onCancel = { navController.popBackStack() }
-                )
+                EditDailyPlanScreen(planId = id, navController = navController)
+            }
+            composable("editWeeklyPlan/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
+                EditWeeklyPlanScreen(planId = id, navController = navController)
+            }
+            composable("planDetail/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
+                PlanDetailScreen(planId = id, navController = navController)
             }
             composable("workout") { WorkoutScreen() }
             composable("profile") { ProfileScreen() }
@@ -104,5 +108,4 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
 data class NavTab(
     val route: String,
     val label: String,
-    val icon: ImageVector
-)
+    val icon: ImageVector)

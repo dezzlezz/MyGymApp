@@ -108,15 +108,15 @@ fun AddDailyPlanSheet(
                     .reorderable(reorderState)
                     .detectReorderAfterLongPress(reorderState)
             ) {
-                itemsIndexed(selected, key = { _, item -> item.exercise.id }) { index, item ->
-                    ReorderableItem(reorderState, key = item.exercise.id) { _ ->
+                itemsIndexed(selected, key = { _, item -> item.id }) { index, item ->
+                    ReorderableItem(reorderState, key = item.id) { _ ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
                             Text(item.exercise.name, modifier = Modifier.weight(1f))
-                            var setsText by remember(item.exercise.id) { mutableStateOf(item.sets.toString()) }
+                            var setsText by remember(item.id) { mutableStateOf(item.sets.toString()) }
                             OutlinedTextField(
                                 value = setsText,
                                 onValueChange = {
@@ -129,7 +129,7 @@ fun AddDailyPlanSheet(
                                 modifier = Modifier.width(72.dp)
                             )
                             Spacer(Modifier.width(4.dp))
-                            var repsText by remember(item.exercise.id) { mutableStateOf(item.reps.toString()) }
+                            var repsText by remember(item.id) { mutableStateOf(item.reps.toString()) }
                             OutlinedTextField(
                                 value = repsText,
                                 onValueChange = {

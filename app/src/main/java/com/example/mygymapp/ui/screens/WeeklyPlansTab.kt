@@ -15,8 +15,6 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
-import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.PlanType
 import com.example.mygymapp.components.PlanCard
 import com.example.mygymapp.viewmodel.PlansViewModel
@@ -35,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.mygymapp.ui.theme.EditGray
 import com.example.mygymapp.ui.theme.NatureGreen
-import com.example.mygymapp.ui.components.PlanDetailSheet
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -44,14 +40,13 @@ fun WeeklyPlansTab(navController: NavController) {
     val repo = remember(context) {
         PlanRepository(AppDatabase.getDatabase(context).planDao())
     }
-    val viewModel: PlansViewModel = viewModel(factory = PlansViewModelFactory(repo))
+    val viewModel: PlansViewModel = viewModel(key = "weeklyPlans", factory = PlansViewModelFactory(repo))
     val exerciseViewModel: ExerciseViewModel = viewModel()
 
     val plans by viewModel.plans.observeAsState(emptyList())
     val exercises by exerciseViewModel.allExercises.observeAsState(emptyList())
 
     var showAdd by remember { mutableStateOf(false) }
-    var detail by remember { mutableStateOf<PlanWithExercises?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.switchType(PlanType.WEEKLY)
@@ -68,7 +63,7 @@ fun WeeklyPlansTab(navController: NavController) {
                                 true
                             }
                             DismissValue.DismissedToStart -> {
-                                navController.navigate("editPlan/${plan.planId}")
+                                navController.navigate("editWeeklyPlan/${plan.planId}")
                                 false
                             }
                             else -> false
@@ -94,12 +89,8 @@ fun WeeklyPlansTab(navController: NavController) {
                         }
                     },
                     dismissContent = {
-                        val scope = rememberCoroutineScope()
                         PlanCard(plan = plan, onClick = {
-                            scope.launch {
-                                detail = viewModel.getPlan(plan.planId)
-
-                            }
+                            navController.navigate("planDetail/${plan.planId}")
                         })
                     }
                 )
@@ -118,10 +109,5 @@ fun WeeklyPlansTab(navController: NavController) {
             },
             onCancel = { showAdd = false }
         )
-    }
-
-    detail?.let { pw ->
-        val map = exercises.associate { it.id to it.name }
-        PlanDetailSheet(planWithExercises = pw, exerciseMap = map, onClose = { detail = null })
     }
 }
