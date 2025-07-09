@@ -21,14 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
-
-private fun <T> MutableList<T>.move(from: Int, to: Int) {
-    if (from == to) return
-    val item = removeAt(from)
-    add(if (to > from) to - 1 else to, item)
-}
-
-
+import com.example.mygymapp.ui.util.move
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,14 +31,14 @@ fun AddDailyPlanSheet(
     onSave: (Plan, List<PlanExerciseCrossRef>) -> Unit,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var desc by remember { mutableStateOf("") }
-    var difficulty by remember { mutableStateOf(3) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var desc by rememberSaveable { mutableStateOf("") }
+    var difficulty by rememberSaveable { mutableIntStateOf(3) }
 
     val selected = remember { mutableStateListOf<ExerciseEntry>() }
 
-    var expanded by remember { mutableStateOf(false) }
-    var chosen by remember { mutableStateOf<Exercise?>(null) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var chosen by rememberSaveable { mutableStateOf<Exercise?>(null) }
 
     val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
         selected.move(from.index, to.index)

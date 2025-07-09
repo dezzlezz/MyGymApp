@@ -15,15 +15,8 @@ import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.DifficultyRating
-
-private val musclesByGroup = mapOf(
-    MuscleGroup.Arms to listOf("Biceps", "Triceps", "Forearm"),
-    MuscleGroup.Legs to listOf("Quadriceps", "Hamstrings", "Calves"),
-    MuscleGroup.Core to listOf("Abs", "Obliques"),
-    MuscleGroup.Chest to listOf("Upper Chest", "Lower Chest"),
-    MuscleGroup.Shoulders to listOf("Front", "Lateral", "Rear"),
-    MuscleGroup.Back to listOf("Upper Back", "Lower Back", "Lats")
-)
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.mygymapp.model.musclesByGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,15 +26,15 @@ fun EditExerciseScreen(
     onCancel: () -> Unit,
     viewModel: ExerciseViewModel = viewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var difficulty by remember { mutableIntStateOf(3) }
-    var category by remember { mutableStateOf(ExerciseCategory.Calisthenics) }
-    var categoryExpanded by remember { mutableStateOf(false) }
-    var group by remember { mutableStateOf(MuscleGroup.Legs) }
-    var groupExpanded by remember { mutableStateOf(false) }
-    var muscle by remember { mutableStateOf("") }
-    var muscleExpanded by remember { mutableStateOf(false) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var difficulty by rememberSaveable { mutableIntStateOf(3) }
+    var category by rememberSaveable { mutableStateOf(ExerciseCategory.Calisthenics) }
+    var categoryExpanded by rememberSaveable { mutableStateOf(false) }
+    var group by rememberSaveable { mutableStateOf(MuscleGroup.Legs) }
+    var groupExpanded by rememberSaveable { mutableStateOf(false) }
+    var muscle by rememberSaveable { mutableStateOf("") }
+    var muscleExpanded by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(exerciseId) {
         viewModel.getById(exerciseId)?.let { ex ->

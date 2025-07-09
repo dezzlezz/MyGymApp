@@ -21,13 +21,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
-
-private fun <T> MutableList<T>.move(from: Int, to: Int) {
-    if (from == to) return
-    val item = removeAt(from)
-    add(if (to > from) to - 1 else to, item)
-}
-
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.mygymapp.ui.util.move
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,9 +31,9 @@ fun AddWeeklyPlanSheet(
     onSave: (Plan, List<PlanExerciseCrossRef>, List<String>) -> Unit,
     onCancel: () -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var desc by remember { mutableStateOf("") }
-    var difficulty by remember { mutableStateOf(3) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var desc by rememberSaveable { mutableStateOf("") }
+    var difficulty by rememberSaveable { mutableIntStateOf(3) }
 
     val dayNames = remember { mutableStateListOf("Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5") }
     val dayEntries = remember { List(5) { mutableStateListOf<ExerciseEntry>() } }
