@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.viewmodel
+package com.example.mygymapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -8,7 +8,9 @@ import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.data.SettingsStorage
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import com.example.mygymapp.data.WorkoutHistoryStorage
+import com.example.mygymapp.data.WorkoutStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -22,7 +24,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val darkMode: StateFlow<Boolean> = settings.darkMode
     val notifications: StateFlow<Boolean> = settings.notifications
 
-    private val _history = kotlinx.coroutines.flow.MutableStateFlow(historyStore.loadAll())
+    private val _history = MutableStateFlow(historyStore.loadAll())
     val history: StateFlow<Map<LocalDate, WorkoutHistoryEntry>> = _history
 
     fun setUserName(name: String) = settings.setUserName(name)
@@ -48,6 +50,6 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun logout() {
         // For demo purposes we just clear progress
-        com.example.mygymapp.data.WorkoutStorage(getApplication()).clear()
+        WorkoutStorage(getApplication()).clear()
     }
 }

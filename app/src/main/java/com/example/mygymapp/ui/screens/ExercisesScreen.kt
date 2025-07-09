@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mygymapp.data.Exercise
-import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.StarRating
 import com.example.mygymapp.ui.theme.EditGray
 import com.example.mygymapp.ui.theme.NatureGreen

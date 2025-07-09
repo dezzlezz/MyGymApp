@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -14,7 +15,7 @@ import com.example.mygymapp.ui.screens.WeeklyPlansTab
 
 @Composable
 fun PlansScreen(navController: NavController) {
-    var selected by remember { mutableStateOf(PlanType.DAILY) }
+    var selected by rememberSaveable { mutableStateOf(PlanType.DAILY) }
 
     Column(Modifier.fillMaxSize()) {
         TabRow(selectedTabIndex = if (selected == PlanType.DAILY) 0 else 1) {

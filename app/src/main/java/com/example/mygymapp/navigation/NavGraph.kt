@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.navigation
+package com.example.mygymapp.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -15,14 +15,14 @@ import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Timeline
-import androidx.compose.runtime.getValue
+import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.ui.theme.AccentGreen
 import com.example.mygymapp.ui.theme.InactiveGray
 
 /** Simple navigation graph extracted from MainScreen */
 @Composable
 fun AppNavGraph(modifier: Modifier = Modifier) {
-    val navController = androidx.navigation.compose.rememberNavController()
+    val navController = rememberNavController()
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
 
     val navTabs = listOf(

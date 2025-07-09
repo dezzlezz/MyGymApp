@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.components
+package com.example.mygymapp.components
 
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -17,7 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import androidx.compose.foundation.Image
+import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.data.Plan
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.ui.res.stringResource
@@ -64,8 +65,9 @@ fun PlanCard(
 private fun PlanIcon(iconUriString: String?) {
     val uri = iconUriString?.let { Uri.parse(it) }
     if (uri != null) {
-        AsyncImage(
-            model = uri,
+        val painter = rememberAsyncImagePainter(uri)
+        Image(
+            painter = painter,
             contentDescription = null,
             modifier = Modifier
                 .size(40.dp)
