@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
+import androidx.compose.material3.ContentAlpha
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -74,7 +75,8 @@ fun EditWeeklyPlanScreen(
             dayEntries.clear()
             val daysSorted = if (pw.days.isNotEmpty()) pw.days.sortedBy { it.dayIndex } else List(5) { null }
             daysSorted.forEachIndexed { idx, d ->
-                dayNames.add(d?.name ?: stringResource(id = R.string.day_label, idx + 1))
+                val defaultName = context.getString(R.string.day_label, idx + 1)
+                dayNames.add(d?.name ?: defaultName)
                 val list = pw.exercises.filter { it.dayIndex == idx }.sortedBy { it.orderIndex }.mapNotNull { ref ->
                     val ex = exercises.firstOrNull { it.id == ref.exerciseId }
                     ex?.let { ExerciseEntry(it, ref.sets, ref.reps) }
@@ -234,7 +236,7 @@ fun EditWeeklyPlanScreen(
         ModalBottomSheet(onDismissRequest = { showChooserForDay = -1 }, sheetState = rememberModalBottomSheetState()) {
             LazyColumn {
                 items(exercises) { ex ->
-                    ListItem(<<<<<<< b1ljbp-codex/uberarbeite-workout-bereich-fur-android-app
+                    ListItem(
                         headlineContent = { Text(ex.name) },
 
                         modifier = Modifier.clickable {
