@@ -28,12 +28,14 @@
     <string name="show_favorites">Show favorites</string>
     <string name="all">All</string>
     <string name="favorite_marked">Marked as favorite</string>
+
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="plan_detail">Plan Details</string>
     <string name="edit_daily_plan">Edit Daily Plan</string>
     <string name="edit_weekly_plan">Edit Weekly Plan</string>
     <string name="select_exercise">Select Exercise</string>
+
     <string name="start_week">Start Week</string>
     <string name="select_plan">Select Plan</string>
     <string name="no_weekly_plans">No weekly plans</string>

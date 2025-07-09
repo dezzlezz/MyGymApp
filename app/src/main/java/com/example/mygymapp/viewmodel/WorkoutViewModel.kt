@@ -1,5 +1,5 @@
 package com.example.mygymapp.viewmodel
-
+gfjhg
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -114,4 +114,6 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
             result.postValue(repo.getPlanWithExercises(planId))
         }
         return result
+
     }}
+
