@@ -21,6 +21,7 @@ import androidx.lifecycle.asLiveData
 import com.example.mygymapp.data.WorkoutHistoryStorage
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import java.time.LocalDate
+import java.time.ZoneId
 
 class WorkoutViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = PlanRepository(AppDatabase.getDatabase(application).planDao())
@@ -82,7 +83,13 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
         } else {
             current.weeklyPlanId
         }
-        historyStore.add(WorkoutHistoryEntry(LocalDate.now(), planId, index))
+        historyStore.add(
+            WorkoutHistoryEntry(
+                LocalDate.now(ZoneId.systemDefault()),
+                planId,
+                index
+            )
+        )
 
         val next = current.copy(day = current.day + 1)
         if (next.day >= 7) {

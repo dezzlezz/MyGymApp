@@ -91,9 +91,9 @@ fun ExerciseListScreen(
                                     }
                                 ) {
                                     if (dismissState.dismissDirection == DismissDirection.StartToEnd) {
-                                        Text("Delete", color = Color.White)
+                                        Text("Delete", color = MaterialTheme.colorScheme.onError)
                                     } else if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-                                        Text("Edit", color = Color.Black)
+                                        Text("Edit", color = MaterialTheme.colorScheme.onPrimary)
                                     }
                                 }
                             },
