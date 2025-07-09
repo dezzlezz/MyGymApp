@@ -18,6 +18,8 @@ import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType as DataPlanType
 import com.example.mygymapp.model.PlanType as UiPlanType
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,14 +57,14 @@ fun AddEditPlanSheet(
             OutlinedTextField(
                 value = planName,
                 onValueChange = { planName = it },
-                label = { Text("Plan-Name") },
+                label = { Text(stringResource(id = R.string.plan_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Beschreibung") },
+                label = { Text(stringResource(id = R.string.description_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
@@ -72,7 +74,7 @@ fun AddEditPlanSheet(
             OutlinedTextField(
                 value = iconUri,
                 onValueChange = { iconUri = it },
-                label = { Text("Icon URI") },
+                label = { Text(stringResource(id = R.string.icon_uri)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
@@ -86,7 +88,7 @@ fun AddEditPlanSheet(
                 OutlinedTextField(
                     value = uiType.name,
                     onValueChange = {},
-                    label = { Text("Typ") },
+                    label = { Text(stringResource(id = R.string.type)) },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier.fillMaxWidth()
@@ -114,7 +116,7 @@ fun AddEditPlanSheet(
                 OutlinedTextField(
                     value = setsText,
                     onValueChange = { setsText = it.filter { ch -> ch.isDigit() } },
-                    label = { Text("Sets") },
+                    label = { Text(stringResource(id = R.string.sets)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.weight(1f)
@@ -122,7 +124,7 @@ fun AddEditPlanSheet(
                 OutlinedTextField(
                     value = repsText,
                     onValueChange = { repsText = it.filter { ch -> ch.isDigit() } },
-                    label = { Text("Reps") },
+                    label = { Text(stringResource(id = R.string.reps)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.weight(1f)
@@ -130,7 +132,7 @@ fun AddEditPlanSheet(
                 OutlinedTextField(
                     value = orderIndex.toString(),
                     onValueChange = { orderIndex = it.toIntOrNull() ?: orderIndex },
-                    label = { Text("Order") },
+                    label = { Text(stringResource(id = R.string.order)) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -139,7 +141,7 @@ fun AddEditPlanSheet(
 
             // Buttons
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onCancel) { Text("Abbrechen") }
+                TextButton(onClick = onCancel) { Text(stringResource(id = R.string.cancel)) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     // Data-PlanType mappen
@@ -165,7 +167,7 @@ fun AddEditPlanSheet(
                     )
                     onSave(plan, crossRefs)
                 }) {
-                    Text("Speichern")
+                    Text(stringResource(id = R.string.save))
                 }
             }
         }

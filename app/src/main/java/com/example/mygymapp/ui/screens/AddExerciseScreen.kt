@@ -15,6 +15,8 @@ import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
 import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 private val musclesByGroup = mapOf(
     MuscleGroup.Arms to listOf("Biceps", "Triceps", "Forearm"),
@@ -45,10 +47,10 @@ fun AddExerciseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Exercise") },
+                title = { Text(stringResource(id = R.string.add_exercise)) },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 }
             )
@@ -65,19 +67,19 @@ fun AddExerciseScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(id = R.string.name_label)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Beschreibung") },
+                label = { Text(stringResource(id = R.string.description_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
             )
             Spacer(Modifier.height(8.dp))
-            Text("Schwierigkeit")
+            Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
             Spacer(Modifier.height(8.dp))
             ExposedDropdownMenuBox(expanded = categoryExpanded, onExpandedChange = { categoryExpanded = !categoryExpanded }) {
@@ -85,7 +87,7 @@ fun AddExerciseScreen(
                     readOnly = true,
                     value = category.display,
                     onValueChange = {},
-                    label = { Text("Art") },
+                    label = { Text(stringResource(id = R.string.category)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
@@ -104,7 +106,7 @@ fun AddExerciseScreen(
                     readOnly = true,
                     value = group.display,
                     onValueChange = {},
-                    label = { Text("Muskelgruppe") },
+                    label = { Text(stringResource(id = R.string.muscle_group)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = groupExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
@@ -125,7 +127,7 @@ fun AddExerciseScreen(
                     readOnly = true,
                     value = muscle,
                     onValueChange = {},
-                    label = { Text("Muskel") },
+                    label = { Text(stringResource(id = R.string.muscle)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
@@ -155,8 +157,8 @@ fun AddExerciseScreen(
                     },
                     enabled = name.isNotBlank() && muscle.isNotBlank(),
                     modifier = Modifier.weight(1f)
-                ) { Text("Speichern") }
-                OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Abbrechen") }
+                ) { Text(stringResource(id = R.string.save)) }
+                OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(id = R.string.cancel)) }
             }
         }
     }

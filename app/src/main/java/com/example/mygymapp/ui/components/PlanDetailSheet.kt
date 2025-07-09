@@ -8,6 +8,8 @@ import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.data.PlanDay
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +68,7 @@ fun PlanDetailSheet(
                 onClick = onClose,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Schließen")
+                Text(stringResource(id = R.string.close))
             }
         }
     }

@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @Composable
 fun SearchFilterBar(
@@ -27,14 +29,15 @@ fun SearchFilterBar(
         TextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text("Search plans") },
+            placeholder = { Text(stringResource(id = R.string.search_plans)) },
             modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.width(8.dp))
         IconButton(onClick = onFavoritesToggle) {
             Icon(
                 imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                contentDescription = if (favoritesOnly) "Show all" else "Show favorites"
+                contentDescription = if (favoritesOnly) stringResource(id = R.string.show_all) else stringResource(id = R.string.show_favorites)
+
             )
         }
     }
