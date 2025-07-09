@@ -114,4 +114,6 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
             result.postValue(repo.getPlanWithExercises(planId))
         }
         return result
+
     }}
+
