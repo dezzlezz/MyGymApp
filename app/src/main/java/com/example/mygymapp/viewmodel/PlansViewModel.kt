@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.viewmodel
+package com.example.mygymapp.viewmodel
 
 import androidx.lifecycle.*
 import com.example.mygymapp.data.Plan
@@ -7,6 +7,7 @@ import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.PlanType
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 class PlansViewModel(
     private val repo: PlanRepository
@@ -42,5 +43,8 @@ class PlansViewModel(
         }
         return result
     }
+
+    suspend fun getPlan(planId: Long): PlanWithExercises? =
+        withContext(Dispatchers.IO) { repo.getPlanWithExercises(planId) }
 }
 

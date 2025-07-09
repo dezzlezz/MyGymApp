@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.viewmodel
+package com.example.mygymapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -20,6 +20,7 @@ import java.util.NoSuchElementException
 import androidx.lifecycle.asLiveData
 import com.example.mygymapp.data.WorkoutHistoryStorage
 import com.example.mygymapp.data.WorkoutHistoryEntry
+import java.time.LocalDate
 
 class WorkoutViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = PlanRepository(AppDatabase.getDatabase(application).planDao())
@@ -81,7 +82,7 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
         } else {
             current.weeklyPlanId
         }
-        historyStore.add(WorkoutHistoryEntry(java.time.LocalDate.now(), planId, index))
+        historyStore.add(WorkoutHistoryEntry(LocalDate.now(), planId, index))
 
         val next = current.copy(day = current.day + 1)
         if (next.day >= 7) {

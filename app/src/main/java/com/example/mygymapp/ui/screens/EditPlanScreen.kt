@@ -14,8 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
-import com.example.mygymapp.ui.viewmodel.PlansViewModel
-import com.example.mygymapp.ui.viewmodel.PlansViewModelFactory
+import com.example.mygymapp.viewmodel.PlansViewModel
+import com.example.mygymapp.viewmodel.PlansViewModelFactory
 
 @Composable
 fun EditPlanScreen(

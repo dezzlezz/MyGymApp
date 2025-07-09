@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
-import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.mygymapp.model.musclesByGroup

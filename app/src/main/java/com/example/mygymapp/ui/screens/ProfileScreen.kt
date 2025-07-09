@@ -21,7 +21,7 @@ import com.example.mygymapp.data.WorkoutHistoryEntry
 import com.example.mygymapp.ui.theme.AccentGreen
 import com.example.mygymapp.ui.theme.DeepBlack
 import com.example.mygymapp.ui.theme.OnDark
-import com.example.mygymapp.ui.viewmodel.ProfileViewModel
+import com.example.mygymapp.viewmodel.ProfileViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle

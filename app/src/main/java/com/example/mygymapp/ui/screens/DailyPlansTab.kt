@@ -15,22 +15,21 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.AppDatabase
-import com.example.mygymapp.data.Plan
-import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.data.PlanWithExercises
-import com.example.mygymapp.model.PlanType
-import com.example.mygymapp.ui.components.PlanCard
+import com.example.mygymapp.components.PlanCard
 import com.example.mygymapp.ui.components.PlanDetailSheet
-import com.example.mygymapp.ui.viewmodel.PlansViewModel
-import com.example.mygymapp.ui.viewmodel.PlansViewModelFactory
-import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
+import com.example.mygymapp.viewmodel.PlansViewModel
+import com.example.mygymapp.viewmodel.PlansViewModelFactory
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
@@ -91,9 +90,9 @@ fun DailyPlansTab(navController: NavController) {
                         }
                     },
                     dismissContent = {
+                        val scope = rememberCoroutineScope()
                         PlanCard(plan = plan, onClick = {
-                            viewModel.load(plan.planId).observeForever { pw ->
-                                detail = pw
+                            scope.launch {
                             }
                         })
                     }

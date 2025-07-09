@@ -8,12 +8,13 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.example.mygymapp.components.CustomTextField
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
-import com.example.mygymapp.ui.viewmodel.ExerciseViewModel
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
@@ -57,19 +58,18 @@ fun AddExerciseScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            OutlinedTextField(
+            CustomTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.name_label)) },
+                label = stringResource(id = R.string.name_label),
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
+            CustomTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text(stringResource(id = R.string.description_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                label = stringResource(id = R.string.description_label),
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
             Text(stringResource(id = R.string.difficulty))

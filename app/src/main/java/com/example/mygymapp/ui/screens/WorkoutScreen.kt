@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.example.mygymapp.components.WorkoutDayCard
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ import com.example.mygymapp.data.Plan
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.model.WeekProgress
-import com.example.mygymapp.ui.viewmodel.WorkoutViewModel
+import com.example.mygymapp.viewmodel.WorkoutViewModel
 
 private val days = listOf("Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag")
 
@@ -265,7 +266,12 @@ private fun WorkoutDayScreen(
         Spacer(Modifier.height(8.dp))
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(exercises) { ref ->
-                ExerciseRow(ref, doneMap[ref.exerciseId] == true, { doneMap[ref.exerciseId] = it }, viewModel)
+                WorkoutDayCard(
+                    ref = ref,
+                    exerciseName = viewModel.getExerciseName(ref.exerciseId),
+                    done = doneMap[ref.exerciseId] == true,
+                    onDone = { doneMap[ref.exerciseId] = it }
+                )
             }
         }
         Button(
@@ -276,16 +282,8 @@ private fun WorkoutDayScreen(
     }
 }
 
-@Composable
-private fun ExerciseRow(ref: PlanExerciseCrossRef, done: Boolean, onDone: (Boolean) -> Unit, viewModel: WorkoutViewModel) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = done, onCheckedChange = onDone)
-        Column(Modifier.weight(1f)) {
-            Text(viewModel.getExerciseName(ref.exerciseId), style = MaterialTheme.typography.titleMedium)
-            Text("${ref.sets} x ${ref.reps}", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
+
+
 
 @Composable
 private fun FinishDayScreen(progress: WeekProgress?, onContinue: () -> Unit) {
