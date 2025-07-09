@@ -108,19 +108,20 @@ fun EditWeeklyPlanScreen(
                                 list.forEachIndexed { idx, entry ->
                                     refs.add(
 
-                                    PlanExerciseCrossRef(
-                                        planId = plan.planId,
-                                        exerciseId = entry.exercise.id,
-                                        sets = entry.sets,
-                                        reps = entry.reps,
-                                        orderIndex = idx,
-                                        dayIndex = day
+                                        PlanExerciseCrossRef(
+                                            planId = plan.planId,
+                                            exerciseId = entry.exercise.id,
+                                            sets = entry.sets,
+                                            reps = entry.reps,
+                                            orderIndex = idx,
+                                            dayIndex = day
+                                        )
                                     )
-                                )
+                                }
                             }
+                            viewModel.save(plan, refs, dayNames.toList())
+                            navController.popBackStack()
                         }
-                        viewModel.save(plan, refs, dayNames.toList())
-                        navController.popBackStack()
                     }
 
                 }
@@ -233,8 +234,7 @@ fun EditWeeklyPlanScreen(
         ModalBottomSheet(onDismissRequest = { showChooserForDay = -1 }, sheetState = rememberModalBottomSheetState()) {
             LazyColumn {
                 items(exercises) { ex ->
-                    ListItem(
-
+                    ListItem(<<<<<<< b1ljbp-codex/uberarbeite-workout-bereich-fur-android-app
                         headlineContent = { Text(ex.name) },
 
                         modifier = Modifier.clickable {
