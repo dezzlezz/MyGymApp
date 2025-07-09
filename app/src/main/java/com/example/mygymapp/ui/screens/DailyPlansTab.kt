@@ -71,6 +71,7 @@ fun DailyPlansTab(navController: NavController) {
                         }
                     }
                 )
+
                 SwipeToDismiss(
                     state = dismissState,
                     directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),

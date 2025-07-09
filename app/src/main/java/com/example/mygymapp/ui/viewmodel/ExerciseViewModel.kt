@@ -7,6 +7,7 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.ExerciseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ExerciseViewModel(application: Application) : AndroidViewModel(application) {
     private val repo: ExerciseRepository
@@ -30,5 +31,7 @@ class ExerciseViewModel(application: Application) : AndroidViewModel(application
         repo.updateExercise(ex)
     }
 
-    fun getById(id: Long): Exercise? = repo.getExerciseById(id)
+    suspend fun getById(id: Long): Exercise? = withContext(Dispatchers.IO) {
+        repo.getExerciseById(id)
+    }
 }

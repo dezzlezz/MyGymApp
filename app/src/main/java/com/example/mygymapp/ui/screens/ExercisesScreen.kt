@@ -126,7 +126,11 @@ private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit, viewModel: Ex
                     }
                     StarRating(rating = ex.likeability)
                 }
+
             }
         }
     )
 }
+
+
+
