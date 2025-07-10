@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.example.mygymapp.model.AppTheme
 
 class SettingsStorage private constructor(context: Context) {
     private val prefs: SharedPreferences =
@@ -18,6 +19,11 @@ class SettingsStorage private constructor(context: Context) {
     private val _userName = MutableStateFlow(prefs.getString("user_name", "User") ?: "User")
     val userName: StateFlow<String> = _userName
 
+    private val _appTheme = MutableStateFlow(
+        AppTheme.values()[prefs.getInt("app_theme", AppTheme.DarkForest.ordinal)]
+    )
+    val appTheme: StateFlow<AppTheme> = _appTheme
+
     fun setDarkMode(value: Boolean) {
         _darkMode.value = value
         prefs.edit().putBoolean("dark_mode", value).apply()
@@ -31,6 +37,11 @@ class SettingsStorage private constructor(context: Context) {
     fun setUserName(value: String) {
         _userName.value = value
         prefs.edit().putString("user_name", value).apply()
+    }
+
+    fun setAppTheme(theme: AppTheme) {
+        _appTheme.value = theme
+        prefs.edit().putInt("app_theme", theme.ordinal).apply()
     }
 
     companion object {

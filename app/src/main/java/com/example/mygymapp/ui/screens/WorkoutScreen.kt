@@ -43,6 +43,7 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
     val weeklyPlans by viewModel.weeklyPlans.observeAsState(emptyList())
     val dailyPlans by viewModel.dailyPlans.observeAsState(emptyList())
     val plan by viewModel.todayPlan.observeAsState()
+    val _exercises by viewModel.exercises.observeAsState(emptyList())
     val nav = rememberNavController()
     var newWeeklyPlan by remember { mutableStateOf<Plan?>(null) }
     var restDay by remember { mutableIntStateOf(-1) }
@@ -302,7 +303,8 @@ private fun WorkoutDayScreen(
 
 @Composable
 private fun FinishDayScreen(progress: WeekProgress?, onContinue: () -> Unit) {
-    val text = if (progress == null) stringResource(R.string.week_complete) else stringResource(R.string.day_finished, dayName(progress.day))
+    val finishedDay = progress?.day?.minus(1) ?: 0
+    val text = if (progress == null) stringResource(R.string.week_complete) else stringResource(R.string.day_finished, dayName(finishedDay))
     val button = if (progress == null) stringResource(R.string.back_to_start) else stringResource(R.string.next_day)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
