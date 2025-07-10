@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.viewmodel.ExerciseViewModel
-import com.example.mygymapp.ui.widgets.StarRating
+import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.material.ExperimentalMaterialApi
 
 
@@ -60,8 +60,10 @@ fun ExerciseListScreen(
                     ) { exercise ->
                         val dismissState = rememberDismissState()
                         if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                            onEditExercise(exercise.id)
-                            LaunchedEffect(Unit) { dismissState.reset() }
+                            LaunchedEffect(exercise.id) {
+                                dismissState.reset()
+                                onEditExercise(exercise.id)
+                            }
                         }
                         if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
                             viewModel.delete(exercise.id)
@@ -141,7 +143,7 @@ fun ExerciseListItem(ex: Exercise) {
                 Text(ex.name, style = MaterialTheme.typography.titleMedium)
                 Text("${ex.muscleGroup} • ${ex.category}", style = MaterialTheme.typography.bodySmall)
             }
-            StarRating(rating = ex.likeability)
+            DifficultyRating(rating = ex.likeability)
         }
     }
 }
