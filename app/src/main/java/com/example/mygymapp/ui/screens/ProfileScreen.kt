@@ -3,7 +3,8 @@ package com.example.mygymapp.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
@@ -41,6 +42,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -169,11 +171,9 @@ private fun WorkoutCalendar(
         .takeWhile { !it.isAfter(todayMonth) }
         .toList()
 
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         months.forEach { month ->
-            item {
-                MonthView(month = month, entries = entries, onDayClick = onDayClick)
-            }
+            MonthView(month = month, entries = entries, onDayClick = onDayClick)
         }
     }
 }

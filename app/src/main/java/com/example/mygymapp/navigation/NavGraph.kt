@@ -40,7 +40,6 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
             navController = navController,
             startDestination = navTabs.first().route,
             modifier = modifier.then(extraModifier)
-
         ) {
             composable("exercises") {
                 ExercisesScreen(
