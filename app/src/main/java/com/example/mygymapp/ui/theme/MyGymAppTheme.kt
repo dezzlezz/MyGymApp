@@ -8,8 +8,6 @@ import com.example.mygymapp.model.AppTheme
 import com.example.mygymapp.ui.theme.DarkForestTheme
 import com.example.mygymapp.ui.theme.MountainTheme
 
-
-
 private val BeachColors = lightColorScheme(
     primary = Color(0xFFFF8A65),
     onPrimary = DeepBlack,
