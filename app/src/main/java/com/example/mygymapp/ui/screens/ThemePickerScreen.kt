@@ -1,5 +1,6 @@
 package com.example.mygymapp.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,9 +32,19 @@ fun ThemePickerScreen(onBack: () -> Unit, viewModel: ThemeViewModel = viewModel(
     }) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
             AppTheme.values().forEach { theme ->
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    RadioButton(selected = theme == current, onClick = { viewModel.setTheme(theme) })
-                    Text(theme.displayName, modifier = Modifier.padding(start = 8.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable { viewModel.setTheme(theme) },
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (theme == current) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
+                        RadioButton(selected = theme == current, onClick = { viewModel.setTheme(theme) })
+                        Text(theme.displayName, modifier = Modifier.padding(start = 8.dp))
+                    }
                 }
             }
         }

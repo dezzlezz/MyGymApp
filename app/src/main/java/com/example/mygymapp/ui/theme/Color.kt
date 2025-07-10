@@ -17,3 +17,9 @@ val MountainBlue = Color(0xFF90CAF9)
 val GlacierAccent = Color(0xFFB3E5FC)
 val SnowWhite = Color(0xFFFFFFFF)
 val MistGray = Color(0xFFE0E0E0)
+
+// Beach theme colors
+val Sand = Color(0xFFFFE0B2)
+val SkyBlue = Color(0xFF81D4FA)
+val Coral = Color(0xFFFF8A65)
+val Turquoise = Color(0xFF80DEEA)

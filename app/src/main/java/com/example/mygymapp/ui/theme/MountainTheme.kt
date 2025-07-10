@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.LocalDensity
@@ -40,7 +41,17 @@ private val MountainShapes = Shapes(
 @Composable
 fun MountainTheme(content: @Composable () -> Unit) {
     Crossfade(targetState = MountainColorScheme) { colors ->
-        MaterialTheme(colorScheme = colors, shapes = MountainShapes, content = content)
+        MaterialTheme(colorScheme = colors, shapes = MountainShapes) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(MistGray, SnowWhite)
+                        )
+                    )
+            ) { content() }
+        }
     }
 }
 

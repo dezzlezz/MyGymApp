@@ -3,6 +3,7 @@ package com.example.mygymapp.navigation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -143,13 +144,10 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
         AppTheme.Beach -> {
             val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
             Scaffold(
-                topBar = {
-                    TabRow(
-                        selectedTabIndex = index,
-                        modifier = Modifier.statusBarsPadding()
-                    ) {
+                bottomBar = {
+                    NavigationBar {
                         navTabs.forEachIndexed { idx, tab ->
-                            Tab(
+                            NavigationBarItem(
                                 selected = idx == index,
                                 onClick = {
                                     navController.navigate(tab.route) {
@@ -158,12 +156,13 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                                         restoreState = true
                                     }
                                 },
-                                text = { Text(tab.label) },
-                                icon = { Icon(tab.icon, contentDescription = tab.label) }
+                                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                                label = { Text(tab.label) }
                             )
                         }
                     }
-                }
+                },
+                modifier = Modifier.statusBarsPadding()
             ) { innerPadding ->
                 navHost(Modifier.padding(innerPadding))
             }
