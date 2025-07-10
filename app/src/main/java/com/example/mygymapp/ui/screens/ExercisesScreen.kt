@@ -27,7 +27,7 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.StarRating
 import com.example.mygymapp.ui.theme.EditGray
-import com.example.mygymapp.ui.theme.NatureGreen
+import com.example.mygymapp.ui.theme.PineGreen
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
@@ -105,7 +105,7 @@ private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit, viewModel: Ex
                     .padding(horizontal = 20.dp),
                 contentAlignment = alignment
             ) {
-                Icon(icon, contentDescription = null, tint = NatureGreen)
+                Icon(icon, contentDescription = null, tint = PineGreen)
             }
         },
         dismissContent = {
