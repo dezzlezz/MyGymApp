@@ -50,7 +50,7 @@ private val MountainShapes = Shapes(
 )
 
 @Composable
-fun MountainTheme() {
+fun MountainTheme(animationsEnabled: Boolean = true) {
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
@@ -59,7 +59,7 @@ fun MountainTheme() {
         MaterialTheme(colorScheme = colors, shapes = MountainShapes) {
             Box(Modifier.fillMaxSize()) {
                 MountainBackground(Modifier.matchParentSize())
-                SnowEffect(Modifier.matchParentSize())
+                SnowEffect(Modifier.matchParentSize(), animationsEnabled = animationsEnabled)
                 Scaffold(
                     containerColor = Color.Transparent,
                     topBar = {
@@ -117,32 +117,38 @@ fun ParallaxHeader(modifier: Modifier = Modifier) {
 
 @Composable
 private fun MountainBackground(modifier: Modifier = Modifier) {
+    val layers = remember {
+        listOf(
+            listOf(0f to 0.6f, 0.2f to 0.4f, 0.4f to 0.55f, 0.6f to 0.35f, 0.8f to 0.5f, 1f to 0.4f),
+            listOf(0f to 0.8f, 0.3f to 0.6f, 0.6f to 0.75f, 0.8f to 0.5f, 1f to 0.7f)
+        )
+    }
     Canvas(modifier) {
         val h = size.height
         val w = size.width
-        val path = Path().apply {
-            moveTo(0f, h * 0.4f)
-            lineTo(w * 0.25f, h * 0.2f)
-            lineTo(w * 0.5f, h * 0.35f)
-            lineTo(w * 0.75f, h * 0.15f)
-            lineTo(w, h * 0.3f)
-            lineTo(w, 0f)
-            lineTo(0f, 0f)
-            close()
+        val colors = listOf(MountainBlue.copy(alpha = 0.6f), MountainBlue.copy(alpha = 0.4f))
+        layers.forEachIndexed { idx, pts ->
+            val path = Path().apply {
+                moveTo(0f, h)
+                lineTo(pts.first().first * w, pts.first().second * h)
+                pts.drop(1).forEach { (x, y) -> lineTo(x * w, y * h) }
+                lineTo(w, h)
+                close()
+            }
+            drawPath(path, colors[idx])
         }
-        drawPath(path, MountainBlue.copy(alpha = 0.3f))
     }
 }
 
 private data class Flake(val x: Float, val speed: Float, val size: Float)
 
 @Composable
-private fun SnowEffect(modifier: Modifier = Modifier, count: Int = 30) {
+private fun SnowEffect(modifier: Modifier = Modifier, count: Int = 30, animationsEnabled: Boolean) {
     val flakes = remember { List(count) { Flake(Random.nextFloat(), Random.nextFloat() * 0.5f + 0.5f, Random.nextFloat() * 3f + 2f) } }
     val transition = rememberInfiniteTransition(label = "snow")
     val anim by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = if (animationsEnabled) 1f else 0f,
         animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing))
     )
     Canvas(modifier) {

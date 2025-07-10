@@ -40,19 +40,25 @@ private val BeachShapes = Shapes(
 )
 
 @Composable
-fun BeachTheme() {
+fun BeachTheme(animationsEnabled: Boolean = true) {
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
 
     Crossfade(targetState = BeachColorScheme) { colors ->
         MaterialTheme(colorScheme = colors, shapes = BeachShapes) {
-            Box(Modifier.fillMaxSize()) {
-                WaveBackground(Modifier.matchParentSize())
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(colors = listOf(SkyBlue, Sand))
+                    )
+            ) {
+                WaveBackground(Modifier.matchParentSize(), animationsEnabled)
                 Scaffold(
                     containerColor = Color.Transparent,
                     bottomBar = {
-                        NavigationBar {
+                        NavigationBar(containerColor = Sand) {
                             NavTabs.forEachIndexed { idx, tab ->
                                 NavigationBarItem(
                                     selected = idx == index,
@@ -78,11 +84,11 @@ fun BeachTheme() {
 }
 
 @Composable
-private fun WaveBackground(modifier: Modifier = Modifier) {
+private fun WaveBackground(modifier: Modifier = Modifier, animationsEnabled: Boolean) {
     val transition = rememberInfiniteTransition(label = "waves")
     val offset by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = if (animationsEnabled) 1f else 0f,
         animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing))
     )
     Canvas(modifier) {

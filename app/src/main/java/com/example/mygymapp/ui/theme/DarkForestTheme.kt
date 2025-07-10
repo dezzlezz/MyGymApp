@@ -46,7 +46,7 @@ private val DarkShapes = androidx.compose.material3.Shapes(
 )
 
 @Composable
-fun DarkForestTheme() {
+fun DarkForestTheme(animationsEnabled: Boolean = true) {
     val navController = rememberNavController()
     val current = navController.currentBackStackEntryAsState().value?.destination?.route
     val items = remember { NavTabs.map { DarkNavItem(it.route, it.label, it.icon) } }
@@ -55,7 +55,7 @@ fun DarkForestTheme() {
         MaterialTheme(colorScheme = DarkForestColors, shapes = DarkShapes) {
             Box(Modifier.fillMaxSize()) {
                 ForestBackground(Modifier.matchParentSize())
-                RainEffect(Modifier.matchParentSize())
+                RainEffect(Modifier.matchParentSize(), animationsEnabled = animationsEnabled)
                 androidx.compose.foundation.layout.Row {
                     DarkForestSidebar(
                         items = items,
@@ -106,29 +106,42 @@ private data class Drop(val x: Float, val speed: Float, val length: Float)
 
 @Composable
 private fun ForestBackground(modifier: Modifier = Modifier) {
+    val layers = remember {
+        List(3) { layer ->
+            val rand = Random(layer)
+            List(10) { Pair(rand.nextFloat(), rand.nextFloat() * 0.3f + 0.2f) }
+        }
+    }
     Canvas(modifier) {
-        val treeWidth = size.width / 8f
-        val baseY = size.height * 0.75f
-        for (i in 0..8) {
-            val x = i * treeWidth - treeWidth / 2
+        val h = size.height
+        val w = size.width
+        val colors = listOf(DarkGreen, DarkGreen.copy(alpha = 0.7f), DarkGreen.copy(alpha = 0.5f))
+        layers.forEachIndexed { index, points ->
+            val baseY = h * (0.7f + index * 0.1f)
             val path = Path().apply {
-                moveTo(x + treeWidth / 2f, baseY - treeWidth)
-                lineTo(x, baseY)
-                lineTo(x + treeWidth, baseY)
+                moveTo(0f, h)
+                lineTo(0f, baseY)
+                points.forEach { (x, peak) ->
+                    lineTo(w * x, baseY)
+                    lineTo(w * x + w * 0.05f, baseY - h * peak)
+                    lineTo(w * x + w * 0.1f, baseY)
+                }
+                lineTo(w, baseY)
+                lineTo(w, h)
                 close()
             }
-            drawPath(path, DarkGreen)
+            drawPath(path, colors[index])
         }
     }
 }
 
 @Composable
-private fun RainEffect(modifier: Modifier = Modifier, count: Int = 40, dropColor: Color = Color.White.copy(alpha = 0.15f), stroke: Dp = 2.dp) {
+private fun RainEffect(modifier: Modifier = Modifier, count: Int = 40, dropColor: Color = Color.White.copy(alpha = 0.15f), stroke: Dp = 2.dp, animationsEnabled: Boolean) {
     val drops = remember { List(count) { Drop(Random.nextFloat(), Random.nextFloat() * 4 + 2, Random.nextFloat() * 0.1f + 0.05f) } }
     val transition = rememberInfiniteTransition(label = "rain")
     val anim by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = if (animationsEnabled) 1f else 0f,
         animationSpec = infiniteRepeatable(animation = tween(durationMillis = 1500, easing = LinearEasing))
     )
     Canvas(modifier = modifier) {

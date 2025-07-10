@@ -12,10 +12,10 @@ import com.example.mygymapp.ui.theme.BeachTheme
 
 
 @Composable
-fun MyGymAppThemeWrapper(theme: AppTheme) {
+fun MyGymAppThemeWrapper(theme: AppTheme, animationsEnabled: Boolean = true) {
     when (theme) {
-        AppTheme.DarkForest -> DarkForestTheme()
-        AppTheme.Mountains -> MountainTheme()
-        AppTheme.Beach -> BeachTheme()
+        AppTheme.DarkForest -> DarkForestTheme(animationsEnabled)
+        AppTheme.Mountains -> MountainTheme(animationsEnabled)
+        AppTheme.Beach -> BeachTheme(animationsEnabled)
     }
 }
