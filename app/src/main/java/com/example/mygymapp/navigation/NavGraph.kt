@@ -1,5 +1,6 @@
 package com.example.mygymapp.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
             navController = navController,
             startDestination = navTabs.first().route,
             modifier = modifier.then(extraModifier)
+
         ) {
             composable("exercises") {
                 ExercisesScreen(
