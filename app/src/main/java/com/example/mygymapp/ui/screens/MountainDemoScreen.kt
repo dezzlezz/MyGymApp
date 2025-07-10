@@ -26,8 +26,8 @@ import com.example.mygymapp.ui.theme.GlacierAccent
 fun MountainDemoScreen() {
     MountainTheme {
         val items = listOf(
-            NavItem("home", Icons.Outlined.FitnessCenter),
-            NavItem("profile", Icons.Outlined.Person)
+            MountainNavItem("home", Icons.Outlined.FitnessCenter),
+            MountainNavItem("profile", Icons.Outlined.Person)
         )
         var current by remember { mutableStateOf("home") }
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -78,4 +78,4 @@ fun MountainDemoScreen() {
     }
 }
 
-private data class NavItem(val route: String, val icon: ImageVector)
+private data class MountainNavItem(val route: String, val icon: ImageVector)

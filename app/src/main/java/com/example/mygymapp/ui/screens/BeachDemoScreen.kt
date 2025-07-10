@@ -17,8 +17,8 @@ import com.example.mygymapp.ui.theme.BeachTheme
 fun BeachDemoScreen() {
     BeachTheme {
         val items = listOf(
-            NavItem("home", "Home", Icons.Outlined.FitnessCenter),
-            NavItem("profile", "Profile", Icons.Outlined.Person)
+            BeachNavItem("home", "Home", Icons.Outlined.FitnessCenter),
+            BeachNavItem("profile", "Profile", Icons.Outlined.Person)
         )
         var current by remember { mutableStateOf("home") }
         Scaffold(
@@ -46,4 +46,4 @@ fun BeachDemoScreen() {
     }
 }
 
-private data class NavItem(val route: String, val label: String, val icon: ImageVector)
+private data class BeachNavItem(val route: String, val label: String, val icon: ImageVector)
