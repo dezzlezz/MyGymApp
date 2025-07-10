@@ -41,17 +41,6 @@ private val MountainColors = lightColorScheme(
     onSurface = DeepBlack
 )
 
-private val BeachColors = lightColorScheme(
-    primary = Color(0xFFFF8A65),
-    onPrimary = DeepBlack,
-    secondary = Color(0xFFFFCC80),
-    onSecondary = DeepBlack,
-    background = Color(0xFFFFF8E1),
-    onBackground = DeepBlack,
-    surface = Color(0xFFFFF8E1),
-    onSurface = DeepBlack
-)
-
 private val LightColorScheme = lightColorScheme(
     primary = NatureGreen,
     onPrimary = DeepBlack,

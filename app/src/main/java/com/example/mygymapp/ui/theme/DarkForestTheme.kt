@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawLine
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -93,7 +94,12 @@ private fun RainEffect(modifier: Modifier = Modifier, count: Int = 40, dropColor
             val y = (anim * drop.speed + drop.x) % 1f
             val startY = size.height * y
             val endY = startY + size.height * drop.length
-            drawLine(dropColor, start = androidx.compose.ui.geometry.Offset(size.width * drop.x, startY), end = androidx.compose.ui.geometry.Offset(size.width * drop.x, endY), strokeWidth = stroke.toPx())
+            drawLine(
+                dropColor,
+                start = Offset(size.width * drop.x, startY),
+                end = Offset(size.width * drop.x, endY),
+                strokeWidth = stroke.toPx()
+            )
         }
     }
 }
