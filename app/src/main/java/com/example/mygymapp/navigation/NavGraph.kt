@@ -1,5 +1,6 @@
 package com.example.mygymapp.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.ui.theme.AccentGreen
 import com.example.mygymapp.ui.theme.InactiveGray
 import com.example.mygymapp.model.AppTheme
+import androidx.compose.ui.unit.dp
 
 /** Simple navigation graph extracted from MainScreen */
 @Composable
@@ -34,11 +36,11 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
         NavTab("profile", "Profile", Icons.Outlined.Person)
     )
 
-    val navHost: @Composable (Modifier) -> Unit = { pad ->
+    val navHost: @Composable (PaddingValues) -> Unit = { pad ->
         NavHost(
             navController = navController,
             startDestination = navTabs.first().route,
-            modifier = modifier.padding(pad)
+            modifier = Modifier.padding(pad)
         ) {
             composable("exercises") {
                 ExercisesScreen(
@@ -108,7 +110,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                         )
                     }
                 }
-                navHost(Modifier.weight(1f))
+                navHost(Modifier.weight(1f) as PaddingValues)
             }
         }
         AppTheme.Mountains -> {
