@@ -21,7 +21,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.ui.theme.AccentGreen
 import com.example.mygymapp.ui.theme.InactiveGray
 import com.example.mygymapp.model.AppTheme
-import androidx.compose.ui.unit.dp
 
 /** Simple navigation graph extracted from MainScreen */
 @Composable
@@ -36,11 +35,13 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
         NavTab("profile", "Profile", Icons.Outlined.Person)
     )
 
-    val navHost: @Composable (PaddingValues) -> Unit = { pad ->
+
+    val navHost: @Composable (Modifier) -> Unit = { pad ->
         NavHost(
             navController = navController,
             startDestination = navTabs.first().route,
-            modifier = Modifier.padding(pad)
+            modifier = modifier.padding(pad)
+
         ) {
             composable("exercises") {
                 ExercisesScreen(
@@ -110,7 +111,9 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                         )
                     }
                 }
-                navHost(Modifier.weight(1f) as PaddingValues)
+
+                navHost(Modifier.weight(1f))
+
             }
         }
         AppTheme.Mountains -> {
@@ -142,7 +145,9 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                     }
                 }
             ) { innerPadding ->
-                navHost(innerPadding)
+
+                navHost(Modifier.padding(innerPadding))
+
             }
         }
         AppTheme.Beach -> {
@@ -167,7 +172,9 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                     }
                 }
             ) { innerPadding ->
-                navHost(innerPadding)
+
+                navHost(Modifier.padding(innerPadding))
+
             }
         }
     }
