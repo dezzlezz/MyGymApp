@@ -70,7 +70,7 @@ fun AppNavHost(
         }
     }
 
-}
+
 
 data class NavTab(
     val route: String,
