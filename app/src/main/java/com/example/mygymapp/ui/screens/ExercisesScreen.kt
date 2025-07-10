@@ -26,8 +26,8 @@ import androidx.navigation.NavController
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.widgets.StarRating
-import com.example.mygymapp.ui.theme.EditGray
-import com.example.mygymapp.ui.theme.NatureGreen
+import com.example.mygymapp.ui.theme.FogGray
+import com.example.mygymapp.ui.theme.PineGreen
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
@@ -95,7 +95,7 @@ private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit, viewModel: Ex
         directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
         background = {
             val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-            val color = if (direction == DismissDirection.StartToEnd) Color.Red else EditGray
+            val color = if (direction == DismissDirection.StartToEnd) Color.Red else FogGray
             val icon = if (direction == DismissDirection.StartToEnd) Icons.Default.Delete else Icons.Default.Edit
             val alignment = if (direction == DismissDirection.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
             Box(
@@ -105,7 +105,7 @@ private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit, viewModel: Ex
                     .padding(horizontal = 20.dp),
                 contentAlignment = alignment
             ) {
-                Icon(icon, contentDescription = null, tint = NatureGreen)
+                Icon(icon, contentDescription = null, tint = PineGreen)
             }
         },
         dismissContent = {
