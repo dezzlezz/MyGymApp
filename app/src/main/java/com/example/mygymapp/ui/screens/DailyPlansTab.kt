@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.mygymapp.ui.theme.EditGray
-import com.example.mygymapp.ui.theme.NatureGreen
+import com.example.mygymapp.ui.theme.PineGreen
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +81,7 @@ fun DailyPlansTab(navController: NavController) {
                                 .padding(horizontal = 20.dp),
                             contentAlignment = align
                         ) {
-                            Icon(icon, contentDescription = null, tint = NatureGreen)
+                            Icon(icon, contentDescription = null, tint = PineGreen)
                         }
                     },
                     dismissContent = {
