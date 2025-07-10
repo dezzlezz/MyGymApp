@@ -113,14 +113,13 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
             }
         }
         AppTheme.Mountains -> {
+            val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
             Scaffold(
-                containerColor = MaterialTheme.colorScheme.background,
-                bottomBar = {
-                    NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
-                        navTabs.forEach { tab ->
-                            val selected = currentDestination?.route == tab.route
-                            NavigationBarItem(
-                                selected = selected,
+                topBar = {
+                    TabRow(selectedTabIndex = index, containerColor = MaterialTheme.colorScheme.background) {
+                        navTabs.forEachIndexed { idx, tab ->
+                            Tab(
+                                selected = idx == index,
                                 onClick = {
                                     navController.navigate(tab.route) {
                                         popUpTo(navController.graph.startDestinationId) { saveState = true }
@@ -128,14 +127,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                                         restoreState = true
                                     }
                                 },
-                                icon = { Icon(tab.icon, contentDescription = tab.label) },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = AccentGreen,
-                                    selectedTextColor = AccentGreen,
-                                    unselectedIconColor = InactiveGray,
-                                    unselectedTextColor = InactiveGray,
-                                    indicatorColor = Color.Transparent
-                                )
+                                icon = { Icon(tab.icon, contentDescription = tab.label) }
                             )
                         }
                     }
