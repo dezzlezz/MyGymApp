@@ -3,7 +3,8 @@ package com.example.mygymapp.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
@@ -16,19 +17,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ProfileViewModel
+import com.example.mygymapp.model.AppTheme
+import com.example.mygymapp.viewmodel.ThemeViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
     val name by viewModel.userName.collectAsState()
     val dark by viewModel.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
+    val themeVm: ThemeViewModel = viewModel()
+    val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -36,6 +42,7 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -104,16 +111,33 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
             )
             Switch(checked = dark, onCheckedChange = { viewModel.setDarkMode(it) })
         }
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                "Benachrichtigungen",
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "Benachrichtigungen",
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Switch(checked = notify, onCheckedChange = { viewModel.setNotifications(it) })
+    }
+    Spacer(Modifier.height(16.dp))
+    Text("Theme", color = MaterialTheme.colorScheme.onBackground)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AppTheme.values().forEach { theme ->
+            Button(
+                onClick = { themeVm.setTheme(theme) },
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Switch(checked = notify, onCheckedChange = { viewModel.setNotifications(it) })
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (theme == currentTheme) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (theme == currentTheme) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) { Text(theme.displayName) }
         }
-        Spacer(Modifier.height(16.dp))
-        Button(
+    }
+    Spacer(Modifier.height(16.dp))
+    Button(
             onClick = { viewModel.logout() },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
@@ -147,11 +171,9 @@ private fun WorkoutCalendar(
         .takeWhile { !it.isAfter(todayMonth) }
         .toList()
 
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         months.forEach { month ->
-            item {
-                MonthView(month = month, entries = entries, onDayClick = onDayClick)
-            }
+            MonthView(month = month, entries = entries, onDayClick = onDayClick)
         }
     }
 }

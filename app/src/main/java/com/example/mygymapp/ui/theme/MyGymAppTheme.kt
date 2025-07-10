@@ -2,19 +2,14 @@ package com.example.mygymapp.ui.theme
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.animation.Crossfade
+import com.example.mygymapp.model.AppTheme
+import com.example.mygymapp.ui.theme.DarkForestTheme
+import com.example.mygymapp.ui.theme.MountainTheme
+import com.example.mygymapp.ui.theme.BeachTheme
 
-private val DarkColorScheme = darkColorScheme(
-    primary = NatureGreen,
-    onPrimary = OnDark,
-    secondary = KaizenBeige,
-    onSecondary = OnDark,
-    background = DeepBlack,
-    onBackground = OnDark,
-    surface = DarkGreen,
-    onSurface = OnDark,
-    error = ErrorRed,
-    onError = OnDark
-)
+
+
 
 private val LightColorScheme = lightColorScheme(
     primary = NatureGreen,
@@ -30,11 +25,15 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun MyGymAppTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
-    val colors = if (darkTheme) DarkColorScheme else LightColorScheme
-    MaterialTheme(
-        colorScheme = colors,
-        typography = Typography(),
-        content = content
-    )
+fun MyGymAppThemeWrapper(theme: AppTheme, content: @Composable () -> Unit) {
+    when (theme) {
+        AppTheme.DarkForest -> DarkForestTheme(content)
+        AppTheme.Mountains -> MountainTheme(content)
+        AppTheme.Beach -> BeachTheme(content)
+        else -> {
+            Crossfade(targetState = LightColorScheme) { scheme ->
+                MaterialTheme(colorScheme = scheme, typography = Typography(), content = content)
+            }
+        }
+    }
 }
