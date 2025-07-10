@@ -18,9 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.mygymapp.navigation.AppNavHost
+import com.example.mygymapp.navigation.NavTabs
 import kotlin.random.Random
 
 private val DarkForestColors = darkColorScheme(
@@ -41,12 +46,32 @@ private val DarkShapes = androidx.compose.material3.Shapes(
 )
 
 @Composable
-fun DarkForestTheme(content: @Composable () -> Unit) {
+fun DarkForestTheme() {
+    val navController = rememberNavController()
+    val current = navController.currentBackStackEntryAsState().value?.destination?.route
+    val items = remember { NavTabs.map { DarkNavItem(it.route, it.label, it.icon) } }
+
     Crossfade(targetState = true) { _ ->
         MaterialTheme(colorScheme = DarkForestColors, shapes = DarkShapes) {
             Box(Modifier.fillMaxSize()) {
-                content()
-                RainEffect(Modifier.fillMaxSize())
+                ForestBackground(Modifier.matchParentSize())
+                RainEffect(Modifier.matchParentSize())
+                androidx.compose.foundation.layout.Row {
+                    DarkForestSidebar(
+                        items = items,
+                        current = current ?: items.first().route,
+                        onSelect = { route ->
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                    Box(Modifier.weight(1f)) {
+                        AppNavHost(navController = navController)
+                    }
+                }
             }
         }
     }
@@ -78,6 +103,24 @@ fun DarkForestSidebar(
 data class DarkNavItem(val route: String, val label: String, val icon: ImageVector)
 
 private data class Drop(val x: Float, val speed: Float, val length: Float)
+
+@Composable
+private fun ForestBackground(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val treeWidth = size.width / 8f
+        val baseY = size.height * 0.75f
+        for (i in 0..8) {
+            val x = i * treeWidth - treeWidth / 2
+            val path = Path().apply {
+                moveTo(x + treeWidth / 2f, baseY - treeWidth)
+                lineTo(x, baseY)
+                lineTo(x + treeWidth, baseY)
+                close()
+            }
+            drawPath(path, DarkGreen)
+        }
+    }
+}
 
 @Composable
 private fun RainEffect(modifier: Modifier = Modifier, count: Int = 40, dropColor: Color = Color.White.copy(alpha = 0.15f), stroke: Dp = 2.dp) {

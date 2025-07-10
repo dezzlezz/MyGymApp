@@ -25,14 +25,14 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun MyGymAppThemeWrapper(theme: AppTheme, content: @Composable () -> Unit) {
+fun MyGymAppThemeWrapper(theme: AppTheme) {
     when (theme) {
-        AppTheme.DarkForest -> DarkForestTheme(content)
-        AppTheme.Mountains -> MountainTheme(content)
-        AppTheme.Beach -> BeachTheme(content)
+        AppTheme.DarkForest -> DarkForestTheme()
+        AppTheme.Mountains -> MountainTheme()
+        AppTheme.Beach -> BeachTheme()
         else -> {
             Crossfade(targetState = LightColorScheme) { scheme ->
-                MaterialTheme(colorScheme = scheme, typography = Typography(), content = content)
+                MaterialTheme(colorScheme = scheme, typography = Typography())
             }
         }
     }
