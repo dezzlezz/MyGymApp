@@ -5,18 +5,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.animation.Crossfade
 import androidx.compose.ui.graphics.Color
 import com.example.mygymapp.model.AppTheme
+import com.example.mygymapp.ui.theme.DarkForestTheme
 
-private val DarkColorScheme = darkColorScheme(
-    primary = NatureGreen,
-    onPrimary = OnDark,
+
+private val MountainColors = lightColorScheme(
+    primary = AccentGreen,
+    onPrimary = DeepBlack,
     secondary = KaizenBeige,
-    onSecondary = OnDark,
-    background = DeepBlack,
-    onBackground = OnDark,
-    surface = DarkGreen,
-    onSurface = OnDark,
-    error = ErrorRed,
-    onError = OnDark
+    onSecondary = DeepBlack,
+    background = OnDark,
+    onBackground = DeepBlack,
+    surface = OnDark,
+    onSurface = DeepBlack
+)
+
+private val BeachColors = lightColorScheme(
+    primary = Color(0xFFFF8A65),
+    onPrimary = DeepBlack,
+    secondary = Color(0xFFFFCC80),
+    onSecondary = DeepBlack,
+    background = Color(0xFFFFF8E1),
+    onBackground = DeepBlack,
+    surface = Color(0xFFFFF8E1),
+    onSurface = DeepBlack
 )
 
 private val MountainColors = lightColorScheme(
@@ -56,16 +67,21 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun MyGymAppThemeWrapper(theme: AppTheme, content: @Composable () -> Unit) {
-    val colors = when (theme) {
-        AppTheme.DarkForest -> DarkColorScheme
-        AppTheme.Mountains -> MountainColors
-        AppTheme.Beach -> BeachColors
-    }
-    Crossfade(targetState = colors) { scheme ->
-        MaterialTheme(
-            colorScheme = scheme,
-            typography = Typography(),
-            content = content
-        )
+    when (theme) {
+        AppTheme.DarkForest -> DarkForestTheme(content)
+        else -> {
+            val colors = when (theme) {
+                AppTheme.Mountains -> MountainColors
+                AppTheme.Beach -> BeachColors
+                else -> MountainColors
+            }
+            Crossfade(targetState = colors) { scheme ->
+                MaterialTheme(
+                    colorScheme = scheme,
+                    typography = Typography(),
+                    content = content
+                )
+            }
+        }
     }
 }
