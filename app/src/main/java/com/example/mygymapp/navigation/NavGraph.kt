@@ -1,5 +1,6 @@
 package com.example.mygymapp.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
