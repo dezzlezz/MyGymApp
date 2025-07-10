@@ -1,6 +1,8 @@
 package com.example.mygymapp.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,10 +20,11 @@ import androidx.compose.material.icons.outlined.Timeline
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.ui.theme.AccentGreen
 import com.example.mygymapp.ui.theme.InactiveGray
+import com.example.mygymapp.model.AppTheme
 
 /** Simple navigation graph extracted from MainScreen */
 @Composable
-fun AppNavGraph(modifier: Modifier = Modifier) {
+fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mountains) {
     val navController = rememberNavController()
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
 
@@ -32,39 +35,11 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
         NavTab("profile", "Profile", Icons.Outlined.Person)
     )
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
-                navTabs.forEach { tab ->
-                    val selected = currentDestination?.route == tab.route
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = AccentGreen,
-                            selectedTextColor = AccentGreen,
-                            unselectedIconColor = InactiveGray,
-                            unselectedTextColor = InactiveGray,
-                            indicatorColor = Color.Transparent
-                        )
-                    )
-                }
-            }
-        }
-    ) { innerPadding ->
+    val navHost: @Composable (Modifier) -> Unit = { extraModifier ->
         NavHost(
             navController = navController,
             startDestination = navTabs.first().route,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier.then(extraModifier)
         ) {
             composable("exercises") {
                 ExercisesScreen(
@@ -100,7 +75,96 @@ fun AppNavGraph(modifier: Modifier = Modifier) {
                 PlanDetailScreen(planId = id, navController = navController)
             }
             composable("workout") { WorkoutScreen() }
-            composable("profile") { ProfileScreen() }
+            composable("profile") { ProfileScreen(navController) }
+            composable("selectTheme") {
+                ThemePickerScreen(onBack = { navController.popBackStack() })
+            }
+        }
+    }
+
+    when (theme) {
+        AppTheme.DarkForest -> {
+            Row {
+                NavigationRail {
+                    navTabs.forEach { tab ->
+                        val selected = currentDestination?.route == tab.route
+                        NavigationRailItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(tab.route) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = { Icon(tab.icon, contentDescription = tab.label) },
+                            label = { Text(tab.label) },
+                            alwaysShowLabel = true,
+                            colors = NavigationRailItemDefaults.colors(
+                                selectedIconColor = AccentGreen,
+                                selectedTextColor = AccentGreen,
+                                unselectedIconColor = InactiveGray,
+                                unselectedTextColor = InactiveGray
+                            )
+                        )
+                    }
+                }
+                navHost(Modifier.weight(1f))
+            }
+        }
+        AppTheme.Mountains -> {
+            val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
+            Scaffold(
+                topBar = {
+                    TabRow(
+                        selectedTabIndex = index,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.statusBarsPadding()
+                    ) {
+                        navTabs.forEachIndexed { idx, tab ->
+                            Tab(
+                                selected = idx == index,
+                                onClick = {
+                                    navController.navigate(tab.route) {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = tab.label) }
+                            )
+                        }
+                    }
+                }
+            ) { innerPadding ->
+                navHost(Modifier.padding(innerPadding))
+            }
+        }
+        AppTheme.Beach -> {
+            val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
+            Scaffold(
+                bottomBar = {
+                    NavigationBar {
+                        navTabs.forEachIndexed { idx, tab ->
+                            NavigationBarItem(
+                                selected = idx == index,
+                                onClick = {
+                                    navController.navigate(tab.route) {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                                label = { Text(tab.label) }
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier.statusBarsPadding()
+            ) { innerPadding ->
+                navHost(Modifier.padding(innerPadding))
+            }
         }
     }
 }
