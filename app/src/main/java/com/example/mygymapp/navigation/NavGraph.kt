@@ -11,7 +11,7 @@ import com.example.mygymapp.ui.screens.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FitnessCenter
-import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Timeline
 
@@ -79,7 +79,7 @@ data class NavTab(
 
 val NavTabs = listOf(
     NavTab("exercises", "Exercises", Icons.Outlined.FitnessCenter),
-    NavTab("plans", "Plans", Icons.Outlined.List),
+    NavTab("plans", "Plans", Icons.AutoMirrored.Outlined.List),
     NavTab("workout", "Workout", Icons.Outlined.Timeline),
     NavTab("profile", "Profile", Icons.Outlined.Person)
 )
