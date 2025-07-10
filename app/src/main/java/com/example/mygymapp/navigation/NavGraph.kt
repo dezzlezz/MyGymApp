@@ -110,9 +110,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                         )
                     }
                 }
-
                 navHost(Modifier.weight(1f))
-
             }
         }
         AppTheme.Mountains -> {
@@ -144,9 +142,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                     }
                 }
             ) { innerPadding ->
-
                 navHost(Modifier.padding(innerPadding))
-
             }
         }
         AppTheme.Beach -> {
@@ -171,9 +167,7 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
                     }
                 }
             ) { innerPadding ->
-
                 navHost(Modifier.padding(innerPadding))
-
             }
         }
     }

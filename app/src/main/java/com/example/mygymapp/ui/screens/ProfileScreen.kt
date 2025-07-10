@@ -20,6 +20,8 @@ import androidx.navigation.NavController
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ProfileViewModel
+import com.example.mygymapp.model.AppTheme
+import com.example.mygymapp.viewmodel.ThemeViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -30,6 +32,8 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
     val dark by viewModel.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
+    val themeVm: ThemeViewModel = viewModel()
+    val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -114,8 +118,21 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
         Switch(checked = notify, onCheckedChange = { viewModel.setNotifications(it) })
     }
     Spacer(Modifier.height(16.dp))
-    Button(onClick = { navController.navigate("selectTheme") }, modifier = Modifier.fillMaxWidth()) {
-        Text("Theme auswählen")
+    Text("Theme", color = MaterialTheme.colorScheme.onBackground)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AppTheme.values().forEach { theme ->
+            Button(
+                onClick = { themeVm.setTheme(theme) },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (theme == currentTheme) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (theme == currentTheme) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) { Text(theme.displayName) }
+        }
     }
     Spacer(Modifier.height(16.dp))
     Button(
