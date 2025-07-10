@@ -35,12 +35,11 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
         NavTab("profile", "Profile", Icons.Outlined.Person)
     )
 
-
-    val navHost: @Composable (Modifier) -> Unit = { pad ->
+    val navHost: @Composable (Modifier) -> Unit = { extraModifier ->
         NavHost(
             navController = navController,
             startDestination = navTabs.first().route,
-            modifier = modifier.padding(pad)
+            modifier = modifier.then(extraModifier)
 
         ) {
             composable("exercises") {
