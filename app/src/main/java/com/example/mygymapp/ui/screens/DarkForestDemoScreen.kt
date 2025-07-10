@@ -47,10 +47,18 @@ fun DarkForestDemoScreen() {
                 Box(modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()) {
-                    AnimatedVisibility(visible = current == "home", enter = fadeIn(), exit = fadeOut()) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = current == "home",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
                         Column(Modifier.padding(16.dp)) { Text("Workout overview") }
                     }
-                    AnimatedVisibility(visible = current == "profile", enter = fadeIn(), exit = fadeOut()) {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = current == "profile",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
                         Column(Modifier.padding(16.dp)) { Text("Profile settings") }
                     }
                 }
