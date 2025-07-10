@@ -93,43 +93,45 @@ fun AddExerciseScreen(
                     }
                 }
             }
-            Spacer(Modifier.height(8.dp))
-            ExposedDropdownMenuBox(expanded = groupExpanded, onExpandedChange = { groupExpanded = !groupExpanded }) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = group.display,
-                    onValueChange = {},
-                    label = { Text(stringResource(id = R.string.muscle_group)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = groupExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(expanded = groupExpanded, onDismissRequest = { groupExpanded = false }) {
-                    MuscleGroup.values().forEach {
-                        DropdownMenuItem(text = { Text(it.display) }, onClick = {
-                            group = it
-                            muscle = musclesByGroup[it]?.first() ?: ""
-                            groupExpanded = false
-                        })
+            if (category != ExerciseCategory.Cardio) {
+                Spacer(Modifier.height(8.dp))
+                ExposedDropdownMenuBox(expanded = groupExpanded, onExpandedChange = { groupExpanded = !groupExpanded }) {
+                    OutlinedTextField(
+                        readOnly = true,
+                        value = group.display,
+                        onValueChange = {},
+                        label = { Text(stringResource(id = R.string.muscle_group)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = groupExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = groupExpanded, onDismissRequest = { groupExpanded = false }) {
+                        MuscleGroup.values().forEach {
+                            DropdownMenuItem(text = { Text(it.display) }, onClick = {
+                                group = it
+                                muscle = musclesByGroup[it]?.first() ?: ""
+                                groupExpanded = false
+                            })
+                        }
                     }
                 }
-            }
-            Spacer(Modifier.height(8.dp))
-            val muscles = musclesByGroup[group] ?: emptyList()
-            ExposedDropdownMenuBox(expanded = muscleExpanded, onExpandedChange = { muscleExpanded = !muscleExpanded }) {
-                OutlinedTextField(
-                    readOnly = true,
-                    value = muscle,
-                    onValueChange = {},
-                    label = { Text(stringResource(id = R.string.muscle)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(expanded = muscleExpanded, onDismissRequest = { muscleExpanded = false }) {
-                    muscles.forEach { option ->
-                        DropdownMenuItem(text = { Text(option) }, onClick = {
-                            muscle = option
-                            muscleExpanded = false
-                        })
+                Spacer(Modifier.height(8.dp))
+                val muscles = musclesByGroup[group] ?: emptyList()
+                ExposedDropdownMenuBox(expanded = muscleExpanded, onExpandedChange = { muscleExpanded = !muscleExpanded }) {
+                    OutlinedTextField(
+                        readOnly = true,
+                        value = muscle,
+                        onValueChange = {},
+                        label = { Text(stringResource(id = R.string.muscle)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = muscleExpanded) },
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = muscleExpanded, onDismissRequest = { muscleExpanded = false }) {
+                        muscles.forEach { option ->
+                            DropdownMenuItem(text = { Text(option) }, onClick = {
+                                muscle = option
+                                muscleExpanded = false
+                            })
+                        }
                     }
                 }
             }
@@ -148,7 +150,7 @@ fun AddExerciseScreen(
                         viewModel.insert(exercise)
                         onDone()
                     },
-                    enabled = name.isNotBlank() && muscle.isNotBlank(),
+                    enabled = name.isNotBlank() && (category == ExerciseCategory.Cardio || muscle.isNotBlank()),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(id = R.string.save)) }
                 OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(id = R.string.cancel)) }
