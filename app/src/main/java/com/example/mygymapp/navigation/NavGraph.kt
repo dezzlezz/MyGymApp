@@ -116,7 +116,11 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
             val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
             Scaffold(
                 topBar = {
-                    TabRow(selectedTabIndex = index, containerColor = MaterialTheme.colorScheme.background) {
+                    TabRow(
+                        selectedTabIndex = index,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.statusBarsPadding()
+                    ) {
                         navTabs.forEachIndexed { idx, tab ->
                             Tab(
                                 selected = idx == index,
@@ -140,7 +144,10 @@ fun AppNavGraph(modifier: Modifier = Modifier, theme: AppTheme = AppTheme.Mounta
             val index = navTabs.indexOfFirst { it.route == currentDestination?.route }.let { if (it >= 0) it else 0 }
             Scaffold(
                 topBar = {
-                    TabRow(selectedTabIndex = index) {
+                    TabRow(
+                        selectedTabIndex = index,
+                        modifier = Modifier.statusBarsPadding()
+                    ) {
                         navTabs.forEachIndexed { idx, tab ->
                             Tab(
                                 selected = idx == index,

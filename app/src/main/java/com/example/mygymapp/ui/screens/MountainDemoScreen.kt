@@ -33,7 +33,7 @@ fun MountainDemoScreen() {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
         Scaffold(
             topBar = {
-                Column {
+                Column(Modifier.statusBarsPadding()) {
                     ParallaxHeader(scrollBehavior)
                     TabRow(
                         selectedTabIndex = items.indexOfFirst { it.route == current },
