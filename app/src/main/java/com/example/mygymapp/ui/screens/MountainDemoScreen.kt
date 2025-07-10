@@ -1,7 +1,7 @@
 package com.example.mygymapp.ui.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.with
@@ -59,8 +59,8 @@ fun MountainDemoScreen() {
                 AnimatedContent(
                     targetState = current,
                     transitionSpec = {
-                        slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(300)) with
-                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(300))
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(300)) with
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(300))
                     }
                 ) { screen ->
                     if (screen == "home") {

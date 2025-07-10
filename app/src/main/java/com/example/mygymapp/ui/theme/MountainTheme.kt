@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.graphicsLayer
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -46,11 +49,12 @@ fun MountainTheme(content: @Composable () -> Unit) {
 fun ParallaxHeader(scrollBehavior: TopAppBarScrollBehavior, modifier: Modifier = Modifier) {
     val height = 200.dp
     val offset = lerp(0.dp, height / 2, scrollBehavior.state.overlappedFraction)
+    val density = LocalDensity.current
     Box(
         modifier
             .fillMaxWidth()
             .height(height)
-            .graphicsLayer { translationY = -offset.toPx() }
+            .graphicsLayer { translationY = -with(density) { offset.toPx() } }
     ) {
         Image(
             painterResource(R.drawable.ic_mountain),
