@@ -88,4 +88,3 @@ fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSys
         }
     }
 }
-
