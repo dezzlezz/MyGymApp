@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -26,7 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
 
-private val BeachColors = lightColorScheme(
+private val BeachLightColors = lightColorScheme(
     primary = SunsetCoral,
     onPrimary = NightBlack,
     secondary = WaveBlue,
@@ -37,19 +39,33 @@ private val BeachColors = lightColorScheme(
     onSurface = NightBlack
 )
 
+private val BeachDarkColors = darkColorScheme(
+    primary = SunsetCoral,
+    onPrimary = NightBlack,
+    secondary = WaveBlue,
+    onSecondary = NightBlack,
+    background = BeachBackgroundDark,
+    onBackground = SnowFlake,
+    surface = BeachSandDark,
+    onSurface = SnowFlake
+)
+
 @Composable
-fun BeachTheme(animationsEnabled: Boolean = true) {
+fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
 
-    MaterialTheme(colorScheme = BeachColors) {
-        Box(Modifier.fillMaxSize().background(BeachSand)) {
-            BeachScene(Modifier.fillMaxSize(), animationsEnabled)
+    val scheme = if (darkMode) BeachDarkColors else BeachLightColors
+    val sand = if (darkMode) BeachSandDark else BeachSand
+
+    MaterialTheme(colorScheme = scheme) {
+        Box(Modifier.fillMaxSize().background(sand)) {
+            BeachScene(Modifier.fillMaxSize(), animationsEnabled, darkMode)
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
-                    NavigationBar(containerColor = BeachColors.surface) {
+                    NavigationBar(containerColor = scheme.surface) {
                         NavTabs.forEachIndexed { idx, tab ->
                             NavigationBarItem(
                                 selected = idx == index,
@@ -74,7 +90,7 @@ fun BeachTheme(animationsEnabled: Boolean = true) {
 }
 
 @Composable
-private fun BeachScene(modifier: Modifier = Modifier, animationsEnabled: Boolean) {
+private fun BeachScene(modifier: Modifier = Modifier, animationsEnabled: Boolean, darkMode: Boolean) {
     val transition = rememberInfiniteTransition(label = "wave")
     val anim by transition.animateFloat(
         initialValue = 0f,
@@ -85,7 +101,8 @@ private fun BeachScene(modifier: Modifier = Modifier, animationsEnabled: Boolean
         val w = size.width
         val h = size.height
         val horizon = h * 0.35f
-        drawRect(BeachSand, Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
+        val sand = if (darkMode) BeachSandDark else BeachSand
+        drawRect(sand, Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
         val dy = h * 0.05f
         val dx = w * anim
         val wave1 = Path().apply {
@@ -102,7 +119,8 @@ private fun BeachScene(modifier: Modifier = Modifier, animationsEnabled: Boolean
             lineTo(-w + dx * 1.3f, horizon - dy * 3)
             close()
         }
-        drawPath(wave1, WaveBlue)
-        drawPath(wave2, SeaFoam.copy(alpha = 0.7f))
+        val water = if (darkMode) WaveBlue.copy(alpha = 0.7f) else WaveBlue
+        drawPath(wave1, water)
+        drawPath(wave2, SeaFoam.copy(alpha = if (darkMode) 0.5f else 0.7f))
     }
 }
