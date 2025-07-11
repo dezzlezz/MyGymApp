@@ -10,6 +10,8 @@ class ThemeViewModel(application: Application) : AndroidViewModel(application) {
     private val settings = SettingsStorage.getInstance(application)
 
     val currentTheme: StateFlow<AppTheme> = settings.appTheme
+    val darkMode: StateFlow<Boolean> = settings.darkMode
 
     fun setTheme(theme: AppTheme) = settings.setAppTheme(theme)
+    fun setDarkMode(enabled: Boolean) = settings.setDarkMode(enabled)
 }
