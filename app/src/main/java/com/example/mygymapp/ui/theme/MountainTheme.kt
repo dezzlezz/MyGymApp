@@ -1,11 +1,5 @@
 package com.example.mygymapp.ui.theme
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,17 +12,14 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
-import kotlin.random.Random
+import com.example.mygymapp.ui.backgrounds.MountainBackground
 
 private val MountainLightColors = lightColorScheme(
     primary = GlacierBlue,
@@ -63,8 +54,11 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
 
     MaterialTheme(colorScheme = scheme) {
         Box(Modifier.fillMaxSize().background(bg)) {
-            MountainScene(Modifier.fillMaxSize(), darkMode)
-            FogOverlay(Modifier.fillMaxSize(), animationsEnabled)
+            MountainBackground(
+                modifier = Modifier.fillMaxSize(),
+                darkMode = darkMode,
+                animationsEnabled = animationsEnabled
+            )
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
@@ -84,58 +78,5 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
                 AppNavHost(navController, Modifier.padding(padding))
             }
         }
-    }
-}
-
-private fun curvedRange(random: Random): List<Pair<Float, Float>> =
-    List(6) { it / 5f to (0.4f + random.nextFloat() * 0.2f) }
-
-@Composable
-private fun MountainScene(modifier: Modifier = Modifier, darkMode: Boolean) {
-    val layers = remember {
-        listOf(curvedRange(Random(1)), curvedRange(Random(2)))
-    }
-    Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-        val colors = if (darkMode) {
-            listOf(MountainSurfaceDark.copy(alpha = 0.6f), MountainSurfaceDark.copy(alpha = 0.4f))
-        } else {
-            listOf(MountainDeepBlue.copy(alpha = 0.6f), MountainDeepBlue.copy(alpha = 0.4f))
-        }
-        layers.forEachIndexed { idx, points ->
-            val path = Path().apply {
-                moveTo(0f, h)
-                lineTo(points.first().first * w, points.first().second * h)
-                points.drop(1).forEach { (x, y) -> quadraticBezierTo(x * w, y * h - h * 0.05f, x * w, y * h) }
-                lineTo(w, h)
-                close()
-            }
-            drawPath(path, colors[idx])
-        }
-    }
-}
-
-@Composable
-private fun FogOverlay(modifier: Modifier = Modifier, animationsEnabled: Boolean) {
-    val transition = rememberInfiniteTransition(label = "fog")
-    val anim by transition.animateFloat(
-        initialValue = -1f,
-        targetValue = if (animationsEnabled) 1f else -1f,
-        animationSpec = infiniteRepeatable(tween(15000, easing = LinearEasing))
-    )
-    Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-        val y = h * 0.5f
-        drawRect(
-            brush = androidx.compose.ui.graphics.Brush.horizontalGradient(
-                listOf(Color.Transparent, FogLight, Color.Transparent),
-                startX = -w + w * anim,
-                endX = w + w * anim
-            ),
-            topLeft = Offset(-w + w * anim, y),
-            size = androidx.compose.ui.geometry.Size(w * 2, h * 0.3f)
-        )
     }
 }
