@@ -16,6 +16,8 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,7 +35,7 @@ import kotlin.math.abs
 import kotlin.math.sin
 import kotlin.random.Random
 
-private val ForestColors = darkColorScheme(
+private val ForestDarkColors = darkColorScheme(
     primary = PineGreen,
     onPrimary = LightText,
     secondary = ForestShadow,
@@ -44,19 +46,33 @@ private val ForestColors = darkColorScheme(
     onSurface = LightText
 )
 
+private val ForestLightColors = lightColorScheme(
+    primary = ForestPrimaryLight,
+    onPrimary = NightBlack,
+    secondary = ForestSurfaceLight,
+    onSecondary = NightBlack,
+    background = ForestBackgroundLight,
+    onBackground = NightBlack,
+    surface = ForestSurfaceLight,
+    onSurface = NightBlack
+)
+
 @Composable
-fun DarkForestTheme(animationsEnabled: Boolean = true) {
+fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val currentRoute = current?.destination?.route ?: NavTabs.first().route
 
-    MaterialTheme(colorScheme = ForestColors) {
-        Box(Modifier.fillMaxSize().background(NightBlack)) {
-            ForestScene(Modifier.fillMaxSize())
+    val scheme = if (darkMode) ForestDarkColors else ForestLightColors
+    val bg = if (darkMode) NightBlack else ForestBackgroundLight
+
+    MaterialTheme(colorScheme = scheme) {
+        Box(Modifier.fillMaxSize().background(bg)) {
+            ForestScene(Modifier.fillMaxSize(), darkMode)
             Rain(modifier = Modifier.fillMaxSize(), animationsEnabled)
             Fireflies(modifier = Modifier.fillMaxSize(), animationsEnabled)
             Row {
-                NavigationRail(containerColor = ForestColors.surface) {
+                NavigationRail(containerColor = scheme.surface) {
                     NavTabs.forEach { tab ->
                         NavigationRailItem(
                             selected = currentRoute == tab.route,
@@ -87,7 +103,7 @@ fun DarkForestTheme(animationsEnabled: Boolean = true) {
 private data class Tree(val x: Float, val size: Float)
 
 @Composable
-private fun ForestScene(modifier: Modifier = Modifier) {
+private fun ForestScene(modifier: Modifier = Modifier, darkMode: Boolean) {
     val layers = remember {
         List(3) { layer ->
             val r = Random(layer)
@@ -97,7 +113,11 @@ private fun ForestScene(modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val width = size.width
         val height = size.height
-        val colors = listOf(ForestShadow, ForestShadow.copy(alpha = 0.8f), ForestShadow.copy(alpha = 0.6f))
+        val colors = if (darkMode) {
+            listOf(ForestShadow, ForestShadow.copy(alpha = 0.8f), ForestShadow.copy(alpha = 0.6f))
+        } else {
+            listOf(ForestPrimaryLight, ForestPrimaryLight.copy(alpha = 0.8f), ForestPrimaryLight.copy(alpha = 0.6f))
+        }
         layers.forEachIndexed { index, trees ->
             val base = height * (0.65f + index * 0.1f)
             trees.forEach { tree ->
