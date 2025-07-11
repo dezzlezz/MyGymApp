@@ -16,6 +16,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import kotlin.math.abs
+import kotlin.math.sin
 import com.example.mygymapp.ui.theme.*
 import kotlin.random.Random
 
@@ -27,6 +29,7 @@ fun MountainBackground(
 ) {
     Box(modifier) {
         MountainLayers(Modifier.fillMaxSize(), darkMode)
+        StarrySky(Modifier.fillMaxSize(), darkMode, animationsEnabled)
         SnowOverlay(Modifier.fillMaxSize(), animationsEnabled)
     }
 }
@@ -56,6 +59,28 @@ private fun MountainLayers(modifier: Modifier, darkMode: Boolean) {
                 close()
             }
             drawPath(path, colors[idx])
+        }
+    }
+}
+
+private data class Star(val x: Float, val y: Float, val phase: Float)
+
+@Composable
+private fun StarrySky(modifier: Modifier, darkMode: Boolean, animationsEnabled: Boolean, count: Int = 40) {
+    val stars = remember { List(count) { Star(Random.nextFloat(), Random.nextFloat() * 0.5f, Random.nextFloat()) } }
+    val transition = rememberInfiniteTransition(label = "stars")
+    val time by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (animationsEnabled) 1f else 0f,
+        animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing))
+    )
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val color = if (darkMode) Color.White else DuskViolet
+        stars.forEach { s ->
+            val alpha = 0.5f + 0.5f * abs(sin((time + s.phase) * 2f * Math.PI)).toFloat()
+            drawCircle(color.copy(alpha = alpha), radius = 2f, center = Offset(w * s.x, h * s.y))
         }
     }
 }

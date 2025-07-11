@@ -41,6 +41,14 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
         val h = size.height
         val horizon = h * 0.35f
         val sand = if (darkMode) BeachSandDark else BeachSand
+        drawRect(
+            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                colors = listOf(SunYellow, WaveBlue.copy(alpha = 0.4f)),
+                startY = 0f,
+                endY = horizon
+            ),
+            size = androidx.compose.ui.geometry.Size(w, horizon)
+        )
         drawRect(sand, Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
         val dy = h * 0.05f
         val dx = w * anim
