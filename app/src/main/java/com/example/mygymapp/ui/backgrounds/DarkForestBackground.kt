@@ -38,24 +38,21 @@ fun DarkForestBackground(
     }
 }
 
-private data class Tree(val x: Float, val size: Float)
+private data class Tree(val x: Float, val size: Float, val phase: Float)
 
 @Composable
 private fun TreeLayers(modifier: Modifier, darkMode: Boolean, animationsEnabled: Boolean) {
     val layers = remember {
         List(3) { layer ->
             val rand = Random(layer + 10)
-            List(12) { Tree(rand.nextFloat(), rand.nextFloat()) }
+            List(12) { Tree(rand.nextFloat(), rand.nextFloat(), rand.nextFloat() * (2f * PI).toFloat()) }
         }
     }
-    val shift = rememberInfiniteTransition(label = "parallax")
-    val anim by shift.animateFloat(
+    val windTrans = rememberInfiniteTransition(label = "wind")
+    val windPhase by windTrans.animateFloat(
         initialValue = 0f,
-        targetValue = if (animationsEnabled) 1f else 0f,
-        animationSpec = infiniteRepeatable(
-            tween(20000, easing = LinearEasing),
-            RepeatMode.Restart
-        )
+        targetValue = if (animationsEnabled) (2f * PI).toFloat() else 0f,
+        animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing))
     )
 
     Canvas(modifier) {
@@ -68,10 +65,9 @@ private fun TreeLayers(modifier: Modifier, darkMode: Boolean, animationsEnabled:
             listOf(ForestPrimaryLight, ForestPrimaryLight.copy(alpha = 0.8f), ForestPrimaryLight.copy(alpha = 0.6f))
         }
         layers.forEachIndexed { index, trees ->
-            val dx = w * anim * (index + 1) * 0.1f
             trees.forEach { tree ->
-                val baseX = (tree.x * w + dx) % w
-                drawTree(baseX, ground, tree.size, colors[index])
+                val baseX = tree.x * w
+                drawTree(baseX, ground, tree.size, tree.phase, windPhase, colors[index])
             }
         }
     }
@@ -81,19 +77,22 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTree(
     x: Float,
     ground: Float,
     scale: Float,
+    phase: Float,
+    wind: Float,
     color: Color
 ) {
     val h = this.size.height * (0.15f + scale * 0.3f)
     val trunkW = h * 0.12f
     val canopyH = h * 0.7f
     val trunkTop = ground - h
+    val sway = kotlin.math.sin(wind + phase) * trunkW
     // trunk
-    drawRect(color, Offset(x - trunkW/2, trunkTop), androidx.compose.ui.geometry.Size(trunkW, h))
-    // canopy path with curves
+    drawRect(color, Offset(x - trunkW / 2 + sway * 0.2f, trunkTop), androidx.compose.ui.geometry.Size(trunkW, h))
+    // canopy path sways with wind
     val path = Path().apply {
-        moveTo(x, trunkTop - canopyH)
-        cubicTo(x - trunkW*3, trunkTop - canopyH*0.5f, x - trunkW*2, trunkTop + canopyH*0.3f, x, trunkTop + canopyH*0.2f)
-        cubicTo(x + trunkW*2, trunkTop + canopyH*0.3f, x + trunkW*3, trunkTop - canopyH*0.5f, x, trunkTop - canopyH)
+        moveTo(x + sway, trunkTop - canopyH)
+        cubicTo(x - trunkW * 3 + sway, trunkTop - canopyH * 0.6f, x - trunkW * 2 + sway, trunkTop + canopyH * 0.2f, x + sway, trunkTop + canopyH * 0.3f)
+        cubicTo(x + trunkW * 2 + sway, trunkTop + canopyH * 0.2f, x + trunkW * 3 + sway, trunkTop - canopyH * 0.6f, x + sway, trunkTop - canopyH)
         close()
     }
     drawPath(path, color)
@@ -102,20 +101,20 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTree(
 private data class Drop(val x: Float, val speed: Float, val length: Float)
 
 @Composable
-private fun RainOverlay(modifier: Modifier, animationsEnabled: Boolean, count: Int = 60) {
-    val drops = remember { List(count) { Drop(Random.nextFloat(), Random.nextFloat() * 4 + 2, Random.nextFloat() * 0.1f + 0.05f) } }
+private fun RainOverlay(modifier: Modifier, animationsEnabled: Boolean, count: Int = 40) {
+    val drops = remember { List(count) { Drop(Random.nextFloat(), 0.5f + Random.nextFloat(), Random.nextFloat() * 0.05f + 0.03f) } }
     val transition = rememberInfiniteTransition(label = "rain")
     val anim by transition.animateFloat(
         initialValue = 0f,
         targetValue = if (animationsEnabled) 1f else 0f,
-        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing))
+        animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing))
     )
     Canvas(modifier) {
         val w = size.width
         val h = size.height
         drops.forEach { drop ->
             val y = (anim * drop.speed + drop.x) % 1f
-            drawLine(Color.White.copy(alpha = 0.15f), Offset(w * drop.x, h * y), Offset(w * drop.x, h * y + h * drop.length), strokeWidth = 2f)
+            drawLine(Color.White.copy(alpha = 0.1f), Offset(w * drop.x, h * y), Offset(w * drop.x, h * y + h * drop.length), strokeWidth = 1.5f)
         }
     }
 }
@@ -144,12 +143,20 @@ private fun FirefliesOverlay(modifier: Modifier, animationsEnabled: Boolean, cou
 @Composable
 private fun GroundFog(modifier: Modifier) {
     Canvas(modifier) {
-        val gradient = androidx.compose.ui.graphics.Brush.verticalGradient(
-            listOf(Color.Transparent, FogLight.copy(alpha = 0.3f), Color.Transparent),
-            startY = size.height * 0.6f,
-            endY = size.height
+        val w = size.width
+        val h = size.height
+        val base = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = listOf(Color.Transparent, FogLight.copy(alpha = 0.35f)),
+            startY = h * 0.6f,
+            endY = h
         )
-        drawRect(gradient, size = size)
+        drawRect(base, size = size)
+        val plume = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = listOf(FogLight.copy(alpha = 0.25f), Color.Transparent),
+            center = Offset(w / 2f, h * 0.85f),
+            radius = h * 0.4f
+        )
+        drawRect(plume, size = size)
     }
 }
 
