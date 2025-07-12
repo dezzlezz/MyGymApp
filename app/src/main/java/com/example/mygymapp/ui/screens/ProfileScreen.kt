@@ -1,6 +1,5 @@
 package com.example.mygymapp.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,11 +29,11 @@ import java.time.format.TextStyle
 import java.util.Locale
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
+    val themeVm: ThemeViewModel = viewModel()
     val name by viewModel.userName.collectAsState()
-    val dark by viewModel.darkMode.collectAsState()
+    val dark by themeVm.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
-    val themeVm: ThemeViewModel = viewModel()
     val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -41,7 +41,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color.Transparent)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -109,7 +109,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Switch(checked = dark, onCheckedChange = { viewModel.setDarkMode(it) })
+            Switch(checked = dark, onCheckedChange = { themeVm.setDarkMode(it) })
         }
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(
