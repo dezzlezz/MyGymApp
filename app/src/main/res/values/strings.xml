@@ -24,8 +24,13 @@
     <string name="order">Order</string>
     <string name="close">Close</string>
     <string name="search_plans">Search plans</string>
+    <string name="search_exercises">Search exercises</string>
     <string name="show_all">Show all</string>
     <string name="show_favorites">Show favorites</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_name">Name (A–Z)</string>
+    <string name="sort_difficulty">Difficulty</string>
+    <string name="sort_muscle_group">Muscle group</string>
     <string name="all">All</string>
     <string name="favorite_marked">Marked as favorite</string>
     <string name="daily">Daily</string>
