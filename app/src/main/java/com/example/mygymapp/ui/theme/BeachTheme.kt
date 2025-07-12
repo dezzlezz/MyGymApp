@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -18,6 +22,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.PI
+import kotlin.math.sin
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
@@ -52,11 +65,23 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
     val current by navController.currentBackStackEntryAsState()
     val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
 
+    val floatAnim = rememberInfiniteTransition(label = "bob")
+    val bob by floatAnim.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing))
+    )
+
     val scheme = if (darkMode) BeachDarkColors else BeachLightColors
     val sand = if (darkMode) BeachSandDark else BeachSand
 
     MaterialTheme(colorScheme = scheme) {
-        Box(Modifier.fillMaxSize().background(sand)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(sand)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
             BeachBackground(
                 modifier = Modifier.fillMaxSize(),
                 darkMode = darkMode,
@@ -65,13 +90,48 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
-                    val icons: List<@Composable (Boolean) -> Unit> = listOf(
-                        { selected -> CrabIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                        { selected -> ShellIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                        { selected -> StarfishIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                        { selected -> FishIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) }
+                    val icons: List<@Composable (Boolean, Float) -> Unit> = listOf(
+                        { selected, phase ->
+                            val off = (-sin(phase) * 4.dp.toPx()).toInt()
+                            CrabIcon(
+                                Modifier
+                                    .size(24.dp)
+                                    .offset { IntOffset(0, off) },
+                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        },
+                        { selected, phase ->
+                            val off = (-sin(phase + PI / 2f) * 4.dp.toPx()).toInt()
+                            ShellIcon(
+                                Modifier
+                                    .size(24.dp)
+                                    .offset { IntOffset(0, off) },
+                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        },
+                        { selected, phase ->
+                            val off = (-sin(phase + PI) * 4.dp.toPx()).toInt()
+                            StarfishIcon(
+                                Modifier
+                                    .size(24.dp)
+                                    .offset { IntOffset(0, off) },
+                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        },
+                        { selected, phase ->
+                            val off = (-sin(phase + PI * 1.5f) * 4.dp.toPx()).toInt()
+                            FishIcon(
+                                Modifier
+                                    .size(24.dp)
+                                    .offset { IntOffset(0, off) },
+                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
                     )
-                    NavigationBar(containerColor = scheme.surface.copy(alpha = 0.6f)) {
+                    NavigationBar(
+                        modifier = Modifier.navigationBarsPadding(),
+                        containerColor = scheme.surface.copy(alpha = 0.6f)
+                    ) {
                         NavTabs.forEachIndexed { idx, tab ->
                             val selected = idx == index
                             NavigationBarItem(
@@ -83,7 +143,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                                         restoreState = true
                                     }
                                 },
-                                icon = { icons[idx](selected) },
+                                icon = { icons[idx](selected, bob + idx * 0.5f) },
                                 label = { androidx.compose.material3.Text(tab.label) },
                                 colors = NavigationBarItemDefaults.colors(
                                     indicatorColor = Color.Transparent,

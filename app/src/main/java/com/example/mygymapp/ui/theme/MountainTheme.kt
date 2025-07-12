@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -57,7 +61,12 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
     val bg = if (darkMode) MountainBackgroundDark else SnowFlake
 
     MaterialTheme(colorScheme = scheme) {
-        Box(Modifier.fillMaxSize().background(bg)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(bg)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
             MountainBackground(
                 modifier = Modifier.fillMaxSize(),
                 darkMode = darkMode,
@@ -66,7 +75,11 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 topBar = {
-                    TabRow(selectedTabIndex = index, containerColor = scheme.surface.copy(alpha = 0.6f)) {
+                    TabRow(
+                        selectedTabIndex = index,
+                        modifier = Modifier.statusBarsPadding(),
+                        containerColor = scheme.surface.copy(alpha = 0.6f)
+                    ) {
                         NavTabs.forEachIndexed { idx, tab ->
                             val selected = idx == index
                             Tab(
