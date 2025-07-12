@@ -29,6 +29,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.PI
 import kotlin.math.sin
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -90,9 +91,10 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
+                    val amplitude = with(LocalDensity.current) { 4.dp.toPx() }
                     val icons: List<@Composable (Boolean, Float) -> Unit> = listOf(
                         { selected, phase ->
-                            val off = (-sin(phase) * 4.dp.toPx()).toInt()
+                            val off = (-sin(phase) * amplitude).toInt()
                             CrabIcon(
                                 Modifier
                                     .size(24.dp)
@@ -101,7 +103,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                             )
                         },
                         { selected, phase ->
-                            val off = (-sin(phase + PI / 2f) * 4.dp.toPx()).toInt()
+                            val off = (-sin(phase + PI / 2f) * amplitude).toInt()
                             ShellIcon(
                                 Modifier
                                     .size(24.dp)
@@ -110,7 +112,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                             )
                         },
                         { selected, phase ->
-                            val off = (-sin(phase + PI) * 4.dp.toPx()).toInt()
+                            val off = (-sin(phase + PI) * amplitude).toInt()
                             StarfishIcon(
                                 Modifier
                                     .size(24.dp)
@@ -119,7 +121,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                             )
                         },
                         { selected, phase ->
-                            val off = (-sin(phase + PI * 1.5f) * 4.dp.toPx()).toInt()
+                            val off = (-sin(phase + PI * 1.5f) * amplitude).toInt()
                             FishIcon(
                                 Modifier
                                     .size(24.dp)
