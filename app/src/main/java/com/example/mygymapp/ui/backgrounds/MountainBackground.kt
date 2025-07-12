@@ -35,13 +35,19 @@ fun MountainBackground(
     }
 }
 
-private fun randomCurve(random: Random): List<Pair<Float, Float>> =
-    List(7) { it / 6f to (0.4f + random.nextFloat() * 0.3f) }
+private fun generateMountains(random: Random): List<Pair<Float, Float>> {
+    val peaks = 10
+    return List(peaks + 1) { i ->
+        val x = i.toFloat() / peaks
+        val y = 0.35f + random.nextFloat() * 0.25f
+        x to y
+    }
+}
 
 @Composable
 private fun MountainLayers(modifier: Modifier, darkMode: Boolean) {
     val shapes = remember {
-        listOf(randomCurve(Random(1)), randomCurve(Random(2)), randomCurve(Random(3)))
+        listOf(generateMountains(Random(1)), generateMountains(Random(2)), generateMountains(Random(3)))
     }
     Canvas(modifier) {
         val w = size.width
@@ -86,11 +92,20 @@ private fun StarrySky(modifier: Modifier, darkMode: Boolean, animationsEnabled: 
     }
 }
 
-private data class Snow(val x: Float, val speed: Float)
+private data class Snow(val x: Float, val offset: Float, val speed: Float, val size: Float)
 
 @Composable
-private fun SnowOverlay(modifier: Modifier, animationsEnabled: Boolean, count: Int = 50) {
-    val flakes = remember { List(count) { Snow(Random.nextFloat(), 0.5f + Random.nextFloat()) } }
+private fun SnowOverlay(modifier: Modifier, animationsEnabled: Boolean, count: Int = 80) {
+    val flakes = remember {
+        List(count) {
+            Snow(
+                x = Random.nextFloat(),
+                offset = Random.nextFloat(),
+                speed = 0.3f + Random.nextFloat() * 0.7f,
+                size = 2f + Random.nextFloat() * 2f
+            )
+        }
+    }
     val transition = rememberInfiniteTransition(label = "snow")
     val anim by transition.animateFloat(
         initialValue = 0f,
@@ -101,8 +116,12 @@ private fun SnowOverlay(modifier: Modifier, animationsEnabled: Boolean, count: I
         val w = size.width
         val h = size.height
         flakes.forEach { f ->
-            val y = (anim * f.speed + f.x) % 1f
-            drawCircle(Color.White.copy(alpha = 0.8f), 3f, Offset(w * f.x, h * y))
+            val y = (f.offset + anim * f.speed) % 1f
+            drawCircle(
+                Color.White.copy(alpha = 0.8f),
+                radius = f.size,
+                center = Offset(w * f.x, h * y)
+            )
         }
     }
 }

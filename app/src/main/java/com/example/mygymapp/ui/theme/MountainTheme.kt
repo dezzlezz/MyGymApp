@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,7 +65,7 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
             )
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
-                bottomBar = {
+                topBar = {
                     TabRow(selectedTabIndex = index, containerColor = scheme.surface.copy(alpha = 0.6f)) {
                         NavTabs.forEachIndexed { idx, tab ->
                             val selected = idx == index
@@ -75,12 +79,12 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
                                     }
                                 },
                                 icon = {
-                                    androidx.compose.material3.Icon(
-                                        tab.icon,
-                                        tab.label,
-                                        tint = if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                                    StarTabIcon(
+                                        modifier = Modifier.size(24.dp),
+                                        color = if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
                                     )
                                 },
+                                text = { androidx.compose.material3.Text(tab.label) },
                                 selectedContentColor = scheme.primary,
                                 unselectedContentColor = scheme.onSurface.copy(alpha = 0.6f)
                             )
@@ -91,5 +95,27 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
                 AppNavHost(navController, Modifier.padding(padding))
             }
         }
+    }
+}
+
+@Composable
+private fun StarTabIcon(modifier: Modifier = Modifier, color: Color) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val path = Path().apply {
+            moveTo(w / 2f, 0f)
+            lineTo(w * 0.62f, h * 0.35f)
+            lineTo(w, h * 0.38f)
+            lineTo(w * 0.7f, h * 0.62f)
+            lineTo(w * 0.82f, h)
+            lineTo(w / 2f, h * 0.78f)
+            lineTo(w * 0.18f, h)
+            lineTo(w * 0.3f, h * 0.62f)
+            lineTo(0f, h * 0.38f)
+            lineTo(w * 0.38f, h * 0.35f)
+            close()
+        }
+        drawPath(path, color)
     }
 }
