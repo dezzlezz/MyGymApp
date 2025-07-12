@@ -70,4 +70,15 @@
     <string name="day_label">Day %1$d</string>
     <string name="app_name">MyGymApp</string>
     <string name="select_theme">Select Theme</string>
+    <string name="preferences_title">Preferences</string>
+    <string name="show_suggestions">Show Suggestions</string>
+    <string name="days_per_week">Days per week: %1$d</string>
+    <string name="max_duration_label">Max duration: %1$d min</string>
+    <string name="goal_label">Goal</string>
+    <string name="focus_groups_label">Focus muscles</string>
+    <string name="goal_hypertrophy">Hypertrophy</string>
+    <string name="goal_strength">Strength</string>
+    <string name="goal_endurance">Endurance</string>
+    <string name="goal_fit">General Fitness</string>
+    <string name="preferences_button">Preferences</string>
 </resources>

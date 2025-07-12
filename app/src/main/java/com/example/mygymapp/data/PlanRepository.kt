@@ -47,4 +47,12 @@ class PlanRepository(
     /** Löscht einen Plan komplett */
     suspend fun deletePlan(plan: Plan) =
         dao.deletePlan(plan)
+
+    suspend fun getAllPlans(): List<Plan> = dao.getAllPlans()
+
+    suspend fun getSuggestions(prefs: com.example.mygymapp.model.UserPreferences): List<Plan> =
+        getAllPlans().filter { plan ->
+            plan.durationMinutes <= prefs.maxDuration &&
+                plan.requiredEquipment.all { it in prefs.equipment }
+        }
 }
