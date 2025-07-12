@@ -32,8 +32,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.PineGreen
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.example.mygymapp.model.Equipment
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun WeeklyPlansTab(navController: NavController) {
     val context = LocalContext.current
@@ -47,14 +51,45 @@ fun WeeklyPlansTab(navController: NavController) {
     val exercises by exerciseViewModel.allExercises.observeAsState(emptyList())
 
     var showAdd by remember { mutableStateOf(false) }
+    var maxTime by rememberSaveable { mutableIntStateOf(60) }
+    val availableEquipment = remember { mutableStateListOf<String>() }
+
+    val filtered = plans.filter { plan ->
+        plan.durationMinutes <= maxTime &&
+            plan.requiredEquipment.all { it in availableEquipment }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.switchType(PlanType.WEEKLY)
     }
 
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
-            items(plans, key = { it.planId }) { plan ->
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(id = R.string.max_time_filter, maxTime))
+            Slider(
+                value = maxTime.toFloat(),
+                onValueChange = { maxTime = it.roundToInt() },
+                valueRange = 10f..60f
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(id = R.string.equipment_filter))
+            FlowRow {
+                Equipment.options.forEach { eq ->
+                    FilterChip(
+                        selected = eq in availableEquipment,
+                        onClick = {
+                            if (eq in availableEquipment) availableEquipment.remove(eq) else availableEquipment.add(eq)
+                        },
+                        label = { Text(eq) }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+            }
+        }
+
+        Box(Modifier.weight(1f)) {
+            LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
+                items(filtered, key = { it.planId }) { plan ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
                         when (it) {
@@ -95,9 +130,10 @@ fun WeeklyPlansTab(navController: NavController) {
                     }
                 )
             }
-        }
-        FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-            Icon(Icons.Filled.Add, contentDescription = "Add Plan")
+            }
+            FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Plan")
+            }
         }
     }
 
