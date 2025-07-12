@@ -38,6 +38,7 @@ fun ExercisesScreen(
 ) {
     val exercises by viewModel.allExercises.observeAsState(emptyList())
     Scaffold(
+        containerColor = Color.Transparent,
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("addExercise") }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Exercise")
