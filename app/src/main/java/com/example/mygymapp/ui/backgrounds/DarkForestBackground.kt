@@ -38,21 +38,33 @@ fun DarkForestBackground(
     }
 }
 
-private data class Tree(val x: Float, val size: Float, val phase: Float)
+private data class Tree(
+    val x: Float,
+    val size: Float,
+    val phase: Float,
+    val width: Float
+)
 
 @Composable
 private fun TreeLayers(modifier: Modifier, darkMode: Boolean, animationsEnabled: Boolean) {
     val layers = remember {
         List(3) { layer ->
             val rand = Random(layer + 10)
-            List(12) { Tree(rand.nextFloat(), rand.nextFloat(), rand.nextFloat() * (2f * PI).toFloat()) }
+            List(12) {
+                Tree(
+                    rand.nextFloat(),
+                    rand.nextFloat(),
+                    rand.nextFloat() * (2f * PI).toFloat(),
+                    0.8f + rand.nextFloat() * 0.4f
+                )
+            }
         }
     }
     val windTrans = rememberInfiniteTransition(label = "wind")
     val windPhase by windTrans.animateFloat(
         initialValue = 0f,
         targetValue = if (animationsEnabled) (2f * PI).toFloat() else 0f,
-        animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing))
+        animationSpec = infiniteRepeatable(tween(15000, easing = LinearEasing))
     )
 
     Canvas(modifier) {
@@ -67,7 +79,15 @@ private fun TreeLayers(modifier: Modifier, darkMode: Boolean, animationsEnabled:
         layers.forEachIndexed { index, trees ->
             trees.forEach { tree ->
                 val baseX = tree.x * w
-                drawTree(baseX, ground, tree.size, tree.phase, windPhase, colors[index])
+                drawTree(
+                    x = baseX,
+                    ground = ground,
+                    scale = tree.size,
+                    phase = tree.phase,
+                    width = tree.width,
+                    wind = windPhase,
+                    color = colors[index]
+                )
             }
         }
     }
@@ -78,21 +98,23 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTree(
     ground: Float,
     scale: Float,
     phase: Float,
+    width: Float,
     wind: Float,
     color: Color
 ) {
-    val h = this.size.height * (0.15f + scale * 0.3f)
-    val trunkW = h * 0.12f
-    val canopyH = h * 0.7f
+    val h = this.size.height * (0.18f + scale * 0.35f)
+    val trunkW = h * 0.1f * width
+    val canopyH = h * (0.6f + width * 0.2f)
+    val canopyW = trunkW * 6f * width
     val trunkTop = ground - h
-    val sway = kotlin.math.sin(wind + phase) * trunkW
+    val sway = kotlin.math.sin(wind + phase) * trunkW * 0.4f
     // trunk
     drawRect(color, Offset(x - trunkW / 2 + sway * 0.2f, trunkTop), androidx.compose.ui.geometry.Size(trunkW, h))
     // canopy path sways with wind
     val path = Path().apply {
         moveTo(x + sway, trunkTop - canopyH)
-        cubicTo(x - trunkW * 3 + sway, trunkTop - canopyH * 0.6f, x - trunkW * 2 + sway, trunkTop + canopyH * 0.2f, x + sway, trunkTop + canopyH * 0.3f)
-        cubicTo(x + trunkW * 2 + sway, trunkTop + canopyH * 0.2f, x + trunkW * 3 + sway, trunkTop - canopyH * 0.6f, x + sway, trunkTop - canopyH)
+        cubicTo(x - canopyW * 0.5f + sway, trunkTop - canopyH * 0.4f, x - canopyW * 0.3f + sway, trunkTop + canopyH * 0.2f, x + sway, trunkTop + canopyH * 0.3f)
+        cubicTo(x + canopyW * 0.3f + sway, trunkTop + canopyH * 0.2f, x + canopyW * 0.5f + sway, trunkTop - canopyH * 0.4f, x + sway, trunkTop - canopyH)
         close()
     }
     drawPath(path, color)
