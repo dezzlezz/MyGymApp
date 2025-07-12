@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
 import com.example.mygymapp.ui.backgrounds.BeachBackground
+import androidx.compose.runtime.getValue
 
 private val BeachLightColors = lightColorScheme(
     primary = SunsetCoral,
