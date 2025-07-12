@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,14 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
-import androidx.compose.foundation.layout.size
 import com.example.mygymapp.ui.backgrounds.BeachBackground
-import androidx.compose.runtime.getValue
 
 private val BeachLightColors = lightColorScheme(
     primary = SunsetCoral,
@@ -42,7 +40,7 @@ private val BeachDarkColors = darkColorScheme(
     onPrimary = NightBlack,
     secondary = WaveBlue,
     onSecondary = NightBlack,
-    background = BeachBackgroundDark,
+    background = SunsetBlue,
     onBackground = SnowFlake,
     surface = BeachSandDark,
     onSurface = SnowFlake

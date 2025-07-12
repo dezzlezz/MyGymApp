@@ -38,5 +38,8 @@ val MountainSurfaceDark = Color(0xFF142135)
 val BeachBackgroundDark = Color(0xFF0D3B66)
 val BeachSandDark = Color(0xFF7A6854)
 
+// Sunset accent used when darkMode is enabled for the beach theme
+val SunsetBlue = Color(0xFF184E77)
+
 val AlgaeGreen = Color(0xFF3E8058)
 val AlgaeDark = Color(0xFF2B5B3F)

@@ -29,6 +29,7 @@ fun DarkForestBackground(
     animationsEnabled: Boolean = true
 ) {
     Box(modifier) {
+        SkyGradient(Modifier.fillMaxSize(), darkMode)
         TreeLayers(Modifier.fillMaxSize(), darkMode, animationsEnabled)
         RainOverlay(Modifier.fillMaxSize(), animationsEnabled)
         FirefliesOverlay(Modifier.fillMaxSize(), animationsEnabled)
@@ -76,8 +77,13 @@ private fun TreeLayers(modifier: Modifier, darkMode: Boolean, animationsEnabled:
     }
 }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTree(x: Float, ground: Float, size: Float, color: Color) {
-    val h = size * this.size.height * 0.3f + this.size.height * 0.15f
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTree(
+    x: Float,
+    ground: Float,
+    scale: Float,
+    color: Color
+) {
+    val h = this.size.height * (0.15f + scale * 0.3f)
     val trunkW = h * 0.12f
     val canopyH = h * 0.7f
     val trunkTop = ground - h
@@ -148,6 +154,20 @@ private fun GroundFog(modifier: Modifier) {
 }
 
 @Composable
+private fun SkyGradient(modifier: Modifier, darkMode: Boolean) {
+    Canvas(modifier) {
+        val colors = if (darkMode) {
+            listOf(NightBlack, ForestShadow)
+        } else {
+            listOf(ForestBackgroundLight, ForestPrimaryLight)
+        }
+        drawRect(
+            brush = androidx.compose.ui.graphics.Brush.verticalGradient(colors),
+            size = size
+        )
+    }
+}
+
 private fun DimOverlay(modifier: Modifier, darkMode: Boolean) {
     Canvas(modifier) {
         val fade = if (darkMode) Color.Black else Color.White

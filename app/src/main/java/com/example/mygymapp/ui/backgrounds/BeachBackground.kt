@@ -54,9 +54,15 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
             startY = horizon,
             endY = h
         )
+        val skyColors = if (darkMode) {
+            listOf(SunsetCoral, SunsetBlue)
+        } else {
+            listOf(SunYellow, WaveBlue.copy(alpha = 0.4f))
+        }
         drawRect(
             brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                colors = listOf(SunYellow, WaveBlue.copy(alpha = 0.4f)),
+                colors = skyColors,
+
                 startY = 0f,
                 endY = horizon
             ),
