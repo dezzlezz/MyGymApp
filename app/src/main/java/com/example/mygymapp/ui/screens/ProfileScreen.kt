@@ -34,6 +34,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
     val themeVm: ThemeViewModel = viewModel()
+    val dark by themeVm.darkMode.collectAsState()
     val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }

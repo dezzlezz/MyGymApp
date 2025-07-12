@@ -62,6 +62,7 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
         drawRect(
             brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                 colors = skyColors,
+
                 startY = 0f,
                 endY = horizon
             ),
