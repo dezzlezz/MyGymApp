@@ -57,10 +57,11 @@ private fun RainOverlay() {
         ), label = "progress"
     )
 
+    val density = LocalDensity.current
+    val dropHeight = with(density) { 40.dp.toPx() }
+    val dropWidth = with(density) { 1.dp.toPx() }
+
     Canvas(modifier = Modifier.fillMaxSize().blur(4.dp)) {
-        val density = LocalDensity.current
-        val dropHeight = with(density) { 40.dp.toPx() }
-        val dropWidth = with(density) { 1.dp.toPx() }
         val totalHeight = size.height + dropHeight
         val spacing = size.width / 50f
         for (i in 0 until 50) {
