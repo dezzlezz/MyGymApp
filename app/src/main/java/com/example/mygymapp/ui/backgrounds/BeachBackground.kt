@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import kotlin.math.PI
+import kotlin.math.sin
+import kotlin.random.Random
 import com.example.mygymapp.ui.theme.*
 
 @Composable
@@ -31,16 +35,23 @@ fun BeachBackground(
 @Composable
 private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Boolean) {
     val transition = rememberInfiniteTransition(label = "wave")
-    val anim by transition.animateFloat(
+    val phase by transition.animateFloat(
         initialValue = 0f,
-        targetValue = if (animationsEnabled) 1f else 0f,
-        animationSpec = infiniteRepeatable(tween(12000, easing = LinearEasing))
+        targetValue = if (animationsEnabled) (2f * PI).toFloat() else 0f,
+        animationSpec = infiniteRepeatable(tween(10000, easing = LinearEasing))
     )
+    val sandDots = remember { List(40) { Offset(Random.nextFloat(), Random.nextFloat()) } }
+
     Canvas(modifier) {
         val w = size.width
         val h = size.height
         val horizon = h * 0.35f
-        val sand = if (darkMode) BeachSandDark else BeachSand
+        val sandBrush = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = if (darkMode) listOf(BeachSandDark, BeachSandDark.copy(alpha = 0.8f))
+            else listOf(BeachSand, BeachSand.copy(alpha = 0.8f)),
+            startY = horizon,
+            endY = h
+        )
         drawRect(
             brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                 colors = listOf(SunYellow, WaveBlue.copy(alpha = 0.4f)),
@@ -49,27 +60,38 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
             ),
             size = androidx.compose.ui.geometry.Size(w, horizon)
         )
-        drawRect(sand, Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
-        val dy = h * 0.05f
-        val dx = w * anim
+        drawRect(sandBrush, Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
+        sandDots.forEach { p ->
+            val x = p.x * w
+            val y = horizon + p.y * (h - horizon)
+            drawCircle(color = Color.Black.copy(alpha = 0.05f), radius = 1.5f, center = Offset(x, y))
+        }
+
+        val amplitude1 = h * 0.03f
+        val amplitude2 = h * 0.02f
+        val wavelength = w * 0.6f
+        fun wavePath(baseY: Float, amp: Float, shift: Float): Path {
+            val step = w / 25f
+            return Path().apply {
+                moveTo(0f, baseY)
+                var x = 0f
+                while (x <= w + step) {
+                    val y = baseY + amp * sin((x / wavelength + shift) * 2f * PI).toFloat()
+                    lineTo(x, y)
+                    x += step
+                }
+                lineTo(w, h)
+                lineTo(0f, h)
+                close()
+            }
+        }
+
         val water = if (darkMode) WaveBlue.copy(alpha = 0.7f) else WaveBlue
-        val foam = SeaFoam.copy(alpha = if (darkMode) 0.6f else 0.8f)
-        val wave1 = Path().apply {
-            moveTo(-w + dx, horizon)
-            cubicTo(-w * 0.5f + dx, horizon + dy, w * 0.5f + dx, horizon - dy, w + dx, horizon)
-            lineTo(w + dx, horizon + dy * 2)
-            lineTo(-w + dx, horizon + dy * 2)
-            close()
-        }
-        val wave2 = Path().apply {
-            moveTo(-w + dx * 1.3f, horizon + dy)
-            cubicTo(-w * 0.4f + dx * 1.3f, horizon + dy * 2, w * 0.6f + dx * 1.3f, horizon, w + dx * 1.3f, horizon + dy)
-            lineTo(w + dx * 1.3f, horizon + dy * 3)
-            lineTo(-w + dx * 1.3f, horizon + dy * 3)
-            close()
-        }
-        drawPath(wave1, water)
-        drawPath(wave2, foam)
+        val foam = SeaFoam.copy(alpha = if (darkMode) 0.5f else 0.7f)
+        val path1 = wavePath(horizon, amplitude1, phase)
+        val path2 = wavePath(horizon + amplitude1, amplitude2, -phase * 1.2f)
+        drawPath(path1, water)
+        drawPath(path2, foam)
     }
 }
 
