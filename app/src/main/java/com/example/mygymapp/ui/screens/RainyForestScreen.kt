@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalDensity
 
 @Composable
 fun RainyForestScreen() {
@@ -57,8 +58,9 @@ private fun RainOverlay() {
     )
 
     Canvas(modifier = Modifier.fillMaxSize().blur(4.dp)) {
-        val dropHeight = 40.dp.toPx()
-        val dropWidth = 1.dp.toPx()
+        val density = LocalDensity.current
+        val dropHeight = with(density) { 40.dp.toPx() }
+        val dropWidth = with(density) { 1.dp.toPx() }
         val totalHeight = size.height + dropHeight
         val spacing = size.width / 50f
         for (i in 0 until 50) {

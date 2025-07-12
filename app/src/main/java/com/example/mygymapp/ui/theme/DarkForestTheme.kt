@@ -1,39 +1,41 @@
 package com.example.mygymapp.ui.theme
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.sin
-import kotlin.random.Random
+import com.example.mygymapp.ui.backgrounds.DarkForestBackground
 
-private val ForestColors = darkColorScheme(
+private val ForestDarkColors = darkColorScheme(
     primary = PineGreen,
     onPrimary = LightText,
     secondary = ForestShadow,
@@ -44,22 +46,56 @@ private val ForestColors = darkColorScheme(
     onSurface = LightText
 )
 
+private val ForestLightColors = lightColorScheme(
+    primary = ForestPrimaryLight,
+    onPrimary = NightBlack,
+    secondary = ForestSurfaceLight,
+    onSecondary = NightBlack,
+    background = ForestBackgroundLight,
+    onBackground = NightBlack,
+    surface = ForestSurfaceLight,
+    onSurface = NightBlack
+)
+
 @Composable
-fun DarkForestTheme(animationsEnabled: Boolean = true) {
+fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val currentRoute = current?.destination?.route ?: NavTabs.first().route
 
-    MaterialTheme(colorScheme = ForestColors) {
-        Box(Modifier.fillMaxSize().background(NightBlack)) {
-            ForestScene(Modifier.fillMaxSize())
-            Rain(modifier = Modifier.fillMaxSize(), animationsEnabled)
-            Fireflies(modifier = Modifier.fillMaxSize(), animationsEnabled)
+    val scheme = if (darkMode) ForestDarkColors else ForestLightColors
+    val bg = if (darkMode) NightBlack else ForestBackgroundLight
+
+    MaterialTheme(colorScheme = scheme) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(bg)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+        ) {
+            DarkForestBackground(
+                modifier = Modifier.fillMaxSize(),
+                darkMode = darkMode,
+                animationsEnabled = animationsEnabled
+            )
             Row {
-                NavigationRail(containerColor = ForestColors.surface) {
-                    NavTabs.forEach { tab ->
+                val icons: List<@Composable (Boolean) -> Unit> = listOf(
+                    { selected -> LeafIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                    { selected -> BranchIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                    { selected -> PineIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                    { selected -> FireflyIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) }
+                )
+                NavigationRail(
+                    modifier = Modifier
+                        .drawBehind { drawTrunk(scheme.surface.copy(alpha = 0.6f)) }
+                        .statusBarsPadding()
+                        .navigationBarsPadding(),
+                    containerColor = Color.Transparent
+                ) {
+                    NavTabs.forEachIndexed { idx, tab ->
+                        val selected = currentRoute == tab.route
                         NavigationRailItem(
-                            selected = currentRoute == tab.route,
+                            selected = selected,
                             onClick = {
                                 navController.navigate(tab.route) {
                                     popUpTo(navController.graph.startDestinationId) { saveState = true }
@@ -67,11 +103,11 @@ fun DarkForestTheme(animationsEnabled: Boolean = true) {
                                     restoreState = true
                                 }
                             },
-                            icon = { androidx.compose.material3.Icon(tab.icon, tab.label) },
+                            icon = { icons[idx](selected) },
                             colors = NavigationRailItemDefaults.colors(
-                                selectedIconColor = PineGreen,
-                                unselectedIconColor = FogGray,
-                                indicatorColor = Color.Transparent
+                                indicatorColor = Color.Transparent,
+                                selectedTextColor = scheme.primary,
+                                unselectedTextColor = scheme.onSurface.copy(alpha = 0.6f)
                             )
                         )
                     }
@@ -84,74 +120,73 @@ fun DarkForestTheme(animationsEnabled: Boolean = true) {
     }
 }
 
-private data class Tree(val x: Float, val size: Float)
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTrunk(color: Color) {
+    val w = size.width
+    val h = size.height
+    val path = Path().apply {
+        moveTo(w * 0.45f, 0f)
+        cubicTo(w * 0.6f, h * 0.25f, w * 0.6f, h * 0.75f, w * 0.45f, h)
+        lineTo(w * 0.55f, h)
+        cubicTo(w * 0.4f, h * 0.75f, w * 0.4f, h * 0.25f, w * 0.55f, 0f)
+        close()
+    }
+    drawPath(path, color)
+}
 
 @Composable
-private fun ForestScene(modifier: Modifier = Modifier) {
-    val layers = remember {
-        List(3) { layer ->
-            val r = Random(layer)
-            List(8) { Tree(r.nextFloat(), r.nextFloat()) }
-        }
-    }
+private fun LeafIcon(modifier: Modifier = Modifier, color: Color) {
     Canvas(modifier) {
-        val width = size.width
-        val height = size.height
-        val colors = listOf(ForestShadow, ForestShadow.copy(alpha = 0.8f), ForestShadow.copy(alpha = 0.6f))
-        layers.forEachIndexed { index, trees ->
-            val base = height * (0.65f + index * 0.1f)
-            trees.forEach { tree ->
-                val h = height * (0.25f + tree.size * 0.15f)
-                val w = h * 0.4f
-                val center = width * tree.x
-                val path = Path().apply {
-                    moveTo(center, base - h)
-                    quadraticBezierTo(center - w * 0.5f, base - h * 0.6f, center, base - h * 0.3f)
-                    quadraticBezierTo(center + w * 0.5f, base - h * 0.6f, center, base - h)
-                }
-                drawPath(path, colors[index])
-                drawRect(colors[index], Offset(center - w * 0.1f, base - h * 0.3f), androidx.compose.ui.geometry.Size(w * 0.2f, h * 0.3f))
-            }
+        val w = size.width
+        val h = size.height
+        val path = Path().apply {
+            moveTo(w * 0.5f, h * 0.1f)
+            quadraticBezierTo(w * 0.2f, h * 0.3f, w * 0.4f, h * 0.9f)
+            quadraticBezierTo(w * 0.8f, h * 0.7f, w * 0.5f, h * 0.1f)
+            close()
         }
+        drawPath(path, color)
+        drawLine(color, Offset(w * 0.5f, h * 0.2f), Offset(w * 0.5f, h * 0.85f), strokeWidth = 2f)
     }
 }
 
-private data class Drop(val x: Float, val speed: Float, val length: Float)
-
 @Composable
-private fun Rain(modifier: Modifier = Modifier, animationsEnabled: Boolean, count: Int = 40) {
-    val drops = remember { List(count) { Drop(Random.nextFloat(), Random.nextFloat() * 4 + 2, Random.nextFloat() * 0.1f + 0.05f) } }
-    val transition = rememberInfiniteTransition(label = "rain")
-    val anim by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = if (animationsEnabled) 1f else 0f,
-        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing))
-    )
+private fun BranchIcon(modifier: Modifier = Modifier, color: Color) {
     Canvas(modifier) {
-        drops.forEach { drop ->
-            val y = (anim * drop.speed + drop.x) % 1f
-            val startY = size.height * y
-            val endY = startY + size.height * drop.length
-            drawLine(Color.White.copy(alpha = 0.1f), Offset(size.width * drop.x, startY), Offset(size.width * drop.x, endY), strokeWidth = 2f)
-        }
+        val w = size.width
+        val h = size.height
+        drawLine(color, Offset(w * 0.5f, h * 0.1f), Offset(w * 0.5f, h * 0.9f), strokeWidth = 3f)
+        drawLine(color, Offset(w * 0.5f, h * 0.4f), Offset(w * 0.75f, h * 0.2f), strokeWidth = 3f)
+        drawLine(color, Offset(w * 0.5f, h * 0.6f), Offset(w * 0.75f, h * 0.8f), strokeWidth = 3f)
     }
 }
 
-private data class Firefly(val x: Float, val y: Float, val phase: Float)
-
 @Composable
-private fun Fireflies(modifier: Modifier = Modifier, animationsEnabled: Boolean, count: Int = 20) {
-    val flies = remember { List(count) { Firefly(Random.nextFloat(), Random.nextFloat() * 0.6f, Random.nextFloat()) } }
-    val transition = rememberInfiniteTransition(label = "flies")
-    val time by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = if (animationsEnabled) 1f else 0f,
-        animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing), RepeatMode.Restart)
-    )
+private fun PineIcon(modifier: Modifier = Modifier, color: Color) {
     Canvas(modifier) {
-        flies.forEach { f ->
-            val alpha = abs(sin((time + f.phase) * 2f * PI)).toFloat()
-            drawCircle(FireflyYellow.copy(alpha = alpha), radius = 3f, center = Offset(size.width * f.x, size.height * f.y))
+        val w = size.width
+        val h = size.height
+        val path = Path().apply {
+            moveTo(w * 0.5f, h * 0.1f)
+            lineTo(w * 0.8f, h * 0.6f)
+            lineTo(w * 0.2f, h * 0.6f)
+            close()
+            moveTo(w * 0.5f, h * 0.4f)
+            lineTo(w * 0.75f, h * 0.9f)
+            lineTo(w * 0.25f, h * 0.9f)
+            close()
         }
+        drawPath(path, color)
     }
 }
+
+@Composable
+private fun FireflyIcon(modifier: Modifier = Modifier, color: Color) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        drawCircle(color, radius = w * 0.2f, center = Offset(w * 0.5f, h * 0.5f))
+        drawCircle(color, radius = w * 0.1f, center = Offset(w * 0.35f, h * 0.4f))
+        drawCircle(color, radius = w * 0.1f, center = Offset(w * 0.65f, h * 0.4f))
+    }
+}
+
