@@ -19,6 +19,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,7 @@ import com.example.mygymapp.model.MuscleGroup
 import com.example.mygymapp.ui.components.SearchFilterBar
 import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.ui.res.stringResource
@@ -47,7 +49,7 @@ private enum class SortOption(val labelRes: Int, val comparator: Comparator<Exer
 }
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 fun ExercisesScreen(
     navController: NavController,
     viewModel: ExerciseViewModel = viewModel(),
@@ -67,7 +69,7 @@ fun ExercisesScreen(
         .filter { if (showFavorites) it.isFavorite else true }
         .filter { selectedCategory?.let { cat -> it.category == cat } ?: true }
         .filter { selectedGroup?.let { grp -> it.muscleGroup == grp } ?: true }
-        .filter { it.name.contains(query, true) || it.description.contains(query, true) }
+        .filter { it.name.contains(query, ignoreCase = true) || it.description.contains(query, ignoreCase = true) }
         .sortedWith(sortOption.comparator)
         .toList()
     Scaffold(
@@ -253,6 +255,4 @@ private fun ExerciseListItem(ex: Exercise, onEdit: (Long) -> Unit, viewModel: Ex
         }
     )
 }
-
-
 
