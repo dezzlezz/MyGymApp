@@ -168,6 +168,7 @@ private fun SkyGradient(modifier: Modifier, darkMode: Boolean) {
     }
 }
 
+@Composable
 private fun DimOverlay(modifier: Modifier, darkMode: Boolean) {
     Canvas(modifier) {
         val fade = if (darkMode) Color.Black else Color.White
