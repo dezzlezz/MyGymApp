@@ -33,6 +33,10 @@
     <string name="sort_muscle_group">Muscle group</string>
     <string name="all">All</string>
     <string name="favorite_marked">Marked as favorite</string>
+    <string name="duration_label">Duration: %1$d min</string>
+    <string name="equipment_label">Equipment</string>
+    <string name="max_time_filter">Max time: %1$d min</string>
+    <string name="equipment_filter">Available equipment</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="plan_detail">Plan Details</string>
