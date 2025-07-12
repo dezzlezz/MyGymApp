@@ -16,7 +16,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeVm: ThemeViewModel = viewModel()
             val theme by themeVm.currentTheme.collectAsState()
-            MyGymAppThemeWrapper(theme)
+            val dark by themeVm.darkMode.collectAsState()
+            MyGymAppThemeWrapper(theme, dark)
         }
     }
 }

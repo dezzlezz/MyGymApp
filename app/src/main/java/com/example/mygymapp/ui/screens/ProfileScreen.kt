@@ -30,7 +30,7 @@ import java.util.Locale
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
     val name by viewModel.userName.collectAsState()
-    val dark by viewModel.darkMode.collectAsState()
+    val dark by themeVm.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
     val themeVm: ThemeViewModel = viewModel()
@@ -109,7 +109,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Switch(checked = dark, onCheckedChange = { viewModel.setDarkMode(it) })
+            Switch(checked = dark, onCheckedChange = { themeVm.setDarkMode(it) })
         }
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(
