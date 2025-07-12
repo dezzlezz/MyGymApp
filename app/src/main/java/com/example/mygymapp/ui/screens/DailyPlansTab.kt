@@ -15,8 +15,10 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,8 +33,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.PineGreen
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.example.mygymapp.model.Equipment
+import com.example.mygymapp.R
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DailyPlansTab(navController: NavController) {
     val context = LocalContext.current
@@ -46,10 +53,41 @@ fun DailyPlansTab(navController: NavController) {
     val exercises by exerciseViewModel.allExercises.observeAsState(emptyList())
 
     var showAdd by remember { mutableStateOf(false) }
+    var maxTime by rememberSaveable { mutableIntStateOf(60) }
+    val availableEquipment = remember { mutableStateListOf<String>() }
 
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
-            items(plans, key = { it.planId }) { plan ->
+    val filtered = plans.filter { plan ->
+        plan.durationMinutes <= maxTime &&
+            plan.requiredEquipment.all { it in availableEquipment }
+    }
+
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(id = R.string.max_time_filter, maxTime))
+            Slider(
+                value = maxTime.toFloat(),
+                onValueChange = { maxTime = it.roundToInt() },
+                valueRange = 10f..60f
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(id = R.string.equipment_filter))
+            FlowRow {
+                Equipment.options.forEach { eq ->
+                    FilterChip(
+                        selected = eq in availableEquipment,
+                        onClick = {
+                            if (eq in availableEquipment) availableEquipment.remove(eq) else availableEquipment.add(eq)
+                        },
+                        label = { Text(eq) }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+            }
+        }
+
+        Box(Modifier.weight(1f)) {
+            LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
+                items(filtered, key = { it.planId }) { plan ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
                         when (it) {
@@ -92,10 +130,10 @@ fun DailyPlansTab(navController: NavController) {
                 )
             }
         }
-        FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-            Icon(Icons.Filled.Add, contentDescription = "Add Plan")
+            FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Plan")
+            }
         }
-    }
 
     if (showAdd) {
         AddDailyPlanSheet(
@@ -106,4 +144,5 @@ fun DailyPlansTab(navController: NavController) {
             },
             onCancel = { showAdd = false }
         )
-    }}
+    }
+}

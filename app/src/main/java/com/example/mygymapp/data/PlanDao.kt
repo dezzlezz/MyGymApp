@@ -10,6 +10,9 @@ interface PlanDao {
     @Query("SELECT * FROM Plan WHERE type = :type ORDER BY name")
     fun getPlansByType(type: PlanType): Flow<List<Plan>>
 
+    @Query("SELECT * FROM Plan")
+    suspend fun getAllPlans(): List<Plan>
+
     @Transaction
     @Query("SELECT * FROM Plan WHERE planId = :id")
     fun getPlanWithExercises(id: Long): PlanWithExercises?
