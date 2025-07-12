@@ -17,7 +17,8 @@ fun SearchFilterBar(
     query: String,
     onQueryChange: (String) -> Unit,
     favoritesOnly: Boolean,
-    onFavoritesToggle: () -> Unit
+    onFavoritesToggle: () -> Unit,
+    placeholderRes: Int = R.string.search_plans
 ) {
     Row(
         modifier = Modifier
@@ -29,7 +30,7 @@ fun SearchFilterBar(
         TextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text(stringResource(id = R.string.search_plans)) },
+            placeholder = { Text(stringResource(id = placeholderRes)) },
             modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.width(8.dp))
