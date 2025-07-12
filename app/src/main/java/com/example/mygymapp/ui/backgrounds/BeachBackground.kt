@@ -38,9 +38,10 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
     val phase by transition.animateFloat(
         initialValue = 0f,
         targetValue = if (animationsEnabled) (2f * PI).toFloat() else 0f,
-        animationSpec = infiniteRepeatable(tween(10000, easing = LinearEasing))
+        animationSpec = infiniteRepeatable(tween(20000, easing = LinearEasing))
     )
     val sandDots = remember { List(40) { Offset(Random.nextFloat(), Random.nextFloat()) } }
+    val algaePoints = remember { List(6) { Random.nextFloat() } }
 
     Canvas(modifier) {
         val w = size.width
@@ -69,6 +70,7 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
 
         val amplitude1 = h * 0.03f
         val amplitude2 = h * 0.02f
+        val amplitude3 = h * 0.015f
         val wavelength = w * 0.6f
         fun wavePath(baseY: Float, amp: Float, shift: Float): Path {
             val step = w / 25f
@@ -89,9 +91,25 @@ private fun Waves(modifier: Modifier, darkMode: Boolean, animationsEnabled: Bool
         val water = if (darkMode) WaveBlue.copy(alpha = 0.7f) else WaveBlue
         val foam = SeaFoam.copy(alpha = if (darkMode) 0.5f else 0.7f)
         val path1 = wavePath(horizon, amplitude1, phase)
-        val path2 = wavePath(horizon + amplitude1, amplitude2, -phase * 1.2f)
+        val path2 = wavePath(horizon + amplitude1 * 0.6f, amplitude2, -phase * 1.2f)
+        val path3 = wavePath(horizon + amplitude1, amplitude3, phase * 0.8f)
         drawPath(path1, water)
         drawPath(path2, foam)
+        drawPath(path3, foam.copy(alpha = 0.5f))
+
+        // algae near the sand for more detail
+        val algaeColor = if (darkMode) PineGreen else AlgaeGreen
+        algaePoints.forEachIndexed { idx, r ->
+            val baseX = w * (0.1f + r * 0.8f)
+            val height = h * (0.05f + (idx % 3) * 0.02f)
+            val path = Path().apply {
+                moveTo(baseX, h - 2f)
+                quadraticBezierTo(baseX - 10f, h - height * 0.5f, baseX, h - height)
+                quadraticBezierTo(baseX + 10f, h - height * 0.5f, baseX, h - 2f)
+                close()
+            }
+            drawPath(path, algaeColor)
+        }
     }
 }
 
