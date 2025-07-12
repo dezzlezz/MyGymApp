@@ -29,6 +29,7 @@ fun BeachBackground(
     Box(modifier) {
         Waves(Modifier.fillMaxSize(), darkMode, animationsEnabled)
         SeagullShadow(Modifier.fillMaxSize())
+        DimOverlay(Modifier.fillMaxSize(), darkMode)
     }
 }
 
@@ -125,5 +126,13 @@ private fun SeagullShadow(modifier: Modifier) {
             quadraticBezierTo(w * 0.88f, h * 0.1f, w * 0.92f, h * 0.15f)
         }
         drawPath(path, color = Color.Black.copy(alpha = 0.2f), style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f))
+    }
+}
+
+@Composable
+private fun DimOverlay(modifier: Modifier, darkMode: Boolean) {
+    Canvas(modifier) {
+        val fade = if (darkMode) Color.Black else Color.White
+        drawRect(fade.copy(alpha = 0.25f), size = size)
     }
 }

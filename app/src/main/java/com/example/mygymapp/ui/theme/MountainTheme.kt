@@ -62,15 +62,28 @@ fun MountainTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSyste
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
-                    TabRow(selectedTabIndex = index, containerColor = scheme.surface) {
+                    TabRow(selectedTabIndex = index, containerColor = scheme.surface.copy(alpha = 0.6f)) {
                         NavTabs.forEachIndexed { idx, tab ->
-                            Tab(selected = idx == index, onClick = {
-                                navController.navigate(tab.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }, icon = { androidx.compose.material3.Icon(tab.icon, tab.label) })
+                            val selected = idx == index
+                            Tab(
+                                selected = selected,
+                                onClick = {
+                                    navController.navigate(tab.route) {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    androidx.compose.material3.Icon(
+                                        tab.icon,
+                                        tab.label,
+                                        tint = if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                                    )
+                                },
+                                selectedContentColor = scheme.primary,
+                                unselectedContentColor = scheme.onSurface.copy(alpha = 0.6f)
+                            )
                         }
                     }
                 }

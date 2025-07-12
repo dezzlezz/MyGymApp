@@ -34,6 +34,7 @@ fun DarkForestBackground(
         RainOverlay(Modifier.fillMaxSize(), animationsEnabled)
         FirefliesOverlay(Modifier.fillMaxSize(), animationsEnabled)
         GroundFog(Modifier.fillMaxSize())
+        DimOverlay(Modifier.fillMaxSize(), darkMode)
     }
 }
 
@@ -164,5 +165,13 @@ private fun SkyGradient(modifier: Modifier, darkMode: Boolean) {
             brush = androidx.compose.ui.graphics.Brush.verticalGradient(colors),
             size = size
         )
+    }
+}
+
+@Composable
+private fun DimOverlay(modifier: Modifier, darkMode: Boolean) {
+    Canvas(modifier) {
+        val fade = if (darkMode) Color.Black else Color.White
+        drawRect(fade.copy(alpha = 0.3f), size = size)
     }
 }

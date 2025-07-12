@@ -64,16 +64,17 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
             androidx.compose.material3.Scaffold(
                 containerColor = Color.Transparent,
                 bottomBar = {
-                    val icons: List<@Composable () -> Unit> = listOf(
-                        { CrabIcon(modifier = Modifier.size(24.dp), color = scheme.onSurface) },
-                        { ShellIcon(modifier = Modifier.size(24.dp), color = scheme.onSurface) },
-                        { StarfishIcon(modifier = Modifier.size(24.dp), color = scheme.onSurface) },
-                        { FishIcon(modifier = Modifier.size(24.dp), color = scheme.onSurface) }
+                    val icons: List<@Composable (Boolean) -> Unit> = listOf(
+                        { selected -> CrabIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                        { selected -> ShellIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                        { selected -> StarfishIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
+                        { selected -> FishIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) }
                     )
-                    NavigationBar(containerColor = scheme.surface.copy(alpha = 0.8f)) {
+                    NavigationBar(containerColor = scheme.surface.copy(alpha = 0.6f)) {
                         NavTabs.forEachIndexed { idx, tab ->
+                            val selected = idx == index
                             NavigationBarItem(
-                                selected = idx == index,
+                                selected = selected,
                                 onClick = {
                                     navController.navigate(tab.route) {
                                         popUpTo(navController.graph.startDestinationId) { saveState = true }
@@ -81,8 +82,15 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                                         restoreState = true
                                     }
                                 },
-                                icon = { icons[idx]() },
-                                label = { androidx.compose.material3.Text(tab.label) }
+                                icon = { icons[idx](selected) },
+                                label = { androidx.compose.material3.Text(tab.label) },
+                                colors = NavigationBarItemDefaults.colors(
+                                    indicatorColor = Color.Transparent,
+                                    selectedIconColor = scheme.primary,
+                                    unselectedIconColor = scheme.onSurface.copy(alpha = 0.6f),
+                                    selectedTextColor = scheme.primary,
+                                    unselectedTextColor = scheme.onSurface.copy(alpha = 0.6f)
+                                )
                             )
                         }
                     }

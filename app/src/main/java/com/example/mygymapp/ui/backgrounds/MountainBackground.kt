@@ -31,6 +31,7 @@ fun MountainBackground(
         MountainLayers(Modifier.fillMaxSize(), darkMode)
         StarrySky(Modifier.fillMaxSize(), darkMode, animationsEnabled)
         SnowOverlay(Modifier.fillMaxSize(), animationsEnabled)
+        DimOverlay(Modifier.fillMaxSize(), darkMode)
     }
 }
 
@@ -103,5 +104,13 @@ private fun SnowOverlay(modifier: Modifier, animationsEnabled: Boolean, count: I
             val y = (anim * f.speed + f.x) % 1f
             drawCircle(Color.White.copy(alpha = 0.8f), 3f, Offset(w * f.x, h * y))
         }
+    }
+}
+
+@Composable
+private fun DimOverlay(modifier: Modifier, darkMode: Boolean) {
+    Canvas(modifier) {
+        val fade = if (darkMode) Color.Black else Color.White
+        drawRect(fade.copy(alpha = 0.3f), size = size)
     }
 }

@@ -61,7 +61,7 @@ fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSys
                 animationsEnabled = animationsEnabled
             )
             Row {
-                NavigationRail(containerColor = scheme.surface) {
+                NavigationRail(containerColor = scheme.surface.copy(alpha = 0.6f)) {
                     NavTabs.forEach { tab ->
                         NavigationRailItem(
                             selected = currentRoute == tab.route,
@@ -72,11 +72,18 @@ fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSys
                                     restoreState = true
                                 }
                             },
-                            icon = { androidx.compose.material3.Icon(tab.icon, tab.label) },
+                            icon = {
+                                val selected = currentRoute == tab.route
+                                androidx.compose.material3.Icon(
+                                    tab.icon,
+                                    tab.label,
+                                    tint = if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
+                                )
+                            },
                             colors = NavigationRailItemDefaults.colors(
-                                selectedIconColor = PineGreen,
-                                unselectedIconColor = FogGray,
-                                indicatorColor = Color.Transparent
+                                indicatorColor = Color.Transparent,
+                                selectedTextColor = scheme.primary,
+                                unselectedTextColor = scheme.onSurface.copy(alpha = 0.6f)
                             )
                         )
                     }
