@@ -30,10 +30,10 @@ import java.util.Locale
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
     val name by viewModel.userName.collectAsState()
-    val dark by themeVm.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
     val themeVm: ThemeViewModel = viewModel()
+    val dark by themeVm.darkMode.collectAsState()
     val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
