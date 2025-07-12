@@ -29,11 +29,11 @@ import java.time.format.TextStyle
 import java.util.Locale
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
+    val themeVm: ThemeViewModel = viewModel()
     val name by viewModel.userName.collectAsState()
-    val dark by viewModel.darkMode.collectAsState()
+    val dark by themeVm.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
-    val themeVm: ThemeViewModel = viewModel()
     val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -109,7 +109,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Switch(checked = dark, onCheckedChange = { viewModel.setDarkMode(it) })
+            Switch(checked = dark, onCheckedChange = { themeVm.setDarkMode(it) })
         }
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(
