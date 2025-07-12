@@ -14,5 +14,6 @@ data class Exercise(
     val likeability: Int,
     val muscleGroup: MuscleGroup,   // <- model.MuscleGroup
     val muscle: String,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val isFavorite: Boolean = false
 )
