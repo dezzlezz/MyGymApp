@@ -12,14 +12,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.GroupType
+import com.example.mygymapp.viewmodel.WorkoutTimerViewModel
 
 class WorkoutSet(reps: Int = 0, done: Boolean = false) {
     var reps by mutableIntStateOf(reps)
     var done by mutableStateOf(done)
+}
+
+private fun formatTime(seconds: Long): String {
+    val minutes = seconds / 60
+    val secs = seconds % 60
+    return "%02d:%02d".format(minutes, secs)
 }
 
 class WorkoutExerciseState(
@@ -37,6 +46,7 @@ fun StepWorkoutScreen(
     onComplete: () -> Unit
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
+    val timerViewModel: WorkoutTimerViewModel = viewModel()
     val workoutExercises = remember(exercises) {
         exercises.map { ref ->
             WorkoutExerciseState(
@@ -61,7 +71,10 @@ fun StepWorkoutScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onComplete) { Text(stringResource(R.string.finish_day)) }
+                Button(onClick = {
+                    timerViewModel.stop()
+                    onComplete()
+                }) { Text(stringResource(R.string.finish_day)) }
             }
         }
         return
@@ -77,6 +90,22 @@ fun StepWorkoutScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    formatTime(timerViewModel.time.value),
+                    fontSize = 32.sp
+                )
+                Row {
+                    Button(onClick = { timerViewModel.start() }) {
+                        Text(stringResource(R.string.start))
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = { timerViewModel.stop() }) {
+                        Text(stringResource(R.string.stop))
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
             Text(
                 "Übung ${currentIndex + 1} / ${exercises.size}",
                 style = MaterialTheme.typography.titleMedium
@@ -174,6 +203,7 @@ fun StepWorkoutScreen(
 
                 Button(onClick = {
                     if (currentIndex == exercises.lastIndex) {
+                        timerViewModel.stop()
                         onComplete()
                     } else {
                         currentIndex++

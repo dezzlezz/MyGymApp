@@ -93,4 +93,6 @@
     <string name="superset">Superset</string>
     <string name="circuit">Circuit</string>
     <string name="create_superset">Create Superset</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 </resources>
