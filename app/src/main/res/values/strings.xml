@@ -81,4 +81,7 @@
     <string name="goal_endurance">Endurance</string>
     <string name="goal_fit">General Fitness</string>
     <string name="preferences_button">Preferences</string>
+    <string name="suggestions_title">Plan Suggestions</string>
+    <string name="use_plan">Use Plan</string>
+    <string name="no_suggestions">No matching plans found</string>
 </resources>

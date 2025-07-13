@@ -39,7 +39,6 @@ fun PreferenceScreen(navController: NavController) {
     var goal by rememberSaveable { mutableStateOf(GoalType.FIT) }
     val groups = remember { mutableStateListOf<MuscleGroup>() }
 
-    val suggestions by viewModel.suggestions.collectAsState()
 
     Scaffold(
         topBar = {
@@ -111,13 +110,10 @@ fun PreferenceScreen(navController: NavController) {
             Spacer(Modifier.height(16.dp))
             Button(onClick = {
                 val prefs = UserPreferences(days, duration, equipment.toSet(), goal, groups.toSet())
-                viewModel.loadSuggestions(prefs)
+                viewModel.update(prefs)
+                navController.navigate("suggestedPlans")
             }) {
                 Text(stringResource(id = R.string.show_suggestions))
-            }
-            Spacer(Modifier.height(16.dp))
-            suggestions.forEach { plan ->
-                Text(plan.name, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
