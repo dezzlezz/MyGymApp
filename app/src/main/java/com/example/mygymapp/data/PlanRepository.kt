@@ -75,15 +75,22 @@ class PlanRepository(
         preferences: UserPreferences,
         allExercises: List<Exercise>
     ): PlanWithExercises {
-        val filteredExercises = allExercises.filter { ex ->
-            ex.muscleGroup in preferences.focusGroups &&
+        // Filter according to user preferences but allow empty sets to match any
+        var filteredExercises = allExercises.filter { ex ->
+            (preferences.focusGroups.isEmpty() || ex.muscleGroup in preferences.focusGroups) &&
                 ex.category != ExerciseCategory.Cardio &&
                 (
-                    preferences.equipment.contains("Keine") ||
+                    preferences.equipment.isEmpty() ||
+                        preferences.equipment.contains("Keine") ||
                         preferences.equipment.any { eq ->
-                            ex.description.contains(eq, ignoreCase = true)
+                            ex.description.contains(eq, ignoreCase = true) ||
+                                ex.name.contains(eq, ignoreCase = true)
                         }
                     )
+        }
+
+        if (filteredExercises.isEmpty()) {
+            filteredExercises = allExercises
         }
 
         val days = List(preferences.daysPerWeek) { dayIndex ->
