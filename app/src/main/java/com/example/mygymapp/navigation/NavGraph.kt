@@ -98,12 +98,12 @@ fun AppNavHost(
                 SuggestedPlansScreen(
                     preferences = prefs,
                     allPlans = plans,
-                    onPlanSelected = { navController.navigate("setupWeek/${'$'}{it.planId}") },
+                    onPlanSelected = { navController.navigate("setupWeek/${it.planId}") },
                     onBack = { navController.popBackStack() },
                     onGenerate = {
                         scope.launch {
                             val newPlan = repo.generatePlanFromPreferences(prefs, exercises)
-                            navController.navigate("setupWeek/${'$'}{newPlan.plan.planId}")
+                            navController.navigate("setupWeek/${newPlan.plan.planId}")
                         }
                     }
                 )
