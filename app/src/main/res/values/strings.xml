@@ -95,4 +95,6 @@
     <string name="create_superset">Create Superset</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    <string name="rest_time">Rest: %1$ds</string>
+    <string name="skip_rest">Skip Rest</string>
 </resources>

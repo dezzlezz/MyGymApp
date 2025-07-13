@@ -19,6 +19,7 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.GroupType
 import com.example.mygymapp.viewmodel.WorkoutTimerViewModel
+import com.example.mygymapp.viewmodel.RestTimerViewModel
 
 class WorkoutSet(reps: Int = 0, done: Boolean = false) {
     var reps by mutableIntStateOf(reps)
@@ -47,6 +48,7 @@ fun StepWorkoutScreen(
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
     val timerViewModel: WorkoutTimerViewModel = viewModel()
+    val restTimer: RestTimerViewModel = viewModel()
     val workoutExercises = remember(exercises) {
         exercises.map { ref ->
             WorkoutExerciseState(
@@ -147,6 +149,7 @@ fun StepWorkoutScreen(
                             onCheckedChange = { checked ->
                                 set.done = checked
                                 if (checked) {
+                                    restTimer.start()
                                     val ref = state.ref
                                     if (ref.groupType == GroupType.SUPERSET && ref.groupId != null) {
                                         val gid = ref.groupId
@@ -190,6 +193,19 @@ fun StepWorkoutScreen(
             }
 
             Spacer(Modifier.weight(1f))
+
+            if (restTimer.isActive.value) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.rest_time, restTimer.remaining.value),
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    Button(onClick = { restTimer.stop() }) {
+                        Text(stringResource(R.string.skip_rest))
+                    }
+                }
+            }
 
             Row(
                 Modifier.fillMaxWidth(),
