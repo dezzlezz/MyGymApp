@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.mygymapp.data.StringListConverter
 import com.example.mygymapp.data.PlanDay
+import com.example.mygymapp.data.ExerciseConverters
 
 @Database(
     entities = [
@@ -15,10 +16,10 @@ import com.example.mygymapp.data.PlanDay
         Exercise::class,
         PlanDay::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
-@TypeConverters(PlanConverters::class, StringListConverter::class)
+@TypeConverters(PlanConverters::class, StringListConverter::class, ExerciseConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun planDao(): PlanDao

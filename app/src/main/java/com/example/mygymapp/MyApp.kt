@@ -2,7 +2,6 @@ package com.example.mygymapp
 
 import android.app.Application
 import android.content.Context
-import androidx.room.Room
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.Exercise
 import com.google.gson.Gson
@@ -19,14 +18,7 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        database = Room.databaseBuilder(
-            this,
-            AppDatabase::class.java,
-            "mygymapp.db"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
-
+        database = AppDatabase.getDatabase(this)
         prepopulateExercisesFromAssets(this)
     }
 
