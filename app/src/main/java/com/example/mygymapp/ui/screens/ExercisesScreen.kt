@@ -28,6 +28,7 @@ import com.example.mygymapp.viewmodel.ExerciseViewModel
 fun ExercisesScreen(
     navController: NavController,
     viewModel: ExerciseViewModel = viewModel(),
+    onViewExercise: (Long) -> Unit = {},
     onEditExercise: (Long) -> Unit = {}
 ) {
     val exercises by viewModel.allExercises.observeAsState(emptyList())
@@ -105,7 +106,7 @@ fun ExercisesScreen(
                     items(filteredExercises, key = { it.id }) { ex ->
                         ExerciseCard(
                             ex = ex,
-                            onClick = { onEditExercise(ex.id) },
+                            onClick = { onViewExercise(ex.id) },
                             onToggleFavorite = { viewModel.toggleFavorite(ex) }
                         )
                     }

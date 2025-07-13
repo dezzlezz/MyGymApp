@@ -14,10 +14,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.GroupType
+import com.example.mygymapp.data.ExercisePRStore
 import com.example.mygymapp.viewmodel.WorkoutTimerViewModel
 import com.example.mygymapp.viewmodel.RestTimerViewModel
 
@@ -49,6 +51,8 @@ fun StepWorkoutScreen(
     var currentIndex by remember { mutableIntStateOf(0) }
     val timerViewModel: WorkoutTimerViewModel = viewModel()
     val restTimer: RestTimerViewModel = viewModel()
+    val context = LocalContext.current
+    val prStore = remember(context) { ExercisePRStore.getInstance(context) }
     val workoutExercises = remember(exercises) {
         exercises.map { ref ->
             WorkoutExerciseState(
@@ -150,6 +154,7 @@ fun StepWorkoutScreen(
                                 set.done = checked
                                 if (checked) {
                                     restTimer.start()
+                                    prStore.updateIfHigher(state.ref.exerciseId, set.reps)
                                     val ref = state.ref
                                     if (ref.groupType == GroupType.SUPERSET && ref.groupId != null) {
                                         val gid = ref.groupId

@@ -97,4 +97,5 @@
     <string name="stop">Stop</string>
     <string name="rest_time">Rest: %1$ds</string>
     <string name="skip_rest">Skip Rest</string>
+    <string name="pr_label">&#x1F3C6; PR: %1$d Reps</string>
 </resources>
