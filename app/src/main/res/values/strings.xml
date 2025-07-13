@@ -24,10 +24,19 @@
     <string name="order">Order</string>
     <string name="close">Close</string>
     <string name="search_plans">Search plans</string>
+    <string name="search_exercises">Search exercises</string>
     <string name="show_all">Show all</string>
     <string name="show_favorites">Show favorites</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_name">Name (A–Z)</string>
+    <string name="sort_difficulty">Difficulty</string>
+    <string name="sort_muscle_group">Muscle group</string>
     <string name="all">All</string>
     <string name="favorite_marked">Marked as favorite</string>
+    <string name="duration_label">Duration: %1$d min</string>
+    <string name="equipment_label">Equipment</string>
+    <string name="max_time_filter">Max time: %1$d min</string>
+    <string name="equipment_filter">Available equipment</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="plan_detail">Plan Details</string>
@@ -61,4 +70,15 @@
     <string name="day_label">Day %1$d</string>
     <string name="app_name">MyGymApp</string>
     <string name="select_theme">Select Theme</string>
+    <string name="preferences_title">Preferences</string>
+    <string name="show_suggestions">Show Suggestions</string>
+    <string name="days_per_week">Days per week: %1$d</string>
+    <string name="max_duration_label">Max duration: %1$d min</string>
+    <string name="goal_label">Goal</string>
+    <string name="focus_groups_label">Focus muscles</string>
+    <string name="goal_hypertrophy">Hypertrophy</string>
+    <string name="goal_strength">Strength</string>
+    <string name="goal_endurance">Endurance</string>
+    <string name="goal_fit">General Fitness</string>
+    <string name="preferences_button">Preferences</string>
 </resources>
