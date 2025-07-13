@@ -37,6 +37,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.navigation.NavTabs
 import com.example.mygymapp.ui.backgrounds.BeachBackground
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
 
 private val BeachLightColors = lightColorScheme(
     primary = SunsetCoral,
@@ -65,7 +67,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
     val navController = rememberNavController()
     val current by navController.currentBackStackEntryAsState()
     val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
-
+    val density = LocalDensity.current
     val floatAnim = rememberInfiniteTransition(label = "bob")
     val bob by floatAnim.animateFloat(
         initialValue = 0f,
