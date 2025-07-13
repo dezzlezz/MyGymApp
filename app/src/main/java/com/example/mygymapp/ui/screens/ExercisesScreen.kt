@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,6 +34,7 @@ fun ExercisesScreen(
 
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf<ExerciseCategory?>(null) }
+    var searchFocused by remember { mutableStateOf(false) }
 
     val filteredExercises = exercises.filter { ex ->
         ex.name.contains(query, ignoreCase = true) &&
@@ -55,26 +57,29 @@ fun ExercisesScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
+                    .onFocusChanged { searchFocused = it.isFocused }
             )
 
-            Row(Modifier.padding(horizontal = 8.dp)) {
-                FilterChip(
-                    selected = selectedCategory == null,
-                    onClick = { selectedCategory = null },
-                    label = { Text(stringResource(id = R.string.all)) }
-                )
-                Spacer(Modifier.width(8.dp))
-                ExerciseCategory.values().forEachIndexed { index, cat ->
-                    if (index != 0) Spacer(Modifier.width(8.dp))
+            if (searchFocused) {
+                Row(Modifier.padding(horizontal = 8.dp)) {
                     FilterChip(
                         selected = selectedCategory == cat,
                         onClick = { selectedCategory = cat },
                         label = { Text(cat.display) }
                     )
+                    Spacer(Modifier.width(8.dp))
+                    ExerciseCategory.values().forEachIndexed { index, cat ->
+                        if (index != 0) Spacer(Modifier.width(8.dp))
+                        FilterChip(
+                            selected = selectedCategory == cat,
+                            onClick = { selectedCategory = cat },
+                            label = { Text(cat.display) }
+                        )
+                    }
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(if (searchFocused) 4.dp else 0.dp))
 
             if (filteredExercises.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -86,7 +91,11 @@ fun ExercisesScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(filteredExercises, key = { it.id }) { ex ->
-                        ExerciseCard(ex = ex, onClick = { onEditExercise(ex.id) })
+                        ExerciseCard(
+                            ex = ex,
+                            onClick = { onEditExercise(ex.id) },
+                            onToggleFavorite = { viewModel.toggleFavorite(ex) }
+                        )
                     }
                 }
             }
