@@ -63,9 +63,9 @@ fun ExercisesScreen(
             if (searchFocused) {
                 Row(Modifier.padding(horizontal = 8.dp)) {
                     FilterChip(
-                        selected = selectedCategory == null,
-                        onClick = { selectedCategory = null },
-                        label = { Text(stringResource(id = R.string.all)) }
+                        selected = selectedCategory == cat,
+                        onClick = { selectedCategory = cat },
+                        label = { Text(cat.display) }
                     )
                     Spacer(Modifier.width(8.dp))
                     ExerciseCategory.values().forEachIndexed { index, category ->
