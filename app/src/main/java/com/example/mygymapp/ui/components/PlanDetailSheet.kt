@@ -35,6 +35,13 @@ fun PlanDetailSheet(
             DifficultyRating(rating = plan.difficulty)
             Spacer(Modifier.height(8.dp))
 
+            Text(stringResource(id = R.string.duration_label, plan.durationMinutes))
+            Spacer(Modifier.height(4.dp))
+            if (plan.requiredEquipment.isNotEmpty()) {
+                Text(plan.requiredEquipment.joinToString(), style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(8.dp))
+            }
+
             // Beschreibung
             Text(
                 text = plan.description,

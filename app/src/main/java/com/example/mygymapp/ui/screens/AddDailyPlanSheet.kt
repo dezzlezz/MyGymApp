@@ -23,8 +23,12 @@ import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
 import com.example.mygymapp.ui.util.move
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlin.math.roundToInt
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.example.mygymapp.model.Equipment
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddDailyPlanSheet(
     exercises: List<Exercise>,
@@ -34,6 +38,9 @@ fun AddDailyPlanSheet(
     var name by rememberSaveable { mutableStateOf("") }
     var desc by rememberSaveable { mutableStateOf("") }
     var difficulty by rememberSaveable { mutableIntStateOf(3) }
+
+    var duration by rememberSaveable { mutableIntStateOf(30) }
+    val equipment = remember { mutableStateListOf<String>() }
 
     val selected = remember { mutableStateListOf<ExerciseEntry>() }
 
@@ -71,6 +78,29 @@ fun AddDailyPlanSheet(
             Spacer(Modifier.height(8.dp))
             Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
+            Spacer(Modifier.height(8.dp))
+
+            Text(stringResource(id = R.string.duration_label, duration))
+            Slider(
+                value = duration.toFloat(),
+                onValueChange = { duration = it.roundToInt() },
+                valueRange = 10f..60f
+            )
+            Spacer(Modifier.height(8.dp))
+
+            Text(stringResource(id = R.string.equipment_label))
+            FlowRow {
+                Equipment.options.forEach { eq ->
+                    FilterChip(
+                        selected = eq in equipment,
+                        onClick = {
+                            if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
+                        },
+                        label = { Text(eq) }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+            }
             Spacer(Modifier.height(8.dp))
 
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -151,7 +181,15 @@ fun AddDailyPlanSheet(
                 TextButton(onClick = onCancel) { Text(stringResource(id = R.string.cancel)) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
-                    val plan = Plan(name = name, description = desc, difficulty = difficulty, iconUri = null, type = PlanType.DAILY)
+                    val plan = Plan(
+                        name = name,
+                        description = desc,
+                        difficulty = difficulty,
+                        iconUri = null,
+                        type = PlanType.DAILY,
+                        durationMinutes = duration,
+                        requiredEquipment = equipment.toList()
+                    )
                     val refs = selected.mapIndexed { idx, e ->
                         PlanExerciseCrossRef(
                             planId = 0L,
