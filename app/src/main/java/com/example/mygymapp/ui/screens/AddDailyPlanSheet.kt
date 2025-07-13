@@ -12,6 +12,7 @@ import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import com.example.mygymapp.data.GroupType
 import org.burnoutcrew.reorderable.*
 import com.example.mygymapp.model.ExerciseEntry
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +44,7 @@ fun AddDailyPlanSheet(
     val equipment = remember { mutableStateListOf<String>() }
 
     val selected = remember { mutableStateListOf<ExerciseEntry>() }
+    val selectedForGroup = remember { mutableStateListOf<Long>() }
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var chosen by rememberSaveable { mutableStateOf<Exercise?>(null) }
@@ -130,6 +132,20 @@ fun AddDailyPlanSheet(
                 Text(stringResource(id = R.string.add_exercise_button))
             }
 
+            if (selectedForGroup.size >= 2) {
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = {
+                    val gid = System.currentTimeMillis()
+                    selected.filter { it.id in selectedForGroup }.forEach { entry ->
+                        entry.groupId = gid
+                        entry.groupType = GroupType.SUPERSET
+                    }
+                    selectedForGroup.clear()
+                }) {
+                    Text(stringResource(R.string.create_superset))
+                }
+            }
+
             Spacer(Modifier.height(16.dp))
             LazyColumn(
                 state = reorderState.listState,
@@ -145,6 +161,13 @@ fun AddDailyPlanSheet(
                                 .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
+                            Checkbox(
+                                checked = item.id in selectedForGroup,
+                                onCheckedChange = { checked ->
+                                    if (checked) selectedForGroup.add(item.id) else selectedForGroup.remove(item.id)
+                                }
+                            )
+                            Spacer(Modifier.width(4.dp))
                             Text(item.exercise.name, modifier = Modifier.weight(1f))
                             var setsText by remember(item.id) { mutableStateOf(item.sets.toString()) }
                             OutlinedTextField(
@@ -196,7 +219,9 @@ fun AddDailyPlanSheet(
                             exerciseId = e.exercise.id,
                             sets = e.sets,
                             reps = e.reps,
-                            orderIndex = idx
+                            orderIndex = idx,
+                            groupId = e.groupId,
+                            groupType = e.groupType
                         )
                     }
                     onSave(plan, refs)
