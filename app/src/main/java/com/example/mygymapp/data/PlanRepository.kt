@@ -26,8 +26,10 @@ class PlanRepository(
 
     /** Lädt einen Plan inkl. aller Cross-Refs oder wirft, wenn nicht gefunden */
     suspend fun getPlanWithExercises(planId: Long): PlanWithExercises =
-        dao.getPlanWithExercises(planId)
-            ?: throw NoSuchElementException("Kein Plan mit der ID $planId gefunden")
+        withContext(Dispatchers.IO) {
+            dao.getPlanWithExercises(planId)
+                ?: throw NoSuchElementException("Kein Plan mit der ID $planId gefunden")
+        }
 
     /**
      * Speichert oder aktualisiert einen Plan + CrossRefs.
@@ -37,7 +39,7 @@ class PlanRepository(
         plan: Plan,
         exercises: List<PlanExerciseCrossRef>,
         dayNames: List<String> = emptyList()
-    ): Long {
+    ): Long = withContext(Dispatchers.IO) {
         val newPlanId = dao.insertPlan(plan)
         dao.deleteCrossRefsForPlan(newPlanId)
         dao.insertCrossRefs(exercises.map { it.copy(planId = newPlanId) })
@@ -47,12 +49,13 @@ class PlanRepository(
                 PlanDay(planId = newPlanId, dayIndex = idx, name = name)
             })
         }
-        return newPlanId
+        newPlanId
     }
 
     /** Löscht einen Plan komplett */
-    suspend fun deletePlan(plan: Plan) =
+    suspend fun deletePlan(plan: Plan) = withContext(Dispatchers.IO) {
         dao.deletePlan(plan)
+    }
 
     suspend fun getAllPlans(): List<Plan> = withContext(Dispatchers.IO) {
         dao.getAllPlans()
