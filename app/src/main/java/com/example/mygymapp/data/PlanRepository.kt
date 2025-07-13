@@ -6,6 +6,8 @@ import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.data.PlanType as DbPlanType
 import com.example.mygymapp.model.PlanType as UiPlanType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.example.mygymapp.data.PlanDay
 
 class PlanRepository(
@@ -48,7 +50,9 @@ class PlanRepository(
     suspend fun deletePlan(plan: Plan) =
         dao.deletePlan(plan)
 
-    suspend fun getAllPlans(): List<Plan> = dao.getAllPlans()
+    suspend fun getAllPlans(): List<Plan> = withContext(Dispatchers.IO) {
+        dao.getAllPlans()
+    }
 
     suspend fun getSuggestions(prefs: com.example.mygymapp.model.UserPreferences): List<Plan> =
         getAllPlans().filter { plan ->

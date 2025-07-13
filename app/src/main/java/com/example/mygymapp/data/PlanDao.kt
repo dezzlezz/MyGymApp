@@ -12,7 +12,7 @@ interface PlanDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM Plan")
-    suspend fun getAllPlans(): List<Plan>
+    fun getAllPlans(): List<Plan>
 
     @Transaction
     @Query("SELECT * FROM Plan WHERE planId = :id")
