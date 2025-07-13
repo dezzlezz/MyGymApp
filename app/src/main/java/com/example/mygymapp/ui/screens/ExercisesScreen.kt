@@ -61,7 +61,11 @@ fun ExercisesScreen(
             )
 
             if (searchFocused) {
-                Row(Modifier.padding(horizontal = 8.dp)) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 4.dp)
+                ) {
                     FilterChip(
                         selected = selectedCategory == null,
                         onClick = { selectedCategory = null },
@@ -79,7 +83,7 @@ fun ExercisesScreen(
                 }
             }
 
-            Spacer(Modifier.height(if (searchFocused) 2.dp else 0.dp))
+            Spacer(Modifier.height(if (searchFocused) 4.dp else 0.dp))
 
             if (filteredExercises.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -91,7 +95,12 @@ fun ExercisesScreen(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(8.dp)
+                    contentPadding = PaddingValues(
+                        start = 8.dp,
+                        end = 8.dp,
+                        top = if (searchFocused) 8.dp else 0.dp,
+                        bottom = 8.dp
+                    )
                 ) {
                     items(filteredExercises, key = { it.id }) { ex ->
                         ExerciseCard(
