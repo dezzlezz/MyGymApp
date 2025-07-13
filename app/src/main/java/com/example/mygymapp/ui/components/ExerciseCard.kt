@@ -23,6 +23,7 @@ fun ExerciseCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
+            .defaultMinSize(minHeight = 80.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -36,7 +37,7 @@ fun ExerciseCard(
             Column(Modifier.weight(1f)) {
                 Text(ex.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${'$'}{ex.muscleGroup.display} • ${'$'}{ex.category.display}",
+                    "${ex.muscleGroup.display} • ${ex.category.display}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

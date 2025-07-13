@@ -63,9 +63,9 @@ fun ExercisesScreen(
             if (searchFocused) {
                 Row(Modifier.padding(horizontal = 8.dp)) {
                     FilterChip(
-                        selected = selectedCategory == cat,
-                        onClick = { selectedCategory = cat },
-                        label = { Text(cat.display) }
+                        selected = selectedCategory == null,
+                        onClick = { selectedCategory = null },
+                        label = { Text(stringResource(id = R.string.all)) }
                     )
                     Spacer(Modifier.width(8.dp))
                     ExerciseCategory.values().forEachIndexed { index, category ->
@@ -79,7 +79,7 @@ fun ExercisesScreen(
                 }
             }
 
-            Spacer(Modifier.height(if (searchFocused) 4.dp else 0.dp))
+            Spacer(Modifier.height(if (searchFocused) 2.dp else 0.dp))
 
             if (filteredExercises.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -88,7 +88,10 @@ fun ExercisesScreen(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(8.dp)
                 ) {
                     items(filteredExercises, key = { it.id }) { ex ->
                         ExerciseCard(
