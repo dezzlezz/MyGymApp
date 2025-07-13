@@ -14,6 +14,8 @@ import com.example.mygymapp.model.WeekProgress
 import com.example.mygymapp.model.PlanType
 import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.MuscleGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.NoSuchElementException
@@ -114,6 +116,12 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
 
     fun getExerciseGroup(id: Long): String =
         exercises.value?.firstOrNull { it.id == id }?.muscleGroup?.display ?: ""
+
+    fun getExerciseById(id: Long): Exercise =
+        exercises.value?.firstOrNull { it.id == id } ?: Exercise(
+            name = "Unbekannt", description = "", category = ExerciseCategory.Calisthenics,
+            likeability = 1, muscleGroup = MuscleGroup.Core, muscle = "", id = id
+        )
 
     fun loadPlan(planId: Long): LiveData<PlanWithExercises> {
         val result = MutableLiveData<PlanWithExercises>()
