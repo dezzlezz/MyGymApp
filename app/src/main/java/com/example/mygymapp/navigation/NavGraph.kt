@@ -62,6 +62,9 @@ fun AppNavHost(
                 val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
                 PlanDetailScreen(planId = id, navController = navController)
             }
+            composable("preferences") {
+                PreferenceScreen(navController)
+            }
             composable("workout") { WorkoutScreen() }
             composable("profile") { ProfileScreen(navController) }
             composable("selectTheme") {
