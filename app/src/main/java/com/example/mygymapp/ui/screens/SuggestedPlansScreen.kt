@@ -22,7 +22,8 @@ fun SuggestedPlansScreen(
     preferences: UserPreferences,
     allPlans: List<Plan>,
     onPlanSelected: (Plan) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onGenerate: () -> Unit
 ) {
     val suggestions = remember(preferences, allPlans) {
         allPlans.filter { plan ->
@@ -43,41 +44,53 @@ fun SuggestedPlansScreen(
             )
         }
     ) { padding ->
-        if (suggestions.isEmpty()) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(stringResource(id = R.string.no_suggestions))
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                items(suggestions, key = { it.planId }) { plan ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(plan.name, style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(4.dp))
-                            Text(stringResource(id = R.string.duration_label, plan.durationMinutes))
-                            if (plan.requiredEquipment.isNotEmpty()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (suggestions.isEmpty()) {
+                Box(
+                    Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(stringResource(id = R.string.no_suggestions))
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = onGenerate) {
+                            Text(stringResource(id = R.string.generate_plan))
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(suggestions, key = { it.planId }) { plan ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text(plan.name, style = MaterialTheme.typography.titleMedium)
                                 Spacer(Modifier.height(4.dp))
-                                Text(plan.requiredEquipment.joinToString(), style = MaterialTheme.typography.bodySmall)
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Button(onClick = { onPlanSelected(plan) }, modifier = Modifier.align(Alignment.End)) {
-                                Text(stringResource(id = R.string.use_plan))
+                                Text(stringResource(id = R.string.duration_label, plan.durationMinutes))
+                                if (plan.requiredEquipment.isNotEmpty()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(plan.requiredEquipment.joinToString(), style = MaterialTheme.typography.bodySmall)
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Button(onClick = { onPlanSelected(plan) }, modifier = Modifier.align(Alignment.End)) {
+                                    Text(stringResource(id = R.string.use_plan))
+                                }
                             }
                         }
                     }
+                }
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onGenerate, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(id = R.string.generate_plan))
                 }
             }
         }

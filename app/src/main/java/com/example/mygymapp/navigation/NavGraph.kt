@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
+import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.viewmodel.PreferencesViewModel
 import com.example.mygymapp.viewmodel.PreferencesViewModelFactory
 import com.example.mygymapp.viewmodel.WorkoutViewModel
@@ -26,6 +27,10 @@ import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Timeline
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import com.example.mygymapp.data.Exercise
 
 /** Simple navigation graph extracted from MainScreen */
 @Composable
@@ -80,15 +85,27 @@ fun AppNavHost(
             composable("suggestedPlans") {
                 val context = LocalContext.current
                 val repo = remember(context) { PlanRepository(AppDatabase.getDatabase(context).planDao()) }
+                val exerciseRepo = remember(context) { ExerciseRepository(AppDatabase.getDatabase(context).exerciseDao()) }
                 val viewModel: PreferencesViewModel = viewModel(factory = PreferencesViewModelFactory(repo))
                 val prefs by viewModel.prefs.collectAsState()
                 var plans by remember { mutableStateOf<List<com.example.mygymapp.data.Plan>>(emptyList()) }
-                LaunchedEffect(Unit) { plans = repo.getAllPlans() }
+                var exercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
+                val scope = rememberCoroutineScope()
+                LaunchedEffect(Unit) {
+                    plans = repo.getAllPlans()
+                    exercises = exerciseRepo.getAllExercises().first()
+                }
                 SuggestedPlansScreen(
                     preferences = prefs,
                     allPlans = plans,
                     onPlanSelected = { navController.navigate("setupWeek/${'$'}{it.planId}") },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onGenerate = {
+                        scope.launch {
+                            val newPlan = repo.generatePlanFromPreferences(prefs, exercises)
+                            navController.navigate("setupWeek/${'$'}{newPlan.plan.planId}")
+                        }
+                    }
                 )
             }
             composable("setupWeek/{planId}") { backStackEntry ->
