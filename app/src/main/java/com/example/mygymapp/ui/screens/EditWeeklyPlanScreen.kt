@@ -30,6 +30,9 @@ import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.PlansViewModel
 import com.example.mygymapp.viewmodel.PlansViewModelFactory
+import com.example.mygymapp.model.Equipment
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -39,8 +42,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ContentAlpha
 import androidx.navigation.NavController
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun EditWeeklyPlanScreen(
     planId: Long,
@@ -58,6 +62,8 @@ fun EditWeeklyPlanScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var desc by rememberSaveable { mutableStateOf("") }
     var difficulty by rememberSaveable { mutableIntStateOf(3) }
+    var duration by rememberSaveable { mutableIntStateOf(30) }
+    val equipment = remember { mutableStateListOf<String>() }
 
     val dayNames = remember { mutableStateListOf<String>() }
     val dayEntries = remember { mutableStateListOf<MutableList<ExerciseEntry>>() }
@@ -71,6 +77,9 @@ fun EditWeeklyPlanScreen(
             name = pw.plan.name
             desc = pw.plan.description
             difficulty = pw.plan.difficulty
+            duration = pw.plan.durationMinutes
+            equipment.clear()
+            equipment.addAll(pw.plan.requiredEquipment)
             dayNames.clear()
             dayEntries.clear()
             val daysSorted = if (pw.days.isNotEmpty()) pw.days.sortedBy { it.dayIndex } else List(5) { null }
@@ -104,7 +113,13 @@ fun EditWeeklyPlanScreen(
                 onClick = {
                     if (saveEnabled) {
                         planWithExercises?.let { pw ->
-                            val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
+                            val plan = pw.plan.copy(
+                                name = name,
+                                description = desc,
+                                difficulty = difficulty,
+                                durationMinutes = duration,
+                                requiredEquipment = equipment.toList()
+                            )
                             val refs = mutableListOf<PlanExerciseCrossRef>()
                             dayEntries.forEachIndexed { day, list ->
                                 list.forEachIndexed { idx, entry ->
@@ -166,6 +181,29 @@ fun EditWeeklyPlanScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(id = R.string.difficulty))
                 DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
+                Spacer(Modifier.height(16.dp))
+
+                Text(stringResource(id = R.string.duration_label, duration))
+                Slider(
+                    value = duration.toFloat(),
+                    onValueChange = { duration = it.roundToInt() },
+                    valueRange = 10f..60f
+                )
+                Spacer(Modifier.height(8.dp))
+
+                Text(stringResource(id = R.string.equipment_label))
+                FlowRow {
+                    Equipment.options.forEach { eq ->
+                        FilterChip(
+                            selected = eq in equipment,
+                            onClick = {
+                                if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
+                            },
+                            label = { Text(eq) }
+                        )
+                        Spacer(Modifier.width(4.dp))
+                    }
+                }
                 Spacer(Modifier.height(16.dp))
 
                 dayNames.forEachIndexed { index, dayName ->
