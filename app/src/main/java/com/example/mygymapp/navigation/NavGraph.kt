@@ -49,6 +49,7 @@ fun AppNavHost(
             composable("exercises") {
                 ExercisesScreen(
                     navController = navController,
+                    onViewExercise = { navController.navigate("exerciseDetail/$it") },
                     onEditExercise = { navController.navigate("editExercise/$it") }
                 )
             }
@@ -56,6 +57,14 @@ fun AppNavHost(
                 AddExerciseScreen(
                     onDone = { navController.popBackStack() },
                     onCancel = { navController.popBackStack() }
+                )
+            }
+            composable("exerciseDetail/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
+                ExerciseDetailScreen(
+                    exerciseId = id,
+                    onBack = { navController.popBackStack() },
+                    onEdit = { navController.navigate("editExercise/$id") }
                 )
             }
             composable("editExercise/{id}") { backStackEntry ->
