@@ -115,7 +115,30 @@ fun StepWorkoutScreen(
                         Spacer(Modifier.weight(1f))
                         Checkbox(
                             checked = set.done,
-                            onCheckedChange = { set.done = it }
+                            onCheckedChange = { checked ->
+                                set.done = checked
+                                if (checked) {
+                                    val ref = state.ref
+                                    if (ref.groupType == GroupType.SUPERSET && ref.groupId != null) {
+                                        val gid = ref.groupId
+                                        val groupIndices = workoutExercises.withIndex()
+                                            .filter { it.value.ref.groupId == gid }
+                                            .map { it.index }
+                                        val undone = groupIndices.filter { idx ->
+                                            workoutExercises[idx].sets.any { !it.done }
+                                        }
+                                        if (undone.isEmpty()) {
+                                            val next = groupIndices.maxOrNull()?.plus(1) ?: currentIndex + 1
+                                            if (next > workoutExercises.lastIndex) onComplete() else currentIndex = next
+                                        } else {
+                                            val pos = groupIndices.indexOf(currentIndex)
+                                            val candidate = undone.firstOrNull { groupIndices.indexOf(it) > pos }
+                                                ?: undone.first()
+                                            if (candidate != currentIndex) currentIndex = candidate
+                                        }
+                                    }
+                                }
+                            }
                         )
                     }
                 }
