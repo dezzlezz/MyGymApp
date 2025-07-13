@@ -1,7 +1,6 @@
 package com.example.mygymapp.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,12 +19,17 @@ fun PlansScreen(navController: NavController) {
     val selected = if (tabIndex == 0) PlanType.DAILY else PlanType.WEEKLY
 
     Column(Modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = tabIndex) {
-            Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) {
-                Text(stringResource(id = R.string.daily))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TabRow(selectedTabIndex = tabIndex, modifier = Modifier.weight(1f)) {
+                Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) {
+                    Text(stringResource(id = R.string.daily))
+                }
+                Tab(selected = tabIndex == 1, onClick = { tabIndex = 1 }) {
+                    Text(stringResource(id = R.string.weekly))
+                }
             }
-            Tab(selected = tabIndex == 1, onClick = { tabIndex = 1 }) {
-                Text(stringResource(id = R.string.weekly))
+            TextButton(onClick = { navController.navigate("preferences") }) {
+                Text(stringResource(id = R.string.preferences_button))
             }
         }
         if (selected == PlanType.DAILY) {

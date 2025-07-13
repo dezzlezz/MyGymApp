@@ -35,7 +35,10 @@ private val dayStrings = listOf(
 )
 
 @Composable
-private fun dayName(index: Int): String = stringResource(id = dayStrings[index])
+private fun dayName(index: Int): String {
+    val safeIdx = index.coerceIn(0, dayStrings.lastIndex)
+    return stringResource(id = dayStrings[safeIdx])
+}
 
 @Composable
 fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
@@ -303,8 +306,12 @@ private fun WorkoutDayScreen(
 
 @Composable
 private fun FinishDayScreen(progress: WeekProgress?, onContinue: () -> Unit) {
-    val finishedDay = progress?.day?.minus(1) ?: 0
-    val text = if (progress == null) stringResource(R.string.week_complete) else stringResource(R.string.day_finished, dayName(finishedDay))
+    val finishedDay = ((progress?.day ?: 1) - 1).coerceAtLeast(0)
+    val text = if (progress == null) {
+        stringResource(R.string.week_complete)
+    } else {
+        stringResource(R.string.day_finished, dayName(finishedDay))
+    }
     val button = if (progress == null) stringResource(R.string.back_to_start) else stringResource(R.string.next_day)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
