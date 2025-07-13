@@ -19,6 +19,7 @@ import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.viewmodel.PreferencesViewModel
 import com.example.mygymapp.viewmodel.PreferencesViewModelFactory
+import com.example.mygymapp.viewmodel.WorkoutViewModel
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FitnessCenter
@@ -86,8 +87,22 @@ fun AppNavHost(
                 SuggestedPlansScreen(
                     preferences = prefs,
                     allPlans = plans,
-                    onPlanSelected = { navController.navigate("planDetail/${'$'}{it.planId}") },
+                    onPlanSelected = { navController.navigate("setupWeek/${'$'}{it.planId}") },
                     onBack = { navController.popBackStack() }
+                )
+            }
+            composable("setupWeek/{planId}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("planId")?.toLong() ?: return@composable
+                val viewModel: WorkoutViewModel = viewModel()
+                SetupWeekScreen(
+                    planId = id,
+                    onStartWeek = { progress ->
+                        viewModel.startWeek(progress)
+                        navController.navigate("workout") {
+                            popUpTo("exercises") { inclusive = false }
+                        }
+                    },
+                    onCancel = { navController.popBackStack() }
                 )
             }
             composable("workout") { WorkoutScreen() }
