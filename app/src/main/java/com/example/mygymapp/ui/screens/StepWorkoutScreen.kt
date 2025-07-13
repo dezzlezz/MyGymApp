@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
+import com.example.mygymapp.data.GroupType
 
 class WorkoutSet(reps: Int = 0, done: Boolean = false) {
     var reps by mutableIntStateOf(reps)
@@ -85,6 +86,16 @@ fun StepWorkoutScreen(
             Text(ex.name, style = MaterialTheme.typography.headlineMedium)
             Text("${state.ref.sets} × ${state.ref.reps}", style = MaterialTheme.typography.bodyLarge)
             Text("${ex.muscleGroup.display} • ${ex.category.display}", style = MaterialTheme.typography.bodySmall)
+            state.ref.groupType?.let { gt ->
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    when (gt) {
+                        GroupType.SUPERSET -> stringResource(R.string.superset)
+                        GroupType.CIRCUIT -> stringResource(R.string.circuit)
+                    },
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
             Column {
