@@ -15,7 +15,6 @@ import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
 
-@Composable
 data class WorkoutSet(
     var reps: Int = 0,
     var done: Boolean = false
