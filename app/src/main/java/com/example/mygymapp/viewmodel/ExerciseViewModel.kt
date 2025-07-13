@@ -31,6 +31,10 @@ class ExerciseViewModel(application: Application) : AndroidViewModel(application
         repo.updateExercise(ex)
     }
 
+    fun toggleFavorite(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
+        repo.updateExercise(ex.copy(isFavorite = !ex.isFavorite))
+    }
+
     suspend fun getById(id: Long): Exercise? = withContext(Dispatchers.IO) {
         repo.getExerciseById(id)
     }
