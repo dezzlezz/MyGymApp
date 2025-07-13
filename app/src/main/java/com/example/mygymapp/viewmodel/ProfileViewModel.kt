@@ -5,14 +5,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mygymapp.data.AppDatabase
 import com.example.mygymapp.data.PlanRepository
+import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.data.SettingsStorage
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import com.example.mygymapp.data.WorkoutHistoryStorage
 import com.example.mygymapp.data.WorkoutStorage
+import com.example.mygymapp.model.MuscleGroup
+import com.example.mygymapp.model.MuscleGroupStat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.DayOfWeek
 import java.time.ZoneId
@@ -21,6 +25,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val settings = SettingsStorage.getInstance(application)
     private val historyStore = WorkoutHistoryStorage.getInstance(application)
     private val repo = PlanRepository(AppDatabase.getDatabase(application).planDao())
+    private val exerciseRepo = ExerciseRepository(AppDatabase.getDatabase(application).exerciseDao())
 
     val userName: StateFlow<String> = settings.userName
     val darkMode: StateFlow<Boolean> = settings.darkMode
@@ -39,13 +44,38 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun getEntryInfo(entry: WorkoutHistoryEntry, onResult: (String, String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val plan = repo.getPlanWithExercises(entry.planId)
-            val planName = plan.plan.name
-            val dayName = plan.days.firstOrNull { it.dayIndex == entry.dayIndex }?.name
-                ?: "Tag ${entry.dayIndex + 1}"
-            launch(Dispatchers.Main) { onResult(planName, dayName) }
+            val plan = repo.getPlanWithExercisesOrNull(entry.planId)
+            if (plan != null) {
+                val planName = plan.plan.name
+                val dayName = plan.days.firstOrNull { it.dayIndex == entry.dayIndex }?.name
+                    ?: "Tag ${entry.dayIndex + 1}"
+                launch(Dispatchers.Main) { onResult(planName, dayName) }
+            }
         }
     }
+
+    suspend fun getMuscleGroupSummary(): Map<MuscleGroup, Int> = withContext(Dispatchers.IO) {
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val start = today.minusDays(6)
+        val entries = historyStore.loadAll().filterKeys { !it.isBefore(start) }
+
+        val summary = MuscleGroup.values().associateWith { 0 }.toMutableMap()
+        for (entry in entries.values) {
+            val plan = repo.getPlanWithExercisesOrNull(entry.planId) ?: continue
+            val refs = plan.exercises.filter { it.dayIndex == entry.dayIndex }
+            refs.forEach { ref ->
+                val ex = exerciseRepo.getExerciseById(ref.exerciseId) ?: return@forEach
+                val group = ex.muscleGroup
+                summary[group] = summary.getOrDefault(group, 0) + 1
+            }
+        }
+        summary
+    }
+
+    suspend fun getMuscleGroupStats(): List<MuscleGroupStat> =
+        getMuscleGroupSummary()
+            .map { (g, c) -> MuscleGroupStat(g, c) }
+            .sortedByDescending { it.count }
 
     val totalWorkouts: Int
         get() = history.value.size

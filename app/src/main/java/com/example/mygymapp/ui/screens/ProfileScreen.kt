@@ -27,6 +27,8 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import com.example.mygymapp.model.MuscleGroupStat
+import com.example.mygymapp.ui.components.MuscleGroupStatsChart
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
     val themeVm: ThemeViewModel = viewModel()
@@ -88,6 +90,11 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
                 Text(" 7-Tage-Serie!", color = MaterialTheme.colorScheme.onBackground)
             }
         }
+        val stats by produceState(initialValue = emptyList<MuscleGroupStat>(), history) {
+            value = viewModel.getMuscleGroupStats()
+        }
+        Spacer(Modifier.height(16.dp))
+        MuscleGroupStatsChart(stats)
         Spacer(Modifier.height(24.dp))
         Text(
             "Workout Historie",
