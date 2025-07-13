@@ -31,6 +31,9 @@ import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.PlansViewModel
 import com.example.mygymapp.viewmodel.PlansViewModelFactory
+import com.example.mygymapp.model.Equipment
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -39,8 +42,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun EditDailyPlanScreen(
     planId: Long,
@@ -58,6 +62,8 @@ fun EditDailyPlanScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var desc by rememberSaveable { mutableStateOf("") }
     var difficulty by rememberSaveable { mutableIntStateOf(3) }
+    var duration by rememberSaveable { mutableIntStateOf(30) }
+    val equipment = remember { mutableStateListOf<String>() }
     val selected = remember { mutableStateListOf<ExerciseEntry>() }
     var showChooser by remember { mutableStateOf(false) }
     var initialized by remember { mutableStateOf(false) }
@@ -67,6 +73,9 @@ fun EditDailyPlanScreen(
             name = planWithExercises!!.plan.name
             desc = planWithExercises!!.plan.description
             difficulty = planWithExercises!!.plan.difficulty
+            duration = planWithExercises!!.plan.durationMinutes
+            equipment.clear()
+            equipment.addAll(planWithExercises!!.plan.requiredEquipment)
             selected.clear()
             selected.addAll(
                 planWithExercises!!.exercises.sortedBy { it.orderIndex }.mapNotNull { ref ->
@@ -99,7 +108,13 @@ fun EditDailyPlanScreen(
                 onClick = {
                     if (saveEnabled) {
                         planWithExercises?.let { pw ->
-                            val plan = pw.plan.copy(name = name, description = desc, difficulty = difficulty)
+                            val plan = pw.plan.copy(
+                                name = name,
+                                description = desc,
+                                difficulty = difficulty,
+                                durationMinutes = duration,
+                                requiredEquipment = equipment.toList()
+                            )
                             val refs = selected.mapIndexed { idx, e ->
                                 PlanExerciseCrossRef(
                                     planId = plan.planId,
@@ -157,6 +172,29 @@ fun EditDailyPlanScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(id = R.string.difficulty))
                 DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
+                Spacer(Modifier.height(8.dp))
+
+                Text(stringResource(id = R.string.duration_label, duration))
+                Slider(
+                    value = duration.toFloat(),
+                    onValueChange = { duration = it.roundToInt() },
+                    valueRange = 10f..60f
+                )
+                Spacer(Modifier.height(8.dp))
+
+                Text(stringResource(id = R.string.equipment_label))
+                FlowRow {
+                    Equipment.options.forEach { eq ->
+                        FilterChip(
+                            selected = eq in equipment,
+                            onClick = {
+                                if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
+                            },
+                            label = { Text(eq) }
+                        )
+                        Spacer(Modifier.width(4.dp))
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
                 Button(onClick = { showChooser = true }) { Text(stringResource(id = R.string.add_exercise_button)) }
                 Spacer(Modifier.height(8.dp))

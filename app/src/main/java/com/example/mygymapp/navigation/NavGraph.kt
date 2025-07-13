@@ -8,6 +8,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.mygymapp.ui.screens.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.mygymapp.data.AppDatabase
+import com.example.mygymapp.data.PlanRepository
+import com.example.mygymapp.viewmodel.PreferencesViewModel
+import com.example.mygymapp.viewmodel.PreferencesViewModelFactory
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FitnessCenter
@@ -61,6 +72,23 @@ fun AppNavHost(
             composable("planDetail/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toLong() ?: return@composable
                 PlanDetailScreen(planId = id, navController = navController)
+            }
+            composable("preferences") {
+                PreferenceScreen(navController)
+            }
+            composable("suggestedPlans") {
+                val context = LocalContext.current
+                val repo = remember(context) { PlanRepository(AppDatabase.getDatabase(context).planDao()) }
+                val viewModel: PreferencesViewModel = viewModel(factory = PreferencesViewModelFactory(repo))
+                val prefs by viewModel.prefs.collectAsState()
+                var plans by remember { mutableStateOf<List<com.example.mygymapp.data.Plan>>(emptyList()) }
+                LaunchedEffect(Unit) { plans = repo.getAllPlans() }
+                SuggestedPlansScreen(
+                    preferences = prefs,
+                    allPlans = plans,
+                    onPlanSelected = { navController.navigate("planDetail/${'$'}{it.planId}") },
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable("workout") { WorkoutScreen() }
             composable("profile") { ProfileScreen(navController) }
