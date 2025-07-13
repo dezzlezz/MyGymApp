@@ -32,6 +32,15 @@ class PlanRepository(
         }
 
     /**
+     * Like [getPlanWithExercises] but returns null instead of throwing when the
+     * plan does not exist.
+     */
+    suspend fun getPlanWithExercisesOrNull(planId: Long): PlanWithExercises? =
+        withContext(Dispatchers.IO) {
+            dao.getPlanWithExercises(planId)
+        }
+
+    /**
      * Speichert oder aktualisiert einen Plan + CrossRefs.
      * @return die (neue) planId
      */

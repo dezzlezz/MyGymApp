@@ -44,11 +44,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun getEntryInfo(entry: WorkoutHistoryEntry, onResult: (String, String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            val plan = repo.getPlanWithExercises(entry.planId)
-            val planName = plan.plan.name
-            val dayName = plan.days.firstOrNull { it.dayIndex == entry.dayIndex }?.name
-                ?: "Tag ${entry.dayIndex + 1}"
-            launch(Dispatchers.Main) { onResult(planName, dayName) }
+            val plan = repo.getPlanWithExercisesOrNull(entry.planId)
+            if (plan != null) {
+                val planName = plan.plan.name
+                val dayName = plan.days.firstOrNull { it.dayIndex == entry.dayIndex }?.name
+                    ?: "Tag ${entry.dayIndex + 1}"
+                launch(Dispatchers.Main) { onResult(planName, dayName) }
+            }
         }
     }
 
@@ -59,7 +61,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
         val summary = MuscleGroup.values().associateWith { 0 }.toMutableMap()
         for (entry in entries.values) {
-            val plan = repo.getPlanWithExercises(entry.planId)
+            val plan = repo.getPlanWithExercisesOrNull(entry.planId) ?: continue
             val refs = plan.exercises.filter { it.dayIndex == entry.dayIndex }
             refs.forEach { ref ->
                 val ex = exerciseRepo.getExerciseById(ref.exerciseId) ?: return@forEach
