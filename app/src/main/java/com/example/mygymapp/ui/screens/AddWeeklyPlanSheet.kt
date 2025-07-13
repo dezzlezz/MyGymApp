@@ -23,8 +23,12 @@ import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.mygymapp.ui.util.move
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import com.example.mygymapp.model.Equipment
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddWeeklyPlanSheet(
     exercises: List<Exercise>,
@@ -34,6 +38,9 @@ fun AddWeeklyPlanSheet(
     var name by rememberSaveable { mutableStateOf("") }
     var desc by rememberSaveable { mutableStateOf("") }
     var difficulty by rememberSaveable { mutableIntStateOf(3) }
+
+    var duration by rememberSaveable { mutableIntStateOf(30) }
+    val equipment = remember { mutableStateListOf<String>() }
 
     val dayNames = remember { mutableStateListOf("Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5") }
     val dayEntries = remember { List(5) { mutableStateListOf<ExerciseEntry>() } }
@@ -69,6 +76,29 @@ fun AddWeeklyPlanSheet(
             Spacer(Modifier.height(8.dp))
             Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
+            Spacer(Modifier.height(16.dp))
+
+            Text(stringResource(id = R.string.duration_label, duration))
+            Slider(
+                value = duration.toFloat(),
+                onValueChange = { duration = it.roundToInt() },
+                valueRange = 10f..60f
+            )
+            Spacer(Modifier.height(8.dp))
+
+            Text(stringResource(id = R.string.equipment_label))
+            FlowRow {
+                Equipment.options.forEach { eq ->
+                    FilterChip(
+                        selected = eq in equipment,
+                        onClick = {
+                            if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
+                        },
+                        label = { Text(eq) }
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+            }
             Spacer(Modifier.height(16.dp))
 
             dayNames.forEachIndexed { index, dayName ->
@@ -175,7 +205,9 @@ fun AddWeeklyPlanSheet(
                         description = desc,
                         difficulty = difficulty,
                         iconUri = null,
-                        type = PlanType.WEEKLY
+                        type = PlanType.WEEKLY,
+                        durationMinutes = duration,
+                        requiredEquipment = equipment.toList()
                     )
                     val refs = mutableListOf<PlanExerciseCrossRef>()
                     dayEntries.forEachIndexed { day, list ->
