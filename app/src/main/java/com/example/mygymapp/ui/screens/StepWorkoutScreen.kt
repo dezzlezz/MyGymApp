@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
@@ -15,16 +16,18 @@ import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.PlanExerciseCrossRef
 
-data class WorkoutSet(
-    var reps: Int = 0,
-    var done: Boolean = false
-)
+class WorkoutSet(reps: Int = 0, done: Boolean = false) {
+    var reps by mutableIntStateOf(reps)
+    var done by mutableStateOf(done)
+}
 
-data class WorkoutExerciseState(
+class WorkoutExerciseState(
     val ref: PlanExerciseCrossRef,
-    val sets: MutableList<WorkoutSet> = mutableListOf(),
-    var notes: String = ""
-)
+    val sets: SnapshotStateList<WorkoutSet> = mutableStateListOf(),
+    notes: String = ""
+) {
+    var notes by mutableStateOf(notes)
+}
 
 @Composable
 fun StepWorkoutScreen(
@@ -37,7 +40,9 @@ fun StepWorkoutScreen(
         exercises.map { ref ->
             WorkoutExerciseState(
                 ref = ref,
-                sets = MutableList(ref.sets) { WorkoutSet(reps = ref.reps) }
+                sets = mutableStateListOf<WorkoutSet>().apply {
+                    repeat(ref.sets) { add(WorkoutSet(reps = ref.reps)) }
+                }
             )
         }
     }
@@ -94,9 +99,9 @@ fun StepWorkoutScreen(
                             value = if (set.reps == 0) "" else set.reps.toString(),
                             onValueChange = { text -> set.reps = text.toIntOrNull() ?: 0 },
                             label = { Text(stringResource(R.string.reps)) },
-                            modifier = Modifier.width(80.dp)
+                            modifier = Modifier.width(60.dp)
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.weight(1f))
                         Checkbox(
                             checked = set.done,
                             onCheckedChange = { set.done = it }
