@@ -82,7 +82,12 @@ fun EditDailyPlanScreen(
             selected.addAll(
                 planWithExercises!!.exercises.sortedBy { it.orderIndex }.mapNotNull { ref ->
                     val ex = exercises.firstOrNull { it.id == ref.exerciseId }
-                    ex?.let { ExerciseEntry(it, ref.sets, ref.reps) }
+                    ex?.let {
+                        ExerciseEntry(it, ref.sets, ref.reps).apply {
+                            groupId = ref.groupId
+                            groupType = ref.groupType
+                        }
+                    }
                 }
             )
             initialized = true
