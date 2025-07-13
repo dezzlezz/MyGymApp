@@ -68,12 +68,12 @@ fun ExercisesScreen(
                         label = { Text(cat.display) }
                     )
                     Spacer(Modifier.width(8.dp))
-                    ExerciseCategory.values().forEachIndexed { index, cat ->
+                    ExerciseCategory.values().forEachIndexed { index, category ->
                         if (index != 0) Spacer(Modifier.width(8.dp))
                         FilterChip(
-                            selected = selectedCategory == cat,
-                            onClick = { selectedCategory = cat },
-                            label = { Text(cat.display) }
+                            selected = selectedCategory == category,
+                            onClick = { selectedCategory = category },
+                            label = { Text(category.display) }
                         )
                     }
                 }
