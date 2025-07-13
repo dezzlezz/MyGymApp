@@ -86,4 +86,15 @@
     <string name="no_suggestions">No matching plans found</string>
     <string name="generate_plan">Generate Plan</string>
     <string name="setup_week">Setup Week</string>
+    <string name="no_exercises_today">No exercises today</string>
+    <string name="add_set">Add Set</string>
+    <string name="total_reps">Total Reps: %1$d</string>
+    <string name="notes">Notes</string>
+    <string name="superset">Superset</string>
+    <string name="circuit">Circuit</string>
+    <string name="create_superset">Create Superset</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="rest_time">Rest: %1$ds</string>
+    <string name="skip_rest">Skip Rest</string>
 </resources>
