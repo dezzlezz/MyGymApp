@@ -77,6 +77,13 @@ fun ForestBackground(state: PagerState, pageCount: Int) {
 
 @Composable
 fun AnimatedRiver(state: PagerState, pageCount: Int) {
+    val anim = rememberInfiniteTransition(label = "river")
+    val alpha by anim.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Reverse),
+        label = "alpha"
+    )
     Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
@@ -91,43 +98,38 @@ fun AnimatedRiver(state: PagerState, pageCount: Int) {
                 x += w / 20f
             }
         }
-        val anim = rememberInfiniteTransition(label = "river")
-        val alpha by anim.animateFloat(
-            initialValue = 0.4f,
-            targetValue = 0.8f,
-            animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Reverse),
-            label = "alpha"
-        )
         drawPath(path, color = SeaFoam.copy(alpha = alpha), style = Stroke(width = h * 0.05f))
     }
 }
 
 @Composable
 fun FogOverlay() {
+    val anim = rememberInfiniteTransition(label = "fog")
+    val offsetFraction by anim.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(20000, easing = LinearEasing), RepeatMode.Restart),
+        label = "offset"
+    )
     Canvas(Modifier.fillMaxSize()) {
-        val anim = rememberInfiniteTransition(label = "fog")
-        val offset by anim.animateFloat(
-            initialValue = 0f,
-            targetValue = size.width,
-            animationSpec = infiniteRepeatable(tween(20000, easing = LinearEasing), RepeatMode.Restart),
-            label = "offset"
-        )
         val gradient = Brush.horizontalGradient(colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.2f), Color.Transparent))
-        withTransform({ translate(left = -size.width + offset) }) { drawRect(gradient, size = size) }
-        withTransform({ translate(left = offset) }) { drawRect(gradient, size = size) }
+        val dx = -size.width + size.width * offsetFraction
+        withTransform({ translate(left = dx) }) { drawRect(gradient, size = size) }
+        withTransform({ translate(left = dx + size.width) }) { drawRect(gradient, size = size) }
     }
 }
 
 @Composable
 fun SunRaysOverlay() {
+    val anim = rememberInfiniteTransition(label = "sun")
+    val radiusFraction by anim.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.35f,
+        animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing), RepeatMode.Reverse),
+        label = "radius"
+    )
     Canvas(Modifier.fillMaxSize()) {
-        val anim = rememberInfiniteTransition(label = "sun")
-        val radius by anim.animateFloat(
-            initialValue = size.height * 0.3f,
-            targetValue = size.height * 0.35f,
-            animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing), RepeatMode.Reverse),
-            label = "radius"
-        )
+        val radius = size.height * radiusFraction
         drawRect(
             brush = Brush.radialGradient(
                 colors = listOf(Color(0x66FFFACD), Color.Transparent),
@@ -142,14 +144,15 @@ fun SunRaysOverlay() {
 @Composable
 fun FallingLeavesOverlay() {
     val leaves = remember { List(10) { Random.nextFloat() to Random.nextFloat() } }
+    val anim = rememberInfiniteTransition(label = "leaves")
+    val offsetFraction by anim.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing), RepeatMode.Restart),
+        label = "offset"
+    )
     Canvas(Modifier.fillMaxSize()) {
-        val anim = rememberInfiniteTransition(label = "leaves")
-        val offset by anim.animateFloat(
-            initialValue = 0f,
-            targetValue = -50f,
-            animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing), RepeatMode.Restart),
-            label = "offset"
-        )
+        val offset = -50f * offsetFraction
         leaves.forEachIndexed { index, pair ->
             val x = size.width * pair.first
             val baseY = size.height * 0.3f + pair.second * 60f
