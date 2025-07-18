@@ -16,6 +16,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.example.mygymapp.data.AppDatabase
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.example.mygymapp.data.PlanRepository
 import com.example.mygymapp.data.ExerciseRepository
 import com.example.mygymapp.viewmodel.PreferencesViewModel
