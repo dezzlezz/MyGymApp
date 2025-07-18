@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.example.mygymapp.components.CustomTextField
+import com.example.mygymapp.components.PlanInputField
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
@@ -58,17 +58,17 @@ fun AddExerciseScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            CustomTextField(
+            PlanInputField(
                 value = name,
                 onValueChange = { name = it },
-                label = stringResource(id = R.string.name_label),
+                labelRes = R.string.name_label,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
-            CustomTextField(
+            PlanInputField(
                 value = description,
                 onValueChange = { description = it },
-                label = stringResource(id = R.string.description_label),
+                labelRes = R.string.description_label,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
