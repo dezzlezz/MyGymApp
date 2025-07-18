@@ -135,7 +135,7 @@ fun WeeklyPlansTab(navController: NavController) {
             }
             }
             FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Plan")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(id = R.string.add_plan))
             }
         }
     }
