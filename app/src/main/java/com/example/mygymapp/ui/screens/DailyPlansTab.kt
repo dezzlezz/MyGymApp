@@ -146,3 +146,4 @@ fun DailyPlansTab(navController: NavController) {
         )
     }
 }
+    }
