@@ -75,19 +75,19 @@ fun AddWeeklyPlanSheet(
                 labelRes = R.string.name_label,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
             PlanInputField(
                 value = desc,
                 onValueChange = { desc = it },
                 labelRes = R.string.description_label,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
             Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
             Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
             DurationSlider(duration = duration, onDurationChange = { duration = it })
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
 
             Text(stringResource(id = R.string.equipment_label))
             EquipmentChipsRow(selected = equipment, onToggle = { eq ->
@@ -156,7 +156,7 @@ fun AddWeeklyPlanSheet(
                             Row(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp)
+                                    .padding(dimensionResource(id = R.dimen.spacing_small))
                             ) {
                                 Checkbox(
                                     checked = item.id in selectedForGroup[index],
@@ -211,7 +211,7 @@ fun AddWeeklyPlanSheet(
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) { Text(stringResource(id = R.string.cancel)) }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(dimensionResource(id = R.dimen.spacing_small)))
                 Button(onClick = {
                     val plan = Plan(
                         name = name,
