@@ -1,5 +1,6 @@
 package com.example.mygymapp.ui.background
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,6 +26,7 @@ import kotlin.random.Random
 /**
  * Animated forest layers shown behind the pager screens.
  */
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ForestBackground(state: PagerState, pageCount: Int) {
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
