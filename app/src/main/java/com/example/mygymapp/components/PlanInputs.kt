@@ -41,7 +41,6 @@ fun DurationSlider(duration: Int, onDurationChange: (Int) -> Unit, modifier: Mod
         modifier = modifier
     )
 }
-
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun EquipmentChipsRow(selected: List<String>, onToggle: (String) -> Unit, modifier: Modifier = Modifier) {
