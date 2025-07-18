@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Offset
@@ -26,7 +27,8 @@ import kotlin.random.Random
 @Composable
 fun ForestBackgroundCanvas(
     modifier: Modifier = Modifier,
-    offsetX: Float = 0f
+    offsetX: Float = 0f,
+    showLightCone: Boolean = false
 ) {
     Canvas(
         modifier = modifier
@@ -91,6 +93,27 @@ fun ForestBackgroundCanvas(
             close()
         }
         drawPath(river, RiverBlue)
+
+        if (showLightCone) {
+            val coneAnim = rememberInfiniteTransition(label = "cone")
+            val coneAlpha by coneAnim.animateFloat(
+                initialValue = 0.2f,
+                targetValue = 0.4f,
+                animationSpec = infiniteRepeatable(
+                    tween(durationMillis = 3000, easing = LinearEasing),
+                    RepeatMode.Reverse
+                ),
+                label = "alpha"
+            )
+            drawRect(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
+                    center = Offset(w, 0f),
+                    radius = size.minDimension * 0.6f
+                ),
+                size = size
+            )
+        }
 
         val amplitude = 0.02f
         val radius = 3f
