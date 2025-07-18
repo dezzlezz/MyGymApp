@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.example.mygymapp.data.Plan
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType
@@ -26,6 +27,9 @@ import com.example.mygymapp.ui.util.move
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import com.example.mygymapp.model.Equipment
+import com.example.mygymapp.components.PlanInputField
+import com.example.mygymapp.components.DurationSlider
+import com.example.mygymapp.components.EquipmentChipsRow
 import com.example.mygymapp.data.GroupType
 import kotlin.math.roundToInt
 
@@ -43,7 +47,12 @@ fun AddWeeklyPlanSheet(
     var duration by rememberSaveable { mutableIntStateOf(30) }
     val equipment = remember { mutableStateListOf<String>() }
 
-    val dayNames = remember { mutableStateListOf("Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5") }
+    val context = LocalContext.current
+    val dayNames = remember {
+        mutableStateListOf(
+            *(1..5).map { context.getString(R.string.day_label, it) }.toTypedArray()
+        )
+    }
     val dayEntries = remember { List(5) { mutableStateListOf<ExerciseEntry>() } }
     val selectedForGroup = remember { List(5) { mutableStateListOf<Long>() } }
 
@@ -59,56 +68,41 @@ fun AddWeeklyPlanSheet(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(16.dp)
+                .padding(dimensionResource(id = R.dimen.spacing_medium))
         ) {
-            OutlinedTextField(
+            PlanInputField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.name_label)) },
+                labelRes = R.string.name_label,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
+            PlanInputField(
                 value = desc,
                 onValueChange = { desc = it },
-                label = { Text(stringResource(id = R.string.description_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2
+                labelRes = R.string.description_label,
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
             Text(stringResource(id = R.string.difficulty))
             DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
-            Spacer(Modifier.height(16.dp))
-
-            Text(stringResource(id = R.string.duration_label, duration))
-            Slider(
-                value = duration.toFloat(),
-                onValueChange = { duration = it.roundToInt() },
-                valueRange = 10f..60f
-            )
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
+            DurationSlider(duration = duration, onDurationChange = { duration = it })
             Spacer(Modifier.height(8.dp))
 
             Text(stringResource(id = R.string.equipment_label))
-            FlowRow {
-                Equipment.options.forEach { eq ->
-                    FilterChip(
-                        selected = eq in equipment,
-                        onClick = {
-                            if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
-                        },
-                        label = { Text(eq) }
-                    )
-                    Spacer(Modifier.width(4.dp))
-                }
-            }
-            Spacer(Modifier.height(16.dp))
+            EquipmentChipsRow(selected = equipment, onToggle = { eq ->
+                if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
+            })
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
 
             dayNames.forEachIndexed { index, dayName ->
-                TextField(
+                PlanInputField(
                     value = dayName,
                     onValueChange = { dayNames[index] = it },
-                    label = { Text(stringResource(id = R.string.day_label, index + 1)) },
-                    modifier = Modifier.fillMaxWidth()
+                    labelRes = R.string.day_label,
+                    modifier = Modifier.fillMaxWidth(),
+                    index + 1
                 )
                 Spacer(Modifier.height(4.dp))
                 val chosen = dropdownState[index]
