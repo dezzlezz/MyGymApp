@@ -31,6 +31,7 @@ import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.PlansViewModel
 import com.example.mygymapp.viewmodel.PlansViewModelFactory
 import com.example.mygymapp.model.Equipment
+import com.example.mygymapp.data.GroupType
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -67,6 +68,7 @@ fun EditWeeklyPlanScreen(
 
     val dayNames = remember { mutableStateListOf<String>() }
     val dayEntries = remember { mutableStateListOf<MutableList<ExerciseEntry>>() }
+    val selectedForGroup = remember { mutableStateListOf<MutableList<Long>>() }
 
     var showChooserForDay by remember { mutableIntStateOf(-1) }
     var initialized by remember { mutableStateOf(false) }
@@ -82,15 +84,22 @@ fun EditWeeklyPlanScreen(
             equipment.addAll(pw.plan.requiredEquipment)
             dayNames.clear()
             dayEntries.clear()
+            selectedForGroup.clear()
             val daysSorted = if (pw.days.isNotEmpty()) pw.days.sortedBy { it.dayIndex } else List(5) { null }
             daysSorted.forEachIndexed { idx, d ->
                 val defaultName = context.getString(R.string.day_label, idx + 1)
                 dayNames.add(d?.name ?: defaultName)
                 val list = pw.exercises.filter { it.dayIndex == idx }.sortedBy { it.orderIndex }.mapNotNull { ref ->
                     val ex = exercises.firstOrNull { it.id == ref.exerciseId }
-                    ex?.let { ExerciseEntry(it, ref.sets, ref.reps) }
+                    ex?.let {
+                        ExerciseEntry(it, ref.sets, ref.reps).apply {
+                            groupId = ref.groupId
+                            groupType = ref.groupType
+                        }
+                    }
                 }.toMutableList()
                 dayEntries.add(list)
+                selectedForGroup.add(mutableStateListOf())
             }
             initialized = true
         }
@@ -131,7 +140,9 @@ fun EditWeeklyPlanScreen(
                                             sets = entry.sets,
                                             reps = entry.reps,
                                             orderIndex = idx,
-                                            dayIndex = day
+                                            dayIndex = day,
+                                            groupId = entry.groupId,
+                                            groupType = entry.groupType
                                         )
                                     )
                                 }
@@ -234,6 +245,13 @@ fun EditWeeklyPlanScreen(
                                         .fillMaxWidth()
                                         .padding(8.dp)
                                 ) {
+                                    Checkbox(
+                                        checked = item.id in selectedForGroup[index],
+                                        onCheckedChange = { checked ->
+                                            if (checked) selectedForGroup[index].add(item.id) else selectedForGroup[index].remove(item.id)
+                                        }
+                                    )
+                                    Spacer(Modifier.width(4.dp))
                                     Text(item.exercise.name, modifier = Modifier.weight(1f))
                                     var setsText by remember(item.id) { mutableStateOf(item.sets.toString()) }
                                     OutlinedTextField(
@@ -262,7 +280,18 @@ fun EditWeeklyPlanScreen(
                                     )
                                 }
                             }
-                        }
+                    }
+                }
+                    if (selectedForGroup[index].size >= 2) {
+                        Spacer(Modifier.height(4.dp))
+                        Button(onClick = {
+                            val gid = System.currentTimeMillis()
+                            dayEntries[index].filter { it.id in selectedForGroup[index] }.forEach { entry ->
+                                entry.groupId = gid
+                                entry.groupType = GroupType.SUPERSET
+                            }
+                            selectedForGroup[index].clear()
+                        }) { Text(stringResource(R.string.create_superset)) }
                     }
                     Spacer(Modifier.height(12.dp))
                 }
