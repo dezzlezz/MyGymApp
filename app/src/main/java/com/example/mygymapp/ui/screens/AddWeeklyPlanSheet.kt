@@ -26,6 +26,7 @@ import com.example.mygymapp.ui.util.move
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import com.example.mygymapp.model.Equipment
+import com.example.mygymapp.data.GroupType
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -44,6 +45,7 @@ fun AddWeeklyPlanSheet(
 
     val dayNames = remember { mutableStateListOf("Tag 1", "Tag 2", "Tag 3", "Tag 4", "Tag 5") }
     val dayEntries = remember { List(5) { mutableStateListOf<ExerciseEntry>() } }
+    val selectedForGroup = remember { List(5) { mutableStateListOf<Long>() } }
 
     val dropdownState = remember { mutableStateListOf<Exercise?>(null, null, null, null, null) }
     val expandedList = remember { mutableStateListOf(false, false, false, false, false) }
@@ -163,6 +165,13 @@ fun AddWeeklyPlanSheet(
                                     .fillMaxWidth()
                                     .padding(8.dp)
                             ) {
+                                Checkbox(
+                                    checked = item.id in selectedForGroup[index],
+                                    onCheckedChange = { checked ->
+                                        if (checked) selectedForGroup[index].add(item.id) else selectedForGroup[index].remove(item.id)
+                                    }
+                                )
+                                Spacer(Modifier.width(4.dp))
                                 Text(item.exercise.name, modifier = Modifier.weight(1f))
                                 var setsText by remember(item.id) { mutableStateOf(item.sets.toString()) }
                                 OutlinedTextField(
@@ -193,6 +202,17 @@ fun AddWeeklyPlanSheet(
                         }
                     }
                 }
+                if (selectedForGroup[index].size >= 2) {
+                    Spacer(Modifier.height(4.dp))
+                    Button(onClick = {
+                        val gid = System.currentTimeMillis()
+                        dayEntries[index].filter { it.id in selectedForGroup[index] }.forEach { entry ->
+                            entry.groupId = gid
+                            entry.groupType = GroupType.SUPERSET
+                        }
+                        selectedForGroup[index].clear()
+                    }) { Text(stringResource(R.string.create_superset)) }
+                }
                 Spacer(Modifier.height(12.dp))
             }
 
@@ -219,7 +239,9 @@ fun AddWeeklyPlanSheet(
                                     sets = entry.sets,
                                     reps = entry.reps,
                                     orderIndex = idx,
-                                    dayIndex = day
+                                    dayIndex = day,
+                                    groupId = entry.groupId,
+                                    groupType = entry.groupType
                                 )
                             )
                         }
