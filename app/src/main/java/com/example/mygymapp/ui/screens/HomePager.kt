@@ -41,7 +41,7 @@ fun HomePager(navController: NavController) {
     val pagerState = rememberPagerState()
     Box(Modifier.fillMaxSize()) {
         ForestBackground(pagerState, pages.size)
-        HorizontalPager(pageCount = pages.size, state = pagerState, modifier = Modifier.fillMaxSize()) { index ->
+        HorizontalPager(count = pages.size, state = pagerState, modifier = Modifier.fillMaxSize()) { index ->
             val page = pages[index]
             Box(Modifier.fillMaxSize()) {
                 when (page) {
@@ -55,7 +55,7 @@ fun HomePager(navController: NavController) {
                     }
                     HomeSection.PROGRESS -> {
                         ProgressScreen()
-                        RiverOverlay(pagerState)
+                        RiverOverlay(pagerState, pages.size)
                     }
                     HomeSection.PROFILE -> {
                         ProfileScreen(navController)
@@ -131,18 +131,18 @@ private fun ForestBackground(state: PagerState, pageCount: Int) {
 }
 
 @Composable
-private fun RiverOverlay(state: PagerState) {
+private fun RiverOverlay(state: PagerState, pageCount: Int) {
     androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
-        val totalW = w * state.pageCount
+        val totalW = w * pageCount
         // Compute horizontal translation from current page and offset
         val offset = -(state.currentPage + state.currentPageOffset) * w
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(offset, h * 0.7f)
             var x = 0f
             while (x <= totalW) {
-                val y = h * (0.7f + 0.05f * sin((x / totalW) * state.pageCount * PI).toFloat())
+                val y = h * (0.7f + 0.05f * sin((x / totalW) * pageCount * PI).toFloat())
                 lineTo(offset + x, y)
                 x += w / 20f
             }
