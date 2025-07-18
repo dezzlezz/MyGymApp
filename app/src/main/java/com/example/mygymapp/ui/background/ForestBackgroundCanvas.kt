@@ -30,6 +30,38 @@ fun ForestBackgroundCanvas(
     offsetX: Float = 0f,
     showLightCone: Boolean = false
 ) {
+    val fireflies = remember {
+        List(10) {
+            Triple(
+                Random.nextFloat(),
+                0.4f * Random.nextFloat() + 0.1f,
+                Random.nextFloat() * 2f * PI.toFloat()
+            )
+        }
+    }
+
+    val fireflyAnim = rememberInfiniteTransition(label = "fireflies")
+    val phase by fireflyAnim.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            tween(durationMillis = 6000, easing = LinearEasing),
+            RepeatMode.Restart
+        ),
+        label = "phase"
+    )
+
+    val coneAnim = rememberInfiniteTransition(label = "cone")
+    val coneAlpha by coneAnim.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 0.4f,
+        animationSpec = infiniteRepeatable(
+            tween(durationMillis = 3000, easing = LinearEasing),
+            RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
     Canvas(
         modifier = modifier
             .fillMaxSize()
@@ -37,26 +69,6 @@ fun ForestBackgroundCanvas(
     ) {
         val w = size.width
         val h = size.height
-
-        val fireflies = remember {
-            List(10) {
-                Triple(
-                    Random.nextFloat(),
-                    0.4f * Random.nextFloat() + 0.1f,
-                    Random.nextFloat() * 2f * PI.toFloat()
-                )
-            }
-        }
-        val anim = rememberInfiniteTransition(label = "fireflies")
-        val phase by anim.animateFloat(
-            initialValue = 0f,
-            targetValue = (2f * PI).toFloat(),
-            animationSpec = infiniteRepeatable(
-                tween(durationMillis = 6000, easing = LinearEasing),
-                RepeatMode.Restart
-            ),
-            label = "phase"
-        )
 
         val far = Path().apply {
             moveTo(0f, h * 0.55f)
@@ -95,16 +107,6 @@ fun ForestBackgroundCanvas(
         drawPath(river, RiverBlue)
 
         if (showLightCone) {
-            val coneAnim = rememberInfiniteTransition(label = "cone")
-            val coneAlpha by coneAnim.animateFloat(
-                initialValue = 0.2f,
-                targetValue = 0.4f,
-                animationSpec = infiniteRepeatable(
-                    tween(durationMillis = 3000, easing = LinearEasing),
-                    RepeatMode.Reverse
-                ),
-                label = "alpha"
-            )
             drawRect(
                 brush = Brush.radialGradient(
                     colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
