@@ -57,5 +57,3 @@ fun HomePager(navController: NavController) {
         }
     }
 }
-
-@Composable
