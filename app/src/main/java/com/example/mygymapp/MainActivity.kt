@@ -3,21 +3,18 @@ package com.example.mygymapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import com.example.mygymapp.ui.theme.MyGymAppThemeWrapper
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mygymapp.viewmodel.ThemeViewModel
+import com.example.mygymapp.ui.theme.MyGymAppTheme
+import androidx.navigation.compose.rememberNavController
+import com.example.mygymapp.navigation.AppNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val themeVm: ThemeViewModel = viewModel()
-            val theme by themeVm.currentTheme.collectAsState()
-            val dark by themeVm.darkMode.collectAsState()
-            MyGymAppThemeWrapper(theme, dark)
+            val navController = rememberNavController()
+            MyGymAppTheme {
+                AppNavHost(navController)
+            }
         }
     }
 }
