@@ -43,3 +43,9 @@ val SunsetBlue = Color(0xFF184E77)
 
 val AlgaeGreen = Color(0xFF3E8058)
 val AlgaeDark = Color(0xFF2B5B3F)
+
+// Pager backgrounds
+val MossGreen = Color(0xFF355E3B)
+val TwilightBlue = Color(0xFF2E3A4F)
+val RiverBlue = Color(0xFF4A90E2)
+val SunriseOrange = Color(0xFFE8A672)

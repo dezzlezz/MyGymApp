@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -20,25 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.platform.LocalDensity
-import kotlin.math.PI
-import kotlin.math.sin
-import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.mygymapp.ui.backgrounds.BeachBackground
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
-import com.example.mygymapp.navigation.NavTabs
-import com.example.mygymapp.ui.backgrounds.BeachBackground
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalDensity
 
 private val BeachLightColors = lightColorScheme(
     primary = SunsetCoral,
@@ -65,15 +46,6 @@ private val BeachDarkColors = darkColorScheme(
 @Composable
 fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
-    val current by navController.currentBackStackEntryAsState()
-    val index = NavTabs.indexOfFirst { it.route == current?.destination?.route }.let { if (it >= 0) it else 0 }
-    val density = LocalDensity.current
-    val floatAnim = rememberInfiniteTransition(label = "bob")
-    val bob by floatAnim.animateFloat(
-        initialValue = 0f,
-        targetValue = (2f * PI).toFloat(),
-        animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing))
-    )
 
     val scheme = if (darkMode) BeachDarkColors else BeachLightColors
     val sand = if (darkMode) BeachSandDark else BeachSand
@@ -90,79 +62,7 @@ fun BeachTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemIn
                 darkMode = darkMode,
                 animationsEnabled = animationsEnabled
             )
-            androidx.compose.material3.Scaffold(
-                containerColor = Color.Transparent,
-                bottomBar = {
-                    val amplitude = with(LocalDensity.current) { 4.dp.toPx() }
-                    val icons: List<@Composable (Boolean, Float) -> Unit> = listOf(
-                        { selected, phase ->
-                            val off = (-sin(phase) * amplitude).toInt()
-                            CrabIcon(
-                                Modifier
-                                    .size(24.dp)
-                                    .offset { IntOffset(0, off) },
-                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        },
-                        { selected, phase ->
-                            val off = (-sin(phase + PI / 2f) * amplitude).toInt()
-                            ShellIcon(
-                                Modifier
-                                    .size(24.dp)
-                                    .offset { IntOffset(0, off) },
-                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        },
-                        { selected, phase ->
-                            val off = (-sin(phase + PI) * amplitude).toInt()
-                            StarfishIcon(
-                                Modifier
-                                    .size(24.dp)
-                                    .offset { IntOffset(0, off) },
-                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        },
-                        { selected, phase ->
-                            val off = (-sin(phase + PI * 1.5f) * amplitude).toInt()
-                            FishIcon(
-                                Modifier
-                                    .size(24.dp)
-                                    .offset { IntOffset(0, off) },
-                                if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        }
-                    )
-                    NavigationBar(
-                        modifier = Modifier.navigationBarsPadding(),
-                        containerColor = scheme.surface.copy(alpha = 0.6f)
-                    ) {
-                        NavTabs.forEachIndexed { idx, tab ->
-                            val selected = idx == index
-                            NavigationBarItem(
-                                selected = selected,
-                                onClick = {
-                                    navController.navigate(tab.route) {
-                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = { icons[idx](selected, bob + idx * 0.5f) },
-                                label = { androidx.compose.material3.Text(tab.label) },
-                                colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = Color.Transparent,
-                                    selectedIconColor = scheme.primary,
-                                    unselectedIconColor = scheme.onSurface.copy(alpha = 0.6f),
-                                    selectedTextColor = scheme.primary,
-                                    unselectedTextColor = scheme.onSurface.copy(alpha = 0.6f)
-                                )
-                            )
-                        }
-                    }
-                }
-            ) { padding ->
-                AppNavHost(navController, Modifier.padding(padding))
-            }
+            AppNavHost(navController)
         }
     }
 }
