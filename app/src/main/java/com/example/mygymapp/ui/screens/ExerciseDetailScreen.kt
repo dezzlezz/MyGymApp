@@ -6,15 +6,17 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.ExercisePRStore
+import com.example.mygymapp.data.ExerciseLogStore
+import com.example.mygymapp.model.ExerciseLogEntry
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,10 +29,13 @@ fun ExerciseDetailScreen(
 ) {
     val context = LocalContext.current
     val prStore = remember(context) { ExercisePRStore.getInstance(context) }
+    val logStore = remember(context) { ExerciseLogStore.getInstance(context) }
     var exercise by remember { mutableStateOf<Exercise?>(null) }
+    var logs by remember { mutableStateOf<List<ExerciseLogEntry>>(emptyList()) }
 
     LaunchedEffect(exerciseId) {
         exercise = viewModel.getById(exerciseId)
+        logs = logStore.load(exerciseId).sortedByDescending { it.date }
     }
 
     val ex = exercise
@@ -65,6 +70,14 @@ fun ExerciseDetailScreen(
                 if (pr > 0) {
                     Spacer(Modifier.height(16.dp))
                     Text(stringResource(id = R.string.pr_label, pr), style = MaterialTheme.typography.bodyMedium)
+                }
+
+                if (logs.isNotEmpty()) {
+                    Spacer(Modifier.height(24.dp))
+                    Text(stringResource(R.string.progress_log), style = MaterialTheme.typography.titleSmall)
+                    logs.take(5).forEach {
+                        Text("${it.date}: ${it.reps} Reps")
+                    }
                 }
             }
         } else {

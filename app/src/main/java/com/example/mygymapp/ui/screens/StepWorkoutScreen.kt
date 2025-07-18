@@ -22,6 +22,7 @@ import com.example.mygymapp.data.GroupType
 import com.example.mygymapp.data.ExercisePRStore
 import com.example.mygymapp.viewmodel.WorkoutTimerViewModel
 import com.example.mygymapp.viewmodel.RestTimerViewModel
+import com.example.mygymapp.data.ExerciseLogStore
 
 class WorkoutSet(reps: Int = 0, done: Boolean = false) {
     var reps by mutableIntStateOf(reps)
@@ -53,6 +54,7 @@ fun StepWorkoutScreen(
     val restTimer: RestTimerViewModel = viewModel()
     val context = LocalContext.current
     val prStore = remember(context) { ExercisePRStore.getInstance(context) }
+    val logStore = remember(context) { ExerciseLogStore.getInstance(context) }
     val workoutExercises = remember(exercises) {
         exercises.map { ref ->
             WorkoutExerciseState(
@@ -155,6 +157,7 @@ fun StepWorkoutScreen(
                                 if (checked) {
                                     restTimer.start()
                                     prStore.updateIfHigher(state.ref.exerciseId, set.reps)
+                                    logStore.log(state.ref.exerciseId, set.reps)
                                     val ref = state.ref
                                     if (ref.groupType == GroupType.SUPERSET && ref.groupId != null) {
                                         val gid = ref.groupId
