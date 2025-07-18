@@ -1,24 +1,27 @@
 package com.example.mygymapp.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class WorkoutTimerViewModel : ViewModel() {
     private var timerJob: Job? = null
-    private val _time = mutableStateOf(0L)
-    val time: State<Long> = _time
 
-    val isRunning = mutableStateOf(false)
+    private val _time = MutableStateFlow(0L)
+    val time: StateFlow<Long> = _time.asStateFlow()
+
+    private val _isRunning = MutableStateFlow(false)
+    val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()
 
     fun start() {
-        if (isRunning.value) return
-        isRunning.value = true
+        if (_isRunning.value) return
+        _isRunning.value = true
         timerJob = viewModelScope.launch {
             while (isActive) {
                 delay(1000)
@@ -29,7 +32,8 @@ class WorkoutTimerViewModel : ViewModel() {
 
     fun stop() {
         timerJob?.cancel()
-        isRunning.value = false
+        timerJob = null
+        _isRunning.value = false
     }
 
     fun reset() {

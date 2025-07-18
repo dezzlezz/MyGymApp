@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.example.mygymapp.data.Plan
 import com.example.mygymapp.data.PlanExerciseCrossRef
 import com.example.mygymapp.data.PlanType
@@ -28,20 +29,21 @@ import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import com.example.mygymapp.model.Equipment
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mygymapp.viewmodel.AddDailyPlanViewModel
+import com.example.mygymapp.components.DurationSlider
+import com.example.mygymapp.components.EquipmentChipsRow
+import com.example.mygymapp.components.PlanInputField
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddDailyPlanSheet(
     exercises: List<Exercise>,
     onSave: (Plan, List<PlanExerciseCrossRef>) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    viewModel: AddDailyPlanViewModel = viewModel()
 ) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var desc by rememberSaveable { mutableStateOf("") }
-    var difficulty by rememberSaveable { mutableIntStateOf(3) }
-
-    var duration by rememberSaveable { mutableIntStateOf(30) }
-    val equipment = remember { mutableStateListOf<String>() }
+    val form by viewModel.form.collectAsState()
 
     val selected = remember { mutableStateListOf<ExerciseEntry>() }
     val selectedForGroup = remember { mutableStateListOf<Long>() }
@@ -62,48 +64,30 @@ fun AddDailyPlanSheet(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(16.dp)
+                .padding(dimensionResource(id = R.dimen.spacing_medium))
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.name_label)) },
+            PlanInputField(
+                value = form.name,
+                onValueChange = viewModel::updateName,
+                labelRes = R.string.name_label,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = desc,
-                onValueChange = { desc = it },
-                label = { Text(stringResource(id = R.string.description_label)) },
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
+            PlanInputField(
+                value = form.description,
+                onValueChange = viewModel::updateDesc,
+                labelRes = R.string.description_label,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
             Text(stringResource(id = R.string.difficulty))
-            DifficultyRating(rating = difficulty, onRatingChanged = { difficulty = it })
-            Spacer(Modifier.height(8.dp))
-
-            Text(stringResource(id = R.string.duration_label, duration))
-            Slider(
-                value = duration.toFloat(),
-                onValueChange = { duration = it.roundToInt() },
-                valueRange = 10f..60f
-            )
-            Spacer(Modifier.height(8.dp))
-
+            DifficultyRating(rating = form.difficulty, onRatingChanged = viewModel::updateDifficulty)
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
+            DurationSlider(duration = form.duration, onDurationChange = viewModel::updateDuration)
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
             Text(stringResource(id = R.string.equipment_label))
-            FlowRow {
-                Equipment.options.forEach { eq ->
-                    FilterChip(
-                        selected = eq in equipment,
-                        onClick = {
-                            if (eq in equipment) equipment.remove(eq) else equipment.add(eq)
-                        },
-                        label = { Text(eq) }
-                    )
-                    Spacer(Modifier.width(4.dp))
-                }
-            }
-            Spacer(Modifier.height(8.dp))
+            EquipmentChipsRow(selected = form.equipment, onToggle = viewModel::toggleEquipment)
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
 
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                 OutlinedTextField(
@@ -133,7 +117,7 @@ fun AddDailyPlanSheet(
             }
 
             if (selectedForGroup.size >= 2) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_small)))
                 Button(onClick = {
                     val gid = System.currentTimeMillis()
                     selected.filter { it.id in selectedForGroup }.forEach { entry ->
@@ -146,7 +130,7 @@ fun AddDailyPlanSheet(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
             LazyColumn(
                 state = reorderState.listState,
                 modifier = Modifier
@@ -159,7 +143,7 @@ fun AddDailyPlanSheet(
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
+                                .padding(dimensionResource(id = R.dimen.spacing_small))
                         ) {
                             Checkbox(
                                 checked = item.id in selectedForGroup,
@@ -199,19 +183,19 @@ fun AddDailyPlanSheet(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) { Text(stringResource(id = R.string.cancel)) }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(dimensionResource(id = R.dimen.spacing_small)))
                 Button(onClick = {
                     val plan = Plan(
-                        name = name,
-                        description = desc,
-                        difficulty = difficulty,
+                        name = form.name,
+                        description = form.description,
+                        difficulty = form.difficulty,
                         iconUri = null,
                         type = PlanType.DAILY,
-                        durationMinutes = duration,
-                        requiredEquipment = equipment.toList()
+                        durationMinutes = form.duration,
+                        requiredEquipment = form.equipment.toList()
                     )
                     val refs = selected.mapIndexed { idx, e ->
                         PlanExerciseCrossRef(
@@ -225,7 +209,7 @@ fun AddDailyPlanSheet(
                         )
                     }
                     onSave(plan, refs)
-                }, enabled = name.isNotBlank() && selected.isNotEmpty()) {
+                }, enabled = form.name.isNotBlank() && selected.isNotEmpty()) {
                     Text(stringResource(id = R.string.save))
                 }
             }
