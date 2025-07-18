@@ -17,6 +17,7 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.ExercisePRStore
 import com.example.mygymapp.data.ExerciseLogStore
 import com.example.mygymapp.model.ExerciseLogEntry
+import com.example.mygymapp.ui.components.RepsChart
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +36,7 @@ fun ExerciseDetailScreen(
 
     LaunchedEffect(exerciseId) {
         exercise = viewModel.getById(exerciseId)
-        logs = logStore.load(exerciseId).sortedByDescending { it.date }
+        logs = logStore.load(exerciseId).sortedBy { it.date }
     }
 
     val ex = exercise
@@ -75,7 +76,11 @@ fun ExerciseDetailScreen(
                 if (logs.isNotEmpty()) {
                     Spacer(Modifier.height(24.dp))
                     Text(stringResource(R.string.progress_log), style = MaterialTheme.typography.titleSmall)
-                    logs.take(5).forEach {
+                    if (logs.size >= 2) {
+                        RepsChart(entries = logs)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    logs.asReversed().take(5).forEach {
                         Text("${it.date}: ${it.reps} Reps")
                     }
                 }
