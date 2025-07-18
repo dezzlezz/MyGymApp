@@ -110,7 +110,12 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
                         nav.navigate("FinishDay")
                     }
                 } else {
-                    WorkoutDayScreen(plan = plan, state = state, viewModel = viewModel) {
+                    StepWorkoutScreen(
+                        exercises = plan?.exercises
+                            ?.filter { it.dayIndex == calculatePlanIndex(state) }
+                            ?.sortedBy { it.orderIndex } ?: emptyList(),
+                        getExerciseInfo = { id -> viewModel.getExerciseById(id) }
+                    ) {
                         viewModel.finishDay()
                         nav.navigate("FinishDay")
                     }
