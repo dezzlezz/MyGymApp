@@ -15,9 +15,9 @@ import kotlin.math.sin
 
 @Composable
 fun HomePager(navController: NavController) {
-    val pagerState = rememberPagerState(pageCount = { 4 })
+    val pagerState = rememberPagerState()
     Box(Modifier.fillMaxSize()) {
-        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+        HorizontalPager(count = 4, state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
             val color = when (page) {
                 0 -> MossGreen
                 1 -> TwilightBlue
@@ -42,7 +42,7 @@ private fun FlowingRiver(state: PagerState) {
     androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
-        val totalW = w * state.pageCount
+        val totalW = w * 4
         val offset = -(state.currentPage + state.currentPageOffsetFraction) * w
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(offset, h * 0.7f)

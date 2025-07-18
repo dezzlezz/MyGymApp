@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import com.example.mygymapp.ui.util.move
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -49,9 +50,7 @@ fun AddWeeklyPlanSheet(
 
     val context = LocalContext.current
     val dayNames = remember {
-        mutableStateListOf(
-            *(1..5).map { context.getString(R.string.day_label, it) }.toTypedArray()
-        )
+        mutableStateListOf(*(1..5).map { context.getString(R.string.day_label, it) }.toTypedArray())
     }
     val dayEntries = remember { List(5) { mutableStateListOf<ExerciseEntry>() } }
     val selectedForGroup = remember { List(5) { mutableStateListOf<Long>() } }
@@ -102,7 +101,7 @@ fun AddWeeklyPlanSheet(
                     onValueChange = { dayNames[index] = it },
                     labelRes = R.string.day_label,
                     modifier = Modifier.fillMaxWidth(),
-                    index + 1
+                    formatArgs = *arrayOf(index + 1)
                 )
                 Spacer(Modifier.height(4.dp))
                 val chosen = dropdownState[index]
