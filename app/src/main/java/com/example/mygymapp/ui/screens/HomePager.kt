@@ -43,7 +43,8 @@ private fun FlowingRiver(state: PagerState) {
         val w = size.width
         val h = size.height
         val totalW = w * 4
-        val offset = -(state.currentPage + state.currentPageOffsetFraction) * w
+        // accompanist PagerState doesn't expose currentPageOffsetFraction, use currentPageOffset
+        val offset = -(state.currentPage + state.currentPageOffset) * w
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(offset, h * 0.7f)
             var x = 0f
