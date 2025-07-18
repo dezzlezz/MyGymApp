@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
 import com.example.mygymapp.ui.backgrounds.BeachBackground
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
