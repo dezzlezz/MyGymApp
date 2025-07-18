@@ -12,10 +12,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.data.ExercisePRStore
 import com.example.mygymapp.data.ExerciseLogStore
+import com.example.mygymapp.data.ExerciseGoalStore
 import com.example.mygymapp.model.ExerciseLogEntry
 import com.example.mygymapp.ui.components.RepsChart
 import com.example.mygymapp.viewmodel.ExerciseViewModel
@@ -31,12 +34,15 @@ fun ExerciseDetailScreen(
     val context = LocalContext.current
     val prStore = remember(context) { ExercisePRStore.getInstance(context) }
     val logStore = remember(context) { ExerciseLogStore.getInstance(context) }
+    val goalStore = remember(context) { ExerciseGoalStore.getInstance(context) }
     var exercise by remember { mutableStateOf<Exercise?>(null) }
     var logs by remember { mutableStateOf<List<ExerciseLogEntry>>(emptyList()) }
+    var goal by remember { mutableStateOf(0) }
 
     LaunchedEffect(exerciseId) {
         exercise = viewModel.getById(exerciseId)
         logs = logStore.load(exerciseId).sortedBy { it.date }
+        goal = goalStore.getGoal(exerciseId)
     }
 
     val ex = exercise
@@ -68,9 +74,26 @@ fun ExerciseDetailScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(ex.description)
                 val pr = prStore.getPR(exerciseId)
-                if (pr > 0) {
-                    Spacer(Modifier.height(16.dp))
-                    Text(stringResource(id = R.string.pr_label, pr), style = MaterialTheme.typography.bodyMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = if (goal > 0) goal.toString() else "",
+                        onValueChange = {
+                            goal = it.toIntOrNull() ?: 0
+                            goalStore.setGoal(exerciseId, goal)
+                        },
+                        label = { Text(stringResource(R.string.goal_reps_label)) },
+                        modifier = Modifier.width(120.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.current_pr_label, pr))
+                }
+                if (goal > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    val progress = (pr.toFloat() / goal).coerceIn(0f, 1f)
+                    LinearProgressIndicator(progress = progress)
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.goal_progress, (progress * 100).toInt()))
                 }
 
                 if (logs.isNotEmpty()) {

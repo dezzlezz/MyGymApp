@@ -99,4 +99,7 @@
     <string name="skip_rest">Skip Rest</string>
     <string name="pr_label">&#x1F3C6; PR: %1$d Reps</string>
     <string name="progress_log">\uD83D\uDCCA Verlauf</string>
+    <string name="goal_reps_label">Goal Reps</string>
+    <string name="current_pr_label">Current PR: %1$d</string>
+    <string name="goal_progress">%1$d%% of your goal reached</string>
 </resources>
