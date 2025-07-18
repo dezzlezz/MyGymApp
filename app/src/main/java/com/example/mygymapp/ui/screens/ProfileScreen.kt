@@ -22,8 +22,6 @@ import androidx.navigation.NavController
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ProfileViewModel
-import com.example.mygymapp.model.AppTheme
-import com.example.mygymapp.viewmodel.ThemeViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -32,12 +30,9 @@ import com.example.mygymapp.model.MuscleGroupStat
 import com.example.mygymapp.ui.components.MuscleGroupStatsChart
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
-    val themeVm: ThemeViewModel = viewModel()
     val name by viewModel.userName.collectAsState()
-    val dark by themeVm.darkMode.collectAsState()
     val notify by viewModel.notifications.collectAsState()
     val history by viewModel.history.collectAsState()
-    val currentTheme by themeVm.currentTheme.collectAsState()
 
     var dialogInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -113,37 +108,12 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
         Spacer(Modifier.height(24.dp))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Dark Mode",
+                "Benachrichtigungen",
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Switch(checked = dark, onCheckedChange = { themeVm.setDarkMode(it) })
+            Switch(checked = notify, onCheckedChange = { viewModel.setNotifications(it) })
         }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Benachrichtigungen",
-            modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Switch(checked = notify, onCheckedChange = { viewModel.setNotifications(it) })
-    }
-    Spacer(Modifier.height(16.dp))
-    Text("Theme", color = MaterialTheme.colorScheme.onBackground)
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        AppTheme.values().forEach { theme ->
-            Button(
-                onClick = { themeVm.setTheme(theme) },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (theme == currentTheme) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = if (theme == currentTheme) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            ) { Text(theme.displayName) }
-        }
-    }
     Spacer(Modifier.height(16.dp))
     Button(
             onClick = { viewModel.logout() },

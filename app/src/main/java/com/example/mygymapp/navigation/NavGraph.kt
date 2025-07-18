@@ -128,9 +128,6 @@ fun AppNavHost(
             }
             composable("workout") { WorkoutScreen() }
             composable("profile") { ProfileScreen(navController) }
-            composable("selectTheme") {
-                ThemePickerScreen(onBack = { navController.popBackStack() })
-            }
         }
     }
 
