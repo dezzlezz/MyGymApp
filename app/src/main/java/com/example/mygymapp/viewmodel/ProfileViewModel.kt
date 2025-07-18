@@ -28,14 +28,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val exerciseRepo = ExerciseRepository(AppDatabase.getDatabase(application).exerciseDao())
 
     val userName: StateFlow<String> = settings.userName
-    val darkMode: StateFlow<Boolean> = settings.darkMode
     val notifications: StateFlow<Boolean> = settings.notifications
 
     private val _history = MutableStateFlow(historyStore.loadAll())
     val history: StateFlow<Map<LocalDate, WorkoutHistoryEntry>> = _history
 
     fun setUserName(name: String) = settings.setUserName(name)
-    fun setDarkMode(enabled: Boolean) = settings.setDarkMode(enabled)
     fun setNotifications(enabled: Boolean) = settings.setNotifications(enabled)
 
     fun refreshHistory() {
