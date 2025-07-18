@@ -14,7 +14,11 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import androidx.navigation.NavController
-import com.example.mygymapp.ui.background.*
+import com.example.mygymapp.ui.background.AnimatedRiver
+import com.example.mygymapp.ui.background.FallingLeavesOverlay
+import com.example.mygymapp.ui.background.FogOverlay
+import com.example.mygymapp.ui.background.ForestBackground
+import com.example.mygymapp.ui.background.SunRaysOverlay
 
 private enum class HomeSection { WORKOUT, PLAN, PROGRESS, PROFILE }
 
