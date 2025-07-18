@@ -1,15 +1,27 @@
 package com.example.mygymapp.ui.background
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import com.example.mygymapp.ui.theme.MossGreen
 import com.example.mygymapp.ui.theme.PineGreen
 import com.example.mygymapp.ui.theme.RiverBlue
+import kotlin.math.PI
+import kotlin.math.sin
+import kotlin.random.Random
 
 @Composable
 fun ForestBackgroundCanvas(
@@ -23,6 +35,26 @@ fun ForestBackgroundCanvas(
     ) {
         val w = size.width
         val h = size.height
+
+        val fireflies = remember {
+            List(10) {
+                Triple(
+                    Random.nextFloat(),
+                    0.4f * Random.nextFloat() + 0.1f,
+                    Random.nextFloat() * 2f * PI.toFloat()
+                )
+            }
+        }
+        val anim = rememberInfiniteTransition(label = "fireflies")
+        val phase by anim.animateFloat(
+            initialValue = 0f,
+            targetValue = (2f * PI).toFloat(),
+            animationSpec = infiniteRepeatable(
+                tween(durationMillis = 6000, easing = LinearEasing),
+                RepeatMode.Restart
+            ),
+            label = "phase"
+        )
 
         val far = Path().apply {
             moveTo(0f, h * 0.55f)
@@ -59,6 +91,18 @@ fun ForestBackgroundCanvas(
             close()
         }
         drawPath(river, RiverBlue)
+
+        val amplitude = 0.02f
+        val radius = 3f
+        fireflies.forEach { (xFrac, baseY, seed) ->
+            val y = baseY + amplitude * sin(phase + seed).toFloat()
+            val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
+            drawCircle(
+                color = Color.Yellow.copy(alpha = alpha),
+                center = Offset(w * xFrac, h * y),
+                radius = radius
+            )
+        }
     }
 }
 
