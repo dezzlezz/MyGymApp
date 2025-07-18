@@ -8,12 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import androidx.compose.foundation.layout.height
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.ExerciseLogEntry
 
 @Composable
+/**
+ * Draws a simple reps-over-time line chart. A default height is applied within the
+ * body to avoid calling composable functions in the parameter list.
+ */
 fun RepsChart(entries: List<ExerciseLogEntry>, modifier: Modifier = Modifier) {
     if (entries.isEmpty()) return
 
@@ -24,6 +27,8 @@ fun RepsChart(entries: List<ExerciseLogEntry>, modifier: Modifier = Modifier) {
         .fillMaxWidth()
         .height(180.dp)
         .padding(16.dp)
+
+    val scheme = MaterialTheme.colorScheme
 
     Canvas(modifier = chartModifier) {
         val w = size.width
@@ -43,7 +48,7 @@ fun RepsChart(entries: List<ExerciseLogEntry>, modifier: Modifier = Modifier) {
 
         drawPath(
             path = path,
-            color = MaterialTheme.colorScheme.primary,
+            color = scheme.primary,
             style = Stroke(width = 4f)
         )
 
@@ -51,7 +56,7 @@ fun RepsChart(entries: List<ExerciseLogEntry>, modifier: Modifier = Modifier) {
             val x = i * pointGap
             val y = h - (reps.toFloat() / maxReps) * h
             drawCircle(
-                color = MaterialTheme.colorScheme.primary,
+                color = scheme.primary,
                 center = Offset(x, y),
                 radius = 6f
             )
