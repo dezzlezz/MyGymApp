@@ -29,10 +29,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mygymapp.navigation.AppNavHost
-import com.example.mygymapp.navigation.NavTabs
 import com.example.mygymapp.ui.backgrounds.DarkForestBackground
 
 private val ForestDarkColors = darkColorScheme(
@@ -60,8 +58,6 @@ private val ForestLightColors = lightColorScheme(
 @Composable
 fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
-    val current by navController.currentBackStackEntryAsState()
-    val currentRoute = current?.destination?.route ?: NavTabs.first().route
 
     val scheme = if (darkMode) ForestDarkColors else ForestLightColors
     val bg = if (darkMode) NightBlack else ForestBackgroundLight
@@ -78,44 +74,7 @@ fun DarkForestTheme(animationsEnabled: Boolean = true, darkMode: Boolean = isSys
                 darkMode = darkMode,
                 animationsEnabled = animationsEnabled
             )
-            Row {
-                val icons: List<@Composable (Boolean) -> Unit> = listOf(
-                    { selected -> LeafIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                    { selected -> BranchIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                    { selected -> PineIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) },
-                    { selected -> FireflyIcon(Modifier.size(24.dp), if (selected) scheme.primary else scheme.onSurface.copy(alpha = 0.6f)) }
-                )
-                NavigationRail(
-                    modifier = Modifier
-                        .drawBehind { drawTrunk(scheme.surface.copy(alpha = 0.6f)) }
-                        .statusBarsPadding()
-                        .navigationBarsPadding(),
-                    containerColor = Color.Transparent
-                ) {
-                    NavTabs.forEachIndexed { idx, tab ->
-                        val selected = currentRoute == tab.route
-                        NavigationRailItem(
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(tab.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { icons[idx](selected) },
-                            colors = NavigationRailItemDefaults.colors(
-                                indicatorColor = Color.Transparent,
-                                selectedTextColor = scheme.primary,
-                                unselectedTextColor = scheme.onSurface.copy(alpha = 0.6f)
-                            )
-                        )
-                    }
-                }
-                Box(Modifier.weight(1f)) {
-                    AppNavHost(navController)
-                }
-            }
+            AppNavHost(navController)
         }
     }
 }
