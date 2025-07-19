@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -23,6 +24,8 @@ import com.example.mygymapp.ui.theme.MossGreen
 import com.example.mygymapp.ui.theme.PineGreen
 import com.example.mygymapp.ui.theme.RiverBlue
 import com.example.mygymapp.ui.theme.FogGray
+import com.example.mygymapp.ui.theme.SkyDark
+import com.example.mygymapp.ui.theme.SkyLight
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.random.Random
@@ -34,6 +37,7 @@ fun ForestBackgroundCanvas(
     showLightCone: Boolean = false,
     showFog: Boolean = false
 ) {
+    val stars = remember { List(50) { Offset(Random.nextFloat(), Random.nextFloat() * 0.4f) } }
     val fireflies = remember {
         List(10) {
             Triple(
@@ -106,6 +110,23 @@ fun ForestBackgroundCanvas(
     ) {
         val w = size.width
         val h = size.height
+
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(SkyDark, SkyLight),
+                startY = 0f,
+                endY = h * 0.6f
+            ),
+            size = size
+        )
+
+        stars.forEach { offset ->
+            drawCircle(
+                color = Color.White.copy(alpha = 0.8f),
+                center = Offset(w * offset.x, h * offset.y),
+                radius = 1.5f
+            )
+        }
 
         val far = Path().apply {
             moveTo(0f, h * 0.55f)

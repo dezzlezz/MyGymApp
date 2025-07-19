@@ -17,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,9 @@ fun MainScreen() {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .graphicsLayer { alpha = 0.9f }
+                    .background(
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                    )
             ) {
                 when (page) {
                     0 -> WorkoutScreen()
