@@ -26,7 +26,6 @@ import com.example.mygymapp.ui.theme.RiverHighlight
 import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.SkyDark
 import com.example.mygymapp.ui.theme.SkyLight
-import com.example.mygymapp.ui.theme.SunriseOrange
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.random.Random
