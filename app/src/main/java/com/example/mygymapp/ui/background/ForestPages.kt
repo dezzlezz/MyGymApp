@@ -2,6 +2,7 @@ package com.example.mygymapp.ui.background
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -114,4 +115,39 @@ fun DrawScope.drawRiverPage(
         path = path,
         color = Color(0xFF96D1FF).copy(alpha = 0.9f)
     )
+}
+
+/**
+ * Draws a sky background section for the given page.
+ */
+fun DrawScope.drawSkyPage(
+    page: Int,
+    pageWidth: Float,
+    height: Float
+) {
+    val startX = pageWidth * page
+    val baseColor = when (page) {
+        0 -> Color(0xFFB0C4DE)
+        1 -> Color(0xFFAED6DC)
+        2 -> Color(0xFF98C1D9)
+        else -> Color(0xFFFFF1C1)
+    }
+    drawRect(
+        color = baseColor,
+        topLeft = Offset(startX, 0f),
+        size = Size(pageWidth, height)
+    )
+
+    if (page == 3) {
+        val center = Offset(startX + 0.8f * pageWidth, 0.2f * height)
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(Color(0xFFFFF7D6).copy(alpha = 0.5f), Color.Transparent),
+                center = center,
+                radius = pageWidth * 0.6f
+            ),
+            center = center,
+            radius = pageWidth * 0.6f
+        )
+    }
 }
