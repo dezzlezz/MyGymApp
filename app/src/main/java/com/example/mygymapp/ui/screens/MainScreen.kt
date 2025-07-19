@@ -19,8 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.background.ForestBackgroundCanvas
 
@@ -30,12 +28,11 @@ fun MainScreen() {
     var showExercises by remember { mutableStateOf(false) }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val pageWidth = with(LocalDensity.current) { maxWidth.toPx() }
-        val offset = -(pagerState.currentPage + pagerState.currentPageOffsetFraction) * pageWidth * 0.2f
+        val pageOffset = pagerState.currentPage + pagerState.currentPageOffsetFraction
 
         ForestBackgroundCanvas(
+            currentPageOffset = pageOffset,
             modifier = Modifier.fillMaxSize(),
-            offsetX = offset,
             showFog = pagerState.currentPage == 1,
             showLightCone = pagerState.currentPage == 3
         )
