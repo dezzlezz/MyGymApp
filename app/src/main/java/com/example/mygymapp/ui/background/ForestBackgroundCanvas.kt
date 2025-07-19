@@ -26,6 +26,7 @@ import com.example.mygymapp.ui.theme.RiverHighlight
 import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.SkyDark
 import com.example.mygymapp.ui.theme.SkyLight
+import com.example.mygymapp.ui.theme.SunriseOrange
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.random.Random
@@ -132,8 +133,8 @@ fun ForestBackgroundCanvas(
             )
         }
 
-        drawForestPage(0, pageWidth, h, dense = true, withFireflies = true, phase = phase)
-        drawForestPage(1, pageWidth, h, dense = false, withFireflies = false, phase = phase)
+        drawForestPage(0, pageWidth, h, dense = true, withFireflies = true)
+        drawForestPage(1, pageWidth, h, dense = false, withFireflies = false)
         drawRiverPage(2, pageWidth, h)
         drawHillPage(3, pageWidth, h)
 
@@ -179,59 +180,6 @@ fun ForestBackgroundCanvas(
     }
 }
 
-private fun DrawScope.drawForestPage(
-    page: Int,
-    pageWidth: Float,
-    height: Float,
-    dense: Boolean,
-    withFireflies: Boolean,
-    phase: Float
-) {
-    val startX = pageWidth * page
-    val far = Path().apply {
-        moveTo(startX, height * 0.55f)
-        cubicTo(startX + pageWidth * 0.25f, height * 0.5f, startX + pageWidth * 0.75f, height * 0.6f, startX + pageWidth, height * 0.55f)
-        lineTo(startX + pageWidth, height)
-        lineTo(startX, height)
-        close()
-    }
-    drawPath(far, if (dense) DeepForest else PineGreen.darken(0.2f))
-
-    val mid = Path().apply {
-        moveTo(startX, height * 0.7f)
-        cubicTo(startX + pageWidth * 0.2f, height * 0.65f, startX + pageWidth * 0.8f, height * 0.75f, startX + pageWidth, height * 0.7f)
-        lineTo(startX + pageWidth, height)
-        lineTo(startX, height)
-        close()
-    }
-    drawPath(mid, if (dense) PineGreen else MossGreen)
-
-    val near = Path().apply {
-        moveTo(startX, height * 0.85f)
-        cubicTo(startX + pageWidth * 0.3f, height * 0.83f, startX + pageWidth * 0.7f, height * 0.87f, startX + pageWidth, height * 0.85f)
-        lineTo(startX + pageWidth, height)
-        lineTo(startX, height)
-        close()
-    }
-    drawPath(near, MossGreen.darken(if (dense) 0.15f else 0.05f))
-
-    if (withFireflies) {
-        val amplitude = 0.02f
-        val radius = 3f
-        repeat(5) {
-            val xFrac = startX / (pageWidth * 4f) + Random.nextFloat() * (pageWidth / (pageWidth * 4f))
-            val baseY = 0.4f * Random.nextFloat() + 0.1f
-            val seed = Random.nextFloat() * 2f * PI.toFloat()
-            val y = baseY + amplitude * sin(phase + seed).toFloat()
-            val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
-            drawCircle(
-                color = Color.Yellow.copy(alpha = alpha),
-                center = Offset(pageWidth * 4f * xFrac, height * y),
-                radius = radius
-            )
-        }
-    }
-}
 
 private fun DrawScope.drawRiverPage(page: Int, pageWidth: Float, height: Float) {
     val startX = pageWidth * page
