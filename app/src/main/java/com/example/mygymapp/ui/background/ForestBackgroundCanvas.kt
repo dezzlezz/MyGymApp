@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawscope.translate
 import com.example.mygymapp.ui.theme.MossGreen
 import com.example.mygymapp.ui.theme.PineGreen
 import com.example.mygymapp.ui.theme.RiverBlue
