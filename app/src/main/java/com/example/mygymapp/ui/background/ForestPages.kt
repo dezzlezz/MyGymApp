@@ -67,3 +67,51 @@ fun DrawScope.drawForestPage(
     }
 }
 
+
+/**
+ * Draws a horizontally flowing river segment for the given page.
+ */
+fun DrawScope.drawRiverPage(
+    page: Int,
+    pageWidth: Float,
+    height: Float
+) {
+    val startX = pageWidth * page
+    val startY = height * 0.7f
+
+    val path = Path().apply {
+        moveTo(startX, startY)
+        // gentle wave across the page
+        val midX = startX + pageWidth / 2f
+        quadraticBezierTo(
+            startX + pageWidth * 0.25f,
+            startY - height * 0.05f,
+            midX,
+            startY
+        )
+        quadraticBezierTo(
+            startX + pageWidth * 0.75f,
+            startY + height * 0.05f,
+            startX + pageWidth,
+            startY
+        )
+        lineTo(startX + pageWidth, startY + height * 0.1f)
+        quadraticBezierTo(
+            startX + pageWidth * 0.75f,
+            startY + height * 0.15f,
+            midX,
+            startY + height * 0.1f
+        )
+        quadraticBezierTo(
+            startX + pageWidth * 0.25f,
+            startY + height * 0.05f,
+            startX,
+            startY + height * 0.1f
+        )
+        close()
+    }
+    drawPath(
+        path = path,
+        color = Color(0xFF96D1FF).copy(alpha = 0.9f)
+    )
+}

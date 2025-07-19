@@ -181,24 +181,6 @@ fun ForestBackgroundCanvas(
 }
 
 
-private fun DrawScope.drawRiverPage(page: Int, pageWidth: Float, height: Float) {
-    val startX = pageWidth * page
-    val path = Path().apply {
-        moveTo(startX, height * 0.75f)
-        cubicTo(startX + pageWidth * 0.25f, height * 0.72f, startX + pageWidth * 0.75f, height * 0.78f, startX + pageWidth, height * 0.75f)
-        lineTo(startX + pageWidth, height * 0.8f)
-        cubicTo(startX + pageWidth * 0.75f, height * 0.82f, startX + pageWidth * 0.25f, height * 0.78f, startX, height * 0.8f)
-        close()
-    }
-    drawPath(
-        path,
-        brush = Brush.verticalGradient(
-            colors = listOf(RiverHighlight, RiverBlue),
-            startY = height * 0.72f,
-            endY = height * 0.82f
-        )
-    )
-}
 
 private fun DrawScope.drawHillPage(page: Int, pageWidth: Float, height: Float) {
     val startX = pageWidth * page
