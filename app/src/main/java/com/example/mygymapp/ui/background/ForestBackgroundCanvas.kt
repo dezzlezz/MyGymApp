@@ -116,110 +116,150 @@ fun ForestBackgroundCanvas(
 
         withTransform({ translate(left = shift) }) {
 
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(SkyDark, SkyLight),
-                startY = 0f,
-                endY = h * 0.6f
-            ),
-            size = Size(w, h)
-        )
-
-        stars.forEach { offset ->
-            drawCircle(
-                color = Color.White.copy(alpha = 0.8f),
-                center = Offset(w * offset.x, h * offset.y),
-                radius = 1.5f
-            )
-        }
-
-        drawForestPage(0, pageWidth, h, dense = true, withFireflies = true)
-        drawForestPage(1, pageWidth, h, dense = false, withFireflies = false)
-        drawRiverPage(2, pageWidth, h)
-        drawHillPage(3, pageWidth, h)
-
-        if (showFog) {
-            fogClouds.forEach { cloud ->
-                val cloudWidth = w * cloud.width
-                val cloudHeight = h * cloud.height
-                val progress = (fogShift + cloud.start) % 1f
-                val x = -cloudWidth + progress * (w + cloudWidth)
-                val baseY = h * cloud.baseY
-                val y = baseY + h * 0.02f * sin(fogPhase + cloud.wave).toFloat()
-                drawRoundRect(
-                    color = cloud.color,
-                    topLeft = Offset(x, y),
-                    size = Size(cloudWidth, cloudHeight),
-                    cornerRadius = CornerRadius(cloudHeight / 2f, cloudHeight / 2f)
-                )
-            }
-        }
-
-        if (showLightCone) {
             drawRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
-                    center = Offset(w, 0f),
-                    radius = size.minDimension * 0.6f
+                brush = Brush.verticalGradient(
+                    colors = listOf(SkyDark, SkyLight),
+                    startY = 0f,
+                    endY = h * 0.6f
                 ),
                 size = Size(w, h)
             )
-        }
 
-        val amplitude = 0.02f
-        val radius = 3f
-        fireflies.forEach { (xFrac, baseY, seed) ->
-            val y = baseY + amplitude * sin(phase + seed).toFloat()
-            val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
-            drawCircle(
-                color = Color.Yellow.copy(alpha = alpha),
-                center = Offset(w * xFrac, h * y),
-                radius = radius
+            stars.forEach { offset ->
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.8f),
+                    center = Offset(w * offset.x, h * offset.y),
+                    radius = 1.5f
+                )
+            }
+
+            drawForestPage(0, pageWidth, h, dense = true, withFireflies = true)
+            drawForestPage(1, pageWidth, h, dense = false, withFireflies = false)
+            drawRiverPage(2, pageWidth, h)
+            drawHillPage(3, pageWidth, h)
+
+            if (showFog) {
+                fogClouds.forEach { cloud ->
+                    val cloudWidth = w * cloud.width
+                    val cloudHeight = h * cloud.height
+                    val progress = (fogShift + cloud.start) % 1f
+                    val x = -cloudWidth + progress * (w + cloudWidth)
+                    val baseY = h * cloud.baseY
+                    val y = baseY + h * 0.02f * sin(fogPhase + cloud.wave).toFloat()
+                    drawRoundRect(
+                        color = cloud.color,
+                        topLeft = Offset(x, y),
+                        size = Size(cloudWidth, cloudHeight),
+                        cornerRadius = CornerRadius(cloudHeight / 2f, cloudHeight / 2f)
+                    )
+                }
+            }
+
+            if (showLightCone) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
+                        center = Offset(w, 0f),
+                        radius = size.minDimension * 0.6f
+                    ),
+                    size = Size(w, h)
+                )
+            }
+
+            val amplitude = 0.02f
+            val radius = 3f
+            fireflies.forEach { (xFrac, baseY, seed) ->
+                val y = baseY + amplitude * sin(phase + seed).toFloat()
+                val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
+                drawCircle(
+                    color = Color.Yellow.copy(alpha = alpha),
+                    center = Offset(w * xFrac, h * y),
+                    radius = radius
+                )
+            }
+        }
+    }
+
+
+    private fun DrawScope.drawRiverPage(page: Int, pageWidth: Float, height: Float) {
+        val startX = pageWidth * page
+        val path = Path().apply {
+            moveTo(startX, height * 0.75f)
+            cubicTo(
+                startX + pageWidth * 0.25f,
+                height * 0.72f,
+                startX + pageWidth * 0.75f,
+                height * 0.78f,
+                startX + pageWidth,
+                height * 0.75f
             )
+            lineTo(startX + pageWidth, height * 0.8f)
+            cubicTo(
+                startX + pageWidth * 0.75f,
+                height * 0.82f,
+                startX + pageWidth * 0.25f,
+                height * 0.78f,
+                startX,
+                height * 0.8f
+            )
+            close()
         }
+        drawPath(
+            path,
+            brush = Brush.verticalGradient(
+                colors = listOf(RiverHighlight, RiverBlue),
+                startY = height * 0.72f,
+                endY = height * 0.82f
+            )
+        )
     }
-}
 
-
-
-private fun DrawScope.drawHillPage(page: Int, pageWidth: Float, height: Float) {
-    val startX = pageWidth * page
-    val hill = Path().apply {
-        moveTo(startX, height * 0.8f)
-        cubicTo(startX + pageWidth * 0.3f, height * 0.75f, startX + pageWidth * 0.7f, height * 0.85f, startX + pageWidth, height * 0.8f)
-        lineTo(startX + pageWidth, height)
-        lineTo(startX, height)
-        close()
-    }
-    drawPath(hill, MossGreen)
-    drawCircle(
-        brush = Brush.radialGradient(
-            listOf(SunriseOrange, Color.Transparent),
+    private fun DrawScope.drawHillPage(page: Int, pageWidth: Float, height: Float) {
+        val startX = pageWidth * page
+        val hill = Path().apply {
+            moveTo(startX, height * 0.8f)
+            cubicTo(
+                startX + pageWidth * 0.3f,
+                height * 0.75f,
+                startX + pageWidth * 0.7f,
+                height * 0.85f,
+                startX + pageWidth,
+                height * 0.8f
+            )
+            lineTo(startX + pageWidth, height)
+            lineTo(startX, height)
+            close()
+        }
+        drawPath(hill, MossGreen)
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(SunriseOrange, Color.Transparent),
+                center = Offset(startX + pageWidth * 0.8f, height * 0.2f),
+                radius = pageWidth * 0.5f
+            ),
             center = Offset(startX + pageWidth * 0.8f, height * 0.2f),
             radius = pageWidth * 0.5f
-        ),
-        center = Offset(startX + pageWidth * 0.8f, height * 0.2f),
-        radius = pageWidth * 0.5f
+        )
+    }
+
+    private fun Color.darken(amount: Float = 0.1f): Color = copy(
+        red = (red * (1 - amount)).coerceIn(0f, 1f),
+        green = (green * (1 - amount)).coerceIn(0f, 1f),
+        blue = (blue * (1 - amount)).coerceIn(0f, 1f),
+    )
+
+    private fun Color.lighten(amount: Float = 0.1f): Color = copy(
+        red = (red + amount).coerceIn(0f, 1f),
+        green = (green + amount).coerceIn(0f, 1f),
+        blue = (blue + amount).coerceIn(0f, 1f),
+    )
+
+    private data class FogCloud(
+        val start: Float,
+        val baseY: Float,
+        val width: Float,
+        val height: Float,
+        val wave: Float,
+        val color: Color
     )
 }
-
-private fun Color.darken(amount: Float = 0.1f): Color = copy(
-    red = (red * (1 - amount)).coerceIn(0f, 1f),
-    green = (green * (1 - amount)).coerceIn(0f, 1f),
-    blue = (blue * (1 - amount)).coerceIn(0f, 1f),
-)
-
-private fun Color.lighten(amount: Float = 0.1f): Color = copy(
-    red = (red + amount).coerceIn(0f, 1f),
-    green = (green + amount).coerceIn(0f, 1f),
-    blue = (blue + amount).coerceIn(0f, 1f),
-)
-
-private data class FogCloud(
-    val start: Float,
-    val baseY: Float,
-    val width: Float,
-    val height: Float,
-    val wave: Float,
-    val color: Color
-)
