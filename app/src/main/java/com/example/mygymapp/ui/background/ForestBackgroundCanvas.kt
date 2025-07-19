@@ -8,7 +8,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -23,6 +22,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.example.mygymapp.ui.theme.MossGreen
 import com.example.mygymapp.ui.theme.PineGreen
 import com.example.mygymapp.ui.theme.RiverBlue
+import com.example.mygymapp.ui.theme.DeepForest
+import com.example.mygymapp.ui.theme.RiverHighlight
 import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.SkyDark
 import com.example.mygymapp.ui.theme.SkyLight
@@ -135,7 +136,7 @@ fun ForestBackgroundCanvas(
             lineTo(0f, h)
             close()
         }
-        drawPath(far, PineGreen.darken(0.2f))
+        drawPath(far, DeepForest)
 
         val mid = Path().apply {
             moveTo(0f, h * 0.7f)
@@ -144,7 +145,7 @@ fun ForestBackgroundCanvas(
             lineTo(0f, h)
             close()
         }
-        drawPath(mid, MossGreen)
+        drawPath(mid, PineGreen)
 
         val near = Path().apply {
             moveTo(0f, h * 0.85f)
@@ -153,7 +154,7 @@ fun ForestBackgroundCanvas(
             lineTo(0f, h)
             close()
         }
-        drawPath(near, MossGreen.lighten(0.15f))
+        drawPath(near, MossGreen.darken(0.15f))
 
         val river = Path().apply {
             moveTo(0f, h * 0.75f)
@@ -162,7 +163,14 @@ fun ForestBackgroundCanvas(
             cubicTo(w * 0.75f, h * 0.82f, w * 0.25f, h * 0.78f, 0f, h * 0.8f)
             close()
         }
-        drawPath(river, RiverBlue)
+        drawPath(
+            river,
+            brush = Brush.verticalGradient(
+                colors = listOf(RiverHighlight, RiverBlue),
+                startY = h * 0.72f,
+                endY = h * 0.82f
+            )
+        )
 
         if (showFog) {
             fogClouds.forEach { cloud ->
