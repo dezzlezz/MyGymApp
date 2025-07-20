@@ -1,9 +1,9 @@
 package com.example.mygymapp.ui.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -11,31 +11,27 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.mygymapp.ui.background.ForestBackgroundCanvas
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
-    // pageCount zieht jetzt in den PagerState um
-    val pagerState = rememberPagerState(pageCount = { 4 })
-    val pageOffset = pagerState.currentPage + pagerState.currentPageOffsetFraction
+    val pagerState = rememberPagerState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ForestBackgroundCanvas(
-            currentPageOffset = pageOffset,
-            showFog = pagerState.currentPage == 1,
-            showLightCone = pagerState.currentPage == 3,
-            modifier = Modifier.fillMaxSize()
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
 
-        // pageCount hier entfernen, State enthält es bereits
         HorizontalPager(
+            pageCount = 4,
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->

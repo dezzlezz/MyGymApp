@@ -25,3 +25,7 @@ val SkyPlan = Color(0xFFAED6DC)
 val SkyProgress = Color(0xFF98C1D9)
 val SkyProfile = Color(0xFFFFF1C1)
 val SkyHighlight = Color(0xFFFFF7D6)
+
+// Neutral backgrounds
+val LightBackground = Color(0xFFF4F4F4)
+val DarkBackground = Color(0xFF1C1C1E)

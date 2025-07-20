@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
-import com.example.mygymapp.ui.screens.MainScreen
+import com.example.mygymapp.navigation.AppNavHost
 import com.example.mygymapp.ui.theme.MyGymAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             MyGymAppTheme {
-                MainScreen(navController = navController)
+                AppNavHost(navController = navController)
             }
         }
     }
