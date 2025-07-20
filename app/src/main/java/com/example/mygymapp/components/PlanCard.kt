@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material3.LocalIndication
+import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
@@ -31,6 +31,7 @@ import com.example.mygymapp.data.Plan
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
+import androidx.compose.foundation.LocalIndication
 
 @Composable
 fun PlanCard(
