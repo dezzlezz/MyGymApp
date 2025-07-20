@@ -6,8 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -104,7 +104,7 @@ fun EditDailyPlanScreen(
                 title = { Text(stringResource(id = R.string.edit_daily_plan)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 }
             )
@@ -140,7 +140,7 @@ fun EditDailyPlanScreen(
                 }
             ) {
                 Icon(
-                    Icons.Default.Check,
+                    Icons.Outlined.Check,
                     contentDescription = stringResource(id = R.string.save),
                     tint = if (saveEnabled) {
                         LocalContentColor.current

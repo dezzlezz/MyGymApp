@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Photo
+import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -80,7 +80,7 @@ fun AddEditExerciseSheet(
                     Spacer(Modifier.width(8.dp))
                 }
                 OutlinedButton(onClick = { launcher.launch("image/*") }) {
-                    Icon(Icons.Default.Photo, contentDescription = stringResource(id = R.string.select_image))
+                    Icon(Icons.Outlined.Photo, contentDescription = stringResource(id = R.string.select_image))
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(id = R.string.select_image))
                 }

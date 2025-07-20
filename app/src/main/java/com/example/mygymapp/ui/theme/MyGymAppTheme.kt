@@ -10,24 +10,26 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun MyGymAppTheme(content: @Composable () -> Unit) {
     val lightColors = lightColorScheme(
-        primary = PineGreen,
-        secondary = FogGray,
+        primary = PrimaryGreen,
+        secondary = SecondaryGreen,
         background = LightBackground,
         surface = Color.White,
         onPrimary = Color.White,
         onSecondary = Color.White,
-        onBackground = Color.White,
-        onSurface = Color.White
+        onBackground = TextPrimary,
+        onSurface = TextPrimary,
+        error = ErrorRed
     )
     val darkColors = darkColorScheme(
-        primary = PineGreen,
-        secondary = FogGray,
+        primary = PrimaryGreen,
+        secondary = SecondaryGreen,
         background = DarkBackground,
         surface = DarkBackground,
         onPrimary = Color.White,
         onSecondary = Color.White,
         onBackground = Color.White,
-        onSurface = Color.White
+        onSurface = Color.White,
+        error = ErrorRed
     )
     val colors = if (isSystemInDarkTheme()) darkColors else lightColors
     MaterialTheme(colorScheme = colors, content = content)
