@@ -33,7 +33,7 @@ fun MainScreen(navController: NavHostController) {
         )
 
         HorizontalPager(
-            count = 4,
+            pageCount = 4,
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
