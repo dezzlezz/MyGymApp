@@ -168,70 +168,71 @@ fun ForestBackgroundCanvas(
 
         withTransform({ translate(left = shift) }) {
 
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(SkyDark, SkyLight),
-                startY = 0f,
-                endY = h * 0.6f
-            ),
-            size = Size(w, h)
-        )
-
-        repeat(4) { page ->
-            drawSkyPage(page, pageWidth, h)
-        }
-
-        stars.forEach { offset ->
-            drawCircle(
-                color = Color.White.copy(alpha = 0.8f),
-                center = Offset(w * offset.x, h * offset.y),
-                radius = 1.5f
-            )
-        }
-
-        drawForestPage(0, pageWidth, h, dense = true, withFireflies = true)
-        drawForestPage(1, pageWidth, h, dense = false, withFireflies = false)
-        drawRiverPage(2, pageWidth, h)
-        drawHillPage(3, pageWidth, h)
-
-        if (showFog) {
-            fogClouds.forEach { cloud ->
-                val cloudWidth = w * cloud.width
-                val cloudHeight = h * cloud.height
-                val progress = (fogShift + cloud.start) % 1f
-                val x = -cloudWidth + progress * (w + cloudWidth)
-                val baseY = h * cloud.baseY
-                val y = baseY + h * 0.02f * sin(fogPhase + cloud.wave).toFloat()
-                drawRoundRect(
-                    color = cloud.color,
-                    topLeft = Offset(x, y),
-                    size = Size(cloudWidth, cloudHeight),
-                    cornerRadius = CornerRadius(cloudHeight / 2f, cloudHeight / 2f)
-                )
-            }
-        }
-
-        if (showLightCone) {
             drawRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
-                    center = Offset(w, 0f),
-                    radius = size.minDimension * 0.6f
+                brush = Brush.verticalGradient(
+                    colors = listOf(SkyDark, SkyLight),
+                    startY = 0f,
+                    endY = h * 0.6f
                 ),
                 size = Size(w, h)
             )
-        }
 
-        val amplitude = 0.02f
-        val radius = 3f
-        fireflies.forEach { (xFrac, baseY, seed) ->
-            val y = baseY + amplitude * sin(phase + seed).toFloat()
-            val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
-            drawCircle(
-                color = Color.Yellow.copy(alpha = alpha),
-                center = Offset(w * xFrac, h * y),
-                radius = radius
-            )
+            repeat(4) { page ->
+                drawSkyPage(page, pageWidth, h)
+            }
+
+            stars.forEach { offset ->
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.8f),
+                    center = Offset(w * offset.x, h * offset.y),
+                    radius = 1.5f
+                )
+            }
+
+            drawForestPage(0, pageWidth, h, dense = true, withFireflies = true)
+            drawForestPage(1, pageWidth, h, dense = false, withFireflies = false)
+            drawRiverPage(2, pageWidth, h)
+            drawHillPage(3, pageWidth, h)
+
+            if (showFog) {
+                fogClouds.forEach { cloud ->
+                    val cloudWidth = w * cloud.width
+                    val cloudHeight = h * cloud.height
+                    val progress = (fogShift + cloud.start) % 1f
+                    val x = -cloudWidth + progress * (w + cloudWidth)
+                    val baseY = h * cloud.baseY
+                    val y = baseY + h * 0.02f * sin(fogPhase + cloud.wave).toFloat()
+                    drawRoundRect(
+                        color = cloud.color,
+                        topLeft = Offset(x, y),
+                        size = Size(cloudWidth, cloudHeight),
+                        cornerRadius = CornerRadius(cloudHeight / 2f, cloudHeight / 2f)
+                    )
+                }
+            }
+
+            if (showLightCone) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color.Yellow.copy(alpha = coneAlpha), Color.Transparent),
+                        center = Offset(w, 0f),
+                        radius = size.minDimension * 0.6f
+                    ),
+                    size = Size(w, h)
+                )
+            }
+
+            val amplitude = 0.02f
+            val radius = 3f
+            fireflies.forEach { (xFrac, baseY, seed) ->
+                val y = baseY + amplitude * sin(phase + seed).toFloat()
+                val alpha = 0.3f + 0.7f * (0.5f + 0.5f * sin(phase + seed).toFloat())
+                drawCircle(
+                    color = Color.Yellow.copy(alpha = alpha),
+                    center = Offset(w * xFrac, h * y),
+                    radius = radius
+                )
+            }
         }
     }
 }
