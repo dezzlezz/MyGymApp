@@ -6,7 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LocalIndication
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -53,7 +53,7 @@ fun ExerciseCard(
             }
             IconButton(onClick = onToggleFavorite) {
                 Icon(
-                    imageVector = if (ex.isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                    imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
                     contentDescription = null
                 )
             }

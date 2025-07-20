@@ -101,7 +101,7 @@ fun StepWorkoutScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     formatTime(timerViewModel.time.value),
-                    fontSize = 32.sp
+                    style = MaterialTheme.typography.headlineLarge
                 )
                 Row {
                     Button(onClick = { timerViewModel.start() }) {
@@ -206,7 +206,7 @@ fun StepWorkoutScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stringResource(R.string.rest_time, restTimer.remaining.value),
-                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     Button(onClick = { restTimer.stop() }) {

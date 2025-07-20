@@ -16,8 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -68,7 +68,7 @@ fun PlanCard(
             }
             if (plan.isFavorite) {
                 Icon(
-                    imageVector = Icons.Filled.Star,
+                    imageVector = Icons.Outlined.Star,
                     contentDescription = stringResource(id = R.string.favorite_marked),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -91,7 +91,7 @@ private fun PlanIcon(iconUriString: String?) {
         )
     } else {
         Icon(
-            Icons.Filled.FitnessCenter,
+            Icons.Outlined.FitnessCenter,
             contentDescription = null,
             modifier = Modifier.size(40.dp)
         )

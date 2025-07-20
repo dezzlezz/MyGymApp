@@ -2,8 +2,8 @@ package com.example.mygymapp.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -52,12 +52,12 @@ fun ExerciseDetailScreen(
                 title = { Text(ex?.name ?: stringResource(id = R.string.loading)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { onEdit(exerciseId) }) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(id = R.string.edit_exercise))
+                        Icon(Icons.Outlined.Edit, contentDescription = stringResource(id = R.string.edit_exercise))
                     }
                 }
             )

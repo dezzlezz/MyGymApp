@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.LocalIndication
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -23,7 +22,7 @@ fun DifficultyRating(
     Row(modifier) {
         val interactionSource = remember { MutableInteractionSource() }
         repeat(max) { i ->
-            val icon = if (i < rating) Icons.Filled.Eco else Icons.Outlined.Eco
+            val icon = Icons.Outlined.Eco
             Icon(
                 imageVector = icon,
                 contentDescription = null,

@@ -8,7 +8,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -66,7 +66,7 @@ fun MainScreen(navController: NavHostController) {
                     navController.navigate("exercises")
                 },
                 text = { Text(stringResource(id = R.string.add_plan)) },
-                icon = { Icon(Icons.Default.FitnessCenter, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.FitnessCenter, contentDescription = null) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(24.dp),
@@ -85,7 +85,7 @@ fun MainScreen(navController: NavHostController) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.FitnessCenter, contentDescription = "Übungen")
+                Icon(Icons.Outlined.FitnessCenter, contentDescription = "Übungen")
             }
         }
     }

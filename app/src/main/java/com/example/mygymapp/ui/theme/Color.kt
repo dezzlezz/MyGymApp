@@ -7,6 +7,13 @@ val FogGray = Color(0xFF5C6660)
 val PineGreen = Color(0xFF1D3B29)
 val SeaFoam = Color(0xFF90E0EF)
 
+// Modern palette
+val PrimaryGreen = Color(0xFF4B6E4D)
+val SecondaryGreen = Color(0xFF88A97A)
+val TextPrimary = Color.Black.copy(alpha = 0.87f)
+val TextSecondary = Color.Black.copy(alpha = 0.6f)
+val ErrorRed = Color(0xFFD9534F)
+
 // Pager backgrounds
 val MossGreen = Color(0xFF355E3B)
 val TwilightBlue = Color(0xFF2E3A4F)

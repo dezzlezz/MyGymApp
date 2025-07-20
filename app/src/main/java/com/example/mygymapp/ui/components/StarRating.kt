@@ -6,8 +6,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,7 +23,7 @@ fun StarRating(rating: Int, onRatingChanged: (Int) -> Unit, modifier: Modifier =
         val interactionSource = remember { MutableInteractionSource() }
         for (i in 1..5) {
             Icon(
-                imageVector = if (i <= rating) Icons.Filled.Star else Icons.Filled.StarBorder,
+                imageVector = if (i <= rating) Icons.Outlined.Star else Icons.Outlined.StarBorder,
                 contentDescription = "$i Star",
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
