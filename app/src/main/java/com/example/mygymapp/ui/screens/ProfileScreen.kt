@@ -6,9 +6,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,7 +45,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            Icons.Default.Person,
+            Icons.Outlined.Person,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(80.dp)
@@ -79,7 +79,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
         if (viewModel.totalWorkouts >= 7) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Default.Person,
+                    Icons.Outlined.Person,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -119,7 +119,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
             onClick = { viewModel.logout() },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Icon(Icons.Default.Logout, contentDescription = null)
+            Icon(Icons.Outlined.Logout, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text("Logout")
         }

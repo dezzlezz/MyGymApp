@@ -5,8 +5,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.runtime.*
@@ -45,7 +45,7 @@ fun ExercisesScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { navController.navigate("addExercise") }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Exercise")
+                Icon(Icons.Outlined.Add, contentDescription = "Add Exercise")
             }
         }
     ) { paddingValues ->
@@ -58,7 +58,7 @@ fun ExercisesScreen(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
                 placeholder = { Text(stringResource(id = R.string.search_exercises)) },
                 modifier = Modifier
                     .fillMaxWidth()

@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -119,7 +119,7 @@ fun DailyPlansTab(navController: NavController) {
                     background = {
                         val dir = dismissState.dismissDirection ?: return@SwipeToDismiss
                         val color = if (dir == DismissDirection.StartToEnd) Color.Red else FogGray
-                        val icon = if (dir == DismissDirection.StartToEnd) Icons.Filled.Delete else Icons.Filled.Edit
+                        val icon = if (dir == DismissDirection.StartToEnd) Icons.Outlined.Delete else Icons.Outlined.Edit
                         val align = if (dir == DismissDirection.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
                         Box(
                             Modifier
@@ -140,7 +140,7 @@ fun DailyPlansTab(navController: NavController) {
             }
         }
             FloatingActionButton(onClick = { showAdd = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(id = R.string.add_plan))
+                Icon(Icons.Outlined.Add, contentDescription = stringResource(id = R.string.add_plan))
             }
         }
 

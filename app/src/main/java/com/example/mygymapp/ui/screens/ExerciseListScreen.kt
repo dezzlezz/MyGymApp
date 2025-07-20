@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.DismissDirection
@@ -35,7 +35,7 @@ fun ExerciseListScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = onAddExercise) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Exercise")
+                Icon(Icons.Outlined.Add, contentDescription = "Add Exercise")
             }
         }
     ) { paddingValues ->
