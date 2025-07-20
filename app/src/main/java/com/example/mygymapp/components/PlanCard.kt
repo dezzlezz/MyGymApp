@@ -31,6 +31,7 @@ import com.example.mygymapp.data.Plan
 import com.example.mygymapp.ui.widgets.DifficultyRating
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
+import androidx.compose.foundation.LocalIndication
 
 @Composable
 fun PlanCard(
