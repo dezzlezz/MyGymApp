@@ -9,8 +9,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FitnessCenter
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,34 +57,19 @@ fun MainScreen(navController: NavHostController) {
             activeColor = MaterialTheme.colorScheme.primary
         )
 
-        if (pagerState.currentPage == 1) {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    navController.navigate("exercises")
-                },
-                text = { Text(stringResource(id = R.string.add_plan)) },
-                icon = { Icon(Icons.Outlined.FitnessCenter, contentDescription = null) },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            )
-        } else {
-            FloatingActionButton(
-                onClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    navController.navigate("exercises")
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Outlined.FitnessCenter, contentDescription = "Übungen")
-            }
-        }
+        ExtendedFloatingActionButton(
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                navController.navigate("exercises")
+            },
+            text = { Text(stringResource(id = R.string.add_plan)) },
+            icon = { Icon(Icons.Outlined.FitnessCenter, contentDescription = null) },
+            expanded = pagerState.currentPage == 1,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
+        )
     }
 }
