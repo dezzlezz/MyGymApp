@@ -24,12 +24,14 @@ fun PlanDetailSheet(
         onDismissRequest = onClose,
         sheetState = rememberModalBottomSheetState()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
             // Überschrift mit Plan-Name
             Text(
                 text = plan.name,
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
             )
             Spacer(Modifier.height(8.dp))
             DifficultyRating(rating = plan.difficulty)

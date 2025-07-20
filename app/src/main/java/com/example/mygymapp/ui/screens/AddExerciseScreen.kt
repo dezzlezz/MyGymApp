@@ -56,7 +56,7 @@ fun AddExerciseScreen(
                 .imePadding()
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             PlanInputField(
                 value = name,

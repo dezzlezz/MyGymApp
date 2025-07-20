@@ -49,7 +49,12 @@ fun ExercisesScreen(
             }
         }
     ) { paddingValues ->
-        Column(Modifier.fillMaxSize().padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
@@ -57,22 +62,21 @@ fun ExercisesScreen(
                 placeholder = { Text(stringResource(id = R.string.search_exercises)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(vertical = 8.dp)
                     .onFocusChanged { searchFocused = it.isFocused }
             )
 
             if (searchFocused) {
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .padding(bottom = 4.dp)
+                        .padding(horizontal = 24.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     FilterChip(
                         selected = selectedCategory == null,
                         onClick = { selectedCategory = null },
                         label = { Text(stringResource(id = R.string.all)) }
                     )
-                    Spacer(Modifier.width(8.dp))
                     ExerciseCategory.values().forEachIndexed { index, category ->
                         if (index != 0) Spacer(Modifier.width(8.dp))
                         FilterChip(
@@ -94,13 +98,13 @@ fun ExercisesScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(
-                        start = 8.dp,
-                        end = 8.dp,
-                        top = if (searchFocused) 8.dp else 0.dp,
-                        bottom = 8.dp
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = if (searchFocused) 16.dp else 0.dp,
+                        bottom = 16.dp
                     )
                 ) {
                     items(filteredExercises, key = { it.id }) { ex ->

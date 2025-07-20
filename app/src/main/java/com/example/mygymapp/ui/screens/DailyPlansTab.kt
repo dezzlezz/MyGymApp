@@ -61,8 +61,12 @@ fun DailyPlansTab(navController: NavController) {
             plan.requiredEquipment.all { it in availableEquipment }
     }
 
-    Column(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Column(modifier = Modifier.padding(bottom = 16.dp)) {
             Text(stringResource(id = R.string.max_time_filter, maxTime))
             Slider(
                 value = maxTime.toFloat(),
@@ -86,7 +90,12 @@ fun DailyPlansTab(navController: NavController) {
         }
 
         Box(Modifier.weight(1f)) {
-            LazyColumn(Modifier.fillMaxSize().padding(16.dp)) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 items(filtered, key = { it.planId }) { plan ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
