@@ -21,13 +21,13 @@ fun WorkoutDayCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.Start
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Checkbox(checked = done, onCheckedChange = onDone)
-        Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
             Text(exerciseName, style = MaterialTheme.typography.titleMedium)
             Text("${ref.sets} x ${ref.reps} • $muscleGroup", style = MaterialTheme.typography.bodySmall)
         }
-    }}
+    }
+}

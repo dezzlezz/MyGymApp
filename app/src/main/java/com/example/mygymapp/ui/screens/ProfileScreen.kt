@@ -41,7 +41,7 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
             .fillMaxSize()
             .background(Color.Transparent)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
