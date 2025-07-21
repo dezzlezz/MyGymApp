@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +33,7 @@ import androidx.navigation.NavHostController
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import androidx.compose.runtime.setValue
 
 data class RadialItem(
     val icon: ImageVector,
@@ -112,7 +112,7 @@ fun RadialMenu(
         if (open) {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .fillMaxSize()
                     .clickable { open = false }
             )
         }
