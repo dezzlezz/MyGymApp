@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.ShowChart
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     RadialItem(Icons.Outlined.PlayArrow, stringResource(R.string.nav_start), "workout"),
                     RadialItem(Icons.Outlined.ShowChart, stringResource(R.string.nav_history), "progress"),
                     RadialItem(Icons.Outlined.FitnessCenter, stringResource(R.string.nav_library), "exercises"),
+                    RadialItem(Icons.Outlined.DateRange, stringResource(R.string.nav_plan), "plan"),
                     RadialItem(Icons.Outlined.Person, stringResource(R.string.nav_profile), "profile")
                 )
 

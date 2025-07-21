@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -103,15 +104,14 @@ fun RadialMenu(
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
-    val step = if (items.size > 1) 180f / (items.size - 1) else 0f
-    val start = -90f
+    val start = -135f
+    val step = if (items.size > 1) 90f / (items.size - 1) else 0f
     val radius = 96.dp
 
     Box(modifier = modifier.fillMaxSize()) {
         if (open) {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
                     .fillMaxSize()
                     .clickable { open = false }
             )
@@ -129,6 +129,7 @@ fun RadialMenu(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 24.dp)
+                    .zIndex(1f)
             )
         }
         RadialMenuCenterButton(
