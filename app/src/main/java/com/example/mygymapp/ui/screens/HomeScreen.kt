@@ -1,5 +1,7 @@
 package com.example.mygymapp.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,10 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,50 +68,68 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                SectionHeader(title = "Was steht heute an?")
-                if (todayPlan.value != null && progress.value != null) {
-                    val idx = calculatePlanIndex(progress.value!!)
-                    val exercises = todayPlan.value!!.exercises.filter { it.dayIndex == idx }
-                    val groups = exercises.map { viewModel.getExerciseGroup(it.exerciseId) }
-                        .distinct()
-                        .joinToString()
-                    Text(
-                        text = stringResource(
-                            id = R.string.home_today,
-                            todayPlan.value!!.plan.name,
-                            exercises.size,
-                            todayPlan.value!!.plan.durationMinutes
+                SectionHeader(title = stringResource(id = R.string.home_today_header))
+                Crossfade(targetState = todayPlan.value != null && progress.value != null) { hasPlan ->
+                    if (hasPlan) {
+                        val idx = calculatePlanIndex(progress.value!!)
+                        val exercises = todayPlan.value!!.exercises.filter { it.dayIndex == idx }
+                        val groups = exercises.map { viewModel.getExerciseGroup(it.exerciseId) }
+                            .distinct()
+                            .joinToString()
+                        Text(
+                            text = stringResource(
+                                id = R.string.home_today,
+                                todayPlan.value!!.plan.name,
+                                exercises.size,
+                                todayPlan.value!!.plan.durationMinutes
+                            ),
+                            style = MaterialTheme.typography.titleMedium
                         )
-                    )
-                    if (groups.isNotBlank()) {
-                        Text(stringResource(id = R.string.home_goal, groups))
-                    }
-                    Button(onClick = { /* TODO start workout */ }) {
-                        Text(stringResource(id = R.string.home_start_workout))
-                    }
-                } else {
-                    Text(stringResource(id = R.string.home_no_plan))
-                    Button(onClick = { /* TODO choose plan */ }) {
-                        Text(stringResource(id = R.string.home_choose_plan))
+                        if (groups.isNotBlank()) {
+                            Text(stringResource(id = R.string.home_goal, groups), style = MaterialTheme.typography.bodySmall)
+                        }
+                        Button(onClick = { /* TODO start workout */ }, shape = RoundedCornerShape(12.dp)) {
+                            Icon(Icons.Outlined.PlayArrow, contentDescription = null)
+                            Text(stringResource(id = R.string.home_start_workout))
+                        }
+                    } else {
+                        Text(stringResource(id = R.string.home_no_plan), style = MaterialTheme.typography.bodySmall)
+                        Button(onClick = { /* TODO choose plan */ }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(id = R.string.home_choose_plan))
+                        }
                     }
                 }
             }
-            item { Divider() }
+
             item {
-                SectionHeader(title = "Letztes Workout")
+                SectionHeader(title = stringResource(id = R.string.home_last_workout_header))
                 val last = viewModel.lastWorkout
-                if (last != null) {
-                    val info = entryInfo.value
-                    val planName = info?.first ?: ""
-                    val dayName = info?.second ?: ""
-                    Text(stringResource(id = R.string.home_last_active, dayName, planName))
-                } else {
-                    Text(stringResource(id = R.string.home_no_workout))
+                val prInfo = remember { mutableStateOf<Pair<String, Int>?>(null) }
+                LaunchedEffect(last) {
+                    prInfo.value = last?.let { viewModel.getPrInfo(it.date) }
+                }
+                Crossfade(targetState = last != null) { has ->
+                    if (has) {
+                        val info = entryInfo.value
+                        val planName = info?.first ?: ""
+                        val dayName = info?.second ?: ""
+                        Column {
+                            Text(stringResource(id = R.string.home_last_active, dayName, planName))
+                            AnimatedVisibility(prInfo.value != null) {
+                                Text(
+                                    "\uD83C\uDFC6 ${prInfo.value?.first}: ${prInfo.value?.second} Reps – neuer PR!",
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    } else {
+                        Text(stringResource(id = R.string.home_no_workout), style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
-            item { Divider() }
+
             item {
-                SectionHeader(title = "Woche")
+                SectionHeader(title = stringResource(id = R.string.home_week_header))
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -116,43 +144,48 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     ) {
                         for (i in 0..6) {
                             val date = startOfWeek.plusDays(i.toLong())
-                            val symbol = when {
-                                history.value.containsKey(date) -> "✅"
-                                progress.value?.restDay == i -> "🌙"
-                                i == 5 && progress.value?.modularRest == true -> "🌙"
-                                date.isBefore(ctx) -> "❌"
-                                else -> "⬜"
+                            val icon = when {
+                                history.value.containsKey(date) -> Icons.Outlined.Check
+                                progress.value?.restDay == i -> Icons.Outlined.Bedtime
+                                i == 5 && progress.value?.modularRest == true -> Icons.Outlined.Bedtime
+                                date.isBefore(ctx) -> Icons.Outlined.Close
+                                else -> Icons.Outlined.RadioButtonUnchecked
                             }
-                            Text(
-                                text = symbol,
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable { selectedDate.value = date },
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                                    .clickable { selectedDate.value = date }
+                                    .padding(horizontal = 4.dp)
+                            ) {
+                                Text(date.dayOfWeek.name.substring(0, 2))
+                                Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                            }
                         }
                     }
                 }
             }
-            item { Divider() }
+
             item {
-                SectionHeader(title = "Fortschritt")
-                Text(stringResource(id = R.string.home_streak, viewModel.workoutStreak))
+                SectionHeader(title = stringResource(id = R.string.home_progress_header))
+                Text(stringResource(id = R.string.home_streak, viewModel.workoutStreak), style = MaterialTheme.typography.labelLarge)
                 Text(stringResource(id = R.string.home_week_progress, viewModel.workoutsThisWeek, 5))
-                Button(onClick = { /* TODO open progress */ }) {
+                Button(onClick = { /* TODO open progress */ }, shape = RoundedCornerShape(12.dp)) {
+                    Icon(Icons.Outlined.BarChart, contentDescription = null)
                     Text(stringResource(id = R.string.home_view_progress))
                 }
             }
-            item { Divider() }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
                 ) {
-                    Button(onClick = { /* TODO start workout */ }) {
+                    Button(onClick = { /* TODO start workout */ }, shape = RoundedCornerShape(12.dp)) {
+                        Icon(Icons.Outlined.PlayArrow, contentDescription = null)
                         Text(stringResource(id = R.string.home_start_workout))
                     }
-                    Button(onClick = { /* TODO open progress */ }) {
+                    OutlinedButton(onClick = { /* TODO open progress */ }, shape = RoundedCornerShape(12.dp)) {
+                        Icon(Icons.Outlined.BarChart, contentDescription = null)
                         Text(stringResource(id = R.string.home_view_progress))
                     }
                 }

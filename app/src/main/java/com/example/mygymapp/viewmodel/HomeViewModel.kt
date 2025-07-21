@@ -11,6 +11,8 @@ import com.example.mygymapp.data.PlanWithExercises
 import com.example.mygymapp.data.WorkoutHistoryEntry
 import com.example.mygymapp.data.WorkoutHistoryStorage
 import com.example.mygymapp.data.WorkoutStorage
+import com.example.mygymapp.data.ExercisePRStore
+import com.example.mygymapp.data.ExerciseLogStore
 import com.example.mygymapp.model.WeekProgress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val exerciseRepo = ExerciseRepository(AppDatabase.getDatabase(application).exerciseDao())
     private val storage = WorkoutStorage(application)
     private val historyStore = WorkoutHistoryStorage.getInstance(application)
+    private val prStore = ExercisePRStore.getInstance(application)
+    private val logStore = ExerciseLogStore.getInstance(application)
 
     private val _progress = MutableStateFlow<WeekProgress?>(null)
     val progress: StateFlow<WeekProgress?> = _progress.asStateFlow()
@@ -101,5 +105,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val dayName = plan.days.firstOrNull { it.dayIndex == entry.dayIndex }?.name
             ?: "Day ${entry.dayIndex + 1}"
         planName to dayName
+    }
+
+    suspend fun getPrInfo(date: LocalDate): Pair<String, Int>? = withContext(Dispatchers.IO) {
+        for (ex in _exercises.value) {
+            val logs = logStore.load(ex.id)
+            val last = logs.lastOrNull() ?: continue
+            if (last.date == date) {
+                val pr = prStore.getPR(ex.id)
+                if (pr == last.reps && pr > 0) {
+                    return@withContext ex.name to pr
+                }
+            }
+        }
+        null
     }
 }

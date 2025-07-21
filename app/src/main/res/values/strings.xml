@@ -113,6 +113,10 @@
     <string name="home_streak">🔥 %1$d day streak</string>
     <string name="home_week_progress">%1$d / %2$d workouts completed</string>
     <string name="home_view_progress">View progress</string>
+    <string name="home_today_header">Today</string>
+    <string name="home_last_workout_header">Last Workout</string>
+    <string name="home_week_header">Week</string>
+    <string name="home_progress_header">Progress</string>
     <string name="home">Home</string>
     <string name="exercises">Exercises</string>
     <string name="nav_start">Start</string>
