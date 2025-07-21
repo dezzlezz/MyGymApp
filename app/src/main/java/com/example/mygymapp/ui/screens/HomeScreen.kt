@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.mygymapp.ui.components.SectionHeader
 import com.example.mygymapp.viewmodel.HomeViewModel
 import com.example.mygymapp.R
@@ -44,7 +45,10 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    navController: NavHostController,
+    viewModel: HomeViewModel = viewModel()
+) {
     val todayPlan = viewModel.todayPlan.collectAsState()
     val progress = viewModel.progress.collectAsState()
     val history = viewModel.history.collectAsState()
@@ -88,13 +92,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                         if (groups.isNotBlank()) {
                             Text(stringResource(id = R.string.home_goal, groups), style = MaterialTheme.typography.bodySmall)
                         }
-                        Button(onClick = { /* TODO start workout */ }, shape = RoundedCornerShape(12.dp)) {
+                        Button(onClick = { navController.navigate("workout") }, shape = RoundedCornerShape(12.dp)) {
                             Icon(Icons.Outlined.PlayArrow, contentDescription = null)
                             Text(stringResource(id = R.string.home_start_workout))
                         }
                     } else {
                         Text(stringResource(id = R.string.home_no_plan), style = MaterialTheme.typography.bodySmall)
-                        Button(onClick = { /* TODO choose plan */ }, shape = RoundedCornerShape(12.dp)) {
+                        Button(onClick = { navController.navigate("plan") }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(id = R.string.home_choose_plan))
                         }
                     }
@@ -167,12 +171,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
             item {
                 SectionHeader(title = stringResource(id = R.string.home_progress_header))
-                Text(stringResource(id = R.string.home_streak, viewModel.workoutStreak), style = MaterialTheme.typography.labelLarge)
-                Text(stringResource(id = R.string.home_week_progress, viewModel.workoutsThisWeek, 5))
-                Button(onClick = { /* TODO open progress */ }, shape = RoundedCornerShape(12.dp)) {
-                    Icon(Icons.Outlined.BarChart, contentDescription = null)
-                    Text(stringResource(id = R.string.home_view_progress))
-                }
+                Text(
+                    stringResource(id = R.string.home_streak, viewModel.workoutStreak),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Text(
+                    stringResource(id = R.string.home_week_progress, viewModel.workoutsThisWeek, 5)
+                )
             }
 
             item {
@@ -180,11 +185,11 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
                 ) {
-                    Button(onClick = { /* TODO start workout */ }, shape = RoundedCornerShape(12.dp)) {
+                    Button(onClick = { navController.navigate("workout") }, shape = RoundedCornerShape(12.dp)) {
                         Icon(Icons.Outlined.PlayArrow, contentDescription = null)
                         Text(stringResource(id = R.string.home_start_workout))
                     }
-                    OutlinedButton(onClick = { /* TODO open progress */ }, shape = RoundedCornerShape(12.dp)) {
+                    OutlinedButton(onClick = { navController.navigate("progress") }, shape = RoundedCornerShape(12.dp)) {
                         Icon(Icons.Outlined.BarChart, contentDescription = null)
                         Text(stringResource(id = R.string.home_view_progress))
                     }

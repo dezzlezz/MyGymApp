@@ -19,7 +19,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         startDestination = "main",
         modifier = modifier
     ) {
-        composable("main") { HomeScreen() }
+        composable("main") { HomeScreen(navController) }
         composable("workout") { WorkoutScreen() }
         composable("progress") { ProgressScreen() }
         composable("exercises") { ExercisesScreen(navController) }
