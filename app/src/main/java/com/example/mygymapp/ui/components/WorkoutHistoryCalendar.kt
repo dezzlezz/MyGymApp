@@ -83,7 +83,7 @@ private fun MonthView(
                                     .weight(1f)
                                     .aspectRatio(1f)
                                     .padding(2.dp)
-                                    .clickable { onDateClick(date) },
+                                    .clickable { onDayClick(date) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (entry != null) {

@@ -40,6 +40,7 @@ import androidx.navigation.NavHostController
 import com.example.mygymapp.ui.components.SectionHeader
 import com.example.mygymapp.viewmodel.HomeViewModel
 import com.example.mygymapp.R
+import com.example.mygymapp.model.WeekProgress
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
