@@ -20,13 +20,10 @@ import androidx.compose.foundation.background
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mygymapp.viewmodel.ProfileViewModel
-import com.example.mygymapp.model.MuscleGroupStat
-import com.example.mygymapp.ui.components.MuscleGroupStatsChart
 @Composable
 fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = viewModel()) {
     val name by viewModel.userName.collectAsState()
     val notify by viewModel.notifications.collectAsState()
-    val history by viewModel.history.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,12 +74,6 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
                 Text(" 7-Tage-Serie!", color = MaterialTheme.colorScheme.onBackground)
             }
         }
-        val stats by produceState(initialValue = emptyList<MuscleGroupStat>(), history) {
-            value = viewModel.getMuscleGroupStats()
-        }
-        Spacer(Modifier.height(16.dp))
-        MuscleGroupStatsChart(stats)
-        Spacer(Modifier.height(24.dp))
         Spacer(Modifier.height(24.dp))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(
