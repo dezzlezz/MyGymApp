@@ -36,7 +36,7 @@ fun SearchFilterBar(
         Spacer(Modifier.width(8.dp))
         IconButton(onClick = onFavoritesToggle) {
             Icon(
-                imageVector = if (favoritesOnly) Icons.Outlined.Star else Icons.Outlined.StarOutline,
+                imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.StarOutline,
                 contentDescription = if (favoritesOnly) stringResource(id = R.string.show_all) else stringResource(id = R.string.show_favorites)
 
             )
