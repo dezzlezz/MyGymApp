@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.ui.widgets.DifficultyRating
+import com.example.mygymapp.ui.components.PrimaryButton
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
 
@@ -75,7 +76,7 @@ fun AddEditExerciseSheet(
                         contentDescription = stringResource(id = R.string.exercise_image),
                         modifier = Modifier
                             .size(64.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(MaterialTheme.shapes.medium)
                     )
                     Spacer(Modifier.width(8.dp))
                 }
@@ -102,17 +103,15 @@ fun AddEditExerciseSheet(
             StarRating(rating = rating, onRatingChanged = { rating = it })
             Spacer(Modifier.height(24.dp))
             Row {
-                Button(
+                PrimaryButton(
                     onClick = {
                         if (name.isNotBlank() && category.isNotBlank() && muscleGroup.isNotBlank()) {
                             onSave(name, category, muscleGroup, rating, imageUri)
                         }
                     },
-                    enabled = name.isNotBlank() && category.isNotBlank() && muscleGroup.isNotBlank(),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(id = R.string.save))
-                }
+                    modifier = Modifier.weight(1f),
+                    textRes = R.string.save
+                )
                 Spacer(Modifier.width(12.dp))
                 OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
                     Text(stringResource(id = R.string.cancel))
