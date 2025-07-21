@@ -105,4 +105,8 @@
     <string name="goal_progress">%1$d%% of your goal reached</string>
     <string name="home">Home</string>
     <string name="exercises">Exercises</string>
+    <string name="nav_start">Start</string>
+    <string name="nav_history">History</string>
+    <string name="nav_library">Exercises</string>
+    <string name="nav_profile">Profile</string>
 </resources>
