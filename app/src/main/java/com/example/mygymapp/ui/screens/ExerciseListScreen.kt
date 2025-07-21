@@ -77,8 +77,8 @@ fun ExerciseListScreen(
                             ),
                             background = {
                                 val color = when (dismissState.dismissDirection) {
-                                    DismissDirection.StartToEnd -> Color.Red
-                                    DismissDirection.EndToStart -> Color.Yellow
+                                    DismissDirection.StartToEnd -> MaterialTheme.colorScheme.error
+                                    DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
                                     else -> Color.Transparent
                                 }
                                 Box(
