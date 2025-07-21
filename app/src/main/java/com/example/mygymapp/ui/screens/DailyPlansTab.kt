@@ -29,9 +29,8 @@ import com.example.mygymapp.viewmodel.PlansViewModel
 import com.example.mygymapp.viewmodel.PlansViewModelFactory
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.navigation.NavController
-import com.example.mygymapp.ui.theme.FogGray
 import com.example.mygymapp.ui.theme.PineGreen
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -118,7 +117,7 @@ fun DailyPlansTab(navController: NavController) {
                     directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
                     background = {
                         val dir = dismissState.dismissDirection ?: return@SwipeToDismiss
-                        val color = if (dir == DismissDirection.StartToEnd) Color.Red else FogGray
+                        val color = if (dir == DismissDirection.StartToEnd) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                         val icon = if (dir == DismissDirection.StartToEnd) Icons.Outlined.Delete else Icons.Outlined.Edit
                         val align = if (dir == DismissDirection.StartToEnd) Alignment.CenterStart else Alignment.CenterEnd
                         Box(

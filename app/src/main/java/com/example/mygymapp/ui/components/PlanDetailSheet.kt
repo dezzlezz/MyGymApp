@@ -10,6 +10,7 @@ import com.example.mygymapp.ui.widgets.DifficultyRating
 import com.example.mygymapp.data.PlanDay
 import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
+import com.example.mygymapp.ui.components.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,12 +74,11 @@ fun PlanDetailSheet(
             }
 
             Spacer(Modifier.height(24.dp))
-            Button(
+            PrimaryButton(
                 onClick = onClose,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(id = R.string.close))
-            }
+                modifier = Modifier.fillMaxWidth(),
+                textRes = R.string.close
+            )
         }
     }
 }
