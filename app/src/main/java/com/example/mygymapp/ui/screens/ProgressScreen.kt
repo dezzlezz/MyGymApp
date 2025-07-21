@@ -18,7 +18,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.R
 import com.example.mygymapp.model.MuscleGroupStat
 import com.example.mygymapp.ui.components.MuscleGroupStatsChart
+import com.example.mygymapp.ui.components.WorkoutHistoryCalendar
 import com.example.mygymapp.viewmodel.ProfileViewModel
+import java.time.LocalDate
 
 @Composable
 fun ProgressScreen(viewModel: ProfileViewModel = viewModel()) {
@@ -33,5 +35,19 @@ fun ProgressScreen(viewModel: ProfileViewModel = viewModel()) {
         Text(stringResource(id = R.string.progress_log), style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(16.dp))
         MuscleGroupStatsChart(stats)
+        Spacer(Modifier.height(24.dp))
+        Text(stringResource(id = R.string.progress_history), style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(8.dp))
+        WorkoutHistoryCalendar(
+            currentDate = LocalDate.now(),
+            workoutHistory = history,
+            onDateClick = { date ->
+                history[date]?.let { entry ->
+                    viewModel.getEntryInfo(entry) { plan, day ->
+                        // TODO: show detail dialog or bottom sheet
+                    }
+                }
+            }
+        )
     }
 }
