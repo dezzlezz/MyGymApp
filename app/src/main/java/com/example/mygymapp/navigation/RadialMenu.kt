@@ -1,6 +1,9 @@
 package com.example.mygymapp.navigation
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,11 +29,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -46,26 +52,37 @@ private fun RadialMenuItem(
     item: RadialItem,
     angleDeg: Float,
     radius: Dp,
-    visible: Boolean,
+    index: Int,
+    open: Boolean,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val rad = Math.toRadians(angleDeg.toDouble())
     val radiusPx = with(LocalDensity.current) { radius.toPx() }
-    val targetX = cos(rad) * radiusPx
-    val targetY = sin(rad) * radiusPx
+    val targetOffset = Offset(cos(rad).toFloat() * radiusPx, sin(rad).toFloat() * radiusPx)
 
-    val x by animateFloatAsState(if (visible) targetX.toFloat() else 0f, label = "x")
-    val y by animateFloatAsState(if (visible) targetY.toFloat() else 0f, label = "y")
-    val scale by animateFloatAsState(if (visible) 1f else 0f, label = "scale")
-    val alpha by animateFloatAsState(if (visible) 1f else 0f, label = "alpha")
+    val offset = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
+    val scale = remember { Animatable(0.7f) }
+    val alpha = remember { Animatable(0f) }
+
+    LaunchedEffect(open) {
+        if (open) {
+            launch { offset.animateTo(targetOffset, tween(300, delayMillis = index * 50, easing = FastOutSlowInEasing)) }
+            launch { scale.animateTo(1f, tween(300, delayMillis = index * 50, easing = FastOutSlowInEasing)) }
+            launch { alpha.animateTo(1f, tween(300, delayMillis = index * 50, easing = FastOutSlowInEasing)) }
+        } else {
+            launch { offset.animateTo(Offset.Zero, tween(200, easing = FastOutSlowInEasing)) }
+            launch { scale.animateTo(0.7f, tween(200, easing = FastOutSlowInEasing)) }
+            launch { alpha.animateTo(0f, tween(200, easing = FastOutSlowInEasing)) }
+        }
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .offset { IntOffset(x.roundToInt(), y.roundToInt()) }
-            .scale(scale)
-            .alpha(alpha)
+            .offset { IntOffset(offset.value.x.roundToInt(), offset.value.y.roundToInt()) }
+            .scale(scale.value)
+            .alpha(alpha.value)
     ) {
         FloatingActionButton(
             onClick = { onClick(item.destination) },
@@ -86,9 +103,10 @@ private fun RadialMenuItem(
 
 @Composable
 private fun RadialMenuCenterButton(isOpen: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
+    val scale by animateFloatAsState(if (isOpen) 1.2f else 1f, label = "centerScale")
     FloatingActionButton(
         onClick = onToggle,
-        modifier = modifier,
+        modifier = modifier.scale(scale),
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         elevation = FloatingActionButtonDefaults.elevation(if (isOpen) 8.dp else 4.dp)
@@ -121,7 +139,8 @@ fun RadialMenu(
                 item = item,
                 angleDeg = start + step * index,
                 radius = radius,
-                visible = open,
+                index = index,
+                open = open,
                 onClick = { route ->
                     navController.navigate(route) { launchSingleTop = true }
                     open = false
