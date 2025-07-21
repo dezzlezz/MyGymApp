@@ -10,14 +10,16 @@ import com.example.mygymapp.ui.screens.WorkoutScreen
 import com.example.mygymapp.ui.screens.ProgressScreen
 import com.example.mygymapp.ui.screens.ProfileScreen
 import com.example.mygymapp.ui.screens.PlansScreen
+import com.example.mygymapp.ui.screens.HomeScreen
 
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = "workout",
+        startDestination = "main",
         modifier = modifier
     ) {
+        composable("main") { HomeScreen() }
         composable("workout") { WorkoutScreen() }
         composable("progress") { ProgressScreen() }
         composable("exercises") { ExercisesScreen(navController) }
