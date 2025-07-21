@@ -102,7 +102,6 @@ fun RadialMenu(
     items: List<RadialItem>,
     modifier: Modifier = Modifier
 ) {
-
     var open by remember { mutableStateOf(false) }
     val step = if (items.size > 1) 180f / (items.size - 1) else 0f
     val start = -90f
@@ -112,6 +111,7 @@ fun RadialMenu(
         if (open) {
             Box(
                 modifier = Modifier
+                    .matchParentSize()
                     .fillMaxSize()
                     .clickable { open = false }
             )
