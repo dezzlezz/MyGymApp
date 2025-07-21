@@ -54,5 +54,19 @@ fun ProgressScreen(viewModel: ProfileViewModel = viewModel()) {
         Text(stringResource(id = R.string.progress_muscle_groups), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
         MuscleGroupStatsChart(stats)
+        Spacer(Modifier.height(24.dp))
+        Text(stringResource(id = R.string.progress_history), style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(8.dp))
+        WorkoutHistoryCalendar(
+            currentDate = LocalDate.now(),
+            workoutHistory = history,
+            onDateClick = { date ->
+                history[date]?.let { entry ->
+                    viewModel.getEntryInfo(entry) { plan, day ->
+                        // TODO: show detail dialog or bottom sheet
+                    }
+                }
+            }
+        )
     }
 }
