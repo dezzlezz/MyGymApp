@@ -9,10 +9,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.mygymapp.ui.components.BookmarkMenu
+import com.example.mygymapp.ui.components.BookmarkToggleIcon
 
 @Composable
 fun PageScaffold() {
     var currentPage by remember { mutableStateOf("entry") }
+    var isMenuOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (currentPage) {
@@ -23,8 +25,19 @@ fun PageScaffold() {
             "impressum" -> ImpressumPage()
         }
 
-        BookmarkMenu(currentPage = currentPage) {
-            currentPage = it
+        BookmarkToggleIcon(isOpen = isMenuOpen) {
+            isMenuOpen = !isMenuOpen
+        }
+
+        BookmarkMenu(isOpen = isMenuOpen) { label ->
+            currentPage = when (label) {
+                "Today's Page" -> "entry"
+                "Table of Contents" -> "toc"
+                "Lines & Paragraphs" -> "archive"
+                "Chronicle" -> "chronicle"
+                else -> "impressum"
+            }
+            isMenuOpen = false
         }
     }
 }
