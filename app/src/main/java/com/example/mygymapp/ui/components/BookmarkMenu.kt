@@ -1,10 +1,10 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,12 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.asPaddingValues
 @Composable
 fun BookmarkMenu(
     isOpen: Boolean,
@@ -33,21 +30,21 @@ fun BookmarkMenu(
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
-            .statusBarsPadding()
+            .padding(start = 12.dp, top = 12.dp)
             .zIndex(2f)
     ) {
         BookmarkToggleIcon(
             isOpen = isOpen,
             onClick = onToggle,
-            modifier = Modifier.offset(y = (-16).dp)
+            modifier = Modifier.offset(y = (-24).dp)
         )
 
         AnimatedVisibility(
             visible = isOpen,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut()
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
         ) {
             Box(
                 modifier = Modifier
