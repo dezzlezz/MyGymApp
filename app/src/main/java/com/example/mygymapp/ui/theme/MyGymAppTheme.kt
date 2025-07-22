@@ -6,12 +6,14 @@ import androidx.compose.runtime.Composable
 import com.example.mygymapp.ui.theme.MyGymColorScheme.DarkColors
 import com.example.mygymapp.ui.theme.MyGymColorScheme.LightColors
 import com.example.mygymapp.ui.theme.AppShapes
+import com.example.mygymapp.ui.theme.MyGymTypography
 
 @Composable
 fun MyGymAppTheme(content: @Composable () -> Unit) {
     val colors = if (isSystemInDarkTheme()) DarkColors else LightColors
     MaterialTheme(
         colorScheme = colors,
+        typography = MyGymTypography,
         shapes = AppShapes,
         content = content
     )
