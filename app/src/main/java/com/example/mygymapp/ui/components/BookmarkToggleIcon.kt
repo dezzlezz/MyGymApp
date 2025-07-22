@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -20,11 +21,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BookmarkToggleIcon(
     isOpen: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
-            .padding(16.dp)
+        modifier = modifier
+            .statusBarsPadding()
+            .padding(start = 16.dp, top = 8.dp)
             .size(36.dp)
             .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
             .background(Color(0xFFBFAE98))

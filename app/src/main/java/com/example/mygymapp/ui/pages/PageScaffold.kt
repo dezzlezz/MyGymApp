@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import com.example.mygymapp.ui.components.BookmarkMenu
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
 
@@ -25,9 +26,11 @@ fun PageScaffold() {
             "impressum" -> ImpressumPage()
         }
 
-        BookmarkToggleIcon(isOpen = isMenuOpen) {
-            isMenuOpen = !isMenuOpen
-        }
+        BookmarkToggleIcon(
+            isOpen = isMenuOpen,
+            onClick = { isMenuOpen = !isMenuOpen },
+            modifier = Modifier.align(Alignment.TopStart)
+        )
 
         BookmarkMenu(isOpen = isMenuOpen) { label ->
             currentPage = when (label) {
