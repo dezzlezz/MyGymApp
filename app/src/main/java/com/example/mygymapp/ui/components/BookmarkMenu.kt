@@ -20,6 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
+
 
 @Composable
 fun BookmarkMenu(
@@ -36,7 +39,7 @@ fun BookmarkMenu(
     Box(
         modifier = modifier
             .width(220.dp)
-            .height(height)
+            .height(height = height)
             .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
             .background(Color(0xFFF2EDE3))
     ) {
