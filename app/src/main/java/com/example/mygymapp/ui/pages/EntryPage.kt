@@ -20,11 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mygymapp.ui.theme.handwritingText
 import com.example.mygymapp.ui.components.PaperBackground
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -51,7 +51,7 @@ fun EntryPage() {
         ) {
         Text(
             text = "Entry $entryNumber · ${today.format(formatter)}",
-            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
+            style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
 
@@ -89,10 +89,7 @@ fun EntryPage() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                fontFamily = FontFamily.Cursive,
-                lineHeight = 22.sp
-            )
+            textStyle = handwritingText
         )
 
         Button(
