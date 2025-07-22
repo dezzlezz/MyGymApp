@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.example.mygymapp.ui.components.BookmarkMenu
+import com.example.mygymapp.ui.components.BookmarkToggleIcon
+import androidx.compose.foundation.layout.Column
 
 @Composable
 fun PageScaffold() {

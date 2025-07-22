@@ -23,8 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.zIndex
-import com.example.mygymapp.ui.components.BookmarkToggleIcon
-
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.asPaddingValues
 @Composable
 fun BookmarkMenu(
     isOpen: Boolean,
