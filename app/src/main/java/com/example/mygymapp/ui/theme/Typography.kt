@@ -3,25 +3,14 @@ package com.example.mygymapp.ui.theme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.mygymapp.R
+val Lora = FontFamily.Serif
 
-val Lora = FontFamily(
-    Font(R.font.lora_regular, FontWeight.Normal),
-    Font(R.font.lora_bold, FontWeight.Bold)
-)
+val WorkSans = FontFamily.SansSerif
 
-val WorkSans = FontFamily(
-    Font(R.font.worksans_regular, FontWeight.Normal),
-    Font(R.font.worksans_semibold, FontWeight.SemiBold)
-)
-
-val Handwriting = FontFamily(
-    Font(R.font.dancingscript_regular, FontWeight.Normal)
-)
+val Handwriting = FontFamily.Cursive
 
 val handwritingText = TextStyle(
     fontFamily = Handwriting,
