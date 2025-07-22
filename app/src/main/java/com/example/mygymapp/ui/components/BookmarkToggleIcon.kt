@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -27,8 +26,7 @@ fun BookmarkToggleIcon(
 ) {
     Box(
         modifier = modifier
-            .statusBarsPadding()
-            .padding(start = 8.dp, top = 8.dp)
+            .padding(start = 8.dp)
             .width(48.dp)
             .height(56.dp)
             .clip(RoundedCornerShape(bottomEnd = 12.dp))

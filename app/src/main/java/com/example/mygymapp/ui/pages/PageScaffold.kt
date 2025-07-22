@@ -13,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.example.mygymapp.ui.components.BookmarkMenu
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
-import androidx.compose.foundation.layout.Column
 
 @Composable
 fun PageScaffold() {
@@ -41,11 +40,6 @@ fun PageScaffold() {
         }
 
         Column(modifier = Modifier.align(Alignment.TopStart)) {
-            BookmarkToggleIcon(
-                isOpen = isMenuOpen,
-                onClick = { isMenuOpen = !isMenuOpen }
-            )
-
             BookmarkMenu(
                 isOpen = isMenuOpen,
                 onItemSelected = { label ->
@@ -58,6 +52,11 @@ fun PageScaffold() {
                     }
                     isMenuOpen = false
                 }
+            )
+
+            BookmarkToggleIcon(
+                isOpen = isMenuOpen,
+                onClick = { isMenuOpen = !isMenuOpen }
             )
         }
     }
