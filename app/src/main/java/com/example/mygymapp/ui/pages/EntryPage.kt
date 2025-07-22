@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mygymapp.ui.components.PaperBackground
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -40,13 +41,14 @@ fun EntryPage() {
     var story by remember { mutableStateOf("") }
     var isFinished by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    PaperBackground {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         Text(
             text = "Entry $entryNumber · ${today.format(formatter)}",
             style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif),
@@ -106,6 +108,7 @@ fun EntryPage() {
                 style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                 modifier = Modifier.padding(top = 16.dp)
             )
+        }
         }
     }
 }
