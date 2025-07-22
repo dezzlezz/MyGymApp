@@ -4,6 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +44,7 @@ import androidx.compose.foundation.shadow
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import com.example.mygymapp.ui.components.PaperBackground
 
 @Composable
 fun BookmarkMenu(
@@ -65,10 +69,27 @@ fun BookmarkMenu(
             )
         }
 
+        if (isVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { isVisible = false }
+            )
+        }
+
         AnimatedVisibility(
             visible = isVisible,
-            enter = slideInVertically(initialOffsetY = { -40 }) + fadeIn(),
-            exit = fadeOut()
+            enter = slideInVertically(
+                animationSpec = spring(
+                    stiffness = Spring.StiffnessLow,
+                    dampingRatio = Spring.DampingRatioLowBouncy
+                ),
+                initialOffsetY = { -40 }
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                targetOffsetY = { -40 }
+            ) + fadeOut(),
         ) {
             Card(
                 modifier = Modifier
@@ -80,19 +101,21 @@ fun BookmarkMenu(
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    val items = listOf(
-                        MenuItem("entry", "Today's Page", Icons.Filled.Note),
-                        MenuItem("toc", "Table of Contents", Icons.Filled.List),
-                        MenuItem("archive", "Lines & Paragraphs", Icons.Filled.Archive),
-                        MenuItem("chronicle", "Chronicle", Icons.Filled.CalendarMonth),
-                        MenuItem("impressum", "Impressum", Icons.Filled.MenuBook)
-                    )
+                PaperBackground {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        val items = listOf(
+                            MenuItem("entry", "Today's Page", Icons.Filled.Note),
+                            MenuItem("toc", "Table of Contents", Icons.Filled.List),
+                            MenuItem("archive", "Lines & Paragraphs", Icons.Filled.Archive),
+                            MenuItem("chronicle", "Chronicle", Icons.Filled.CalendarMonth),
+                            MenuItem("impressum", "Impressum", Icons.Filled.MenuBook)
+                        )
 
-                    items.forEach { item ->
-                        RowItem(label = item.label, icon = item.icon) {
-                            onPageSelected(item.key)
-                            isVisible = false
+                        items.forEach { item ->
+                            RowItem(label = item.label, icon = item.icon) {
+                                onPageSelected(item.key)
+                                isVisible = false
+                            }
                         }
                     }
                 }
