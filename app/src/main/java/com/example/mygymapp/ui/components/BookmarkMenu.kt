@@ -16,12 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.zIndex
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
@@ -33,18 +32,15 @@ fun BookmarkMenu(
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val statusPadding = remember {
-        WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    }
     Column(
         modifier = modifier
-            .padding(top = statusPadding)
-            .offset(y = -statusPadding)
+            .statusBarsPadding()
             .zIndex(2f)
     ) {
         BookmarkToggleIcon(
             isOpen = isOpen,
-            onClick = onToggle
+            onClick = onToggle,
+            modifier = Modifier.offset(y = (-16).dp)
         )
 
         AnimatedVisibility(

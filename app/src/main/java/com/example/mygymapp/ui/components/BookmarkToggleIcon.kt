@@ -27,11 +27,11 @@ fun BookmarkToggleIcon(
     Box(
         modifier = modifier
             .width(48.dp)
-            .height(56.dp)
+            .height(72.dp)
             .clip(RoundedCornerShape(bottomEnd = 12.dp))
             .background(Color(0xFF3F4E3A))
             .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.BottomCenter
     ) {
         Icon(
             imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MenuBook,
