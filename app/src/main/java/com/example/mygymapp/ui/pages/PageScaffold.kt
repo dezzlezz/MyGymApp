@@ -11,7 +11,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,17 +40,25 @@ fun PageScaffold() {
 
         IconButton(
             onClick = { menuOpen = true },
-            modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(start = 16.dp, top = 8.dp)
+                .align(Alignment.TopStart)
         ) {
-            Icon(Icons.Outlined.MenuBook, contentDescription = "Menü")
+            Icon(
+                imageVector = Icons.Outlined.MenuBook,
+                contentDescription = "Menü",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         if (menuOpen) {
             Card(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(24.dp),
-                shape = CardDefaults.shape,
+                    .padding(top = 72.dp, start = 24.dp)
+                    .align(Alignment.TopStart),
+                shape = RoundedCornerShape(16.dp),
+
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
