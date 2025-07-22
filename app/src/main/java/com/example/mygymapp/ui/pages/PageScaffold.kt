@@ -1,33 +1,18 @@
 package com.example.mygymapp.ui.pages
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.example.mygymapp.ui.components.BookmarkMenu
 
 @Composable
 fun PageScaffold() {
     var currentPage by remember { mutableStateOf("entry") }
-    var menuOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (currentPage) {
@@ -38,51 +23,8 @@ fun PageScaffold() {
             "impressum" -> ImpressumPage()
         }
 
-        IconButton(
-            onClick = { menuOpen = true },
-            modifier = Modifier
-                .statusBarsPadding()
-                .padding(start = 16.dp, top = 8.dp)
-                .align(Alignment.TopStart)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.MenuBook,
-                contentDescription = "Menü",
-                tint = MaterialTheme.colorScheme.onBackground
-            )
-        }
-
-        if (menuOpen) {
-            Card(
-                modifier = Modifier
-                    .padding(top = 72.dp, start = 24.dp)
-                    .align(Alignment.TopStart),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("\uD83D\uDCD6 Eintrag", modifier = Modifier.clickable {
-                        currentPage = "entry"
-                        menuOpen = false
-                    })
-                    Text("\uD83D\uDCD8 Inhaltsverzeichnis", modifier = Modifier.clickable {
-                        currentPage = "toc"
-                        menuOpen = false
-                    })
-                    Text("\uD83D\uDCC2 Archiv", modifier = Modifier.clickable {
-                        currentPage = "archive"
-                        menuOpen = false
-                    })
-                    Text("\uD83D\uDDFA\uFE0F Chronik", modifier = Modifier.clickable {
-                        currentPage = "chronicle"
-                        menuOpen = false
-                    })
-                    Text("\uD83D\uDCDD Impressum", modifier = Modifier.clickable {
-                        currentPage = "impressum"
-                        menuOpen = false
-                    })
-                }
-            }
+        BookmarkMenu(currentPage = currentPage) {
+            currentPage = it
         }
     }
 }
