@@ -44,6 +44,7 @@ fun PageScaffold() {
                 "Chronicle" -> "chronicle"
                 else -> "impressum"
             }
+            isMenuOpen = false
         }
     }
 }
