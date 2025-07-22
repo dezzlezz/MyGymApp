@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalLayoutApi::class)
 package com.example.mygymapp.ui.pages
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,11 @@ import com.example.mygymapp.ui.components.PaperBackground
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EntryPage() {
     val today = LocalDate.now()
@@ -69,7 +74,6 @@ fun EntryPage() {
                 AssistChip(
                     onClick = { mood = option },
                     label = { Text(option) },
-                    selected = mood == option
                 )
             }
         }
