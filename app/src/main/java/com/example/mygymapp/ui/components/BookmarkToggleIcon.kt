@@ -3,8 +3,9 @@ package com.example.mygymapp.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,10 +28,11 @@ fun BookmarkToggleIcon(
     Box(
         modifier = modifier
             .statusBarsPadding()
-            .padding(start = 16.dp, top = 8.dp)
-            .size(36.dp)
-            .clip(RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-            .background(Color(0xFFBFAE98))
+            .padding(start = 8.dp, top = 8.dp)
+            .width(40.dp)
+            .height(60.dp)
+            .clip(RoundedCornerShape(bottomEnd = 12.dp))
+            .background(Color(0xFF3F4E3A))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

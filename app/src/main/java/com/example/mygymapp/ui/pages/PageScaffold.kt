@@ -32,7 +32,11 @@ fun PageScaffold() {
             modifier = Modifier.align(Alignment.TopStart)
         )
 
-        BookmarkMenu(isOpen = isMenuOpen) { label ->
+        BookmarkMenu(
+            isOpen = isMenuOpen,
+            onDismiss = { isMenuOpen = false },
+            modifier = Modifier.align(Alignment.TopStart)
+        ) { label ->
             currentPage = when (label) {
                 "Today's Page" -> "entry"
                 "Table of Contents" -> "toc"
