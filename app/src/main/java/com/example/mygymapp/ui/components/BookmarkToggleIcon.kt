@@ -26,19 +26,17 @@ fun BookmarkToggleIcon(
 ) {
     Box(
         modifier = modifier
-            .padding(start = 8.dp)
             .width(48.dp)
-            .height(112.dp)
+            .height(56.dp)
             .clip(RoundedCornerShape(bottomEnd = 12.dp))
             .background(Color(0xFF3F4E3A))
             .clickable { onClick() },
-        contentAlignment = Alignment.BottomCenter
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MenuBook,
             contentDescription = "Bookmark Menu",
             tint = Color.White,
-            modifier = Modifier.padding(bottom = 28.dp)
         )
     }
 }

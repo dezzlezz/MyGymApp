@@ -13,10 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.components.BookmarkMenu
-import com.example.mygymapp.ui.components.BookmarkToggleIcon
 
 @Composable
 fun PageScaffold() {
@@ -45,6 +43,7 @@ fun PageScaffold() {
 
         BookmarkMenu(
             isOpen = isMenuOpen,
+            onToggle = { isMenuOpen = !isMenuOpen },
             onItemSelected = { label ->
                 currentPage = when (label) {
                     "Today's Page" -> "entry"
@@ -57,18 +56,7 @@ fun PageScaffold() {
             },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(start = 8.dp, top = 8.dp)
-                .offset(y = 112.dp)
-        )
-
-        BookmarkToggleIcon(
-            isOpen = isMenuOpen,
-            onClick = { isMenuOpen = !isMenuOpen },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(start = 8.dp, top = 8.dp)
+                .padding(start = 8.dp, top = 0.dp)
         )
     }
 }
