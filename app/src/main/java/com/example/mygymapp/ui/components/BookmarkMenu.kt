@@ -1,10 +1,7 @@
 package com.example.mygymapp.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,14 +24,17 @@ fun BookmarkMenu(
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AnimatedVisibility(
-        visible = isOpen,
-        enter = slideInVertically(initialOffsetY = { -40 }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { -40 }) + fadeOut()
-    ) {
+    val targetHeight = if (isOpen) 250.dp else 0.dp
+    val height by animateDpAsState(
+        targetValue = targetHeight,
+        animationSpec = tween(durationMillis = 400)
+    )
+
+    if (height > 0.dp) {
         Box(
             modifier = modifier
                 .width(220.dp)
+                .height(height)
                 .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
                 .background(Color(0xFFF2EDE3))
         ) {

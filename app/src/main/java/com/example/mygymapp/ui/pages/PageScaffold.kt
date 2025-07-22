@@ -2,6 +2,8 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.components.BookmarkMenu
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
 
@@ -39,25 +43,32 @@ fun PageScaffold() {
             )
         }
 
-        Column(modifier = Modifier.align(Alignment.TopStart)) {
-            BookmarkMenu(
-                isOpen = isMenuOpen,
-                onItemSelected = { label ->
-                    currentPage = when (label) {
-                        "Today's Page" -> "entry"
-                        "Table of Contents" -> "toc"
-                        "Lines & Paragraphs" -> "archive"
-                        "Chronicle" -> "chronicle"
-                        else -> "impressum"
-                    }
-                    isMenuOpen = false
+        BookmarkMenu(
+            isOpen = isMenuOpen,
+            onItemSelected = { label ->
+                currentPage = when (label) {
+                    "Today's Page" -> "entry"
+                    "Table of Contents" -> "toc"
+                    "Lines & Paragraphs" -> "archive"
+                    "Chronicle" -> "chronicle"
+                    else -> "impressum"
                 }
-            )
+                isMenuOpen = false
+            },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(start = 8.dp, top = 8.dp)
+                .offset(y = 112.dp)
+        )
 
-            BookmarkToggleIcon(
-                isOpen = isMenuOpen,
-                onClick = { isMenuOpen = !isMenuOpen }
-            )
-        }
+        BookmarkToggleIcon(
+            isOpen = isMenuOpen,
+            onClick = { isMenuOpen = !isMenuOpen },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(start = 8.dp, top = 8.dp)
+        )
     }
 }
