@@ -58,6 +58,7 @@ fun PageScaffold() {
                     .padding(top = 72.dp, start = 24.dp)
                     .align(Alignment.TopStart),
                 shape = RoundedCornerShape(16.dp),
+
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
