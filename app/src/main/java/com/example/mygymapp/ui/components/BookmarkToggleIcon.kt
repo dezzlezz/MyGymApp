@@ -29,8 +29,8 @@ fun BookmarkToggleIcon(
         modifier = modifier
             .statusBarsPadding()
             .padding(start = 8.dp, top = 8.dp)
-            .width(40.dp)
-            .height(60.dp)
+            .width(48.dp)
+            .height(56.dp)
             .clip(RoundedCornerShape(bottomEnd = 12.dp))
             .background(Color(0xFF3F4E3A))
             .clickable { onClick() },

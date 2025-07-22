@@ -9,6 +9,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.example.mygymapp.ui.components.BookmarkMenu
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
 
@@ -26,25 +28,36 @@ fun PageScaffold() {
             "impressum" -> ImpressumPage()
         }
 
-        BookmarkToggleIcon(
-            isOpen = isMenuOpen,
-            onClick = { isMenuOpen = !isMenuOpen },
-            modifier = Modifier.align(Alignment.TopStart)
-        )
+        if (isMenuOpen) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { isMenuOpen = false }
+            )
+        }
 
-        BookmarkMenu(
-            isOpen = isMenuOpen,
-            onDismiss = { isMenuOpen = false },
-            modifier = Modifier.align(Alignment.TopStart)
-        ) { label ->
-            currentPage = when (label) {
-                "Today's Page" -> "entry"
-                "Table of Contents" -> "toc"
-                "Lines & Paragraphs" -> "archive"
-                "Chronicle" -> "chronicle"
-                else -> "impressum"
-            }
-            isMenuOpen = false
+        Column(modifier = Modifier.align(Alignment.TopStart)) {
+            BookmarkToggleIcon(
+                isOpen = isMenuOpen,
+                onClick = { isMenuOpen = !isMenuOpen }
+            )
+
+            BookmarkMenu(
+                isOpen = isMenuOpen,
+                onItemSelected = { label ->
+                    currentPage = when (label) {
+                        "Today's Page" -> "entry"
+                        "Table of Contents" -> "toc"
+                        "Lines & Paragraphs" -> "archive"
+                        "Chronicle" -> "chronicle"
+                        else -> "impressum"
+                    }
+                    isMenuOpen = false
+                }
+            )
         }
     }
 }
