@@ -1,4 +1,4 @@
-package com.example.mygymapp.ui.screens
+package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
