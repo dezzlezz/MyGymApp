@@ -1,58 +1,68 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.draw.clip
 @Composable
-fun BookmarkMenu(
+fun BookmarkMenuWrapper(
     isOpen: Boolean,
     onToggle: () -> Unit,
-    onItemSelected: (String) -> Unit,
+    onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .padding(start = 12.dp, top = 12.dp)
-            .zIndex(2f)
-    ) {
-        BookmarkToggleIcon(
-            isOpen = isOpen,
-            onClick = onToggle,
-            modifier = Modifier.offset(y = (-24).dp)
-        )
-
-        AnimatedVisibility(
-            visible = isOpen,
-            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+    Box(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 12.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .width(220.dp)
-                    .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                    .background(Color(0xFFF2EDE3))
+                    .width(52.dp)
+                    .height(88.dp)
+                    .offset(y = (-24).dp)
+                    .clip(RoundedCornerShape(bottomEnd = 12.dp))
+                    .background(Color(0xFF3F4E3A))
+                    .clickable { onToggle() },
+                contentAlignment = Alignment.Center
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Icon(
+                    imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MenuBook,
+                    contentDescription = "Bookmark",
+                    tint = Color.White,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
+            AnimatedVisibility(visible = isOpen) {
+                Column(
+                    modifier = Modifier
+                        .background(Color(0xFFF2EDE3))
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .shadow(2.dp)
+                        .widthIn(min = 180.dp)
+                ) {
                     listOf(
                         "Today's Page",
                         "Table of Contents",
@@ -64,11 +74,9 @@ fun BookmarkMenu(
                             text = label,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .clickable {
-                                    onItemSelected(label)
-                                },
-                            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Serif)
+                                .clickable { onSelect(label) }
+                                .padding(vertical = 8.dp),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Serif)
                         )
                     }
                 }
@@ -76,4 +84,3 @@ fun BookmarkMenu(
         }
     }
 }
-
