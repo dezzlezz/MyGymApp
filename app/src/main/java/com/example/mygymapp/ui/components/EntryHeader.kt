@@ -38,14 +38,18 @@ fun EntryHeader(
             text = "ENTRY ${'$'}entryNumber",
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontFamily = FontFamily.Serif,
-                fontSize = 28.sp
+                fontSize = 28.sp,
+                color = Color.Black
             ),
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = date.format(formatter),
-            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Serif),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.Serif,
+                color = Color.DarkGray
+            ),
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(12.dp))
