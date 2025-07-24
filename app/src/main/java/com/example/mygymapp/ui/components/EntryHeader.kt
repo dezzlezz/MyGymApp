@@ -35,7 +35,7 @@ fun EntryHeader(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "ENTRY ${'$'}entryNumber",
+            text = "ENTRY $entryNumber",
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontFamily = FontFamily.Serif,
                 fontSize = 28.sp,
