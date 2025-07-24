@@ -30,107 +30,118 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.ui.components.EntryHeader
-import com.example.mygymapp.ui.components.PaperBackground
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.example.mygymapp.R
 import com.example.mygymapp.ui.theme.handwritingText
 import androidx.compose.ui.draw.clip
 import java.time.LocalDate
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EntryPage(
-    entryNumber: Int,
-    onFinished: () -> Unit
-) {
-    val today = LocalDate.now()
+    fun EntryPage(
+        entryNumber: Int,
+        onFinished: () -> Unit
+    ) {
+        val today = LocalDate.now()
 
-    var mood by remember { mutableStateOf<String?>(null) }
-    val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
-    var story by remember { mutableStateOf("") }
+        var mood by remember { mutableStateOf<String?>(null) }
+        val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
+        var story by remember { mutableStateOf("") }
 
-    PaperBackground {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-        EntryHeader(
-            entryNumber = entryNumber,
-            date = today
-        )
-
-        val emotionColors = listOf(
-            Color(0xFFFFCDD2),
-            Color(0xFFBBDEFB),
-            Color(0xFFC8E6C9),
-            Color(0xFFFFF9C4),
-            Color(0xFFD7CCC8),
-            Color(0xFFD1C4E9),
-            Color(0xFFFFE0B2)
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            moods.forEachIndexed { index, option ->
-                val selected = mood == option
-                Box(
+            Box(modifier = Modifier.fillMaxSize()) {
+                Image(
+                    painter = painterResource(R.drawable.hintergrundentry),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Column(
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(emotionColors[index % emotionColors.size])
-                        .border(
-                            width = if (selected) 3.dp else 1.dp,
-                            color = if (selected) Color.Black else Color.DarkGray,
-                            shape = CircleShape
-                        )
-                        .clickable { mood = option },
-                    contentAlignment = Alignment.Center
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = option.take(1).uppercase(),
-                        color = Color.Black,
-                        fontFamily = FontFamily.Serif,
-                        fontSize = 14.sp
+                    EntryHeader(
+                        entryNumber = entryNumber,
+                        date = today
                     )
+
+                        val emotionColors = listOf(
+                            Color(0xFFFFCDD2),
+                    Color(0xFFBBDEFB),
+                    Color(0xFFC8E6C9),
+                    Color(0xFFFFF9C4),
+                    Color(0xFFD7CCC8),
+                    Color(0xFFD1C4E9),
+                    Color(0xFFFFE0B2)
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                            moods.forEachIndexed { index, option ->
+                                val selected = mood == option
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(emotionColors[index % emotionColors.size])
+                                        .border(
+                                            width = if (selected) 3.dp else 1.dp,
+                                            color = if (selected) Color.Black else Color.DarkGray,
+                                            shape = CircleShape
+                                        )
+                                        .clickable { mood = option },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = option.take(1).uppercase(),
+                                        color = Color.Black,
+                                        fontFamily = FontFamily.Serif,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = "Today: Push · 3 movements · 34 minutes",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
+                            textAlign = TextAlign.Center
+                        )
+
+                        OutlinedTextField(
+                            value = story,
+                            onValueChange = { story = it },
+                            placeholder = {
+                                Text("What was quiet, what loud? What moved through you?")
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp),
+                            textStyle = handwritingText
+                        )
+
+                        Button(
+                            onClick = {
+                                mood = null
+                                story = ""
+                                onFinished()
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Finish this page", color = Color.Black)
+                        }
+                    }
                 }
             }
-        }
-
-        Text(
-            text = "Today: Push · 3 movements · 34 minutes",
-            style = MaterialTheme.typography.bodyMedium.copy(color = Color.DarkGray),
-            textAlign = TextAlign.Center
-        )
-
-        OutlinedTextField(
-            value = story,
-            onValueChange = { story = it },
-            placeholder = {
-                Text("What was quiet, what loud? What moved through you?")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp),
-            textStyle = handwritingText
-        )
-
-        Button(
-            onClick = {
-                mood = null
-                story = ""
-                onFinished()
-            },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Finish this page", color = Color.Black)
-        }
-        }
-    }
-}
