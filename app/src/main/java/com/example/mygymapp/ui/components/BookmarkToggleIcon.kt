@@ -68,7 +68,8 @@ fun BookmarkToggleIcon(
         Canvas(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .size(width = 16.dp, height = 10.dp)
+                .width(16.dp)
+                .height(10.dp)
         ) {
             val strandWidth = size.width / 5f
             for (i in 0..4) {
