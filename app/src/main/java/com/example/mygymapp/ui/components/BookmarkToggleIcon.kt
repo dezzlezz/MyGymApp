@@ -54,34 +54,6 @@ fun BookmarkToggleIcon(
             )
         }
 
-        // Cord extending from the bookmark
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .offset(y = (-16).dp)
-                .width(2.dp)
-                .height(14.dp)
-                .background(Color(0xFFE6D3B1))
-        )
-
-        // Tassel drawn with multiple strands
-        Canvas(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .width(16.dp)
-                .height(10.dp)
-        ) {
-            val strandWidth = size.width / 5f
-            for (i in 0..4) {
-                val x = strandWidth * i + strandWidth / 2f
-                drawLine(
-                    color = Color(0xFFE6D3B1),
-                    start = Offset(x, 0f),
-                    end = Offset(x, size.height),
-                    strokeWidth = strandWidth * 0.7f
-                )
-            }
-        }
     }
 }
 
