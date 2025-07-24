@@ -5,6 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
@@ -63,6 +68,36 @@ fun BookmarkMenuWrapper(
                         )
                     }
                 }
+            }
+        }
+
+        // 📌 Lesezeichen mit Stoffband
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Hauptbereich oben
+            Box(
+                modifier = Modifier
+                    .width(44.dp)
+                    .height(96.dp)
+                    .clip(RoundedCornerShape(bottomEnd = 14.dp))
+                    .background(Color(0xFF3F4E3A))
+                    .clickable { onToggle() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MenuBook,
+                    contentDescription = "Toggle Menu",
+                    tint = Color.White,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
+            // 🧵 Quaste erscheint nur, wenn geöffnet
+            if (isOpen) {
+                BookmarkRibbon(
+                    modifier = Modifier
+                        .padding(top = 0.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
             }
         }
     }
