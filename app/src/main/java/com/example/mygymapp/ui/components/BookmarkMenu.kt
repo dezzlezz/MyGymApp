@@ -29,44 +29,40 @@ fun BookmarkMenuWrapper(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(start = 12.dp)
-        ) {
-            BookmarkToggleIcon(
-                isOpen = isOpen,
-                onClick = onToggle,
-                modifier = Modifier.offset(y = (-24).dp)
-            )
+    Column(
+        modifier = modifier
+            .padding(start = 12.dp)
+    ) {
+        BookmarkToggleIcon(
+            isOpen = isOpen,
+            onClick = onToggle,
+            modifier = Modifier.offset(y = (-24).dp)
+        )
 
-            AnimatedVisibility(visible = isOpen) {
-                Column(
-                    modifier = Modifier
-                        .background(Color(0xFFF2EDE3))
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .shadow(2.dp)
-                        .widthIn(min = 180.dp)
-                ) {
-                    listOf(
-                        "Today's Page",
-                        "Table of Contents",
-                        "Lines & Paragraphs",
-                        "Chronicle",
-                        "Impressum"
-                    ).forEach { label ->
-                        Text(
-                            text = label,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onSelect(label) }
-                                .padding(vertical = 8.dp),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Serif)
-                        )
-                    }
+        AnimatedVisibility(visible = isOpen) {
+            Column(
+                modifier = Modifier
+                    .background(Color(0xFFF2EDE3))
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .shadow(2.dp)
+                    .widthIn(min = 180.dp)
+            ) {
+                listOf(
+                    "Today's Page",
+                    "Table of Contents",
+                    "Lines & Paragraphs",
+                    "Chronicle",
+                    "Impressum"
+                ).forEach { label ->
+                    Text(
+                        text = label,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(label) }
+                            .padding(vertical = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Serif)
+                    )
                 }
             }
         }
