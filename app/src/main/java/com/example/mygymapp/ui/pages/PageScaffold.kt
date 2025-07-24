@@ -21,7 +21,7 @@ fun PageScaffold() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (currentPage) {
-            "entry" -> EntryPage()
+            "entry" -> EntryNavigation()
             "toc" -> TocPage()
             "archive" -> ArchivePage()
             "chronicle" -> ChroniclePage()
