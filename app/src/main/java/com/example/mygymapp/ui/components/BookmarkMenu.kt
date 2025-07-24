@@ -61,5 +61,33 @@ fun BookmarkMenuWrapper(
                 }
             }
         }
+
+        // 📌 Lesezeichen mit animierter SVG-Quaste
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .width(44.dp)
+                    .height(96.dp)
+                    .clip(RoundedCornerShape(bottomEnd = 14.dp))
+                    .background(Color(0xFF3F4E3A))
+                    .clickable { onToggle() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MenuBook,
+                    contentDescription = "Toggle Menu",
+                    tint = Color.White,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
+            // SVG-Quaste erscheint nur wenn geöffnet
+            if (isOpen) {
+                BookmarkRibbonWithAsset(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        }
     }
 }
