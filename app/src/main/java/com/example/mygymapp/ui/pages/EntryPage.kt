@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -40,14 +39,15 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EntryPage() {
+fun EntryPage(
+    entryNumber: Int,
+    onFinished: () -> Unit
+) {
     val today = LocalDate.now()
-    var entryNumber by remember { mutableStateOf(1) }
 
     var mood by remember { mutableStateOf<String?>(null) }
     val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
     var story by remember { mutableStateOf("") }
-    var isFinished by remember { mutableStateOf(false) }
 
     PaperBackground {
         Column(
@@ -123,22 +123,13 @@ fun EntryPage() {
 
         Button(
             onClick = {
-                entryNumber += 1
                 mood = null
                 story = ""
-                isFinished = true
+                onFinished()
             },
             shape = RoundedCornerShape(12.dp)
         ) {
             Text("Finish this page", color = Color.Black)
-        }
-
-        if (isFinished) {
-            Text(
-                text = "A new page was written.",
-                style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-                modifier = Modifier.padding(top = 16.dp)
-            )
         }
         }
     }
