@@ -16,10 +16,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import com.example.mygymapp.ui.components.BookmarkToggleIcon
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MenuBook
 
 @Composable
 fun BookmarkMenuWrapper(
