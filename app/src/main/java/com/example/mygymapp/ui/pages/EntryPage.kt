@@ -27,18 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.ui.theme.handwritingText
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.components.EntryHeader
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EntryPage() {
-    val today = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH)
+    val today = LocalDate.of(2025, 7, 24)
     val entryNumber = 446
 
     var mood by remember { mutableStateOf<String?>(null) }
@@ -54,15 +51,9 @@ fun EntryPage() {
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        Text(
-            text = "Entry $entryNumber · ${today.format(formatter)}",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
-        )
-
-        Text(
-            text = "What tone colors your day?",
-            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)
+        EntryHeader(
+            entryNumber = entryNumber,
+            date = today
         )
 
         FlowRow(
