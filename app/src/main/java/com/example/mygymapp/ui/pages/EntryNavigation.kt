@@ -39,6 +39,7 @@ fun EntryNavigation(modifier: Modifier = Modifier) {
             EntryPage(
                 entryNumber = entryNumber,
                 onFinished = {
+                    vm.markFinished()
                     navController.navigate("done")
                 }
             )

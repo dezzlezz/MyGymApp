@@ -26,4 +26,10 @@ class EntryViewModel(application: Application) : AndroidViewModel(application) {
             _entryNumber.value = store.loadCurrent()
         }
     }
+
+    fun markFinished() {
+        viewModelScope.launch {
+            store.markFinishedToday()
+        }
+    }
 }
