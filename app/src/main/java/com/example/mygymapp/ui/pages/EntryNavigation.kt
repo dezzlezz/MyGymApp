@@ -33,10 +33,12 @@ fun EntryNavigation(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         composable("entry") {
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                vm.refresh()
+            }
             EntryPage(
                 entryNumber = entryNumber,
                 onFinished = {
-                    vm.finishedEntry()
                     navController.navigate("done")
                 }
             )

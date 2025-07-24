@@ -17,15 +17,13 @@ class EntryViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            _entryNumber.value = store.load()
+            _entryNumber.value = store.loadCurrent()
         }
     }
 
-    fun finishedEntry() {
+    fun refresh() {
         viewModelScope.launch {
-            val next = _entryNumber.value + 1
-            store.save(next)
-            _entryNumber.value = next
+            _entryNumber.value = store.loadCurrent()
         }
     }
 }
