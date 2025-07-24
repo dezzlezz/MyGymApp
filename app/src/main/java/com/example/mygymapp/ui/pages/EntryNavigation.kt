@@ -9,9 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,11 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mygymapp.viewmodel.EntryViewModel
 
 @Composable
 fun EntryNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    var entryNumber by remember { mutableStateOf(1) }
+    val vm: EntryViewModel = viewModel()
+    val entryNumber by vm.entryNumber.collectAsState()
 
     NavHost(
         navController = navController,
@@ -35,7 +36,7 @@ fun EntryNavigation(modifier: Modifier = Modifier) {
             EntryPage(
                 entryNumber = entryNumber,
                 onFinished = {
-                    entryNumber += 1
+                    vm.finishedEntry()
                     navController.navigate("done")
                 }
             )
