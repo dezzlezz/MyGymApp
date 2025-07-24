@@ -29,14 +29,17 @@ import com.example.mygymapp.ui.theme.handwritingText
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.EntryHeader
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EntryPage() {
-    val today = LocalDate.of(2025, 7, 24)
+    val today = LocalDate.now()
     val entryNumber = 446
+    val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH)
 
     var mood by remember { mutableStateOf<String?>(null) }
     val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")

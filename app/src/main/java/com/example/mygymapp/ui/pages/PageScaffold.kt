@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import com.example.mygymapp.ui.components.BookmarkMenuWrapper
+import com.example.mygymapp.ui.components.BookmarkMenu
 import androidx.compose.foundation.layout.Column
 
 @Composable
@@ -39,7 +39,7 @@ fun PageScaffold() {
             )
         }
 
-        BookmarkMenuWrapper(
+        BookmarkMenu(
             isOpen = isMenuOpen,
             onToggle = { isMenuOpen = !isMenuOpen },
             onSelect = { label ->
