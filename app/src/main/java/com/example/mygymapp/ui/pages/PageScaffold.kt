@@ -23,7 +23,7 @@ fun PageScaffold() {
         when (currentPage) {
             "entry" -> EntryNavigation()
             "toc" -> TocPage()
-            "archive" -> ArchivePage()
+            "archive" -> ArchiveNavigation()
             "chronicle" -> ChroniclePage()
             "impressum" -> ImpressumPage()
         }
