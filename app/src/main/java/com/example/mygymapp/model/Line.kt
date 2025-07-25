@@ -13,5 +13,6 @@ data class Line(
     val mood: String,
     val exercises: List<ExerciseEntry>,
     val supersets: List<Pair<Long, Long>>, // pair of exercise ids forming a superset
-    val note: String
+    val note: String,
+    val isArchived: Boolean = false
 )
