@@ -79,4 +79,11 @@ fun ArchivePage(onManageExercises: () -> Unit) {
     TextButton(onClick = onManageExercises, modifier = Modifier.padding(horizontal = 24.dp)) {
         Text("✍️ Edit Exercises", fontFamily = FontFamily.Serif)
     }
+
+    LineArchivePage(
+        lines = demoLines,
+        onEdit = {},
+        onAdd = {},
+        onArchive = {}
+    )
 }
