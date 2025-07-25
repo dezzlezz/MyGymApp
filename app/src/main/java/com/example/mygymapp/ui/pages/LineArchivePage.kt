@@ -11,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.ExerciseEntry
 import com.example.mygymapp.model.Line
+import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.MuscleGroup
 import com.example.mygymapp.ui.components.LineCard
 import com.example.mygymapp.ui.components.PaperBackground
 
@@ -26,7 +29,18 @@ fun LineArchivePage() {
                 muscleGroup = "Core",
                 mood = "balanced",
                 exercises = listOf(
-                    ExerciseEntry(exercise = com.example.mygymapp.data.Exercise(0, "Push-up", "Chest", listOf()), id = 0L),
+                    ExerciseEntry(
+                        exercise = Exercise(
+                            id = 0,
+                            name = "Push-up",
+                            description = "",
+                            category = ExerciseCategory.Calisthenics,
+                            likeability = 5,
+                            muscleGroup = MuscleGroup.Chest,
+                            muscle = "Pectorals"
+                        ),
+                        id = 0L
+                    )
                 ),
                 supersets = listOf(),
                 note = "Felt steady and grounded throughout."
@@ -38,7 +52,18 @@ fun LineArchivePage() {
                 muscleGroup = "Back",
                 mood = "alert",
                 exercises = listOf(
-                    ExerciseEntry(exercise = com.example.mygymapp.data.Exercise(1, "Pull-up", "Back", listOf()), id = 1L)
+                    ExerciseEntry(
+                        exercise = Exercise(
+                            id = 1,
+                            name = "Pull-up",
+                            description = "",
+                            category = ExerciseCategory.Calisthenics,
+                            likeability = 5,
+                            muscleGroup = MuscleGroup.Back,
+                            muscle = "Latissimus"
+                        ),
+                        id = 1L
+                    )
                 ),
                 supersets = listOf(1L to 2L),
                 note = "Late session with high focus."
