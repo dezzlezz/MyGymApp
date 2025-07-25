@@ -2,6 +2,14 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.ExerciseEntry
 import com.example.mygymapp.data.Exercise
@@ -10,7 +18,7 @@ import com.example.mygymapp.model.MuscleGroup
 
 
 @Composable
-fun ArchivePage() {
+fun ArchivePage(onManageExercises: () -> Unit) {
     val demoLines = remember {
         listOf(
             Line(
@@ -58,6 +66,18 @@ fun ArchivePage() {
                 note = "Late session with high focus."
             )
         )
+    }
+
+    LineArchivePage(
+        lines = demoLines,
+        onEdit = {},
+        onAdd = {},
+        onArchive = {}
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+    TextButton(onClick = onManageExercises, modifier = Modifier.padding(horizontal = 24.dp)) {
+        Text("✍️ Edit Exercises", fontFamily = FontFamily.Serif)
     }
 
     LineArchivePage(
