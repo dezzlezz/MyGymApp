@@ -17,10 +17,11 @@ fun LineArchivePage(
     lines: List<Line>,
     onEdit: (Line) -> Unit,
     onAdd: (Line) -> Unit,
-    onArchive: (Line) -> Unit
+    onArchive: (Line) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
-    PaperBackground(modifier = Modifier.fillMaxSize()) {
+    PaperBackground(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

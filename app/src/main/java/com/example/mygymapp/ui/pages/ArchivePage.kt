@@ -2,9 +2,12 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -70,27 +73,31 @@ fun ArchivePage(onManageExercises: () -> Unit) {
         )
     }
 
-    LineArchivePage(
-        lines = demoLines,
-        onEdit = {},
-        onAdd = {},
-        onArchive = {}
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-    Button(
-        onClick = onManageExercises,
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-    ) {
-        Text(
-            text = "✍️ Edit Exercises",
-            fontFamily = FontFamily.Serif,
-            modifier = Modifier.padding(vertical = 4.dp)
+    Column(modifier = Modifier.fillMaxSize()) {
+        LineArchivePage(
+            lines = demoLines,
+            onEdit = {},
+            onAdd = {},
+            onArchive = {},
+            modifier = Modifier.weight(1f)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onManageExercises,
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        ) {
+            Text(
+                text = "✍️ Edit Exercises",
+                fontFamily = FontFamily.Serif,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 
     LineArchivePage(
