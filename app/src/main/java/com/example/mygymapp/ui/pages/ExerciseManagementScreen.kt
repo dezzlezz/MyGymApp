@@ -59,10 +59,16 @@ fun ExerciseManagementScreen(navController: NavController) {
     val collapsedStates = remember { mutableStateMapOf<String, Boolean>() }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -110,57 +116,68 @@ fun ExerciseManagementScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (searchQuery.isNotBlank() || selectedMuscleGroup != null) {
-                if (filteredExercises.isEmpty()) {
-                    Text(
-                        text = "No exercises found.",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(filteredExercises) { ex ->
-                            ExerciseCardWithHighlight(ex, normalizedQuery, onEdit = {
-                                editing = ex
-                                showSheet = true
-                            }, onDelete = {
-                                vm.delete(ex.id)
-                            })
-                        }
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    groupedExercises.forEach { (muscleGroup, items) ->
-                        val isCollapsed = collapsedStates[muscleGroup] ?: true
-                        stickyHeader {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        collapsedStates[muscleGroup] = !isCollapsed
+            Box(modifier = Modifier.weight(1f)) {
+                if (searchQuery.isNotBlank() || selectedMuscleGroup != null) {
+                    if (filteredExercises.isEmpty()) {
+                        Text(
+                            text = "No exercises found.",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(filteredExercises) { ex ->
+                                ExerciseCardWithHighlight(
+                                    ex,
+                                    normalizedQuery,
+                                    onEdit = {
+                                        editing = ex
+                                        showSheet = true
                                     },
-                                color = MaterialTheme.colorScheme.surface,
-                                tonalElevation = 4.dp
-                            ) {
-                                Text(
-                                    text = if (isCollapsed) "▸ $muscleGroup" else "▾ $muscleGroup",
-                                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif)
+                                    onDelete = { vm.delete(ex.id) }
                                 )
                             }
                         }
-                        if (!isCollapsed) {
-                            items(items) { ex ->
-                                ExerciseCardWithHighlight(ex, "", onEdit = {
-                                    editing = ex
-                                    showSheet = true
-                                }, onDelete = {
-                                    vm.delete(ex.id)
-                                })
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        groupedExercises.forEach { (muscleGroup, items) ->
+                            val isCollapsed = collapsedStates[muscleGroup] ?: true
+                            stickyHeader {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            collapsedStates[muscleGroup] = !isCollapsed
+                                        },
+                                    color = MaterialTheme.colorScheme.surface,
+                                    tonalElevation = 4.dp
+                                ) {
+                                    Text(
+                                        text = if (isCollapsed) "▸ $muscleGroup" else "▾ $muscleGroup",
+                                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif)
+                                    )
+                                }
+                            }
+                            if (!isCollapsed) {
+                                items(items) { ex ->
+                                    ExerciseCardWithHighlight(
+                                        ex,
+                                        "",
+                                        onEdit = {
+                                            editing = ex
+                                            showSheet = true
+                                        },
+                                        onDelete = { vm.delete(ex.id) }
+                                    )
+                                }
                             }
                         }
                     }
