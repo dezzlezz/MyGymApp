@@ -193,15 +193,16 @@ fun ExerciseManagementScreen(navController: NavController) {
                 initialMuscleGroup = editing?.muscleGroup?.display ?: "",
                 initialRating = editing?.likeability ?: 3,
                 initialImageUri = editing?.imageUri?.let { Uri.parse(it) },
-                onSave = { name, cat, group, rating, uri ->
+                onSave = { name, cat, group, rating, uri, description ->
                     val category = ExerciseCategory.values().find { it.display == cat }
                         ?: ExerciseCategory.Calisthenics
-                    val muscleGroup =
-                        MuscleGroup.values().find { it.display == group } ?: MuscleGroup.Core
+                    val muscleGroup = MuscleGroup.values().find { it.display == group }
+                        ?: MuscleGroup.Core
+
                     val exercise = Exercise(
                         id = editing?.id ?: 0,
                         name = name,
-                        description = "",
+                        description = description,
                         category = category,
                         likeability = rating,
                         muscleGroup = muscleGroup,
@@ -209,6 +210,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                         imageUri = uri?.toString(),
                         isFavorite = editing?.isFavorite ?: false
                     )
+
                     if (editing == null) vm.insert(exercise) else vm.update(exercise)
                     showSheet = false
                 },
@@ -217,5 +219,6 @@ fun ExerciseManagementScreen(navController: NavController) {
                 muscleGroups = muscles
             )
         }
+
     }
 }

@@ -7,20 +7,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.ui.widgets.DifficultyRating
-import com.example.mygymapp.ui.components.PrimaryButton
-import androidx.compose.ui.res.stringResource
-import com.example.mygymapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +29,7 @@ fun AddEditExerciseSheet(
     initialMuscleGroup: String = "",
     initialRating: Int = 3,
     initialImageUri: Uri? = null,
-    onSave: (String, String, String, Int, Uri?) -> Unit,
+    onSave: (String, String, String, Int, Uri?, String) -> Unit,
     onCancel: () -> Unit,
     categories: List<String>,
     muscleGroups: List<String>
@@ -40,81 +39,111 @@ fun AddEditExerciseSheet(
     var muscleGroup by remember { mutableStateOf(initialMuscleGroup) }
     var rating by remember { mutableStateOf(initialRating) }
     var imageUri by remember { mutableStateOf(initialImageUri) }
+    var description by remember { mutableStateOf("") }
 
     val context = LocalContext.current
-
-    // Image picker
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) imageUri = uri
     }
 
     ModalBottomSheet(
         onDismissRequest = onCancel,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
-
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(if (initialName.isEmpty()) stringResource(id = R.string.add_exercise) else stringResource(id = R.string.edit_exercise), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "Write a new movement",
+                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif)
+            )
+
+            if (imageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(imageUri),
+                    contentDescription = "Exercise Image",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+            }
+
+            OutlinedButton(
+                onClick = { launcher.launch("image/*") },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Icon(Icons.Outlined.Photo, contentDescription = "Select Image")
+                Spacer(Modifier.width(6.dp))
+                Text("Choose Image", fontFamily = FontFamily.Serif)
+            }
+
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.name_label)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Name", fontFamily = FontFamily.Serif) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (imageUri != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUri),
-                        contentDescription = stringResource(id = R.string.exercise_image),
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
-                OutlinedButton(onClick = { launcher.launch("image/*") }) {
-                    Icon(Icons.Outlined.Photo, contentDescription = stringResource(id = R.string.select_image))
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(id = R.string.select_image))
-                }
-            }
-            Spacer(Modifier.height(12.dp))
+
             FilterChips(
                 items = categories,
                 selected = category.takeIf { it.isNotEmpty() },
                 onSelected = { category = it ?: "" }
             )
-            Spacer(Modifier.height(12.dp))
+
             FilterChips(
                 items = muscleGroups,
                 selected = muscleGroup.takeIf { it.isNotEmpty() },
                 onSelected = { muscleGroup = it ?: "" }
             )
-            Spacer(Modifier.height(12.dp))
-            Text(stringResource(id = R.string.likeability))
-            StarRating(rating = rating, onRatingChanged = { rating = it })
-            Spacer(Modifier.height(24.dp))
-            Row {
-                PrimaryButton(
+
+            Text("How much do you enjoy this exercise?", fontFamily = FontFamily.Serif)
+            DifficultyRating(rating = rating, onRatingChanged = { rating = it })
+
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = {
+                    Text(
+                        "Give this movement a note",
+                        fontFamily = FontFamily.Serif
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Cursive,
+                    color = Color.DarkGray
+                )
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
                     onClick = {
                         if (name.isNotBlank() && category.isNotBlank() && muscleGroup.isNotBlank()) {
-                            onSave(name, category, muscleGroup, rating, imageUri)
+                            onSave(name, category, muscleGroup, rating, imageUri, description)
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    textRes = R.string.save
-                )
-                Spacer(Modifier.width(12.dp))
-                OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(id = R.string.cancel))
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Save", fontFamily = FontFamily.Serif)
+                }
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Cancel", fontFamily = FontFamily.Serif)
                 }
             }
         }
