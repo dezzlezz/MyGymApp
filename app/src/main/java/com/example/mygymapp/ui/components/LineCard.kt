@@ -15,7 +15,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.animateFloatAsState
 import com.example.mygymapp.model.Line
-import androidx.compose.runtime.getValue
 
 @Composable
 fun LineCard(

@@ -5,11 +5,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.ExerciseEntry
 import com.example.mygymapp.data.Exercise
@@ -76,8 +78,19 @@ fun ArchivePage(onManageExercises: () -> Unit) {
     )
 
     Spacer(modifier = Modifier.height(16.dp))
-    TextButton(onClick = onManageExercises, modifier = Modifier.padding(horizontal = 24.dp)) {
-        Text("✍️ Edit Exercises", fontFamily = FontFamily.Serif)
+    Button(
+        onClick = onManageExercises,
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+    ) {
+        Text(
+            text = "✍️ Edit Exercises",
+            fontFamily = FontFamily.Serif,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
     }
 
     LineArchivePage(
