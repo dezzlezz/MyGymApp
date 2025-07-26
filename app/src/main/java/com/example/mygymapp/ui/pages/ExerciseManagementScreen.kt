@@ -44,8 +44,10 @@ fun ExerciseManagementScreen(navController: NavController) {
     val filteredExercises = exercises.filter {
         (selectedMuscleGroup == null || it.muscleGroup.display == selectedMuscleGroup) && (
                 it.name.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery) ||
-                        it.category.display.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery) ||
-                        it.muscleGroup.display.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery)
+                        it.category.display.replace("\\s".toRegex(), "").lowercase()
+                            .contains(normalizedQuery) ||
+                        it.muscleGroup.display.replace("\\s".toRegex(), "").lowercase()
+                            .contains(normalizedQuery)
                 )
     }
 
@@ -69,100 +71,105 @@ fun ExerciseManagementScreen(navController: NavController) {
                     style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif)
                 )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Search", fontFamily = FontFamily.Serif) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FilterChip(
-                    selected = selectedMuscleGroup == null,
-                    onClick = { selectedMuscleGroup = null },
-                    label = { Text("All", fontFamily = FontFamily.Serif) }
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Search", fontFamily = FontFamily.Serif) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
-                muscles.forEach { muscle ->
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     FilterChip(
-                        selected = selectedMuscleGroup == muscle,
-                        onClick = { selectedMuscleGroup = muscle },
-                        label = { Text(muscle, fontFamily = FontFamily.Serif) }
+                        selected = selectedMuscleGroup == null,
+                        onClick = { selectedMuscleGroup = null },
+                        label = { Text("All", fontFamily = FontFamily.Serif) }
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(modifier = Modifier.weight(1f)) {
-                if (searchQuery.isNotBlank() || selectedMuscleGroup != null) {
-                    if (filteredExercises.isEmpty()) {
-                        Text(
-                            text = "No exercises found.",
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.bodyMedium
+                    muscles.forEach { muscle ->
+                        FilterChip(
+                            selected = selectedMuscleGroup == muscle,
+                            onClick = { selectedMuscleGroup = muscle },
+                            label = { Text(muscle, fontFamily = FontFamily.Serif) }
                         )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(filteredExercises) { ex ->
-                                ExerciseCardWithHighlight(
-                                    ex,
-                                    normalizedQuery,
-                                    onEdit = {
-                                        editing = ex
-                                        showSheet = true
-                                    },
-                                    onDelete = { vm.delete(ex.id) }
-                                )
-                            }
-                        }
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        groupedExercises.forEach { (muscleGroup, items) ->
-                            val isCollapsed = collapsedStates[muscleGroup] ?: true
-                            stickyHeader {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            collapsedStates[muscleGroup] = !isCollapsed
-                                        },
-                                    color = MaterialTheme.colorScheme.surface,
-                                    tonalElevation = 4.dp
-                                ) {
-                                    Text(
-                                        text = if (isCollapsed) "▸ $muscleGroup" else "▾ $muscleGroup",
-                                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                                        style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Serif)
-                                    )
-                                }
-                            }
-                            if (!isCollapsed) {
-                                items(items) { ex ->
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.weight(1f)) {
+                    if (searchQuery.isNotBlank() || selectedMuscleGroup != null) {
+                        if (filteredExercises.isEmpty()) {
+                            Text(
+                                text = "No exercises found.",
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(filteredExercises) { ex ->
                                     ExerciseCardWithHighlight(
                                         ex,
-                                        "",
+                                        normalizedQuery,
                                         onEdit = {
                                             editing = ex
                                             showSheet = true
                                         },
                                         onDelete = { vm.delete(ex.id) }
                                     )
+                                }
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            groupedExercises.forEach { (muscleGroup, items) ->
+                                val isCollapsed = collapsedStates[muscleGroup] ?: true
+                                stickyHeader {
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                collapsedStates[muscleGroup] = !isCollapsed
+                                            },
+                                        color = MaterialTheme.colorScheme.surface,
+                                        tonalElevation = 4.dp
+                                    ) {
+                                        Text(
+                                            text = if (isCollapsed) "▸ $muscleGroup" else "▾ $muscleGroup",
+                                            modifier = Modifier.padding(
+                                                vertical = 8.dp,
+                                                horizontal = 16.dp
+                                            ),
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontFamily = FontFamily.Serif
+                                            )
+                                        )
+                                    }
+                                }
+                                if (!isCollapsed) {
+                                    items(items) { ex ->
+                                        ExerciseCardWithHighlight(
+                                            ex,
+                                            "",
+                                            onEdit = {
+                                                editing = ex
+                                                showSheet = true
+                                            },
+                                            onDelete = { vm.delete(ex.id) }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -178,43 +185,37 @@ fun ExerciseManagementScreen(navController: NavController) {
                 Text("➕ Add", fontFamily = FontFamily.Serif)
             }
         }
-        Button(
-            onClick = { editing = null; showSheet = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Text("➕ Add", fontFamily = FontFamily.Serif)
-        }
-    }
 
-    if (showSheet) {
-        AddEditExerciseSheet(
-            initialName = editing?.name ?: "",
-            initialCategory = editing?.category?.display ?: "",
-            initialMuscleGroup = editing?.muscleGroup?.display ?: "",
-            initialRating = editing?.likeability ?: 3,
-            initialImageUri = editing?.imageUri?.let { Uri.parse(it) },
-            onSave = { name, cat, group, rating, uri ->
-                val category = ExerciseCategory.values().find { it.display == cat } ?: ExerciseCategory.Calisthenics
-                val muscleGroup = MuscleGroup.values().find { it.display == group } ?: MuscleGroup.Core
-                val exercise = Exercise(
-                    id = editing?.id ?: 0,
-                    name = name,
-                    description = "",
-                    category = category,
-                    likeability = rating,
-                    muscleGroup = muscleGroup,
-                    muscle = muscleGroup.display,
-                    imageUri = uri?.toString(),
-                    isFavorite = editing?.isFavorite ?: false
-                )
-                if (editing == null) vm.insert(exercise) else vm.update(exercise)
-                showSheet = false
-            },
-            onCancel = { showSheet = false },
-            categories = categories,
-            muscleGroups = muscles
-        )
+        if (showSheet) {
+            AddEditExerciseSheet(
+                initialName = editing?.name ?: "",
+                initialCategory = editing?.category?.display ?: "",
+                initialMuscleGroup = editing?.muscleGroup?.display ?: "",
+                initialRating = editing?.likeability ?: 3,
+                initialImageUri = editing?.imageUri?.let { Uri.parse(it) },
+                onSave = { name, cat, group, rating, uri ->
+                    val category = ExerciseCategory.values().find { it.display == cat }
+                        ?: ExerciseCategory.Calisthenics
+                    val muscleGroup =
+                        MuscleGroup.values().find { it.display == group } ?: MuscleGroup.Core
+                    val exercise = Exercise(
+                        id = editing?.id ?: 0,
+                        name = name,
+                        description = "",
+                        category = category,
+                        likeability = rating,
+                        muscleGroup = muscleGroup,
+                        muscle = muscleGroup.display,
+                        imageUri = uri?.toString(),
+                        isFavorite = editing?.isFavorite ?: false
+                    )
+                    if (editing == null) vm.insert(exercise) else vm.update(exercise)
+                    showSheet = false
+                },
+                onCancel = { showSheet = false },
+                categories = categories,
+                muscleGroups = muscles
+            )
+        }
     }
 }
