@@ -20,7 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material3.*
@@ -102,7 +102,10 @@ fun ExerciseEditorScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = onCancel) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Cancel")
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Cancel"
+                            )
                         }
                     }
                 )
@@ -236,11 +239,12 @@ fun StyledTextField(
             .fillMaxWidth()
             .height(height),
         textStyle = if (isHandwriting) handwritingText else TextStyle(fontFamily = FontFamily.Serif, color = MaterialTheme.colorScheme.onSurface),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
             cursorColor = MaterialTheme.colorScheme.primary,
-            containerColor = Color.Transparent
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
         )
     )
 }
@@ -260,8 +264,9 @@ fun DropdownField(label: String, options: List<String>, selected: String, onSele
             label = { Text(label, fontFamily = FontFamily.Serif) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor().fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = Color.Transparent
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
             )
         )
         ExposedDropdownMenu(
