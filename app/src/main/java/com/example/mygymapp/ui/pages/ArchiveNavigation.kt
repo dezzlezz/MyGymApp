@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
 
 @Composable
-fun ArchiveNavigation() {
+fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "lines") {
         composable("lines") {
@@ -75,7 +75,8 @@ fun ArchiveNavigation() {
                     },
                     onCancel = {
                         navController.popBackStack()
-                    }
+                    },
+                    onNavigateToEntry = onNavigateToEntry
                 )
             }
         }
