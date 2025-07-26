@@ -64,24 +64,16 @@ fun ExerciseManagementScreen(navController: NavController) {
             .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
                 Text(
                     text = "Exercise Library",
                     style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif)
                 )
-                Button(onClick = { editing = null; showSheet = true }) {
-                    Text("➕ Add", fontFamily = FontFamily.Serif)
-                }
-            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -182,6 +174,14 @@ fun ExerciseManagementScreen(navController: NavController) {
                         }
                     }
                 }
+            }
+            Button(
+                onClick = { editing = null; showSheet = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Text("➕ Add", fontFamily = FontFamily.Serif)
             }
         }
     }
