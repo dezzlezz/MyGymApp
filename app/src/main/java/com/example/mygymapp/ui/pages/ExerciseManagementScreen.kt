@@ -178,6 +178,14 @@ fun ExerciseManagementScreen(navController: NavController) {
                 Text("➕ Add", fontFamily = FontFamily.Serif)
             }
         }
+        Button(
+            onClick = { editing = null; showSheet = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Text("➕ Add", fontFamily = FontFamily.Serif)
+        }
     }
 
     if (showSheet) {
