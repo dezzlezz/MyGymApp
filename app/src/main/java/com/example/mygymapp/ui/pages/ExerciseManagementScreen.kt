@@ -1,10 +1,12 @@
 package com.example.mygymapp.ui.pages
 
-import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,12 +19,7 @@ import androidx.navigation.NavController
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
-import com.example.mygymapp.ui.components.AddEditExerciseSheet
-import androidx.compose.foundation.ExperimentalFoundationApi
 import com.example.mygymapp.viewmodel.ExerciseViewModel
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import com.example.mygymapp.ui.components.ExerciseCardWithHighlight
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -31,8 +28,6 @@ fun ExerciseManagementScreen(navController: NavController) {
     val vm: ExerciseViewModel = viewModel()
     val exercises by vm.allExercises.observeAsState(emptyList())
 
-    var editing by remember { mutableStateOf<Exercise?>(null) }
-    var showSheet by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedMuscleGroup by remember { mutableStateOf<String?>(null) }
 
@@ -44,10 +39,8 @@ fun ExerciseManagementScreen(navController: NavController) {
     val filteredExercises = exercises.filter {
         (selectedMuscleGroup == null || it.muscleGroup.display == selectedMuscleGroup) && (
                 it.name.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery) ||
-                        it.category.display.replace("\\s".toRegex(), "").lowercase()
-                            .contains(normalizedQuery) ||
-                        it.muscleGroup.display.replace("\\s".toRegex(), "").lowercase()
-                            .contains(normalizedQuery)
+                        it.category.display.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery) ||
+                        it.muscleGroup.display.replace("\\s".toRegex(), "").lowercase().contains(normalizedQuery)
                 )
     }
 
@@ -121,8 +114,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                                         ex,
                                         normalizedQuery,
                                         onEdit = {
-                                            editing = ex
-                                            showSheet = true
+                                            navController.navigate("exercise_editor?editId=${ex.id}")
                                         },
                                         onDelete = { vm.delete(ex.id) }
                                     )
@@ -164,8 +156,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                                             ex,
                                             "",
                                             onEdit = {
-                                                editing = ex
-                                                showSheet = true
+                                                navController.navigate("exercise_editor?editId=${ex.id}")
                                             },
                                             onDelete = { vm.delete(ex.id) }
                                         )
@@ -176,8 +167,9 @@ fun ExerciseManagementScreen(navController: NavController) {
                     }
                 }
             }
+
             Button(
-                onClick = { editing = null; showSheet = true },
+                onClick = { navController.navigate("exercise_editor") },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
@@ -185,40 +177,5 @@ fun ExerciseManagementScreen(navController: NavController) {
                 Text("➕ Add", fontFamily = FontFamily.Serif)
             }
         }
-
-        if (showSheet) {
-            AddEditExerciseSheet(
-                initialName = editing?.name ?: "",
-                initialCategory = editing?.category?.display ?: "",
-                initialMuscleGroup = editing?.muscleGroup?.display ?: "",
-                initialRating = editing?.likeability ?: 3,
-                initialImageUri = editing?.imageUri?.let { Uri.parse(it) },
-                onSave = { name, cat, group, rating, uri, description ->
-                    val category = ExerciseCategory.values().find { it.display == cat }
-                        ?: ExerciseCategory.Calisthenics
-                    val muscleGroup = MuscleGroup.values().find { it.display == group }
-                        ?: MuscleGroup.Core
-
-                    val exercise = Exercise(
-                        id = editing?.id ?: 0,
-                        name = name,
-                        description = description,
-                        category = category,
-                        likeability = rating,
-                        muscleGroup = muscleGroup,
-                        muscle = muscleGroup.display,
-                        imageUri = uri?.toString(),
-                        isFavorite = editing?.isFavorite ?: false
-                    )
-
-                    if (editing == null) vm.insert(exercise) else vm.update(exercise)
-                    showSheet = false
-                },
-                onCancel = { showSheet = false },
-                categories = categories,
-                muscleGroups = muscles
-            )
-        }
-
     }
 }
