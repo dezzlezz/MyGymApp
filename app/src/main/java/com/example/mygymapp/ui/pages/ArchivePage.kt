@@ -2,15 +2,8 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -20,7 +13,6 @@ import com.example.mygymapp.model.ExerciseEntry
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
-
 
 @Composable
 fun ArchivePage(onManageExercises: () -> Unit) {
@@ -99,23 +91,4 @@ fun ArchivePage(onManageExercises: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
-
-    LineArchivePage(
-        lines = demoLines,
-        onEdit = {},
-        onAdd = {},
-        onArchive = {}
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-    TextButton(onClick = onManageExercises, modifier = Modifier.padding(horizontal = 24.dp)) {
-        Text("✍️ Edit Exercises", fontFamily = FontFamily.Serif)
-    }
-
-    LineArchivePage(
-        lines = demoLines,
-        onEdit = {},
-        onAdd = {},
-        onArchive = {}
-    )
 }
