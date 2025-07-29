@@ -1,6 +1,8 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -8,6 +10,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -19,6 +22,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.pages.GaeguRegular
+import com.example.mygymapp.ui.theme.PrimaryGreen
+import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
 
 @Composable
@@ -29,16 +36,13 @@ fun ExerciseCardWithHighlight(
     onDelete: () -> Unit,
     onToggleFavorite: (() -> Unit)? = null
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White.copy(alpha = 0.85f), shape = RoundedCornerShape(12.dp))
+            .padding(16.dp)
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
             if (ex.imageUri != null) {
                 Image(
                     painter = rememberAsyncImagePainter(ex.imageUri),
@@ -49,57 +53,56 @@ fun ExerciseCardWithHighlight(
                         .clip(RoundedCornerShape(8.dp))
                 )
             }
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = highlightQuery(ex.name, query),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Serif,
+                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = GaeguBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Text(
                     text = "${ex.muscleGroup.display} · ${ex.category.display}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontFamily = FontFamily.Serif,
-                    color = Color.DarkGray
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = GaeguRegular,
+                        color = TextSecondary
+                    )
                 )
-
-                if (ex.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = ex.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Serif,
-                        color = Color.Gray,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+            }
+            if (onToggleFavorite != null) {
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
+                        contentDescription = "Favorite",
+                        tint = PrimaryGreen
                     )
                 }
+            }
+        }
 
-                Spacer(modifier = Modifier.height(8.dp))
+        if (ex.description.isNotBlank()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = ex.description,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = GaeguRegular,
+                    color = Color.DarkGray
+                ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if (onToggleFavorite != null) {
-                        IconButton(onClick = onToggleFavorite) {
-                            Icon(
-                                imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
-                                contentDescription = "Favorite",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    TextButton(onClick = onEdit) {
-                        Text("Edit", fontFamily = FontFamily.Serif)
-                    }
-                    TextButton(onClick = onDelete) {
-                        Text("Delete", fontFamily = FontFamily.Serif)
-                    }
-                }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(onClick = onEdit) {
+                Text("✏️ Edit", fontFamily = GaeguRegular)
+            }
+            TextButton(onClick = onDelete) {
+                Text("🗑️ Delete", fontFamily = GaeguRegular)
             }
         }
     }
