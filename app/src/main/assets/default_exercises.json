@@ -1,551 +1,673 @@
 [
   {
+    "id": 0,
     "name": "Pull up",
     "description": "Bodyweight back exercise",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Chin up",
     "description": "Underhand pull up variant",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Neutral-grip pull up",
     "description": "Parallel grip pull up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Wide pull up",
     "description": "Wide grip pull up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Inverted row",
     "description": "Horizontal pulling exercise",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Dead hang",
     "description": "Passive hang from bar",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Push up",
     "description": "Standard push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Wide push up",
     "description": "Wide hand placement push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Finger tip push up",
     "description": "Push up on finger tips",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Decline push up",
     "description": "Feet elevated push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Upper Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Incline push up",
     "description": "Hands elevated push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Lower Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Archer push up",
     "description": "Side to side push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Bottom push up hold",
     "description": "Isometric bottom push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Diamond push up",
     "description": "Close grip push up for triceps",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Arms",
     "muscle": "Triceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Tricep dips",
     "description": "Parallel bar dips",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Arms",
     "muscle": "Triceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Bench dips",
     "description": "Bench supported dips",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Arms",
     "muscle": "Triceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Plank",
     "description": "Core stability hold",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Situp",
     "description": "Classic sit-up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "One leg switch plank",
     "description": "Plank switching legs",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Mountain climber",
     "description": "Dynamic plank movement",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Cross mountain climber",
     "description": "Cross body mountain climber",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Obliques",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Russian twist",
     "description": "Seated core rotation",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Obliques",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Crunches",
     "description": "Abdominal crunch",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Laying leg raises",
     "description": "Leg raises while lying",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Hanging leg raises",
     "description": "Leg raises while hanging",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Long lever plank",
     "description": "Plank with arms extended forward",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Hanging knee raises",
     "description": "Knees to chest while hanging",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Hollow hold",
     "description": "Static hollow body hold",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Bird Dog",
     "description": "Opposite arm-leg raise",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Superman",
     "description": "Back extension hold",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Reverse Hyper",
     "description": "Machine reverse hyperextension",
     "category": "Gym",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Squats",
     "description": "Bodyweight squat",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "One leg squats",
     "description": "Pistol squat progression",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Lunges",
     "description": "Forward lunges",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Calf raises",
     "description": "Standing calf raise",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Calves",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "One leg calf raises",
     "description": "Single leg calf raise",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Calves",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Wall sit",
     "description": "Static squat hold at wall",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Glute bridge",
     "description": "Hip thrust from floor",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Glutes",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Narrow squat",
     "description": "Feet close together squat",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Bulgarian split squat",
     "description": "Rear foot elevated split squat",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Reverse lunge",
     "description": "Step back lunge",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Quadriceps",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Single legged romanian deadlift",
     "description": "Balance hip hinge",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Hamstrings",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Reverse calf raise",
     "description": "Dorsiflexion movement",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Shins",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Cossack squats",
     "description": "Side to side deep squat",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Adductors",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Frog pumps",
     "description": "Glute pump lying on back",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Glutes",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Pike push up",
     "description": "Shoulder push up in pike position",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Front",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Handstand",
     "description": "Static handstand",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Rear",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Handstand wall push up",
     "description": "Handstand push up against wall",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Front",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Negative handstand push up",
     "description": "Slow lowering handstand push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Front",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Wall slides",
     "description": "Shoulder mobility exercise",
     "category": "Warmup",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Rear",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Hamstring Stretch",
     "description": "Standing hamstring stretch",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Hamstrings",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Hip Flexor Stretch",
     "description": "Lunge hip flexor stretch",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Hip Flexors",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Butterfly Stretch",
     "description": "Seated groin stretch",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Legs",
     "muscle": "Adductors",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Child's Pose",
     "description": "Resting back stretch",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Seated Forward Fold",
     "description": "Hamstring and back stretch",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Cobra Stretch",
     "description": "Prone spine extension",
     "category": "Flexibility",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Lower Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Wrist warm-up",
     "description": "Dynamic wrist movements",
     "category": "Warmup",
     "likeability": 3,
     "muscleGroup": "Arms",
     "muscle": "Forearm",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Handstand push up",
     "description": "Vertical push strength skill",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Shoulders",
     "muscle": "Front",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "Muscle Up",
     "description": "Pull up and dip combination",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Back",
     "muscle": "Upper Back",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "One arm push up",
     "description": "Advanced unilateral push up",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Chest",
     "muscle": "Chest",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   },
   {
+    "id": 0,
     "name": "L-sit",
     "description": "Isometric core hold on bars",
     "category": "Calisthenics",
     "likeability": 3,
     "muscleGroup": "Core",
     "muscle": "Abs",
-    "imageUri": null
+    "imageUri": null,
+    "isFavorite": false
   }
 ]

@@ -10,10 +10,11 @@ data class Exercise(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val description: String,
-    val category: ExerciseCategory, // <- model.ExerciseCategory
+    val category: ExerciseCategory,
     val likeability: Int,
-    val muscleGroup: MuscleGroup,   // <- model.MuscleGroup
+    val muscleGroup: MuscleGroup,
     val muscle: String,
     val imageUri: String? = null,
     val isFavorite: Boolean = false
 )
+

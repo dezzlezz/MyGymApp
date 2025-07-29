@@ -35,6 +35,8 @@ class MyApp : Application() {
             val type = object : TypeToken<List<Exercise>>() {}.type
             val exercises: List<Exercise> = gson.fromJson(json, type)
 
+
+
             exercises.forEach { dao.insert(it) }
         }
     }
