@@ -2,6 +2,14 @@
 package com.example.mygymapp.ui.pages
 
 import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import com.example.mygymapp.data.AppDatabase
+import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.MuscleGroup
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -56,8 +64,8 @@ val GaeguLight = FontFamily(Font(R.font.gaegu_light))
 
 @Composable
 fun MovementEntryPage(
-    onSave: (String, String, String, Int, Uri?, String) -> Unit,
-    onCancel: () -> Unit
+    navController: NavController,
+    editId: Long? = null
 ) {
     var name by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
@@ -65,6 +73,7 @@ fun MovementEntryPage(
     var rating by remember { mutableStateOf(0) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var note by remember { mutableStateOf("") }
+    var isFavorite by remember { mutableStateOf(false) }
     var showSavedOverlay by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
 
@@ -72,8 +81,11 @@ fun MovementEntryPage(
     var showNameError by remember { mutableStateOf(false) }
     var showCategoryError by remember { mutableStateOf(false) }
     var showMuscleGroupError by remember { mutableStateOf(false) }
+    val hasLoadedEditData = remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val dao = remember { AppDatabase.getDatabase(context).exerciseDao() }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) imageUri = uri
     }
@@ -91,6 +103,22 @@ fun MovementEntryPage(
     val inkColor = Color(0xFF1B1B1B)
     val highlightColor = Color(0xFF5D4037).copy(alpha = 0.2f)
 
+    LaunchedEffect(editId) {
+        if (editId != null && !hasLoadedEditData.value) {
+            val ex = withContext(Dispatchers.IO) { dao.getById(editId) }
+            ex?.let {
+                name = it.name
+                category = categoryOptions.find { opt -> opt.endsWith(it.category.display) } ?: it.category.display
+                muscleGroup = it.muscleGroup.display
+                rating = it.likeability
+                imageUri = it.imageUri?.let { uri -> Uri.parse(uri) }
+                note = it.description
+                isFavorite = it.isFavorite
+            }
+            hasLoadedEditData.value = true
+        }
+    }
+
     // Tinten-Animation
     val animatedInkAlpha by animateFloatAsState(
         targetValue = if (note.isNotBlank()) 1f else 0.6f,
@@ -107,7 +135,6 @@ fun MovementEntryPage(
     }
 
     Box(Modifier.fillMaxSize().background(Color(0xFFEDE5D0)).padding(WindowInsets.systemBars.asPaddingValues())) {
-        var isFavorite by remember { mutableStateOf(false) }
 
         Box(
             modifier = Modifier
@@ -141,6 +168,13 @@ fun MovementEntryPage(
                     "Describe this movement",
                     style = TextStyle(fontFamily = GaeguBold, fontSize = 28.sp)
                 )
+                if (editId != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "\u270F\uFE0F Editing movement",
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
 
 
@@ -381,7 +415,26 @@ fun MovementEntryPage(
                             showError = false
                             scope.launch {
                                 delay(1000)
-                                onSave(name, category, muscleGroup, rating, imageUri, note)
+                                val catName = category.substringAfter(" ")
+                                val categoryEnum = ExerciseCategory.values().find { it.display == catName } ?: ExerciseCategory.Calisthenics
+                                val muscleGroupEnum = MuscleGroup.values().find { it.display == muscleGroup } ?: MuscleGroup.Core
+
+                                val exercise = Exercise(
+                                    id = editId ?: 0L,
+                                    name = name,
+                                    description = note,
+                                    category = categoryEnum,
+                                    likeability = rating,
+                                    muscleGroup = muscleGroupEnum,
+                                    muscle = muscleGroupEnum.display,
+                                    imageUri = imageUri?.toString(),
+                                    isFavorite = isFavorite
+                                )
+
+                                withContext(Dispatchers.IO) {
+                                    if (editId != null) dao.update(exercise) else dao.insert(exercise)
+                                }
+                                navController.popBackStack()
                             }
                         },
                     contentAlignment = Alignment.Center
@@ -393,7 +446,7 @@ fun MovementEntryPage(
                         contentScale = ContentScale.Fit
                     )
                     Text(
-                        "Create",
+                        if (editId != null) "Save" else "Create",
                         style = TextStyle(
                             fontFamily = GaeguBold,
                             fontSize = 16.sp,
