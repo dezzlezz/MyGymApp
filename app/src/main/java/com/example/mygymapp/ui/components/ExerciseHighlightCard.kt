@@ -2,24 +2,30 @@ package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.data.Exercise
 import androidx.compose.ui.draw.clip
+import androidx.compose.material3.MaterialTheme
+import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.pages.GaeguRegular
 
 @Composable
 fun ExerciseCardWithHighlight(
@@ -29,13 +35,12 @@ fun ExerciseCardWithHighlight(
     onDelete: () -> Unit,
     onToggleFavorite: (() -> Unit)? = null
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+    val cardColor = Color.White.copy(alpha = 0.8f)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(cardColor)
     ) {
         Row(modifier = Modifier.padding(16.dp)) {
 
@@ -53,16 +58,14 @@ fun ExerciseCardWithHighlight(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = highlightQuery(ex.name, query),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Serif,
+                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = GaeguBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = "${ex.muscleGroup.display} · ${ex.category.display}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontFamily = FontFamily.Serif,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
                     color = Color.DarkGray
                 )
 
@@ -70,8 +73,7 @@ fun ExerciseCardWithHighlight(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = ex.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Serif,
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = GaeguRegular),
                         color = Color.Gray,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -94,10 +96,10 @@ fun ExerciseCardWithHighlight(
                         }
                     }
                     TextButton(onClick = onEdit) {
-                        Text("Edit", fontFamily = FontFamily.Serif)
+                        Text("Edit", fontFamily = GaeguRegular)
                     }
                     TextButton(onClick = onDelete) {
-                        Text("Delete", fontFamily = FontFamily.Serif)
+                        Text("Delete", fontFamily = GaeguRegular)
                     }
                 }
             }
