@@ -13,6 +13,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -217,15 +219,42 @@ fun ExerciseManagementScreen(navController: NavController) {
             }
         }
 
-        Button(
-            onClick = { navController.navigate("movement_editor") },
+        var showMenu by remember { mutableStateOf(false) }
+
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(24.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
+                .padding(24.dp)
         ) {
-            Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier
+                    .background(Color(0xFFEDE5D0), RoundedCornerShape(8.dp))
+            ) {
+                DropdownMenuItem(
+                    text = { Text("\uD83D\uDCD3 New Movement", fontFamily = GaeguRegular) },
+                    onClick = {
+                        showMenu = false
+                        navController.navigate("movement_editor")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("\uD83D\uDCC1 New Register", fontFamily = GaeguRegular) },
+                    onClick = {
+                        showMenu = false
+                        navController.navigate("register_editor")
+                    }
+                )
+            }
+
+            Button(
+                onClick = { showMenu = !showMenu },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
+            ) {
+                Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+            }
         }
 
     }

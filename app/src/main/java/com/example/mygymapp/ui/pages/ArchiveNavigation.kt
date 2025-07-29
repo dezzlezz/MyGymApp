@@ -31,5 +31,8 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
         composable("movement_editor") {
             MovementEntryPage(navController = navController)
         }
+        composable("register_editor") {
+            RegisterManagementPage()
+        }
     }
 }
