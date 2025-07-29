@@ -4,11 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,9 @@ import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.ui.theme.PrimaryGreen
 import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
+import androidx.compose.material3.MaterialTheme
+import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.pages.GaeguRegular
 
 @Composable
 fun ExerciseCardWithHighlight(
@@ -36,11 +42,12 @@ fun ExerciseCardWithHighlight(
     onDelete: () -> Unit,
     onToggleFavorite: (() -> Unit)? = null
 ) {
-    Column(
+    val cardColor = Color.White.copy(alpha = 0.8f)
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.85f), shape = RoundedCornerShape(12.dp))
-            .padding(16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(cardColor)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (ex.imageUri != null) {
@@ -62,18 +69,18 @@ fun ExerciseCardWithHighlight(
                 )
                 Text(
                     text = "${ex.muscleGroup.display} · ${ex.category.display}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = GaeguRegular,
-                        color = TextSecondary
-                    )
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
+                    color = Color.DarkGray
                 )
-            }
-            if (onToggleFavorite != null) {
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
-                        contentDescription = "Favorite",
-                        tint = PrimaryGreen
+
+                if (ex.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = ex.description,
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = GaeguRegular),
+                        color = Color.Gray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -92,17 +99,26 @@ fun ExerciseCardWithHighlight(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(onClick = onEdit) {
-                Text("✏️ Edit", fontFamily = GaeguRegular)
-            }
-            TextButton(onClick = onDelete) {
-                Text("🗑️ Delete", fontFamily = GaeguRegular)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    if (onToggleFavorite != null) {
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
+                                contentDescription = "Favorite",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    TextButton(onClick = onEdit) {
+                        Text("Edit", fontFamily = GaeguRegular)
+                    }
+                    TextButton(onClick = onDelete) {
+                        Text("Delete", fontFamily = GaeguRegular)
+                    }
+                }
             }
         }
     }

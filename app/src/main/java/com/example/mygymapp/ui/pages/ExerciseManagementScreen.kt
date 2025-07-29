@@ -9,16 +9,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mygymapp.R
@@ -27,14 +35,9 @@ import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.ui.components.ExerciseCardWithHighlight
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.material3.FilterChip
 import androidx.compose.ui.platform.LocalContext
-import com.example.mygymapp.data.AppDatabase
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.firstOrNull
 
 
 
@@ -64,26 +67,6 @@ fun ExerciseManagementScreen(navController: NavController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    fun resetExercises() {
-        scope.launch(Dispatchers.IO) {
-            val dao = AppDatabase.getDatabase(context).exerciseDao()
-            val input = context.assets.open("default_exercises.json")
-            val json = input.bufferedReader().use { it.readText() }
-
-            val gson = Gson()
-            val type = object : TypeToken<List<Exercise>>() {}.type
-            val exercises: List<Exercise> = gson.fromJson(json, type)
-
-            dao.getAllExercises().firstOrNull()?.forEach {
-                dao.deleteById(it.id)
-            }
-
-            exercises.forEach {
-                dao.insert(it.copy(id = 0L, isFavorite = false))
-            }
-        }
-    }
-
 
 
     Box(
@@ -112,27 +95,67 @@ fun ExerciseManagementScreen(navController: NavController) {
 
             Spacer(Modifier.height(12.dp))
 
-            OutlinedTextField(
-                value = search,
-                onValueChange = { search = it },
-                label = { Text("Search", fontFamily = GaeguRegular) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+            val inkColor = Color(0xFF1B1B1B)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                BasicTextField(
+                    value = search,
+                    onValueChange = { search = it },
+                    textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .drawBehind {
+                            val strokeWidth = 2f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(
+                                color = inkColor,
+                                start = Offset(0f, y),
+                                end = Offset(size.width, y),
+                                strokeWidth = strokeWidth
+                            )
+                        },
+                    cursorBrush = SolidColor(inkColor),
+                    decorationBox = { innerTextField ->
+                        if (search.isEmpty()) {
+                            Text("Search", fontFamily = GaeguRegular, color = Color.Gray)
+                        }
+                        innerTextField()
+                    }
+                )
+            }
 
             Spacer(Modifier.height(12.dp))
 
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = selectedCategory == null,
-                    onClick = { selectedCategory = null },
-                    label = { Text("All", fontFamily = GaeguRegular) }
+            val highlightColor = Color(0xFF5D4037).copy(alpha = 0.2f)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "All",
+                    modifier = Modifier
+                        .background(
+                            if (selectedCategory == null) highlightColor else Color.Transparent,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .clickable { selectedCategory = null }
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                 )
                 categories.forEach { cat ->
-                    FilterChip(
-                        selected = selectedCategory == cat,
-                        onClick = { selectedCategory = cat },
-                        label = { Text(cat.display, fontFamily = GaeguRegular) }
+                    Text(
+                        text = cat.display,
+                        modifier = Modifier
+                            .background(
+                                if (selectedCategory == cat) highlightColor else Color.Transparent,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clickable { selectedCategory = cat }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                     )
                 }
             }
@@ -165,17 +188,16 @@ fun ExerciseManagementScreen(navController: NavController) {
                     grouped.forEach { (muscleGroup, list) ->
                         val collapsed = collapsedStates[muscleGroup] ?: true
                         item {
-                            Surface(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { collapsedStates[muscleGroup] = !collapsed },
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                tonalElevation = 2.dp
+                                    .background(highlightColor, RoundedCornerShape(4.dp))
+                                    .clickable { collapsedStates[muscleGroup] = !collapsed }
+                                    .padding(12.dp)
                             ) {
                                 Text(
                                     text = if (collapsed) "▶ $muscleGroup" else "▼ $muscleGroup",
-                                    fontFamily = GaeguBold,
-                                    modifier = Modifier.padding(12.dp)
+                                    fontFamily = GaeguBold
                                 )
                             }
                         }
@@ -205,19 +227,6 @@ fun ExerciseManagementScreen(navController: NavController) {
         ) {
             Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
         }
-
-        Spacer(Modifier.height(12.dp))
-
-        Button(
-            onClick = { resetExercises() },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB71C1C)),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        ) {
-            Text("♻ Reset Exercises", color = Color.White)
-        }
-
 
     }
 }
