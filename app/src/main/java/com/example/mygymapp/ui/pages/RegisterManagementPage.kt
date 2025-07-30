@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -31,7 +33,13 @@ import com.example.mygymapp.R
 @Composable
 fun RegisterManagementPage() {
     var newName by rememberSaveable { mutableStateOf("") }
-    val registers = rememberSaveable { mutableStateListOf<String>() }
+    val stateListSaver = listSaver<SnapshotStateList<String>, String>(
+        save = { it.toList() },
+        restore = { mutableStateListOf(*it.toTypedArray()) }
+    )
+    val registers = rememberSaveable(saver = stateListSaver) {
+        mutableStateListOf<String>()
+    }
     val inkColor = Color(0xFF1B1B1B)
     val highlight = Color(0xFF5D4037).copy(alpha = 0.2f)
 
