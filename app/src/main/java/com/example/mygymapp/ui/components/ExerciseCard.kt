@@ -47,7 +47,7 @@ fun ExerciseCard(
             Column(Modifier.weight(1f)) {
                 Text(ex.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${ex.muscleGroup.display} • ${ex.category.display}",
+                    "${ex.muscleGroup.display} • ${ex.customCategory ?: ex.category.display}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

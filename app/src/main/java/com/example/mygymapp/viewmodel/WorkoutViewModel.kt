@@ -120,6 +120,7 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     fun getExerciseById(id: Long): Exercise =
         exercises.value?.firstOrNull { it.id == id } ?: Exercise(
             name = "Unbekannt", description = "", category = ExerciseCategory.Calisthenics,
+            customCategory = null,
             likeability = 1, muscleGroup = MuscleGroup.Core, muscle = "", id = id
         )
 
