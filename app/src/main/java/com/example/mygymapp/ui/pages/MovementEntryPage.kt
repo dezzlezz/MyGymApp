@@ -109,7 +109,7 @@ fun MovementEntryPage(
             val ex = withContext(Dispatchers.IO) { dao.getById(editId) }
             ex?.let {
                 name = it.name
-                val target = it.customCategory ?: it.category.display
+                val target = it.customCategory ?: it.category.name
                 category = categoryOptions.find { opt -> opt.endsWith(target) } ?: target
                 muscleGroup = it.muscleGroup.display
                 rating = it.likeability

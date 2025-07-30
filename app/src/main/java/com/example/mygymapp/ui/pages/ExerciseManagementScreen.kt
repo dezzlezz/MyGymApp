@@ -72,12 +72,12 @@ fun ExerciseManagementScreen(navController: NavController) {
     val isSearching = rawQuery.isNotEmpty()
 
     val filtered = exercises.filter {
-        val catDisplay = it.customCategory ?: it.category.display
-        (selectedCategory == null || selectedCategory == catDisplay) &&
+        val catName = it.category.name
+        (selectedCategory == null || selectedCategory == catName) &&
                 it.name.lowercase().replace("\\s+".toRegex(), "").contains(rawQuery)
     }
 
-    val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.category.display } else emptyMap()
+    val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.muscleGroup.display } else emptyMap()
     val collapsedStates = remember { mutableStateMapOf<String, Boolean>() }
 
 
@@ -171,19 +171,6 @@ fun ExerciseManagementScreen(navController: NavController) {
                                 RoundedCornerShape(8.dp)
                             )
                             .clickable { selectedCategory = cat.display }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
-                    )
-                }
-                userCategories.forEach { label ->
-                    Text(
-                        text = label,
-                        modifier = Modifier
-                            .background(
-                                if (selectedCategory == label) highlightColor else Color.Transparent,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .clickable { selectedCategory = label }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                     )

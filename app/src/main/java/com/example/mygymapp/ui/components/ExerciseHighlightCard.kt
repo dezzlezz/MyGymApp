@@ -65,7 +65,7 @@ fun ExerciseCardWithHighlight(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${ex.muscleGroup.display} · ${ex.customCategory ?: ex.category.display}",
+                    text = "${ex.muscleGroup.display} · ${ex.customCategory ?: ex.category.name}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
                     color = Color.DarkGray
                 )
