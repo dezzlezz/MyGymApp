@@ -50,8 +50,6 @@ import androidx.compose.animation.shrinkVertically
 
 
 
-
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExerciseManagementScreen(navController: NavController) {
@@ -274,7 +272,6 @@ fun ExerciseManagementScreen(navController: NavController) {
                 }
             }
         }
-
 
     }
 }
