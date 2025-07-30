@@ -65,7 +65,8 @@ val GaeguLight = FontFamily(Font(R.font.gaegu_light))
 @Composable
 fun MovementEntryPage(
     navController: NavController,
-    editId: Long? = null
+    editId: Long? = null,
+    userCategories: List<String> = com.example.mygymapp.model.CustomCategories.list
 ) {
     var name by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
@@ -97,7 +98,7 @@ fun MovementEntryPage(
         "\uD83C\uDF00 Flexibility",
         "\uD83D\uDD25 Cardio",
         "\uD83C\uDF2C\uFE0F Recovery"
-    )
+    ) + userCategories
     val muscleOptions = listOf("Chest", "Legs", "Back", "Arms", "Core", "Shoulders")
 
     val inkColor = Color(0xFF1B1B1B)
@@ -108,7 +109,8 @@ fun MovementEntryPage(
             val ex = withContext(Dispatchers.IO) { dao.getById(editId) }
             ex?.let {
                 name = it.name
-                category = categoryOptions.find { opt -> opt.endsWith(it.category.display) } ?: it.category.display
+                val target = it.customCategory ?: it.category.name
+                category = categoryOptions.find { opt -> opt.endsWith(target) } ?: target
                 muscleGroup = it.muscleGroup.display
                 rating = it.likeability
                 imageUri = it.imageUri?.let { uri -> Uri.parse(uri) }
@@ -416,14 +418,17 @@ fun MovementEntryPage(
                             scope.launch {
                                 delay(1000)
                                 val catName = category.substringAfter(" ")
-                                val categoryEnum = ExerciseCategory.values().find { it.display == catName } ?: ExerciseCategory.Calisthenics
+                                val categoryEnum = ExerciseCategory.values().find { it.display == catName }
+                                val userCat = if (categoryEnum == null) category else null
+                                val finalEnum = categoryEnum ?: ExerciseCategory.Calisthenics
                                 val muscleGroupEnum = MuscleGroup.values().find { it.display == muscleGroup } ?: MuscleGroup.Core
 
                                 val exercise = Exercise(
                                     id = editId ?: 0L,
                                     name = name,
                                     description = note,
-                                    category = categoryEnum,
+                                    category = finalEnum,
+                                    customCategory = userCat,
                                     likeability = rating,
                                     muscleGroup = muscleGroupEnum,
                                     muscle = muscleGroupEnum.display,
