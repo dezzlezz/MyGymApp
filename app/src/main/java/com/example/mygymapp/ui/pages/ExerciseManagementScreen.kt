@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.IntOffset
 
 
 
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ExerciseManagementScreen(navController: NavController) {
