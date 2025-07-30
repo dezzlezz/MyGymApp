@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
-import com.example.mygymapp.model.CustomCategories
 import com.example.mygymapp.ui.components.ExerciseCardWithHighlight
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.foundation.layout.FlowRow
@@ -47,9 +46,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
 
 
@@ -62,9 +59,7 @@ fun ExerciseManagementScreen(navController: NavController) {
     val exercises by vm.allExercises.observeAsState(emptyList())
 
     var search by remember { mutableStateOf("") }
-    val stateListSaver = listSaver<SnapshotStateList<String>, String>(save = { it.toList() }, restore = { mutableStateListOf(*it.toTypedArray()) })
-    val userCategories = rememberSaveable(saver = stateListSaver) { CustomCategories.list }
-    LaunchedEffect(userCategories) { CustomCategories.list = userCategories }
+    val userRegisters = rememberSaveable { mutableStateListOf<String>() }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val rawQuery = search.trim().lowercase().replace("\\s+".toRegex(), "")
 
@@ -78,6 +73,7 @@ fun ExerciseManagementScreen(navController: NavController) {
     }
 
     val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.muscleGroup.display } else emptyMap()
+    val groupNames = if (!isSearching) (grouped.keys + userRegisters).distinct() else emptyList()
     val collapsedStates = remember { mutableStateMapOf<String, Boolean>() }
 
 
@@ -202,7 +198,8 @@ fun ExerciseManagementScreen(navController: NavController) {
                         )
                     }
                 } else {
-                    for ((groupName, list) in grouped) {
+                    for (groupName in groupNames) {
+                        val list = grouped[groupName] ?: emptyList()
                         val collapsed = collapsedStates[groupName] ?: true
                         item {
                             Box(
@@ -317,7 +314,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                 Button(
                     onClick = {
                         if (newRegisterName.isNotBlank()) {
-                            userCategories.add(newRegisterName)
+                            userRegisters.add(newRegisterName)
                             newRegisterName = ""
                         }
                         showNewRegister = false
