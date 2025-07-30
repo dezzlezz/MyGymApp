@@ -26,10 +26,10 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
             })
         ) { backStackEntry ->
             val editIdArg = backStackEntry.arguments?.getLong("editId")?.takeIf { it != -1L }
-            MovementEntryPage(navController = navController, editId = editIdArg)
+            MovementEntryPage(navController = navController, editId = editIdArg, userCategories = com.example.mygymapp.model.CustomCategories.list)
         }
         composable("movement_editor") {
-            MovementEntryPage(navController = navController)
+            MovementEntryPage(navController = navController, userCategories = com.example.mygymapp.model.CustomCategories.list)
         }
         composable("register_editor") {
             RegisterManagementPage()

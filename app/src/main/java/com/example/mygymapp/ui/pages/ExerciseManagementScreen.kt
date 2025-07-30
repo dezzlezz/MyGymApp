@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.CustomCategories
 import com.example.mygymapp.ui.components.ExerciseCardWithHighlight
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.foundation.layout.FlowRow
@@ -46,6 +47,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.mutableStateListOf
 
 
 
@@ -57,18 +61,22 @@ fun ExerciseManagementScreen(navController: NavController) {
     val exercises by vm.allExercises.observeAsState(emptyList())
 
     var search by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf<ExerciseCategory?>(null) }
+    val stateListSaver = listSaver<SnapshotStateList<String>, String>(save = { it.toList() }, restore = { mutableStateListOf(*it.toTypedArray()) })
+    val userCategories = rememberSaveable(saver = stateListSaver) { CustomCategories.list }
+    LaunchedEffect(userCategories) { CustomCategories.list = userCategories }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
     val rawQuery = search.trim().lowercase().replace("\\s+".toRegex(), "")
 
     val categories = ExerciseCategory.values()
     val isSearching = rawQuery.isNotEmpty()
 
     val filtered = exercises.filter {
-        (selectedCategory == null || it.category == selectedCategory) &&
+        val catDisplay = it.customCategory ?: it.category.display
+        (selectedCategory == null || selectedCategory == catDisplay) &&
                 it.name.lowercase().replace("\\s+".toRegex(), "").contains(rawQuery)
     }
 
-    val grouped = if (!isSearching) filtered.groupBy { it.muscleGroup.display } else emptyMap()
+    val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.category.display } else emptyMap()
     val collapsedStates = remember { mutableStateMapOf<String, Boolean>() }
 
 
@@ -158,10 +166,23 @@ fun ExerciseManagementScreen(navController: NavController) {
                         text = cat.display,
                         modifier = Modifier
                             .background(
-                                if (selectedCategory == cat) highlightColor else Color.Transparent,
+                                if (selectedCategory == cat.display) highlightColor else Color.Transparent,
                                 RoundedCornerShape(8.dp)
                             )
-                            .clickable { selectedCategory = cat }
+                            .clickable { selectedCategory = cat.display }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
+                    )
+                }
+                userCategories.forEach { label ->
+                    Text(
+                        text = label,
+                        modifier = Modifier
+                            .background(
+                                if (selectedCategory == label) highlightColor else Color.Transparent,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clickable { selectedCategory = label }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                     )
@@ -193,18 +214,18 @@ fun ExerciseManagementScreen(navController: NavController) {
                         )
                     }
                 } else {
-                    grouped.forEach { (muscleGroup, list) ->
-                        val collapsed = collapsedStates[muscleGroup] ?: true
+                    grouped.forEach { (groupName, list) ->
+                        val collapsed = collapsedStates[groupName] ?: true
                         item {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(highlightColor, RoundedCornerShape(4.dp))
-                                    .clickable { collapsedStates[muscleGroup] = !collapsed }
+                                    .clickable { collapsedStates[groupName] = !collapsed }
                                     .padding(12.dp)
                             ) {
                                 Text(
-                                    text = if (collapsed) "▶ $muscleGroup" else "▼ $muscleGroup",
+                                    text = if (collapsed) "▶ $groupName" else "▼ $groupName",
                                     fontFamily = GaeguBold
                                 )
                             }
@@ -226,6 +247,8 @@ fun ExerciseManagementScreen(navController: NavController) {
         }
 
         var showMenu by remember { mutableStateOf(false) }
+        var showNewRegister by remember { mutableStateOf(false) }
+        var newRegisterName by remember { mutableStateOf("") }
 
         Box(
             modifier = Modifier
@@ -257,7 +280,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                             modifier = Modifier
                                 .clickable {
                                     showMenu = false
-                                    navController.navigate("register_editor")
+                                    showNewRegister = true
                                 }
                         )
                     }
@@ -269,6 +292,52 @@ fun ExerciseManagementScreen(navController: NavController) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
                 ) {
                     Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showNewRegister,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 120.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFEDE5D0))
+                    .padding(16.dp)
+            ) {
+                Text("The name of your register", fontFamily = GaeguRegular)
+                Spacer(Modifier.height(8.dp))
+                BasicTextField(
+                    value = newRegisterName,
+                    onValueChange = { newRegisterName = it },
+                    textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp),
+                    modifier = Modifier
+                        .width(200.dp)
+                        .drawBehind {
+                            val strokeWidth = 2f
+                            val y = size.height - strokeWidth / 2
+                            drawLine(Color(0xFF1B1B1B), Offset(0f, y), Offset(size.width, y), strokeWidth)
+                        },
+                    cursorBrush = SolidColor(Color(0xFF1B1B1B))
+                )
+                Spacer(Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        if (newRegisterName.isNotBlank()) {
+                            userCategories.add(newRegisterName)
+                            newRegisterName = ""
+                        }
+                        showNewRegister = false
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
+                ) {
+                    Text("✓", fontFamily = GaeguBold, color = Color.White)
                 }
             }
         }

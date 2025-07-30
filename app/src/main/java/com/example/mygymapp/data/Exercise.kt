@@ -11,6 +11,7 @@ data class Exercise(
     val name: String,
     val description: String,
     val category: ExerciseCategory,
+    val customCategory: String? = null,
     val likeability: Int,
     val muscleGroup: MuscleGroup,
     val muscle: String,
