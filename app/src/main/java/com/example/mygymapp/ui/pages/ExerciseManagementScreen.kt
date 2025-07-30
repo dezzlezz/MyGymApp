@@ -50,6 +50,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
 
 
 
