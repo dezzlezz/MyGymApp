@@ -48,11 +48,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.unit.IntOffset
 
 
 
@@ -217,7 +215,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                         )
                     }
                 } else {
-                    grouped.forEach { (groupName, list) ->
+                    for ((groupName, list) in grouped) {
                         val collapsed = collapsedStates[groupName] ?: true
                         item {
                             Box(
