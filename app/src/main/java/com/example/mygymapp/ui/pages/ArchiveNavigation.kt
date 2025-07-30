@@ -7,7 +7,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 
-
 @Composable
 fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
     val navController = rememberNavController()

@@ -40,6 +40,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.sp
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 
 
 
@@ -226,34 +232,44 @@ fun ExerciseManagementScreen(navController: NavController) {
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)
         ) {
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                modifier = Modifier
-                    .background(Color(0xFFEDE5D0), RoundedCornerShape(8.dp))
-            ) {
-                DropdownMenuItem(
-                    text = { Text("\uD83D\uDCD3 New Movement", fontFamily = GaeguRegular) },
-                    onClick = {
-                        showMenu = false
-                        navController.navigate("movement_editor")
+            Column(horizontalAlignment = Alignment.End) {
+                AnimatedVisibility(visible = showMenu) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Text(
+                            text = "\uD83D\uDCD3 New Movement",
+                            fontFamily = GaeguRegular,
+                            fontSize = 18.sp,
+                            color = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    showMenu = false
+                                    navController.navigate("movement_editor")
+                                }
+                        )
+                        Text(
+                            text = "\uD83D\uDCC1 New Register",
+                            fontFamily = GaeguRegular,
+                            fontSize = 18.sp,
+                            color = Color.Black,
+                            modifier = Modifier
+                                .clickable {
+                                    showMenu = false
+                                    navController.navigate("register_editor")
+                                }
+                        )
                     }
-                )
-                DropdownMenuItem(
-                    text = { Text("\uD83D\uDCC1 New Register", fontFamily = GaeguRegular) },
-                    onClick = {
-                        showMenu = false
-                        navController.navigate("register_editor")
-                    }
-                )
-            }
+                }
 
-            Button(
-                onClick = { showMenu = !showMenu },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
-            ) {
-                Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+                Button(
+                    onClick = { showMenu = !showMenu },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
+                ) {
+                    Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+                }
             }
         }
 
