@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseCategory
-import com.example.mygymapp.model.CustomCategories
 import com.example.mygymapp.ui.components.ExerciseCardWithHighlight
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.compose.foundation.layout.FlowRow
@@ -47,8 +46,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
 
@@ -62,9 +61,11 @@ fun ExerciseManagementScreen(navController: NavController) {
     val exercises by vm.allExercises.observeAsState(emptyList())
 
     var search by remember { mutableStateOf("") }
-    val stateListSaver = listSaver<SnapshotStateList<String>, String>(save = { it.toList() }, restore = { mutableStateListOf(*it.toTypedArray()) })
-    val userCategories = rememberSaveable(saver = stateListSaver) { CustomCategories.list }
-    LaunchedEffect(userCategories) { CustomCategories.list = userCategories }
+    val listSaver = listSaver<SnapshotStateList<String>, String>(
+        save = { it.toList() },
+        restore = { mutableStateListOf(*it.toTypedArray()) }
+    )
+    val userRegisters = rememberSaveable(saver = listSaver) { mutableStateListOf<String>() }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val rawQuery = search.trim().lowercase().replace("\\s+".toRegex(), "")
 
@@ -78,6 +79,7 @@ fun ExerciseManagementScreen(navController: NavController) {
     }
 
     val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.muscleGroup.display } else emptyMap()
+    val groupNames = if (!isSearching) (grouped.keys + userRegisters).distinct() else emptyList()
     val collapsedStates = remember { mutableStateMapOf<String, Boolean>() }
 
 
@@ -202,7 +204,8 @@ fun ExerciseManagementScreen(navController: NavController) {
                         )
                     }
                 } else {
-                    for ((groupName, list) in grouped) {
+                    for (groupName in groupNames) {
+                        val list = grouped[groupName] ?: emptyList()
                         val collapsed = collapsedStates[groupName] ?: true
                         item {
                             Box(
@@ -244,7 +247,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                 .padding(24.dp)
         ) {
             Column(horizontalAlignment = Alignment.End) {
-                AnimatedVisibility(visible = showMenu) {
+                AnimatedVisibility(visible = showMenu && !showNewRegister) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -274,6 +277,50 @@ fun ExerciseManagementScreen(navController: NavController) {
                     }
                 }
 
+                AnimatedVisibility(visible = showNewRegister) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFEDE5D0))
+                            .padding(8.dp)
+                    ) {
+                        val ink = Color(0xFF1B1B1B)
+                        BasicTextField(
+                            value = newRegisterName,
+                            onValueChange = { newRegisterName = it },
+                            textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp),
+                            modifier = Modifier
+                                .width(180.dp)
+                                .drawBehind {
+                                    val y = size.height - 1f
+                                    drawLine(ink, Offset(0f, y), Offset(size.width, y), 2f)
+                                },
+                            cursorBrush = SolidColor(ink),
+                            decorationBox = { inner ->
+                                if (newRegisterName.isEmpty()) {
+                                    Text("The name of your register", fontFamily = GaeguRegular, color = Color.Gray)
+                                }
+                                inner()
+                            }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                if (newRegisterName.isNotBlank()) {
+                                    userRegisters.add(newRegisterName)
+                                    newRegisterName = ""
+                                }
+                                showNewRegister = false
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
+                        ) {
+                            Text("✓", fontFamily = GaeguBold, color = Color.White)
+                        }
+                    }
+                }
+
                 Button(
                     onClick = { showMenu = !showMenu },
                     shape = RoundedCornerShape(12.dp),
@@ -284,51 +331,6 @@ fun ExerciseManagementScreen(navController: NavController) {
             }
         }
 
-        AnimatedVisibility(
-            visible = showNewRegister,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 120.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFEDE5D0))
-                    .padding(16.dp)
-            ) {
-                Text("The name of your register", fontFamily = GaeguRegular)
-                Spacer(Modifier.height(8.dp))
-                BasicTextField(
-                    value = newRegisterName,
-                    onValueChange = { newRegisterName = it },
-                    textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp),
-                    modifier = Modifier
-                        .width(200.dp)
-                        .drawBehind {
-                            val strokeWidth = 2f
-                            val y = size.height - strokeWidth / 2
-                            drawLine(Color(0xFF1B1B1B), Offset(0f, y), Offset(size.width, y), strokeWidth)
-                        },
-                    cursorBrush = SolidColor(Color(0xFF1B1B1B))
-                )
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        if (newRegisterName.isNotBlank()) {
-                            userCategories.add(newRegisterName)
-                            newRegisterName = ""
-                        }
-                        showNewRegister = false
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
-                ) {
-                    Text("✓", fontFamily = GaeguBold, color = Color.White)
-                }
-            }
-        }
 
     }
 }
