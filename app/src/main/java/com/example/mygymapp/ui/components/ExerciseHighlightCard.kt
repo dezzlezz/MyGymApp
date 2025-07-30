@@ -121,8 +121,8 @@ fun ExerciseCardWithHighlight(
                 }
             }
         }
-    }
-}
+
+
 
 fun highlightQuery(text: String, query: String): AnnotatedString {
     if (query.isBlank()) return AnnotatedString(text)
