@@ -1,7 +1,6 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
@@ -31,8 +30,6 @@ import com.example.mygymapp.ui.theme.PrimaryGreen
 import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.MaterialTheme
-import com.example.mygymapp.ui.pages.GaeguBold
-import com.example.mygymapp.ui.pages.GaeguRegular
 
 @Composable
 fun ExerciseCardWithHighlight(
@@ -68,7 +65,7 @@ fun ExerciseCardWithHighlight(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${ex.muscleGroup.display} · ${ex.category.display}",
+                    text = "${ex.muscleGroup.display} · ${ex.customCategory ?: ex.category.display}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
                     color = Color.DarkGray
                 )
