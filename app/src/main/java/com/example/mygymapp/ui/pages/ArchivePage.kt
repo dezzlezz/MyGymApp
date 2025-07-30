@@ -31,6 +31,7 @@ fun ArchivePage(onManageExercises: () -> Unit) {
                             name = "Push-up",
                             description = "",
                             category = ExerciseCategory.Calisthenics,
+                            customCategory = null,
                             likeability = 5,
                             muscleGroup = MuscleGroup.Chest,
                             muscle = "Pectorals"
@@ -53,6 +54,7 @@ fun ArchivePage(onManageExercises: () -> Unit) {
                             name = "Pull-up",
                             description = "",
                             category = ExerciseCategory.Calisthenics,
+                            customCategory = null,
                             likeability = 5,
                             muscleGroup = MuscleGroup.Back,
                             muscle = "Latissimus"
