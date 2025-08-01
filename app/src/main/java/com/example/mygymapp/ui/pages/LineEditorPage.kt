@@ -3,9 +3,10 @@ package com.example.mygymapp.ui.pages
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -16,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Line
@@ -26,11 +29,11 @@ import com.example.mygymapp.model.MuscleGroup
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
-import com.example.mygymapp.ui.components.PaperBackground
-import com.example.mygymapp.ui.theme.Handwriting
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
+import com.example.mygymapp.R
+
+val GaeguRegular = FontFamily(Font(R.font.gaegu_regular))
+val GaeguBold = FontFamily(Font(R.font.gaegu_bold))
+val GaeguLight = FontFamily(Font(R.font.gaegu_light))
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -69,12 +72,18 @@ fun LineEditorPage(
     var showExercisePicker by remember { mutableStateOf(false) }
     var filtersVisible by remember { mutableStateOf(false) }
 
-    PaperBackground(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
             .imePadding()
     ) {
+        Image(
+            painter = painterResource(R.drawable.background_parchment),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize()
+        )
         Column(
             modifier = Modifier.padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -82,41 +91,47 @@ fun LineEditorPage(
             Text(
                 "✏️ Edit Line",
                 style = MaterialTheme.typography.titleLarge,
-                fontFamily = FontFamily.Serif
+                fontFamily = GaeguBold,
+                color = Color.Black
             )
 
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title", fontFamily = Handwriting) },
-                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
+                label = { Text("Title", fontFamily = GaeguRegular) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = category,
                 onValueChange = { category = it },
-                label = { Text("Category", fontFamily = Handwriting) },
-                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
+                label = { Text("Category", fontFamily = GaeguRegular) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = muscleGroup,
                 onValueChange = { muscleGroup = it },
-                label = { Text("Muscle Group", fontFamily = Handwriting) },
-                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
+                label = { Text("Muscle Group", fontFamily = GaeguRegular) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = mood,
                 onValueChange = { mood = it },
-                label = { Text("Mood", fontFamily = Handwriting) },
-                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
+                label = { Text("Mood", fontFamily = GaeguRegular) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note", fontFamily = Handwriting) },
-                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
+                label = { Text("Note", fontFamily = GaeguRegular) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
             )
 
-            Text("Exercises", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Exercises",
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = GaeguBold,
+                color = Color.Black
+            )
             exerciseList.forEachIndexed { index, exercise ->
                 Row(
                     modifier = Modifier
@@ -135,28 +150,33 @@ fun LineEditorPage(
                 ) {
                     Text(
                         "${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}",
-                        fontFamily = Handwriting
+                        fontFamily = GaeguRegular
                     )
                     Row {
                         TextButton(onClick = {
                             selectedExerciseIndex = index
                             showExerciseEditor = true
-                        }) { Text("Edit", fontFamily = Handwriting) }
-                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = Handwriting) }
+                        }) { Text("Edit", fontFamily = GaeguRegular) }
+                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular) }
                     }
                 }
             }
             Button(onClick = {
                 showExercisePicker = true
-            }) { Text("➕ Add movement", fontFamily = Handwriting) }
+            }) { Text("➕ Add movement", fontFamily = GaeguRegular) }
 
-            Text("Supersets", style = MaterialTheme.typography.titleMedium, fontFamily = Handwriting)
+            Text(
+                "Supersets",
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = GaeguBold,
+                color = Color.Black
+            )
             supersets.forEachIndexed { index, pair ->
                 val nameA = exerciseList.find { it.id == pair.first }?.name ?: "?"
                 val nameB = exerciseList.find { it.id == pair.second }?.name ?: "?"
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("$nameA + $nameB", fontFamily = Handwriting)
-                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = Handwriting) }
+                    Text("$nameA + $nameB", fontFamily = GaeguRegular)
+                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular) }
                 }
             }
             if (exerciseList.size >= 2) {
@@ -168,11 +188,11 @@ fun LineEditorPage(
                                 supersetSelection.clear()
                                 supersetMode = false
                             }
-                        }) { Text("Group selected", fontFamily = Handwriting) }
-                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = Handwriting) }
+                        }) { Text("Group selected", fontFamily = GaeguRegular) }
+                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = GaeguRegular) }
                     }
                 } else {
-                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = Handwriting) }
+                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = GaeguRegular) }
                 }
             }
 
@@ -183,7 +203,7 @@ fun LineEditorPage(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = Handwriting) }
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val newLine = Line(
@@ -199,7 +219,7 @@ fun LineEditorPage(
                     )
                     onSave(newLine)
                 }) {
-                    Text("Save", fontFamily = Handwriting)
+                    Text("Save", fontFamily = GaeguRegular)
                 }
             }
         }
@@ -243,19 +263,19 @@ fun LineEditorPage(
                         exerciseList.add(new)
                     }
                     showExerciseEditor = false
-                }) { Text("Save", fontFamily = Handwriting) }
+                }) { Text("Save", fontFamily = GaeguRegular) }
             },
             dismissButton = {
-                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = Handwriting) }
+                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = GaeguRegular) }
             },
-            title = { Text("Exercise", fontFamily = Handwriting) },
+            title = { Text("Exercise", fontFamily = GaeguRegular) },
             text = {
                 Column {
-                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
                 }
             }
         )
@@ -275,19 +295,20 @@ fun LineEditorPage(
                 Text(
                     "Choose a movement that resonates with today.",
                     style = MaterialTheme.typography.titleMedium,
-                    fontFamily = Handwriting
+                    fontFamily = GaeguBold,
+                    color = Color.Black
                 )
                 Spacer(Modifier.height(8.dp))
                 TextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Search gently…", fontFamily = Handwriting) },
+                    placeholder = { Text("Search gently…", fontFamily = GaeguLight) },
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontFamily = Handwriting)
+                    textStyle = TextStyle(fontFamily = GaeguRegular)
                 )
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = { filtersVisible = !filtersVisible }) {
-                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = Handwriting)
+                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = GaeguRegular)
                 }
                 if (filtersVisible) {
                     Spacer(Modifier.height(8.dp))
@@ -318,7 +339,7 @@ fun LineEditorPage(
                                 contentDescription = null
                             )
                         }
-                        Text("Favorites", fontFamily = Handwriting)
+                        Text("Favorites", fontFamily = GaeguRegular)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -340,7 +361,7 @@ fun LineEditorPage(
                                 modifier = Modifier.padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = Handwriting)
+                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = GaeguRegular)
                                 if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
                             }
                         }
@@ -359,19 +380,19 @@ fun LineEditorPage(
 
         ModalBottomSheet(onDismissRequest = { showConfigSheet = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = Handwriting)
+                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = GaeguRegular)
                 Spacer(Modifier.height(8.dp))
                 if (base.description.isNotBlank()) {
-                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = Handwriting)
+                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = GaeguRegular)
                     Spacer(Modifier.height(8.dp))
                 }
-                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
-                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
                 Spacer(Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = Handwriting) }
+                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = GaeguRegular) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         exerciseList.add(
@@ -385,7 +406,7 @@ fun LineEditorPage(
                             )
                         )
                         showConfigSheet = false
-                    }) { Text("Add to Line", fontFamily = Handwriting) }
+                    }) { Text("Add to Line", fontFamily = GaeguRegular) }
                 }
             }
         }
