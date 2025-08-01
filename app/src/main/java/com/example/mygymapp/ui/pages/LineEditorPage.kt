@@ -28,10 +28,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.R
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+
 
 val DancingScript = FontFamily(Font(R.font.dancingscript_regular))
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
@@ -121,12 +126,16 @@ fun LineEditorPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(enabled = supersetMode) {
-                            if (supersetSelection.contains(exercise.id)) supersetSelection.remove(exercise.id)
+                            if (supersetSelection.contains(exercise.id)) supersetSelection.remove(
+                                exercise.id
+                            )
                             else supersetSelection.add(exercise.id)
                         }
                         .background(
-                            if (supersetSelection.contains(exercise.id) && supersetMode) Color(0xFFD9CEB2) else Color.Transparent,
-                            RoundedCornerShape(12.dp)
+                            if (supersetSelection.contains(exercise.id) && supersetMode) Color(
+                                0xFFD9CEB2
+                            ) else Color.Transparent,
+                            shape = RoundedCornerShape(12.dp)
                         )
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -268,7 +277,9 @@ fun LineEditorPage(
                     (!favoritesOnly || ex.isFavorite)
         }
         ModalBottomSheet(onDismissRequest = { showExercisePicker = false }) {
-            Column(Modifier.fillMaxHeight(0.9f).padding(16.dp)) {
+            Column(Modifier
+                .fillMaxHeight(0.9f)
+                .padding(16.dp)) {
                 Text(
                     "Choose a movement that resonates with today.",
                     style = MaterialTheme.typography.titleMedium,
