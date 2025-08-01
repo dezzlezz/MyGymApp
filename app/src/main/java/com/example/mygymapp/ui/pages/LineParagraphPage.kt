@@ -28,6 +28,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ParagraphViewModel
+import com.example.mygymapp.viewmodel.LineViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +41,8 @@ fun LineParagraphPage(
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
     val templates by paragraphViewModel.templates.collectAsState()
     val planned by paragraphViewModel.planned.collectAsState()
-    var lines by remember { mutableStateOf(sampleLines()) }
+    val lineViewModel: LineViewModel = viewModel()
+    val lines by lineViewModel.lines.collectAsState()
     var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
     var showEditor by remember { mutableStateOf(false) }
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
@@ -60,7 +62,12 @@ fun LineParagraphPage(
 
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
-                    0 -> LinesList(lines)
+                    0 -> LinesList(
+                        lines = lines.filter { !it.isArchived },
+                        onEdit = { /* TODO */ },
+                        onAdd = { /* TODO */ },
+                        onArchive = { lineViewModel.archive(it.id) }
+                    )
                     else -> ParagraphList(
                         paragraphs = paragraphs,
                         plannedParagraphs = planned,
@@ -78,7 +85,7 @@ fun LineParagraphPage(
             Button(
                 onClick = {
                     if (selectedTab == 0) {
-                        lines = lines + sampleLine(lines.size.toLong() + 1)
+                        lineViewModel.add(sampleLine(lines.size.toLong() + 1))
                     } else {
                         if (templates.isNotEmpty()) {
                             showTemplateChooser = true
@@ -164,7 +171,12 @@ fun LineParagraphPage(
 }
 
 @Composable
-private fun LinesList(lines: List<Line>) {
+private fun LinesList(
+    lines: List<Line>,
+    onEdit: (Line) -> Unit,
+    onAdd: (Line) -> Unit,
+    onArchive: (Line) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -174,9 +186,9 @@ private fun LinesList(lines: List<Line>) {
         items(lines) { line ->
             LineCard(
                 line = line,
-                onEdit = {},
-                onAdd = {},
-                onArchive = {},
+                onEdit = { onEdit(line) },
+                onAdd = { onAdd(line) },
+                onArchive = { onArchive(line) },
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
         }
