@@ -28,6 +28,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.theme.Handwriting
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
