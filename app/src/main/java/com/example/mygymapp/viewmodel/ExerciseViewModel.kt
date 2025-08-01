@@ -2,36 +2,36 @@ package com.example.mygymapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.mygymapp.data.Exercise
-import com.example.mygymapp.model.ExerciseRepository
+import com.example.mygymapp.model.InMemoryExerciseRepository
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * ViewModel exposing exercises from the [ExerciseRepository].
+ * ViewModel exposing exercises from the [InMemoryExerciseRepository].
  * Both the management screen and the line editor share this instance
  * so that they operate on the same data source.
  */
 class ExerciseViewModel : ViewModel() {
 
-    val exercises: StateFlow<List<Exercise>> = ExerciseRepository.exercises
+    val exercises: StateFlow<List<Exercise>> = InMemoryExerciseRepository.exercises
 
     fun insert(ex: Exercise) {
-        ExerciseRepository.add(ex)
+        InMemoryExerciseRepository.add(ex)
     }
 
     fun delete(id: Long) {
-        ExerciseRepository.delete(id)
+        InMemoryExerciseRepository.delete(id)
     }
 
     fun update(ex: Exercise) {
-        ExerciseRepository.update(ex)
+        InMemoryExerciseRepository.update(ex)
     }
 
     fun toggleFavorite(ex: Exercise) {
-        ExerciseRepository.toggleFavorite(ex)
+        InMemoryExerciseRepository.toggleFavorite(ex)
     }
 
 
     suspend fun getById(id: Long): Exercise? {
-        return ExerciseRepository.getById(id)
+        return InMemoryExerciseRepository.getById(id)
     }
 }

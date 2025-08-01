@@ -10,16 +10,16 @@ import kotlinx.coroutines.flow.update
  * It exposes a list of [Exercise] objects that both the management
  * screen and the line editor can observe.
  */
-object ExerciseRepository {
+object InMemoryExerciseRepository {
     private val _exercises = MutableStateFlow(
         listOf(
             Exercise(
                 id = 100,
                 name = "Push-ups",
                 description = "",
-                category = ExerciseCategory.STRENGTH,
+                category = ExerciseCategory.Gym,
                 likeability = 3,
-                muscleGroup = MuscleGroup.CHEST,
+                muscleGroup = MuscleGroup.Chest,
                 muscle = "Chest",
                 isFavorite = false
             ),
@@ -27,9 +27,9 @@ object ExerciseRepository {
                 id = 101,
                 name = "Plank",
                 description = "",
-                category = ExerciseCategory.CORE,
+                category = ExerciseCategory.Calisthenics,
                 likeability = 3,
-                muscleGroup = MuscleGroup.CORE,
+                muscleGroup = MuscleGroup.Core,
                 muscle = "Core",
                 isFavorite = false
             )
