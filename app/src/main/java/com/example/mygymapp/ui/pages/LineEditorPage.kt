@@ -8,7 +8,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise
-import com.example.mygymapp.model.ExerciseRepository
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +34,8 @@ fun LineEditorPage(
     }
     var showExerciseEditor by remember { mutableStateOf(false) }
     var selectedExerciseIndex by remember { mutableStateOf<Int?>(null) }
-    val allExercises by ExerciseRepository.exercises.collectAsState()
+    val vm: ExerciseViewModel = viewModel()
+    val allExercises by vm.allExercises.observeAsState(emptyList())
     var showExercisePicker by remember { mutableStateOf(false) }
 
     PaperBackground(
@@ -171,10 +174,17 @@ fun LineEditorPage(
                 Spacer(Modifier.height(8.dp))
                 allExercises.forEach { ex ->
                     TextButton(onClick = {
-                        exerciseList.add(ex.copy(id = System.currentTimeMillis()))
+                        exerciseList.add(
+                            Exercise(
+                                id = System.currentTimeMillis(),
+                                name = ex.name,
+                                sets = 3,
+                                repsOrDuration = "12"
+                            )
+                        )
                         showExercisePicker = false
                     }) {
-                        Text("${'$'}{ex.name} – ${'$'}{ex.sets}×${'$'}{ex.repsOrDuration}")
+                        Text(ex.name)
                     }
                 }
             }
