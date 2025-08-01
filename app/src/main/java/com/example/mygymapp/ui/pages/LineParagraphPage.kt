@@ -28,6 +28,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ParagraphViewModel
+import com.example.mygymapp.viewmodel.LineViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,13 +41,21 @@ fun LineParagraphPage(
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
     val templates by paragraphViewModel.templates.collectAsState()
     val planned by paragraphViewModel.planned.collectAsState()
-    var lines by remember { mutableStateOf(sampleLines()) }
+    val lineViewModel: LineViewModel = viewModel()
+    val lines by lineViewModel.lines.collectAsState()
     var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
     var showEditor by remember { mutableStateOf(false) }
+    var editingLine by remember { mutableStateOf<Line?>(null) }
+    var showLineEditor by remember { mutableStateOf(false) }
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
     var showTemplateChooser by remember { mutableStateOf(false) }
 
-    PaperBackground(modifier = modifier.fillMaxSize()) {
+    PaperBackground(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .imePadding()
+    ) {
         Column(Modifier.fillMaxSize()) {
             TabRow(selectedTabIndex = selectedTab) {
                 tabs.forEachIndexed { index, title ->
@@ -60,7 +69,15 @@ fun LineParagraphPage(
 
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
-                    0 -> LinesList(lines)
+                    0 -> LinesList(
+                        lines = lines.filter { !it.isArchived },
+                        onEdit = {
+                            editingLine = it
+                            showLineEditor = true
+                        },
+                        onAdd = { /* TODO */ },
+                        onArchive = { lineViewModel.archive(it.id) }
+                    )
                     else -> ParagraphList(
                         paragraphs = paragraphs,
                         plannedParagraphs = planned,
@@ -78,7 +95,8 @@ fun LineParagraphPage(
             Button(
                 onClick = {
                     if (selectedTab == 0) {
-                        lines = lines + sampleLine(lines.size.toLong() + 1)
+                        editingLine = null
+                        showLineEditor = true
                     } else {
                         if (templates.isNotEmpty()) {
                             showTemplateChooser = true
@@ -90,7 +108,8 @@ fun LineParagraphPage(
                 },
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
@@ -114,6 +133,18 @@ fun LineParagraphPage(
                 showEditor = false
             },
             onCancel = { showEditor = false }
+        )
+    }
+
+    if (showLineEditor) {
+        LineEditorPage(
+            initial = editingLine,
+            onSave = { line ->
+                if (editingLine == null) lineViewModel.add(line)
+                else lineViewModel.update(line)
+                showLineEditor = false
+            },
+            onCancel = { showLineEditor = false }
         )
     }
 
@@ -164,7 +195,12 @@ fun LineParagraphPage(
 }
 
 @Composable
-private fun LinesList(lines: List<Line>) {
+private fun LinesList(
+    lines: List<Line>,
+    onEdit: (Line) -> Unit,
+    onAdd: (Line) -> Unit,
+    onArchive: (Line) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -174,9 +210,9 @@ private fun LinesList(lines: List<Line>) {
         items(lines) { line ->
             LineCard(
                 line = line,
-                onEdit = {},
-                onAdd = {},
-                onArchive = {},
+                onEdit = { onEdit(line) },
+                onAdd = { onAdd(line) },
+                onArchive = { onArchive(line) },
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
         }
@@ -233,46 +269,4 @@ private fun ParagraphList(
         }
     }
 }
-
-private fun sampleLines(): List<Line> = listOf(
-    Line(
-        id = 1,
-        title = "Silent Force",
-        category = "Push",
-        muscleGroup = "Core",
-        mood = "balanced",
-        exercises = emptyList(),
-        supersets = emptyList(),
-        note = "Felt steady and grounded."
-    ),
-    Line(
-        id = 2,
-        title = "Night Owl Session",
-        category = "Pull",
-        muscleGroup = "Back",
-        mood = "alert",
-        exercises = emptyList(),
-        supersets = emptyList(),
-        note = "Late session with high focus."
-    )
-)
-
-private fun sampleLine(id: Long): Line = Line(
-    id = id,
-    title = "New Line $id",
-    category = "Push",
-    muscleGroup = "Full",
-    mood = "calm",
-    exercises = emptyList(),
-    supersets = emptyList(),
-    note = ""
-)
-
-private fun sampleParagraph(): Paragraph = Paragraph(
-    id = System.currentTimeMillis(),
-    title = "Weekly Notes",
-    mood = "reflective",
-    tags = emptyList(),
-    lineTitles = List(7) { "Line ${it + 1}" }
-)
 

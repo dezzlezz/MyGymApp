@@ -11,13 +11,7 @@ import androidx.navigation.navArgument
 fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "lines") {
-        composable("lines") {
-            ArchivePage(
-                onManageExercises = { navController.navigate("exercise_management") },
-                onOpenLineParagraph = { navController.navigate("line_paragraph") }
-            )
-        }
+    NavHost(navController = navController, startDestination = "line_paragraph") {
         composable("line_paragraph") {
             LineParagraphPage()
         }
