@@ -50,7 +50,12 @@ fun LineParagraphPage(
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
     var showTemplateChooser by remember { mutableStateOf(false) }
 
-    PaperBackground(modifier = modifier.fillMaxSize()) {
+    PaperBackground(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .imePadding()
+    ) {
         Column(Modifier.fillMaxSize()) {
             TabRow(selectedTabIndex = selectedTab) {
                 tabs.forEachIndexed { index, title ->
@@ -103,7 +108,8 @@ fun LineParagraphPage(
                 },
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(

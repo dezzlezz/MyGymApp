@@ -12,12 +12,6 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "line_paragraph") {
-        composable("lines") {
-            ArchivePage(
-                onManageExercises = { navController.navigate("exercise_management") },
-                onOpenLineParagraph = { navController.navigate("line_paragraph") }
-            )
-        }
         composable("line_paragraph") {
             LineParagraphPage()
         }
