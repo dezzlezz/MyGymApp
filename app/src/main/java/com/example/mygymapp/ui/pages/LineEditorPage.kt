@@ -1,13 +1,27 @@
 package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise
+import com.example.mygymapp.model.ExerciseCategory
+import com.example.mygymapp.model.MuscleGroup
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
@@ -25,6 +39,17 @@ fun LineEditorPage(
     var muscleGroup by remember { mutableStateOf(initial?.muscleGroup ?: "") }
     var mood by remember { mutableStateOf(initial?.mood ?: "") }
     var note by remember { mutableStateOf(initial?.note ?: "") }
+
+    var search by remember { mutableStateOf("") }
+    var categoryFilter by remember { mutableStateOf<ExerciseCategory?>(null) }
+    var muscleFilter by remember { mutableStateOf<MuscleGroup?>(null) }
+    var favoritesOnly by remember { mutableStateOf(false) }
+
+    var supersetMode by remember { mutableStateOf(false) }
+    val supersetSelection = remember { mutableStateListOf<Long>() }
+
+    var configExercise by remember { mutableStateOf<com.example.mygymapp.data.Exercise?>(null) }
+    var showConfigSheet by remember { mutableStateOf(false) }
 
     val exerciseList = remember {
         mutableStateListOf<Exercise>().apply { addAll(initial?.exercises ?: emptyList()) }
@@ -66,7 +91,17 @@ fun LineEditorPage(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (supersetMode) {
+                            Checkbox(
+                                checked = supersetSelection.contains(exercise.id),
+                                onCheckedChange = { checked ->
+                                    if (checked) supersetSelection.add(exercise.id) else supersetSelection.remove(exercise.id)
+                                }
+                            )
+                        }
+                        Text("${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}")
+                    }
                     Row {
                         TextButton(onClick = {
                             selectedExerciseIndex = index
@@ -90,11 +125,20 @@ fun LineEditorPage(
                 }
             }
             if (exerciseList.size >= 2) {
-                Button(onClick = {
-                    val a = exerciseList.getOrNull(0)?.id ?: return@Button
-                    val b = exerciseList.getOrNull(1)?.id ?: return@Button
-                    supersets.add(a to b)
-                }) { Text("➕ Add Superset (1+2)") }
+                if (supersetMode) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = {
+                            if (supersetSelection.size == 2) {
+                                supersets.add(supersetSelection[0] to supersetSelection[1])
+                                supersetSelection.clear()
+                                supersetMode = false
+                            }
+                        }) { Text("Link Selected") }
+                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel") }
+                    }
+                } else {
+                    Button(onClick = { supersetMode = true }) { Text("Create Superset") }
+                }
             }
 
             Spacer(Modifier.height(16.dp))
@@ -130,6 +174,21 @@ fun LineEditorPage(
         var name by remember { mutableStateOf("") }
         var sets by remember { mutableStateOf("3") }
         var reps by remember { mutableStateOf("12") }
+        var prGoal by remember { mutableStateOf("") }
+        var exNote by remember { mutableStateOf("") }
+
+        LaunchedEffect(showExerciseEditor) {
+            if (showExerciseEditor) {
+                selectedExerciseIndex?.let { idx ->
+                    val ex = exerciseList[idx]
+                    name = ex.name
+                    sets = ex.sets.toString()
+                    reps = ex.repsOrDuration
+                    prGoal = ex.prGoal?.toString() ?: ""
+                    exNote = ex.note
+                }
+            }
+        }
 
         AlertDialog(
             onDismissRequest = { showExerciseEditor = false },
@@ -139,7 +198,9 @@ fun LineEditorPage(
                         id = System.currentTimeMillis(),
                         name = name,
                         sets = sets.toIntOrNull() ?: 3,
-                        repsOrDuration = reps
+                        repsOrDuration = reps,
+                        prGoal = prGoal.toIntOrNull(),
+                        note = exNote
                     )
                     if (selectedExerciseIndex != null) {
                         exerciseList[selectedExerciseIndex!!] = new
@@ -158,34 +219,131 @@ fun LineEditorPage(
                     OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
                     OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("Sets") })
                     OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("Reps or Duration") })
+                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("PR Goal (optional)") })
+                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes") })
                 }
             }
         )
     }
 
     if (showExercisePicker) {
+        val filtered = allExercises.filter { ex ->
+            (search.isBlank() || ex.name.contains(search, ignoreCase = true)) &&
+                    (categoryFilter == null || ex.category == categoryFilter) &&
+                    (muscleFilter == null || ex.muscleGroup == muscleFilter) &&
+                    (!favoritesOnly || ex.isFavorite)
+        }
         ModalBottomSheet(onDismissRequest = { showExercisePicker = false }) {
-            Column(Modifier.padding(16.dp)) {
+            Column(Modifier.fillMaxHeight(0.9f).padding(16.dp)) {
                 Text(
-                    "Choose an Exercise",
+                    "W\u00e4hle die Bewegung f\u00fcr deine Zeile",
                     style = MaterialTheme.typography.titleMedium,
                     fontFamily = FontFamily.Serif
                 )
                 Spacer(Modifier.height(8.dp))
-                allExercises.forEach { ex ->
-                    TextButton(onClick = {
+                TextField(
+                    value = search,
+                    onValueChange = { search = it },
+                    placeholder = { Text("Search") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AssistChip(onClick = { categoryFilter = null }, label = { Text("All") })
+                    ExerciseCategory.values().forEach { cat ->
+                        AssistChip(
+                            onClick = { categoryFilter = cat },
+                            label = { Text(cat.display) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (categoryFilter == cat) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
+                            )
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AssistChip(onClick = { muscleFilter = null }, label = { Text("All") })
+                    MuscleGroup.values().forEach { m ->
+                        AssistChip(
+                            onClick = { muscleFilter = m },
+                            label = { Text(m.display) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (muscleFilter == m) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
+                            )
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { favoritesOnly = !favoritesOnly }) {
+                        Icon(
+                            imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                            contentDescription = null
+                        )
+                    }
+                    Text("Favoriten", fontFamily = FontFamily.Serif)
+                }
+                Spacer(Modifier.height(8.dp))
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(filtered) { ex ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .clickable {
+                                    configExercise = ex
+                                    showExercisePicker = false
+                                    showConfigSheet = true
+                                }
+                        ) {
+                            ex.imageUri?.let { uri ->
+                                // simple preview not loaded to keep patch short
+                            }
+                            Text(ex.name, modifier = Modifier.weight(1f))
+                            if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showConfigSheet && configExercise != null) {
+        val base = configExercise!!
+        var setsText by remember { mutableStateOf("3") }
+        var repsText by remember { mutableStateOf("12") }
+        var prText by remember { mutableStateOf("") }
+        var noteText by remember { mutableStateOf("") }
+
+        ModalBottomSheet(onDismissRequest = { showConfigSheet = false }) {
+            Column(Modifier.padding(16.dp)) {
+                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = FontFamily.Serif)
+                Spacer(Modifier.height(8.dp))
+                if (base.description.isNotBlank()) {
+                    Text(base.description, style = MaterialTheme.typography.bodySmall)
+                    Spacer(Modifier.height(8.dp))
+                }
+                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("Sets") })
+                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("Reps or Duration") })
+                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("PR Goal (optional)") })
+                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes") })
+                Spacer(Modifier.height(8.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel") }
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = {
                         exerciseList.add(
                             Exercise(
                                 id = System.currentTimeMillis(),
-                                name = ex.name,
-                                sets = 3,
-                                repsOrDuration = "12"
+                                name = base.name,
+                                sets = setsText.toIntOrNull() ?: 3,
+                                repsOrDuration = repsText,
+                                prGoal = prText.toIntOrNull(),
+                                note = noteText
                             )
                         )
-                        showExercisePicker = false
-                    }) {
-                        Text(ex.name)
-                    }
+                        showConfigSheet = false
+                    }) { Text("Add to Line") }
                 }
             }
         }
