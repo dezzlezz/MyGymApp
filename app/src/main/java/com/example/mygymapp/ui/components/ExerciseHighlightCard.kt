@@ -8,11 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,10 +22,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
-import com.example.mygymapp.ui.theme.PrimaryGreen
 import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
+import com.example.mygymapp.ui.components.PrimaryButton
 
 @Composable
 fun ExerciseCardWithHighlight(
@@ -153,5 +149,111 @@ fun highlightQuery(text: String, query: String): AnnotatedString {
             append(text.substring(actualStart, endIndex))
         }
         append(text.substring(endIndex))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExerciseHighlightCard(
+    exercise: Exercise,
+    query: String,
+    modifier: Modifier = Modifier
+) {
+    var showSheet by remember { mutableStateOf(false) }
+
+    val backgroundColor = if (exercise.isFavorite) Color(0xFFFFF8E1) else Color(0xFFEDE5D0)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(backgroundColor)
+            .clickable { showSheet = true }
+            .padding(12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            exercise.imageUri?.let { uri ->
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+                Spacer(Modifier.width(12.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = highlightQuery(exercise.name, query),
+                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = GaeguBold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${exercise.muscleGroup.display} · ${exercise.customCategory ?: exercise.category.name}",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
+                    color = TextSecondary
+                )
+            }
+        }
+    }
+
+    if (showSheet) {
+        ExerciseDetailSheet(exercise = exercise) { showSheet = false }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExerciseDetailSheet(exercise: Exercise, onClose: () -> Unit) {
+    ModalBottomSheet(
+        onDismissRequest = onClose,
+        sheetState = rememberModalBottomSheetState()
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+            Text(
+                text = exercise.name,
+                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = GaeguBold),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "${exercise.category.name} • ${exercise.muscleGroup.display}",
+                style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Likeability: ${exercise.likeability}/5",
+                style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular)
+            )
+
+            if (exercise.description.isNotBlank()) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Notes:",
+                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = GaeguBold)
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = exercise.description,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular)
+                )
+            }
+
+            if (exercise.isFavorite) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "⭐ Marked as favorite",
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = GaeguRegular)
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+            PrimaryButton(
+                onClick = onClose,
+                modifier = Modifier.fillMaxWidth(),
+                textRes = R.string.close
+            )
+        }
     }
 }
