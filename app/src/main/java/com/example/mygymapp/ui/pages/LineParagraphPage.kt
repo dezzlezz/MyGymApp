@@ -30,6 +30,8 @@ fun LineParagraphPage(
     val tabs = listOf("Lines", "Paragraphs")
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
     var lines by remember { mutableStateOf(sampleLines()) }
+    var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
+    var showEditor by remember { mutableStateOf(false) }
 
     PaperBackground(modifier = modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
@@ -46,7 +48,10 @@ fun LineParagraphPage(
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
                     0 -> LinesList(lines)
-                    else -> ParagraphList(paragraphs, paragraphViewModel)
+                    else -> ParagraphList(paragraphs) { paragraph ->
+                        editingParagraph = paragraph
+                        showEditor = true
+                    }
                 }
             }
 
@@ -56,7 +61,8 @@ fun LineParagraphPage(
                     if (selectedTab == 0) {
                         lines = lines + sampleLine(lines.size.toLong() + 1)
                     } else {
-                        paragraphViewModel.addParagraph(sampleParagraph())
+                        editingParagraph = null
+                        showEditor = true
                     }
                 },
                 modifier = Modifier
@@ -71,6 +77,21 @@ fun LineParagraphPage(
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (showEditor) {
+        ParagraphEditorPage(
+            initial = editingParagraph,
+            onSave = { paragraph ->
+                if (editingParagraph == null) {
+                    paragraphViewModel.addParagraph(paragraph)
+                } else {
+                    paragraphViewModel.editParagraph(paragraph)
+                }
+                showEditor = false
+            },
+            onCancel = { showEditor = false }
+        )
     }
 }
 
@@ -95,7 +116,10 @@ private fun LinesList(lines: List<Line>) {
 }
 
 @Composable
-private fun ParagraphList(paragraphs: List<Paragraph>, vm: ParagraphViewModel) {
+private fun ParagraphList(
+    paragraphs: List<Paragraph>,
+    onEdit: (Paragraph) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -105,7 +129,7 @@ private fun ParagraphList(paragraphs: List<Paragraph>, vm: ParagraphViewModel) {
         items(paragraphs) { paragraph ->
             ParagraphCard(
                 paragraph = paragraph,
-                onEdit = { vm.editParagraph(paragraph) },
+                onEdit = { onEdit(paragraph) },
                 onPlan = {},
                 onSaveTemplate = {},
                 modifier = Modifier.padding(horizontal = 24.dp)
