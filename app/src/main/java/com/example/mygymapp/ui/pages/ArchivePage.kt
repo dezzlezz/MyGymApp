@@ -15,7 +15,10 @@ import com.example.mygymapp.model.ExerciseCategory
 import com.example.mygymapp.model.MuscleGroup
 
 @Composable
-fun ArchivePage(onManageExercises: () -> Unit) {
+fun ArchivePage(
+    onManageExercises: () -> Unit,
+    onOpenLineParagraph: () -> Unit
+) {
     val demoLines = remember {
         listOf(
             Line(
@@ -87,6 +90,21 @@ fun ArchivePage(onManageExercises: () -> Unit) {
         ) {
             Text(
                 text = "✍️ Edit Exercises",
+                fontFamily = FontFamily.Serif,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onOpenLineParagraph,
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        ) {
+            Text(
+                text = "📖 Lines & Paragraphs",
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
