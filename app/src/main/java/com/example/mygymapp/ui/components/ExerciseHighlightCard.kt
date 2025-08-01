@@ -26,6 +26,7 @@ import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
 import com.example.mygymapp.ui.components.PrimaryButton
+import com.example.mygymapp.R
 
 @Composable
 fun ExerciseCardWithHighlight(

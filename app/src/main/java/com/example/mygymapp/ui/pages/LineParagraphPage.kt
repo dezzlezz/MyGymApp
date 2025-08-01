@@ -10,6 +10,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextButton
@@ -28,7 +29,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ParagraphViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LineParagraphPage(
     paragraphViewModel: ParagraphViewModel = viewModel(),
