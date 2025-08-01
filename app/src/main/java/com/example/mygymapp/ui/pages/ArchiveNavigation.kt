@@ -13,7 +13,13 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
 
     NavHost(navController = navController, startDestination = "lines") {
         composable("lines") {
-            ArchivePage(onManageExercises = { navController.navigate("exercise_management") })
+            ArchivePage(
+                onManageExercises = { navController.navigate("exercise_management") },
+                onOpenLineParagraph = { navController.navigate("line_paragraph") }
+            )
+        }
+        composable("line_paragraph") {
+            LineParagraphPage()
         }
         composable("exercise_management") {
             ExerciseManagementScreen(navController = navController)
