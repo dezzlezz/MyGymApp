@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
-import com.example.mygymapp.ui.components.LineCard
+import com.example.mygymapp.ui.pages.LinesPage
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.ParagraphCard
 import java.time.Instant
@@ -72,23 +72,15 @@ fun LineParagraphPage(
 
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
-                    0 -> Column(Modifier.fillMaxSize()) {
-                        TextButton(
-                            onClick = { navController.navigate("exercise_management") },
-                            modifier = Modifier.align(Alignment.End)
-                        ) {
-                            Text("⚙️ Manage Exercises")
-                        }
-                        LinesList(
-                            lines = lines.filter { !it.isArchived },
-                            onEdit = {
-                                editingLine = it
-                                showLineEditor = true
-                            },
-                            onAdd = { /* TODO */ },
-                            onArchive = { lineViewModel.archive(it.id) }
-                        )
-                    }
+                    0 -> LinesPage(
+                        lines = lines.filter { !it.isArchived },
+                        onEdit = {
+                            editingLine = it
+                            showLineEditor = true
+                        },
+                        onArchive = { lineViewModel.archive(it.id) },
+                        onManageExercises = { navController.navigate("exercise_management") }
+                    )
                     else -> ParagraphList(
                         paragraphs = paragraphs,
                         plannedParagraphs = planned,
@@ -124,7 +116,7 @@ fun LineParagraphPage(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = if (selectedTab == 0) "➕ Add Line" else "➕ Add Paragraph",
+                    text = if (selectedTab == 0) "➕ Write a new line" else "➕ Add Paragraph",
                     fontFamily = FontFamily.Serif
                 )
             }
@@ -201,31 +193,6 @@ fun LineParagraphPage(
                     showEditor = true
                 }) { Text("Blank", fontFamily = FontFamily.Serif) }
             }
-        }
-    }
-}
-
-@Composable
-private fun LinesList(
-    lines: List<Line>,
-    onEdit: (Line) -> Unit,
-    onAdd: (Line) -> Unit,
-    onArchive: (Line) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(lines) { line ->
-            LineCard(
-                line = line,
-                onEdit = { onEdit(line) },
-                onAdd = { onAdd(line) },
-                onArchive = { onArchive(line) },
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
         }
     }
 }
