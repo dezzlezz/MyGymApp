@@ -45,6 +45,8 @@ fun LineParagraphPage(
     val lines by lineViewModel.lines.collectAsState()
     var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
     var showEditor by remember { mutableStateOf(false) }
+    var editingLine by remember { mutableStateOf<Line?>(null) }
+    var showLineEditor by remember { mutableStateOf(false) }
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
     var showTemplateChooser by remember { mutableStateOf(false) }
 
@@ -64,7 +66,10 @@ fun LineParagraphPage(
                 when (tab) {
                     0 -> LinesList(
                         lines = lines.filter { !it.isArchived },
-                        onEdit = { /* TODO */ },
+                        onEdit = {
+                            editingLine = it
+                            showLineEditor = true
+                        },
                         onAdd = { /* TODO */ },
                         onArchive = { lineViewModel.archive(it.id) }
                     )
@@ -85,7 +90,8 @@ fun LineParagraphPage(
             Button(
                 onClick = {
                     if (selectedTab == 0) {
-                        lineViewModel.add(sampleLine(lines.size.toLong() + 1))
+                        editingLine = null
+                        showLineEditor = true
                     } else {
                         if (templates.isNotEmpty()) {
                             showTemplateChooser = true
@@ -121,6 +127,18 @@ fun LineParagraphPage(
                 showEditor = false
             },
             onCancel = { showEditor = false }
+        )
+    }
+
+    if (showLineEditor) {
+        LineEditorPage(
+            initial = editingLine,
+            onSave = { line ->
+                if (editingLine == null) lineViewModel.add(line)
+                else lineViewModel.update(line)
+                showLineEditor = false
+            },
+            onCancel = { showLineEditor = false }
         )
     }
 
@@ -245,46 +263,4 @@ private fun ParagraphList(
         }
     }
 }
-
-private fun sampleLines(): List<Line> = listOf(
-    Line(
-        id = 1,
-        title = "Silent Force",
-        category = "Push",
-        muscleGroup = "Core",
-        mood = "balanced",
-        exercises = emptyList(),
-        supersets = emptyList(),
-        note = "Felt steady and grounded."
-    ),
-    Line(
-        id = 2,
-        title = "Night Owl Session",
-        category = "Pull",
-        muscleGroup = "Back",
-        mood = "alert",
-        exercises = emptyList(),
-        supersets = emptyList(),
-        note = "Late session with high focus."
-    )
-)
-
-private fun sampleLine(id: Long): Line = Line(
-    id = id,
-    title = "New Line $id",
-    category = "Push",
-    muscleGroup = "Full",
-    mood = "calm",
-    exercises = emptyList(),
-    supersets = emptyList(),
-    note = ""
-)
-
-private fun sampleParagraph(): Paragraph = Paragraph(
-    id = System.currentTimeMillis(),
-    title = "Weekly Notes",
-    mood = "reflective",
-    tags = emptyList(),
-    lineTitles = List(7) { "Line ${it + 1}" }
-)
 
