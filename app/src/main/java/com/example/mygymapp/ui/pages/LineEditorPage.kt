@@ -11,6 +11,7 @@ import com.example.mygymapp.model.Exercise
 import com.example.mygymapp.model.ExerciseRepository
 import com.example.mygymapp.ui.components.PaperBackground
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
