@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.R
+
+val DancingScript = FontFamily(Font(R.font.dancingscript_regular))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +66,7 @@ fun LineEditorPage(
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
     var showExercisePicker by remember { mutableStateOf(false) }
+    var filtersVisible by remember { mutableStateOf(false) }
 
     PaperBackground(
         modifier = Modifier
@@ -79,49 +84,78 @@ fun LineEditorPage(
                 fontFamily = FontFamily.Serif
             )
 
-            OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
-            OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Category") })
-            OutlinedTextField(value = muscleGroup, onValueChange = { muscleGroup = it }, label = { Text("Muscle Group") })
-            OutlinedTextField(value = mood, onValueChange = { mood = it }, label = { Text("Mood") })
-            OutlinedTextField(value = note, onValueChange = { note = it }, label = { Text("Note") })
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title", fontFamily = DancingScript) },
+                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+            )
+            OutlinedTextField(
+                value = category,
+                onValueChange = { category = it },
+                label = { Text("Category", fontFamily = DancingScript) },
+                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+            )
+            OutlinedTextField(
+                value = muscleGroup,
+                onValueChange = { muscleGroup = it },
+                label = { Text("Muscle Group", fontFamily = DancingScript) },
+                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+            )
+            OutlinedTextField(
+                value = mood,
+                onValueChange = { mood = it },
+                label = { Text("Mood", fontFamily = DancingScript) },
+                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+            )
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = { Text("Note", fontFamily = DancingScript) },
+                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+            )
 
             Text("Exercises", style = MaterialTheme.typography.titleMedium)
             exerciseList.forEachIndexed { index, exercise ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (supersetMode) {
-                            Checkbox(
-                                checked = supersetSelection.contains(exercise.id),
-                                onCheckedChange = { checked ->
-                                    if (checked) supersetSelection.add(exercise.id) else supersetSelection.remove(exercise.id)
-                                }
-                            )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = supersetMode) {
+                            if (supersetSelection.contains(exercise.id)) supersetSelection.remove(exercise.id)
+                            else supersetSelection.add(exercise.id)
                         }
-                        Text("${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}")
-                    }
+                        .background(
+                            if (supersetSelection.contains(exercise.id) && supersetMode) Color(0xFFD9CEB2) else Color.Transparent,
+                            RoundedCornerShape(12.dp)
+                        )
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}",
+                        fontFamily = DancingScript
+                    )
                     Row {
                         TextButton(onClick = {
                             selectedExerciseIndex = index
                             showExerciseEditor = true
-                        }) { Text("Edit") }
-                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove") }
+                        }) { Text("Edit", fontFamily = DancingScript) }
+                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = DancingScript) }
                     }
                 }
             }
             Button(onClick = {
                 showExercisePicker = true
-            }) { Text("➕ Add from List") }
+            }) { Text("➕ Add movement", fontFamily = DancingScript) }
 
-            Text("Supersets", style = MaterialTheme.typography.titleMedium)
+            Text("Supersets", style = MaterialTheme.typography.titleMedium, fontFamily = DancingScript)
             supersets.forEachIndexed { index, pair ->
                 val nameA = exerciseList.find { it.id == pair.first }?.name ?: "?"
                 val nameB = exerciseList.find { it.id == pair.second }?.name ?: "?"
-                Row {
-                    Text("$nameA + $nameB")
-                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove") }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("$nameA + $nameB", fontFamily = DancingScript)
+                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = DancingScript) }
                 }
             }
             if (exerciseList.size >= 2) {
@@ -133,11 +167,11 @@ fun LineEditorPage(
                                 supersetSelection.clear()
                                 supersetMode = false
                             }
-                        }) { Text("Link Selected") }
-                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel") }
+                        }) { Text("Group selected", fontFamily = DancingScript) }
+                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = DancingScript) }
                     }
                 } else {
-                    Button(onClick = { supersetMode = true }) { Text("Create Superset") }
+                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = DancingScript) }
                 }
             }
 
@@ -148,7 +182,7 @@ fun LineEditorPage(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                TextButton(onClick = onCancel) { Text("Cancel") }
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = DancingScript) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val newLine = Line(
@@ -164,7 +198,7 @@ fun LineEditorPage(
                     )
                     onSave(newLine)
                 }) {
-                    Text("Save")
+                    Text("Save", fontFamily = DancingScript)
                 }
             }
         }
@@ -208,19 +242,19 @@ fun LineEditorPage(
                         exerciseList.add(new)
                     }
                     showExerciseEditor = false
-                }) { Text("Save") }
+                }) { Text("Save", fontFamily = DancingScript) }
             },
             dismissButton = {
-                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel") }
+                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = DancingScript) }
             },
-            title = { Text("Exercise") },
+            title = { Text("Exercise", fontFamily = DancingScript) },
             text = {
                 Column {
-                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("Sets") })
-                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("Reps or Duration") })
-                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("PR Goal (optional)") })
-                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes") })
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
                 }
             }
         )
@@ -236,71 +270,76 @@ fun LineEditorPage(
         ModalBottomSheet(onDismissRequest = { showExercisePicker = false }) {
             Column(Modifier.fillMaxHeight(0.9f).padding(16.dp)) {
                 Text(
-                    "W\u00e4hle die Bewegung f\u00fcr deine Zeile",
+                    "Choose a movement that resonates with today.",
                     style = MaterialTheme.typography.titleMedium,
-                    fontFamily = FontFamily.Serif
+                    fontFamily = DancingScript
                 )
                 Spacer(Modifier.height(8.dp))
                 TextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Search") },
-                    modifier = Modifier.fillMaxWidth()
+                    placeholder = { Text("Search gently…", fontFamily = DancingScript) },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontFamily = DancingScript)
                 )
                 Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AssistChip(onClick = { categoryFilter = null }, label = { Text("All") })
-                    ExerciseCategory.values().forEach { cat ->
-                        AssistChip(
-                            onClick = { categoryFilter = cat },
-                            label = { Text(cat.display) },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (categoryFilter == cat) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
-                            )
-                        )
-                    }
+                TextButton(onClick = { filtersVisible = !filtersVisible }) {
+                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = DancingScript)
                 }
-                Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    AssistChip(onClick = { muscleFilter = null }, label = { Text("All") })
-                    MuscleGroup.values().forEach { m ->
-                        AssistChip(
-                            onClick = { muscleFilter = m },
-                            label = { Text(m.display) },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (muscleFilter == m) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface
+                if (filtersVisible) {
+                    Spacer(Modifier.height(8.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AssistChip(onClick = { categoryFilter = null }, label = { Text("All") })
+                        ExerciseCategory.values().forEach { cat ->
+                            AssistChip(
+                                onClick = { categoryFilter = cat },
+                                label = { Text(cat.display) }
                             )
-                        )
+                        }
                     }
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { favoritesOnly = !favoritesOnly }) {
-                        Icon(
-                            imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                            contentDescription = null
-                        )
+                    Spacer(Modifier.height(8.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AssistChip(onClick = { muscleFilter = null }, label = { Text("All") })
+                        MuscleGroup.values().forEach { m ->
+                            AssistChip(
+                                onClick = { muscleFilter = m },
+                                label = { Text(m.display) }
+                            )
+                        }
                     }
-                    Text("Favoriten", fontFamily = FontFamily.Serif)
+                    Spacer(Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { favoritesOnly = !favoritesOnly }) {
+                            Icon(
+                                imageVector = if (favoritesOnly) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                contentDescription = null
+                            )
+                        }
+                        Text("Favorites", fontFamily = DancingScript)
+                    }
                 }
                 Spacer(Modifier.height(8.dp))
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(filtered) { ex ->
-                        Row(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
+                                .padding(vertical = 4.dp)
                                 .clickable {
                                     configExercise = ex
                                     showExercisePicker = false
                                     showConfigSheet = true
-                                }
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))
                         ) {
-                            ex.imageUri?.let { uri ->
-                                // simple preview not loaded to keep patch short
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = DancingScript)
+                                if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
                             }
-                            Text(ex.name, modifier = Modifier.weight(1f))
-                            if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
                         }
                     }
                 }
@@ -317,19 +356,19 @@ fun LineEditorPage(
 
         ModalBottomSheet(onDismissRequest = { showConfigSheet = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = FontFamily.Serif)
+                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = DancingScript)
                 Spacer(Modifier.height(8.dp))
                 if (base.description.isNotBlank()) {
-                    Text(base.description, style = MaterialTheme.typography.bodySmall)
+                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = DancingScript)
                     Spacer(Modifier.height(8.dp))
                 }
-                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("Sets") })
-                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("Reps or Duration") })
-                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("PR Goal (optional)") })
-                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes") })
+                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
                 Spacer(Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel") }
+                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = DancingScript) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         exerciseList.add(
@@ -343,7 +382,7 @@ fun LineEditorPage(
                             )
                         )
                         showConfigSheet = false
-                    }) { Text("Add to Line") }
+                    }) { Text("Add to Line", fontFamily = DancingScript) }
                 }
             }
         }
