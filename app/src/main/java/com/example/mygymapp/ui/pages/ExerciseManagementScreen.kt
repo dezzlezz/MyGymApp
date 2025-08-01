@@ -16,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,7 +58,7 @@ import androidx.compose.runtime.mutableStateListOf
 @Composable
 fun ExerciseManagementScreen(navController: NavController) {
     val vm: ExerciseViewModel = viewModel()
-    val exercises by vm.allExercises.observeAsState(emptyList())
+    val exercises by vm.exercises.collectAsState()
 
     var search by remember { mutableStateOf("") }
     val listSaver = listSaver<SnapshotStateList<String>, String>(

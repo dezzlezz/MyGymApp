@@ -1,41 +1,36 @@
 package com.example.mygymapp.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.example.mygymapp.data.AppDatabase
-import com.example.mygymapp.data.Exercise
-import com.example.mygymapp.data.ExerciseRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.lifecycle.ViewModel
+import com.example.mygymapp.model.Exercise
+import com.example.mygymapp.model.ExerciseRepository
+import kotlinx.coroutines.flow.StateFlow
 
-class ExerciseViewModel(application: Application) : AndroidViewModel(application) {
-    private val repo: ExerciseRepository
-    val allExercises: LiveData<List<Exercise>>
+/**
+ * ViewModel exposing exercises from the [ExerciseRepository].
+ * Both the management screen and the line editor share this instance
+ * so that they operate on the same data source.
+ */
+class ExerciseViewModel : ViewModel() {
 
-    init {
-        val dao = AppDatabase.getDatabase(application).exerciseDao()
-        repo = ExerciseRepository(dao)
-        allExercises = repo.getAllExercises().asLiveData()
+    val exercises: StateFlow<List<Exercise>> = ExerciseRepository.exercises
+
+    fun insert(ex: Exercise) {
+        ExerciseRepository.add(ex)
     }
 
-    fun insert(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
-        repo.insertExercise(ex)
+    fun delete(id: Long) {
+        ExerciseRepository.delete(id)
     }
 
-    fun delete(id: Long) = viewModelScope.launch(Dispatchers.IO) {
-        repo.deleteExerciseById(id)
+    fun update(ex: Exercise) {
+        ExerciseRepository.update(ex)
     }
 
-    fun update(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
-        repo.updateExercise(ex)
+    fun toggleFavorite(ex: Exercise) {
+        ExerciseRepository.toggleFavorite(ex)
     }
 
-    fun toggleFavorite(ex: Exercise) = viewModelScope.launch(Dispatchers.IO) {
-        repo.updateExercise(ex.copy(isFavorite = !ex.isFavorite))
-    }
-
-    suspend fun getById(id: Long): Exercise? = withContext(Dispatchers.IO) {
-        repo.getExerciseById(id)
+    suspend fun getById(id: Long): Exercise? {
+        return ExerciseRepository.getById(id)
     }
 }
