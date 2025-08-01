@@ -15,8 +15,8 @@ interface PlanDao {
     fun getAllPlans(): List<Plan>
 
     @Transaction
-    @Query("SELECT * FROM plan WHERE planId = :id")
-    fun getPlanWithExercises(id: Long): PlanWithExercises?
+    @Query("SELECT * FROM plan WHERE planId = :planId")
+    fun getPlanWithExercises(planId: Long): PlanWithExercises?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPlan(plan: Plan): Long
