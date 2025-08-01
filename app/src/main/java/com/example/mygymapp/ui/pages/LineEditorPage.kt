@@ -27,14 +27,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
-import com.example.mygymapp.R
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
-
-
-val DancingScript = FontFamily(Font(R.font.dancingscript_regular))
+import com.example.mygymapp.ui.theme.Handwriting
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -92,32 +85,32 @@ fun LineEditorPage(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title", fontFamily = DancingScript) },
-                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+                label = { Text("Title", fontFamily = Handwriting) },
+                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = category,
                 onValueChange = { category = it },
-                label = { Text("Category", fontFamily = DancingScript) },
-                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+                label = { Text("Category", fontFamily = Handwriting) },
+                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = muscleGroup,
                 onValueChange = { muscleGroup = it },
-                label = { Text("Muscle Group", fontFamily = DancingScript) },
-                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+                label = { Text("Muscle Group", fontFamily = Handwriting) },
+                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = mood,
                 onValueChange = { mood = it },
-                label = { Text("Mood", fontFamily = DancingScript) },
-                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+                label = { Text("Mood", fontFamily = Handwriting) },
+                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
             )
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note", fontFamily = DancingScript) },
-                textStyle = TextStyle(fontFamily = DancingScript, fontSize = 20.sp)
+                label = { Text("Note", fontFamily = Handwriting) },
+                textStyle = TextStyle(fontFamily = Handwriting, fontSize = 20.sp)
             )
 
             Text("Exercises", style = MaterialTheme.typography.titleMedium)
@@ -126,16 +119,12 @@ fun LineEditorPage(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(enabled = supersetMode) {
-                            if (supersetSelection.contains(exercise.id)) supersetSelection.remove(
-                                exercise.id
-                            )
+                            if (supersetSelection.contains(exercise.id)) supersetSelection.remove(exercise.id)
                             else supersetSelection.add(exercise.id)
                         }
                         .background(
-                            if (supersetSelection.contains(exercise.id) && supersetMode) Color(
-                                0xFFD9CEB2
-                            ) else Color.Transparent,
-                            shape = RoundedCornerShape(12.dp)
+                            if (supersetSelection.contains(exercise.id) && supersetMode) Color(0xFFD9CEB2) else Color.Transparent,
+                            RoundedCornerShape(12.dp)
                         )
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -143,28 +132,28 @@ fun LineEditorPage(
                 ) {
                     Text(
                         "${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}",
-                        fontFamily = DancingScript
+                        fontFamily = Handwriting
                     )
                     Row {
                         TextButton(onClick = {
                             selectedExerciseIndex = index
                             showExerciseEditor = true
-                        }) { Text("Edit", fontFamily = DancingScript) }
-                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = DancingScript) }
+                        }) { Text("Edit", fontFamily = Handwriting) }
+                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = Handwriting) }
                     }
                 }
             }
             Button(onClick = {
                 showExercisePicker = true
-            }) { Text("➕ Add movement", fontFamily = DancingScript) }
+            }) { Text("➕ Add movement", fontFamily = Handwriting) }
 
-            Text("Supersets", style = MaterialTheme.typography.titleMedium, fontFamily = DancingScript)
+            Text("Supersets", style = MaterialTheme.typography.titleMedium, fontFamily = Handwriting)
             supersets.forEachIndexed { index, pair ->
                 val nameA = exerciseList.find { it.id == pair.first }?.name ?: "?"
                 val nameB = exerciseList.find { it.id == pair.second }?.name ?: "?"
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("$nameA + $nameB", fontFamily = DancingScript)
-                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = DancingScript) }
+                    Text("$nameA + $nameB", fontFamily = Handwriting)
+                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = Handwriting) }
                 }
             }
             if (exerciseList.size >= 2) {
@@ -176,11 +165,11 @@ fun LineEditorPage(
                                 supersetSelection.clear()
                                 supersetMode = false
                             }
-                        }) { Text("Group selected", fontFamily = DancingScript) }
-                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = DancingScript) }
+                        }) { Text("Group selected", fontFamily = Handwriting) }
+                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = Handwriting) }
                     }
                 } else {
-                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = DancingScript) }
+                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = Handwriting) }
                 }
             }
 
@@ -191,7 +180,7 @@ fun LineEditorPage(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = DancingScript) }
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = Handwriting) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val newLine = Line(
@@ -207,7 +196,7 @@ fun LineEditorPage(
                     )
                     onSave(newLine)
                 }) {
-                    Text("Save", fontFamily = DancingScript)
+                    Text("Save", fontFamily = Handwriting)
                 }
             }
         }
@@ -251,19 +240,19 @@ fun LineEditorPage(
                         exerciseList.add(new)
                     }
                     showExerciseEditor = false
-                }) { Text("Save", fontFamily = DancingScript) }
+                }) { Text("Save", fontFamily = Handwriting) }
             },
             dismissButton = {
-                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = DancingScript) }
+                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = Handwriting) }
             },
-            title = { Text("Exercise", fontFamily = DancingScript) },
+            title = { Text("Exercise", fontFamily = Handwriting) },
             text = {
                 Column {
-                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
                 }
             }
         )
@@ -283,19 +272,19 @@ fun LineEditorPage(
                 Text(
                     "Choose a movement that resonates with today.",
                     style = MaterialTheme.typography.titleMedium,
-                    fontFamily = DancingScript
+                    fontFamily = Handwriting
                 )
                 Spacer(Modifier.height(8.dp))
                 TextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Search gently…", fontFamily = DancingScript) },
+                    placeholder = { Text("Search gently…", fontFamily = Handwriting) },
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontFamily = DancingScript)
+                    textStyle = TextStyle(fontFamily = Handwriting)
                 )
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = { filtersVisible = !filtersVisible }) {
-                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = DancingScript)
+                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = Handwriting)
                 }
                 if (filtersVisible) {
                     Spacer(Modifier.height(8.dp))
@@ -326,7 +315,7 @@ fun LineEditorPage(
                                 contentDescription = null
                             )
                         }
-                        Text("Favorites", fontFamily = DancingScript)
+                        Text("Favorites", fontFamily = Handwriting)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -348,7 +337,7 @@ fun LineEditorPage(
                                 modifier = Modifier.padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = DancingScript)
+                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = Handwriting)
                                 if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
                             }
                         }
@@ -367,19 +356,19 @@ fun LineEditorPage(
 
         ModalBottomSheet(onDismissRequest = { showConfigSheet = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = DancingScript)
+                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = Handwriting)
                 Spacer(Modifier.height(8.dp))
                 if (base.description.isNotBlank()) {
-                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = DancingScript)
+                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = Handwriting)
                     Spacer(Modifier.height(8.dp))
                 }
-                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
-                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = DancingScript) }, textStyle = TextStyle(fontFamily = DancingScript))
+                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
+                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = Handwriting) }, textStyle = TextStyle(fontFamily = Handwriting))
                 Spacer(Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = DancingScript) }
+                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = Handwriting) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         exerciseList.add(
@@ -393,7 +382,7 @@ fun LineEditorPage(
                             )
                         )
                         showConfigSheet = false
-                    }) { Text("Add to Line", fontFamily = DancingScript) }
+                    }) { Text("Add to Line", fontFamily = Handwriting) }
                 }
             }
         }
