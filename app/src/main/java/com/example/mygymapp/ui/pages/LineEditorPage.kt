@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise
+import com.example.mygymapp.model.ExerciseRepository
 import com.example.mygymapp.ui.components.PaperBackground
 
 @Composable
@@ -30,6 +31,8 @@ fun LineEditorPage(
     }
     var showExerciseEditor by remember { mutableStateOf(false) }
     var selectedExerciseIndex by remember { mutableStateOf<Int?>(null) }
+    val allExercises by ExerciseRepository.exercises.collectAsState()
+    var showExercisePicker by remember { mutableStateOf(false) }
 
     PaperBackground(
         modifier = Modifier
@@ -70,9 +73,8 @@ fun LineEditorPage(
                 }
             }
             Button(onClick = {
-                selectedExerciseIndex = null
-                showExerciseEditor = true
-            }) { Text("➕ Add Exercise") }
+                showExercisePicker = true
+            }) { Text("➕ Add from List") }
 
             Text("Supersets", style = MaterialTheme.typography.titleMedium)
             supersets.forEachIndexed { index, pair ->
@@ -155,6 +157,27 @@ fun LineEditorPage(
                 }
             }
         )
+    }
+
+    if (showExercisePicker) {
+        ModalBottomSheet(onDismissRequest = { showExercisePicker = false }) {
+            Column(Modifier.padding(16.dp)) {
+                Text(
+                    "Choose an Exercise",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Serif
+                )
+                Spacer(Modifier.height(8.dp))
+                allExercises.forEach { ex ->
+                    TextButton(onClick = {
+                        exerciseList.add(ex.copy(id = System.currentTimeMillis()))
+                        showExercisePicker = false
+                    }) {
+                        Text("${'$'}{ex.name} – ${'$'}{ex.sets}×${'$'}{ex.repsOrDuration}")
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -16,6 +16,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
@@ -30,9 +31,11 @@ import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ParagraphViewModel
 import com.example.mygymapp.viewmodel.LineViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LineParagraphPage(
+    navController: NavController,
     paragraphViewModel: ParagraphViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -69,15 +72,23 @@ fun LineParagraphPage(
 
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
-                    0 -> LinesList(
-                        lines = lines.filter { !it.isArchived },
-                        onEdit = {
-                            editingLine = it
-                            showLineEditor = true
-                        },
-                        onAdd = { /* TODO */ },
-                        onArchive = { lineViewModel.archive(it.id) }
-                    )
+                    0 -> Column(Modifier.fillMaxSize()) {
+                        TextButton(
+                            onClick = { navController.navigate("exercise_management") },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("⚙️ Manage Exercises")
+                        }
+                        LinesList(
+                            lines = lines.filter { !it.isArchived },
+                            onEdit = {
+                                editingLine = it
+                                showLineEditor = true
+                            },
+                            onAdd = { /* TODO */ },
+                            onArchive = { lineViewModel.archive(it.id) }
+                        )
+                    }
                     else -> ParagraphList(
                         paragraphs = paragraphs,
                         plannedParagraphs = planned,

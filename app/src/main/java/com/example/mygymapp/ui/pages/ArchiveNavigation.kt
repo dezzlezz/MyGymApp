@@ -13,7 +13,7 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
 
     NavHost(navController = navController, startDestination = "line_paragraph") {
         composable("line_paragraph") {
-            LineParagraphPage()
+            LineParagraphPage(navController = navController)
         }
         composable("exercise_management") {
             ExerciseManagementScreen(navController = navController)
