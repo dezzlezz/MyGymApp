@@ -30,6 +30,7 @@ class ExerciseViewModel : ViewModel() {
         ExerciseRepository.toggleFavorite(ex)
     }
 
+
     suspend fun getById(id: Long): Exercise? {
         return ExerciseRepository.getById(id)
     }
