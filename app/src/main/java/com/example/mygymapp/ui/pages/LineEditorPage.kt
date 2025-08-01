@@ -173,7 +173,14 @@ fun LineEditorPage(
                 allExercises.forEach { ex ->
                     Card(
                         onClick = {
-                            exerciseList.add(ex.copy(id = System.currentTimeMillis()))
+                            exerciseList.add(
+                                Exercise(
+                                    id = System.currentTimeMillis(),
+                                    name = ex.name,
+                                    sets = 3,
+                                    repsOrDuration = "12"
+                                )
+                            )
                             showExercisePicker = false
                         },
                         modifier = Modifier
@@ -187,7 +194,7 @@ fun LineEditorPage(
                                 fontFamily = FontFamily.Serif
                             )
                             Text(
-                                text = "${'$'}{ex.sets} × ${'$'}{ex.repsOrDuration}",
+                                text = ex.muscleGroup.display,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontFamily = FontFamily.Serif
                             )

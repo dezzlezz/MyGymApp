@@ -1,14 +1,38 @@
 package com.example.mygymapp.model
 
+import com.example.mygymapp.data.Exercise
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
+/**
+ * Simple in-memory repository used for preview and editor screens.
+ * It exposes a list of [Exercise] objects that both the management
+ * screen and the line editor can observe.
+ */
 object ExerciseRepository {
     private val _exercises = MutableStateFlow(
         listOf(
-            Exercise(id = 100, name = "Push-ups", sets = 3, repsOrDuration = "12"),
-            Exercise(id = 101, name = "Plank", sets = 3, repsOrDuration = "30s")
+            Exercise(
+                id = 100,
+                name = "Push-ups",
+                description = "",
+                category = ExerciseCategory.STRENGTH,
+                likeability = 3,
+                muscleGroup = MuscleGroup.CHEST,
+                muscle = "Chest",
+                isFavorite = false
+            ),
+            Exercise(
+                id = 101,
+                name = "Plank",
+                description = "",
+                category = ExerciseCategory.CORE,
+                likeability = 3,
+                muscleGroup = MuscleGroup.CORE,
+                muscle = "Core",
+                isFavorite = false
+            )
         )
     )
 

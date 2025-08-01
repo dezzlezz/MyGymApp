@@ -1,7 +1,7 @@
 package com.example.mygymapp.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.mygymapp.model.Exercise
+import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.ExerciseRepository
 import kotlinx.coroutines.flow.StateFlow
 
@@ -29,6 +29,7 @@ class ExerciseViewModel : ViewModel() {
     fun toggleFavorite(ex: Exercise) {
         ExerciseRepository.toggleFavorite(ex)
     }
+
 
     suspend fun getById(id: Long): Exercise? {
         return ExerciseRepository.getById(id)
