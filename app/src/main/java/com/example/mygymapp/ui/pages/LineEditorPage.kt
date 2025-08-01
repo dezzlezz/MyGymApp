@@ -8,7 +8,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise
-import com.example.mygymapp.model.ExerciseRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +32,8 @@ fun LineEditorPage(
     }
     var showExerciseEditor by remember { mutableStateOf(false) }
     var selectedExerciseIndex by remember { mutableStateOf<Int?>(null) }
-    val allExercises by ExerciseRepository.exercises.collectAsState()
+    val vm: ExerciseViewModel = viewModel()
+    val allExercises by vm.exercises.collectAsState()
     var showExercisePicker by remember { mutableStateOf(false) }
 
     PaperBackground(
@@ -164,16 +166,39 @@ fun LineEditorPage(
             Column(Modifier.padding(16.dp)) {
                 Text(
                     "Choose an Exercise",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontFamily = FontFamily.Serif
                 )
                 Spacer(Modifier.height(8.dp))
                 allExercises.forEach { ex ->
-                    TextButton(onClick = {
-                        exerciseList.add(ex.copy(id = System.currentTimeMillis()))
-                        showExercisePicker = false
-                    }) {
-                        Text("${'$'}{ex.name} – ${'$'}{ex.sets}×${'$'}{ex.repsOrDuration}")
+                    Card(
+                        onClick = {
+                            exerciseList.add(
+                                Exercise(
+                                    id = System.currentTimeMillis(),
+                                    name = ex.name,
+                                    sets = 3,
+                                    repsOrDuration = "12"
+                                )
+                            )
+                            showExercisePicker = false
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(
+                                text = ex.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontFamily = FontFamily.Serif
+                            )
+                            Text(
+                                text = ex.muscleGroup.display,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontFamily = FontFamily.Serif
+                            )
+                        }
                     }
                 }
             }
