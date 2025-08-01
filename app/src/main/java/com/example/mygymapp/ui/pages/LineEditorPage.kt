@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.Alignment
@@ -34,7 +35,7 @@ val GaeguRegular = FontFamily(Font(R.font.gaegu_regular))
 val GaeguBold = FontFamily(Font(R.font.gaegu_bold))
 val GaeguLight = FontFamily(Font(R.font.gaegu_light))
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
@@ -288,7 +289,9 @@ fun LineEditorPage(
                     (!favoritesOnly || ex.isFavorite)
         }
         ModalBottomSheet(onDismissRequest = { showExercisePicker = false }) {
-            Column(Modifier.fillMaxHeight(0.9f).padding(16.dp)) {
+            Column(Modifier
+                .fillMaxHeight(0.9f)
+                .padding(16.dp)) {
                 Text(
                     "Choose a movement that resonates with today.",
                     style = MaterialTheme.typography.titleMedium,
