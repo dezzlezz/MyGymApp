@@ -42,12 +42,12 @@ fun ParagraphEntryCard(
         Column(Modifier.padding(16.dp)) {
             Text(
                 text = paragraph.title,
-                style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp)
+                style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp, color = Color.Black)
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = paragraph.mood,
-                style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
+                style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = Color.Black)
             )
             if (paragraph.tags.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
@@ -55,7 +55,7 @@ fun ParagraphEntryCard(
                     paragraph.tags.forEach { tag ->
                         AssistChip(
                             onClick = {},
-                            label = { Text(tag, fontFamily = GaeguRegular) })
+                            label = { Text(tag, fontFamily = GaeguRegular, color = Color.Black) })
                     }
                 }
             }
@@ -73,7 +73,7 @@ fun ParagraphEntryCard(
                 if (title.isNotBlank()) {
                     Text(
                         text = "${days.getOrNull(index) ?: "Day ${index + 1}"} \u2192 $title",
-                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp)
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
                     )
                 }
             }
@@ -81,20 +81,20 @@ fun ParagraphEntryCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = "\uD83D\uDCCC ${paragraph.note}",
-                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp)
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
                 )
             }
             if (showButtons) {
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     TextButton(onClick = onEdit) {
-                        Text("\u270F\uFE0F Edit", fontFamily = GaeguRegular)
+                        Text("\u270F\uFE0F Edit", fontFamily = GaeguRegular, color = Color.Black)
                     }
                     TextButton(onClick = onPlan) {
-                        Text("\uD83D\uDCC6 Plan", fontFamily = GaeguRegular)
+                        Text("\uD83D\uDCC6 Plan", fontFamily = GaeguRegular, color = Color.Black)
                     }
                     TextButton(onClick = onSaveTemplate) {
-                        Text("\uD83D\uDCCE Save as Template", fontFamily = GaeguRegular)
+                        Text("\uD83D\uDCCE Save as Template", fontFamily = GaeguRegular, color = Color.Black)
                     }
                 }
             }
@@ -123,7 +123,7 @@ fun ParagraphsPage(
                     .padding(horizontal = 24.dp, vertical = 8.dp)
                     .fillMaxWidth()
             ) {
-                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular)
+                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular, color = Color.Black)
             }
             LazyColumn(
                 modifier = Modifier
@@ -143,7 +143,7 @@ fun ParagraphsPage(
                     item {
                         Text(
                             text = "Planned paragraphs:",
-                            style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp),
+                            style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp, color = Color.Black),
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                         )
                     }
@@ -158,7 +158,7 @@ fun ParagraphsPage(
                             )
                             Text(
                                 text = "Starts on: ${plannedParagraph.startDate}",
-                                style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp),
+                                style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black),
                                 modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
                             )
                         }

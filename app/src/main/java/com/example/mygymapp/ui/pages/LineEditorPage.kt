@@ -5,8 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -15,10 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Line
@@ -28,7 +23,7 @@ import com.example.mygymapp.model.MuscleGroup
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
-import com.example.mygymapp.R
+import com.example.mygymapp.ui.components.PaperBackground
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
@@ -71,18 +66,12 @@ fun LineEditorPage(
     var showExercisePicker by remember { mutableStateOf(false) }
     var filtersVisible by remember { mutableStateOf(false) }
 
-    Box(
+    PaperBackground(
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
             .imePadding()
     ) {
-        Image(
-            painter = painterResource(R.drawable.background_parchment),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize()
-        )
         Column(
             modifier = Modifier.padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -97,32 +86,32 @@ fun LineEditorPage(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title", fontFamily = GaeguRegular) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = category,
                 onValueChange = { category = it },
-                label = { Text("Category", fontFamily = GaeguRegular) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                label = { Text("Category", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = muscleGroup,
                 onValueChange = { muscleGroup = it },
-                label = { Text("Muscle Group", fontFamily = GaeguRegular) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                label = { Text("Muscle Group", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = mood,
                 onValueChange = { mood = it },
-                label = { Text("Mood", fontFamily = GaeguRegular) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note", fontFamily = GaeguRegular) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp)
+                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
 
             Text(
@@ -149,20 +138,21 @@ fun LineEditorPage(
                 ) {
                     Text(
                         "${exercise.name} – ${exercise.sets}×${exercise.repsOrDuration}",
-                        fontFamily = GaeguRegular
+                        fontFamily = GaeguRegular,
+                        color = Color.Black
                     )
                     Row {
                         TextButton(onClick = {
                             selectedExerciseIndex = index
                             showExerciseEditor = true
-                        }) { Text("Edit", fontFamily = GaeguRegular) }
-                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular) }
+                        }) { Text("Edit", fontFamily = GaeguRegular, color = Color.Black) }
+                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular, color = Color.Black) }
                     }
                 }
             }
             Button(onClick = {
                 showExercisePicker = true
-            }) { Text("➕ Add movement", fontFamily = GaeguRegular) }
+            }) { Text("➕ Add movement", fontFamily = GaeguRegular, color = Color.Black) }
 
             Text(
                 "Supersets",
@@ -174,8 +164,8 @@ fun LineEditorPage(
                 val nameA = exerciseList.find { it.id == pair.first }?.name ?: "?"
                 val nameB = exerciseList.find { it.id == pair.second }?.name ?: "?"
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("$nameA + $nameB", fontFamily = GaeguRegular)
-                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular) }
+                    Text("$nameA + $nameB", fontFamily = GaeguRegular, color = Color.Black)
+                    TextButton(onClick = { supersets.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular, color = Color.Black) }
                 }
             }
             if (exerciseList.size >= 2) {
@@ -187,11 +177,11 @@ fun LineEditorPage(
                                 supersetSelection.clear()
                                 supersetMode = false
                             }
-                        }) { Text("Group selected", fontFamily = GaeguRegular) }
-                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = GaeguRegular) }
+                        }) { Text("Group selected", fontFamily = GaeguRegular, color = Color.Black) }
+                        TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
                     }
                 } else {
-                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = GaeguRegular) }
+                    TextButton(onClick = { supersetMode = true }) { Text("Add a superset", fontFamily = GaeguRegular, color = Color.Black) }
                 }
             }
 
@@ -202,7 +192,7 @@ fun LineEditorPage(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular) }
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val newLine = Line(
@@ -218,7 +208,7 @@ fun LineEditorPage(
                     )
                     onSave(newLine)
                 }) {
-                    Text("Save", fontFamily = GaeguRegular)
+                    Text("Save", fontFamily = GaeguRegular, color = Color.Black)
                 }
             }
         }
@@ -262,19 +252,19 @@ fun LineEditorPage(
                         exerciseList.add(new)
                     }
                     showExerciseEditor = false
-                }) { Text("Save", fontFamily = GaeguRegular) }
+                }) { Text("Save", fontFamily = GaeguRegular, color = Color.Black) }
             },
             dismissButton = {
-                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = GaeguRegular) }
+                TextButton(onClick = { showExerciseEditor = false }) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
             },
-            title = { Text("Exercise", fontFamily = GaeguRegular) },
+            title = { Text("Exercise", fontFamily = GaeguRegular, color = Color.Black) },
             text = {
                 Column {
-                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                    OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text("How many sets?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                    OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                    OutlinedTextField(value = prGoal, onValueChange = { prGoal = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                    OutlinedTextField(value = exNote, onValueChange = { exNote = it }, label = { Text("Notes", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
                 }
             }
         )
@@ -307,7 +297,7 @@ fun LineEditorPage(
                 )
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = { filtersVisible = !filtersVisible }) {
-                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = GaeguRegular)
+                    Text(if (filtersVisible) "Hide filters" else "Show filters", fontFamily = GaeguRegular, color = Color.Black)
                 }
                 if (filtersVisible) {
                     Spacer(Modifier.height(8.dp))
@@ -338,7 +328,7 @@ fun LineEditorPage(
                                 contentDescription = null
                             )
                         }
-                        Text("Favorites", fontFamily = GaeguRegular)
+                        Text("Favorites", fontFamily = GaeguRegular, color = Color.Black)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -360,7 +350,7 @@ fun LineEditorPage(
                                 modifier = Modifier.padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = GaeguRegular)
+                                Text(ex.name, modifier = Modifier.weight(1f), fontFamily = GaeguRegular, color = Color.Black)
                                 if (ex.isFavorite) Icon(Icons.Filled.Star, contentDescription = null)
                             }
                         }
@@ -379,19 +369,19 @@ fun LineEditorPage(
 
         ModalBottomSheet(onDismissRequest = { showConfigSheet = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = GaeguRegular)
+                Text(base.name, style = MaterialTheme.typography.titleMedium, fontFamily = GaeguRegular, color = Color.Black)
                 Spacer(Modifier.height(8.dp))
                 if (base.description.isNotBlank()) {
-                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = GaeguRegular)
+                    Text(base.description, style = MaterialTheme.typography.bodySmall, fontFamily = GaeguRegular, color = Color.Black)
                     Spacer(Modifier.height(8.dp))
                 }
-                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
-                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = GaeguRegular) }, textStyle = TextStyle(fontFamily = GaeguRegular))
+                OutlinedTextField(value = setsText, onValueChange = { setsText = it }, label = { Text("How many sets?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                OutlinedTextField(value = repsText, onValueChange = { repsText = it }, label = { Text("How many times will you move?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                OutlinedTextField(value = prText, onValueChange = { prText = it }, label = { Text("Do you feel a personal challenge?", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
+                OutlinedTextField(value = noteText, onValueChange = { noteText = it }, label = { Text("Notes", fontFamily = GaeguRegular, color = Color.Black) }, textStyle = TextStyle(fontFamily = GaeguRegular, color = Color.Black))
                 Spacer(Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = GaeguRegular) }
+                    TextButton(onClick = { showConfigSheet = false }) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         exerciseList.add(
@@ -405,7 +395,7 @@ fun LineEditorPage(
                             )
                         )
                         showConfigSheet = false
-                    }) { Text("Add to Line", fontFamily = GaeguRegular) }
+                    }) { Text("Add to Line", fontFamily = GaeguRegular, color = Color.Black) }
                 }
             }
         }

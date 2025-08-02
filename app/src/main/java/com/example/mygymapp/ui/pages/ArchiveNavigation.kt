@@ -15,6 +15,16 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
         composable("line_paragraph") {
             LineParagraphPage(navController = navController)
         }
+        composable(
+            route = "paragraph_editor?id={id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) { backStackEntry ->
+            val editIdArg = backStackEntry.arguments?.getLong("id")?.takeIf { it != -1L }
+            ParagraphEditorScreen(navController = navController, editId = editIdArg)
+        }
         composable("exercise_management") {
             ExerciseManagementScreen(navController = navController)
         }

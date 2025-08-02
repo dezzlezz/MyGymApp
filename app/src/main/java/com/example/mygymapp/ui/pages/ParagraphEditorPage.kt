@@ -4,12 +4,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.menuAnchor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.viewmodel.LineViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,116 +24,156 @@ fun ParagraphEditorPage(
     var title by remember { mutableStateOf(initial?.title ?: "") }
     var mood by remember { mutableStateOf(initial?.mood ?: "") }
     var tagsText by remember { mutableStateOf(initial?.tags?.joinToString(", ") ?: "") }
-    var lineTitles by remember { mutableStateOf(initial?.lineTitles ?: List(7) { "" }) }
     var note by remember { mutableStateOf(initial?.note ?: "") }
+
+    val lineViewModel: LineViewModel = viewModel()
+    val lines by lineViewModel.lines.collectAsState()
+    val selectedLineIds = remember {
+        mutableStateListOf<Long?>().apply { repeat(7) { add(null) } }
+    }
+
+    LaunchedEffect(lines) {
+        if (initial != null && selectedLineIds.all { it == null }) {
+            initial.lineTitles.forEachIndexed { idx, title ->
+                selectedLineIds[idx] = lines.find { it.title == title }?.id
+            }
+        }
+    }
 
     var moodExpanded by remember { mutableStateOf(false) }
     val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
+    val dayNames = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
-    ModalBottomSheet(
-        onDismissRequest = onCancel,
-        sheetState = rememberModalBottomSheetState()
+    PaperBackground(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .imePadding()
     ) {
-        PaperBackground {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+        ) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+
+            ExposedDropdownMenuBox(
+                expanded = moodExpanded,
+                onExpandedChange = { moodExpanded = !moodExpanded }
             ) {
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
-                    modifier = Modifier.fillMaxWidth()
+                    value = mood,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black)
                 )
-                Spacer(Modifier.height(8.dp))
-
-                ExposedDropdownMenuBox(
+                ExposedDropdownMenu(
                     expanded = moodExpanded,
-                    onExpandedChange = { moodExpanded = !moodExpanded }
+                    onDismissRequest = { moodExpanded = false }
+                ) {
+                    moods.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option, fontFamily = GaeguRegular, color = Color.Black) },
+                            onClick = {
+                                mood = option
+                                moodExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            dayNames.forEachIndexed { index, day ->
+                var expanded by remember { mutableStateOf(false) }
+                val selectedTitle = lines.find { it.id == selectedLineIds[index] }?.title ?: ""
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
                 ) {
                     OutlinedTextField(
-                        value = mood,
+                        value = selectedTitle,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Mood", fontFamily = FontFamily.Serif) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif)
+                        label = { Text(day, fontFamily = GaeguRegular, color = Color.Black) },
+                        placeholder = { Text("Select line for $day", fontFamily = GaeguRegular, color = Color.DarkGray) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black)
                     )
                     ExposedDropdownMenu(
-                        expanded = moodExpanded,
-                        onDismissRequest = { moodExpanded = false }
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
                     ) {
-                        moods.forEach { option ->
+                        lines.forEach { line ->
                             DropdownMenuItem(
-                                text = { Text(option, fontFamily = FontFamily.Serif) },
+                                text = { Text(line.title, fontFamily = GaeguRegular, color = Color.Black) },
                                 onClick = {
-                                    mood = option
-                                    moodExpanded = false
+                                    selectedLineIds[index] = line.id
+                                    expanded = false
                                 }
                             )
                         }
                     }
                 }
+            }
 
-                Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = tagsText,
+                onValueChange = { tagsText = it },
+                label = { Text("Tags (comma separated)", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                lineTitles.forEachIndexed { index, value ->
-                    OutlinedTextField(
-                        value = value,
-                        onValueChange = { newValue ->
-                            lineTitles = lineTitles.toMutableList().also { it[index] = newValue }
-                        },
-                        label = { Text("Day ${index + 1}", fontFamily = FontFamily.Serif) },
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
-                }
+            Spacer(Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = tagsText,
-                    onValueChange = { tagsText = it },
-                    label = { Text("Tags (comma separated)", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                Spacer(Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = note,
-                    onValueChange = { note = it },
-                    label = { Text("Note", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onCancel) { Text("Cancel", fontFamily = FontFamily.Serif) }
-                    Spacer(Modifier.width(8.dp))
-                    Button(onClick = {
-                        val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
-                        val paragraph = Paragraph(
-                            id = initial?.id ?: System.currentTimeMillis(),
-                            title = title,
-                            mood = mood,
-                            tags = tags,
-                            lineTitles = lineTitles,
-                            note = note
-                        )
-                        onSave(paragraph)
-                    }) {
-                        Text("Save", fontFamily = FontFamily.Serif)
+            Spacer(Modifier.height(16.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
+                Spacer(Modifier.width(8.dp))
+                Button(onClick = {
+                    val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
+                    val selectedLineTitles = selectedLineIds.map { id ->
+                        lines.find { it.id == id }?.title ?: ""
                     }
+                    val paragraph = Paragraph(
+                        id = initial?.id ?: System.currentTimeMillis(),
+                        title = title,
+                        mood = mood,
+                        tags = tags,
+                        lineTitles = selectedLineTitles,
+                        note = note
+                    )
+                    onSave(paragraph)
+                }) {
+                    Text("Save", fontFamily = GaeguRegular, color = Color.Black)
                 }
             }
         }
     }
 }
-
