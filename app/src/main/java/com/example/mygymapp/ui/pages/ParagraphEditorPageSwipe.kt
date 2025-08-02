@@ -12,13 +12,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,8 +38,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontFamily
 import com.example.mygymapp.R
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.material3.*
-import androidx.compose.material3.TabPosition
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 
 
@@ -71,6 +70,7 @@ fun ParagraphEditorPageSwipe(
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
     var showSavedOverlay by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     PaperBackground(
         modifier = Modifier
@@ -78,12 +78,16 @@ fun ParagraphEditorPageSwipe(
             .systemBarsPadding()
             .imePadding(),
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-            ) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                ) {
                 TextButton(
                     onClick = onCancel,
                     modifier = Modifier.align(Alignment.Start),
@@ -93,6 +97,14 @@ fun ParagraphEditorPageSwipe(
                     Text("Cancel", fontFamily = FontFamily.Serif, fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(4.dp))
+                Text(
+                    "✒ Compose your weekly paragraph",
+                    fontFamily = GaeguBold,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -105,9 +117,7 @@ fun ParagraphEditorPageSwipe(
                 )
                 Spacer(Modifier.height(8.dp))
 
-                val placeholder = remember {
-                    listOf("What connects this week?", "Where did it lead you?").random()
-                }
+                val placeholder = "What connects this week?"
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -176,37 +186,37 @@ fun ParagraphEditorPageSwipe(
                 ScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     edgePadding = 0.dp,
-                    containerColor = Color(0xFFFFF8E1),
-                    contentColor = Color.Black,
+                    containerColor = Color.Transparent,
                     indicator = { tabPositions ->
                         if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
-                            TabRowDefaults.PrimaryIndicator(
-                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]), // CORRECTED LINE
+                            TabRowDefaults.Indicator(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(tabPositions[pagerState.currentPage])
+                                    .height(2.dp),
                                 color = Color.Black
                             )
-                        } else {
                         }
-                    }
+                    },
                 ) {
                     dayNames.forEachIndexed { index, day ->
                         val isSelected = pagerState.currentPage == index
                         Tab(
                             selected = isSelected,
                             onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                            modifier = Modifier.background(
-                                if (isSelected) Color(0xFFF0E0C0) else Color(
-                                    0xFFFFF8E1
-                                )
-                            ),
-                            text = {
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                                color = if (isSelected) Color(0xFFF0E0C0) else Color(0xFFFFF8E1),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            ) {
                                 Text(
                                     day,
                                     fontFamily = GaeguBold,
                                     color = Color.Black,
-                                    maxLines = 1
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                                 )
                             }
-                        )
+                        }
                     }
                 }
 
@@ -216,110 +226,124 @@ fun ParagraphEditorPageSwipe(
                         .weight(1f)
                         .fillMaxWidth(),
                 ) { page ->
-                    var query by remember(page) { mutableStateOf("") }
-                    var selectedCategory by remember(page) { mutableStateOf<String?>(null) }
-                    var categoryExpanded by remember(page) { mutableStateOf(false) }
                     var showAll by remember(page) { mutableStateOf(false) }
                     val sheetState = rememberModalBottomSheetState()
 
-                    val categories = lines.map { it.category }.distinct().sorted()
-                    val filteredLines = lines.filter { line ->
-                        line.title.contains(query, ignoreCase = true) &&
-                                (selectedCategory == null || line.category == selectedCategory)
-                    }
-                    val randomLines = remember(filteredLines) { filteredLines.shuffled().take(3) }
-
                     Column(modifier = Modifier.fillMaxSize()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            TextField(
-                                value = query,
-                                onValueChange = { query = it },
-                                modifier = Modifier.weight(1f),
-                                placeholder = { Text("Search lines") },
-                            )
-                            ExposedDropdownMenuBox(
-                                expanded = categoryExpanded,
-                                onExpandedChange = { categoryExpanded = !categoryExpanded },
-                            ) {
-                                OutlinedTextField(
-                                    value = selectedCategory ?: "All",
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text("Category") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = categoryExpanded
-                                        )
-                                    },
-                                    modifier = Modifier.menuAnchor(),
+                        Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                            val selected = selectedLines[page]
+                            if (selected != null) {
+                                PoeticLineCard(
+                                    line = selected,
+                                    isSelected = true
                                 )
-                                ExposedDropdownMenu(
-                                    expanded = categoryExpanded,
-                                    onDismissRequest = { categoryExpanded = false },
+                            } else {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
+                                    shape = RoundedCornerShape(12.dp),
                                 ) {
-                                    DropdownMenuItem(
-                                        text = { Text("All") },
-                                        onClick = {
-                                            selectedCategory = null
-                                            categoryExpanded = false
-                                        },
+                                    Text(
+                                        "No page selected for ${dayNames[page]}",
+                                        modifier = Modifier.padding(16.dp),
+                                        fontFamily = GaeguRegular,
+                                        color = Color.Black.copy(alpha = 0.6f)
                                     )
-                                    categories.forEach { cat ->
-                                        DropdownMenuItem(
-                                            text = { Text(cat) },
-                                            onClick = {
-                                                selectedCategory = cat
-                                                categoryExpanded = false
-                                            },
-                                        )
-                                    }
                                 }
                             }
                         }
-
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            items(randomLines) { line ->
-                                val isSelected = selectedLines[page]?.id == line.id
-                                PoeticLineCard(
-                                    line = line,
-                                    isSelected = isSelected,
-                                    onClick = { selectedLines[page] = line },
-                                )
-                            }
-                        }
-
+                        Spacer(Modifier.height(8.dp))
                         TextButton(
                             onClick = { showAll = true },
-                            modifier = Modifier.align(Alignment.End),
+                            modifier = Modifier.align(Alignment.End)
                         ) {
-                            Text("Show all lines")
+                            Text("📖 Browse lines", fontFamily = GaeguRegular, color = Color.Black)
                         }
                     }
 
                     if (showAll) {
+                        var query by remember { mutableStateOf("") }
+                        var selectedCategory by remember { mutableStateOf<String?>(null) }
+                        var categoryExpanded by remember { mutableStateOf(false) }
+                        val categories = lines.map { it.category }.distinct().sorted()
+                        val filteredLines = lines.filter { line ->
+                            line.title.contains(query, ignoreCase = true) &&
+                                    (selectedCategory == null || line.category == selectedCategory)
+                        }
+
                         ModalBottomSheet(
                             onDismissRequest = { showAll = false },
                             sheetState = sheetState,
                         ) {
-                            LazyColumn {
-                                items(filteredLines) { line ->
-                                    val isSelected = selectedLines[page]?.id == line.id
-                                    PoeticLineCard(
-                                        line = line,
-                                        isSelected = isSelected,
-                                        onClick = {
-                                            selectedLines[page] = line
-                                            showAll = false
-                                        },
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    TextField(
+                                        value = query,
+                                        onValueChange = { query = it },
+                                        modifier = Modifier.weight(1f),
+                                        placeholder = { Text("Search lines") },
                                     )
+                                    ExposedDropdownMenuBox(
+                                        expanded = categoryExpanded,
+                                        onExpandedChange = { categoryExpanded = !categoryExpanded },
+                                    ) {
+                                        OutlinedTextField(
+                                            value = selectedCategory ?: "All",
+                                            onValueChange = {},
+                                            readOnly = true,
+                                            label = { Text("Category") },
+                                            trailingIcon = {
+                                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                                    expanded = categoryExpanded
+                                                )
+                                            },
+                                            modifier = Modifier.menuAnchor(),
+                                        )
+                                        ExposedDropdownMenu(
+                                            expanded = categoryExpanded,
+                                            onDismissRequest = { categoryExpanded = false },
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text("All") },
+                                                onClick = {
+                                                    selectedCategory = null
+                                                    categoryExpanded = false
+                                                },
+                                            )
+                                            categories.forEach { cat ->
+                                                DropdownMenuItem(
+                                                    text = { Text(cat) },
+                                                    onClick = {
+                                                        selectedCategory = cat
+                                                        categoryExpanded = false
+                                                    },
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                LazyColumn {
+                                    items(filteredLines) { line ->
+                                        val isSelected = selectedLines[page]?.id == line.id
+                                        PoeticLineCard(
+                                            line = line,
+                                            isSelected = isSelected,
+                                            onClick = {
+                                                selectedLines[page] = line
+                                                showAll = false
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -327,8 +351,15 @@ fun ParagraphEditorPageSwipe(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = {
+            }
+
+            Button(
+                onClick = {
+                    if (selectedLines.any { it == null }) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("Select a line for each day")
+                        }
+                    } else {
                         val lineTitles = selectedLines.map { it?.title ?: "" }
                         val paragraph = Paragraph(
                             id = initial?.id ?: System.currentTimeMillis(),
@@ -341,11 +372,14 @@ fun ParagraphEditorPageSwipe(
                             delay(1000)
                             onSave(paragraph)
                         }
-                    },
-                    modifier = Modifier.align(Alignment.End),
-                ) {
-                    Text("Save", fontFamily = GaeguRegular, color = Color.Black)
-                }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0E0C0))
+            ) {
+                Text("📜 Save this paragraph", fontFamily = GaeguRegular, color = Color.Black)
             }
 
             AnimatedVisibility(
@@ -360,7 +394,7 @@ fun ParagraphEditorPageSwipe(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Eine Woche wurde geplant.",
+                        "A new chapter has been written...",
                         color = Color.White,
                         style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp)
                     )
