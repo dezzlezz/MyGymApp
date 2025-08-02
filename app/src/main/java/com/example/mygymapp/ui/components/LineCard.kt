@@ -49,12 +49,32 @@ fun LineCard(
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box {
-            Image(
-                painter = painterResource(id = R.drawable.background_parchment),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = line.title,
+                style = TextStyle(
+                    fontFamily = gaeguBold,
+                    fontSize = 24.sp,
+                    color = textColor
+                )
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "${line.category} · ${line.muscleGroup} · ${line.mood}",
+                style = TextStyle(
+                    fontFamily = gaeguRegular,
+                    fontSize = 14.sp,
+                    color = textColor
+                )
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "${line.exercises.size} exercises · ${line.supersets.size} superset${if (line.supersets.size == 1) "" else "s"}",
+                style = TextStyle(
+                    fontFamily = gaeguRegular,
+                    fontSize = 14.sp,
+                    color = textColor
+                )
             )
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
@@ -67,73 +87,53 @@ fun LineCard(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "${line.category} · ${line.muscleGroup} · ${line.mood}",
+                    text = "📎 ${line.note}",
                     style = TextStyle(
-                        fontFamily = gaeguRegular,
+                        fontFamily = gaeguLight,
                         fontSize = 14.sp,
                         color = textColor
-                    )
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = "${line.exercises.size} exercises · ${line.supersets.size} superset${if (line.supersets.size == 1) "" else "s"}",
-                    style = TextStyle(
-                        fontFamily = gaeguRegular,
-                        fontSize = 14.sp,
-                        color = textColor
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                TextButton(
+                    onClick = onEdit,
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = buttonBackground,
+                        contentColor = textColor
                     )
-                )
-                if (line.note.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+                ) {
                     Text(
-                        text = "📎 ${line.note}",
-                        style = TextStyle(
-                            fontFamily = gaeguLight,
-                            fontSize = 14.sp,
-                            color = textColor
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        "✏️ Edit",
+                        style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    TextButton(
-                        onClick = onEdit,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = buttonBackground,
-                            contentColor = textColor
-                        )
-                    ) {
-                        Text(
-                            "✏️ Edit",
-                            style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
-                        )
-                    }
-                    TextButton(
-                        onClick = onAdd,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = buttonBackground,
-                            contentColor = textColor
-                        )
-                    ) {
-                        Text(
-                            "📥 Add",
-                            style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
-                        )
-                    }
-                    TextButton(
-                        onClick = onArchive,
-                        colors = ButtonDefaults.textButtonColors(
-                            containerColor = buttonBackground,
-                            contentColor = textColor
-                        )
-                    ) {
-                        Text(
-                            "📦 Archive",
-                            style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
-                        )
-                    }
+                TextButton(
+                    onClick = onAdd,
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = buttonBackground,
+                        contentColor = textColor
+                    )
+                ) {
+                    Text(
+                        "📥 Add",
+                        style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
+                    )
+                }
+                TextButton(
+                    onClick = onArchive,
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = buttonBackground,
+                        contentColor = textColor
+                    )
+                ) {
+                    Text(
+                        "📦 Archive",
+                        style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
+                    )
                 }
             }
         }
