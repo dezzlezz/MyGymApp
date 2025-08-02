@@ -4,20 +4,27 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.drawBehind
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
@@ -78,13 +85,71 @@ fun ParagraphEditorPageSwipe(
             )
             Spacer(Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                modifier = Modifier.fillMaxWidth(),
-            )
+            val placeholder = remember {
+                listOf("What connects this week?", "Where did it lead you?").random()
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 150.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.background_parchment),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .drawBehind {
+                            val lineSpacing = 32.dp.toPx()
+                            val paddingStart = 8.dp.toPx()
+                            val paddingEnd = size.width - 8.dp.toPx()
+                            val lines = (size.height / lineSpacing).toInt()
+                            repeat(lines) { i ->
+                                val wave = if (i % 2 == 0) 0f else 1.5f
+                                val y = (i + 1) * lineSpacing + wave
+                                drawLine(
+                                    color = Color.Black.copy(alpha = 0.15f),
+                                    start = Offset(paddingStart, y),
+                                    end = Offset(paddingEnd, y),
+                                    strokeWidth = 1.2f
+                                )
+                            }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                ) {
+                    BasicTextField(
+                        value = note,
+                        onValueChange = { note = it },
+                        textStyle = TextStyle(
+                            fontFamily = GaeguRegular,
+                            fontSize = 18.sp,
+                            lineHeight = 32.sp,
+                            color = Color.Black
+                        ),
+                        cursorBrush = SolidColor(Color.Black),
+                        modifier = Modifier.fillMaxSize(),
+                        decorationBox = { innerTextField ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.TopStart
+                            ) {
+                                if (note.isBlank()) {
+                                    Text(
+                                        placeholder,
+                                        fontFamily = GaeguRegular,
+                                        fontSize = 18.sp,
+                                        color = Color.Black.copy(alpha = 0.4f)
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
+            }
 
             Spacer(Modifier.height(16.dp))
 
