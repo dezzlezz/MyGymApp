@@ -89,6 +89,7 @@ fun LineParagraphPage(
                         },
                         onPlan = { planTarget = it },
                         onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
+                        onDelete = { paragraphViewModel.deleteParagraph(it) },
                         onAdd = {
                             if (templates.isNotEmpty()) {
                                 showTemplateChooser = true
