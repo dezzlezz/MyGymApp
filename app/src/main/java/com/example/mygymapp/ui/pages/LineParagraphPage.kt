@@ -15,7 +15,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
@@ -24,7 +23,6 @@ import com.example.mygymapp.ui.pages.LinesPage
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.pages.ParagraphsPage
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import com.example.mygymapp.viewmodel.ParagraphViewModel
 import com.example.mygymapp.viewmodel.LineViewModel
@@ -44,8 +42,6 @@ fun LineParagraphPage(
     val planned by paragraphViewModel.planned.collectAsState()
     val lineViewModel: LineViewModel = viewModel()
     val lines by lineViewModel.lines.collectAsState()
-    var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
-    var showEditor by remember { mutableStateOf(false) }
     var editingLine by remember { mutableStateOf<Line?>(null) }
     var showLineEditor by remember { mutableStateOf(false) }
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
@@ -63,7 +59,7 @@ fun LineParagraphPage(
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title, fontFamily = FontFamily.Serif) }
+                        text = { Text(title, fontFamily = GaeguRegular) }
                     )
                 }
             }
@@ -87,14 +83,16 @@ fun LineParagraphPage(
                         paragraphs = paragraphs,
                         planned = planned,
                         onEdit = { paragraph ->
-                            editingParagraph = paragraph
-                            showEditor = true
+                            navController.navigate("paragraph_editor?id=${'$'}{paragraph.id}")
                         },
                         onPlan = { planTarget = it },
                         onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
                         onAdd = {
-                            editingParagraph = null
-                            showEditor = true
+                            if (templates.isNotEmpty()) {
+                                showTemplateChooser = true
+                            } else {
+                                navController.navigate("paragraph_editor")
+                            }
                         }
                     )
                 }
@@ -110,8 +108,7 @@ fun LineParagraphPage(
                         if (templates.isNotEmpty()) {
                             showTemplateChooser = true
                         } else {
-                            editingParagraph = null
-                            showEditor = true
+                            navController.navigate("paragraph_editor")
                         }
                     }
                 },
@@ -123,26 +120,11 @@ fun LineParagraphPage(
             ) {
                 Text(
                     text = if (selectedTab == 0) "➕ Write a new line" else "➕ Add Paragraph",
-                    fontFamily = FontFamily.Serif
+                    fontFamily = GaeguRegular
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-
-    if (showEditor) {
-        ParagraphEditorPage(
-            initial = editingParagraph,
-            onSave = { paragraph ->
-                if (editingParagraph == null) {
-                    paragraphViewModel.addParagraph(paragraph)
-                } else {
-                    paragraphViewModel.editParagraph(paragraph)
-                }
-                showEditor = false
-            },
-            onCancel = { showEditor = false }
-        )
     }
 
     if (showLineEditor) {
@@ -165,7 +147,7 @@ fun LineParagraphPage(
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = { planTarget = null }) {
-                        Text("Cancel", fontFamily = FontFamily.Serif)
+                        Text("Cancel", fontFamily = GaeguRegular)
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
@@ -174,7 +156,7 @@ fun LineParagraphPage(
                         paragraphViewModel.planParagraph(target, date)
                         planTarget = null
                     }) {
-                        Text("Plan", fontFamily = FontFamily.Serif)
+                        Text("Plan", fontFamily = GaeguRegular)
                     }
                 }
             }
@@ -184,20 +166,18 @@ fun LineParagraphPage(
     if (showTemplateChooser) {
         ModalBottomSheet(onDismissRequest = { showTemplateChooser = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text("Choose Template", fontFamily = FontFamily.Serif, style = MaterialTheme.typography.titleMedium)
+                Text("Choose Template", fontFamily = GaeguBold, style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
                 templates.forEach { template ->
                     TextButton(onClick = {
-                        editingParagraph = template
                         showTemplateChooser = false
-                        showEditor = true
-                    }) { Text(template.title, fontFamily = FontFamily.Serif) }
+                        navController.navigate("paragraph_editor?id=${'$'}{template.id}")
+                    }) { Text(template.title, fontFamily = GaeguRegular) }
                 }
                 TextButton(onClick = {
-                    editingParagraph = null
                     showTemplateChooser = false
-                    showEditor = true
-                }) { Text("Blank", fontFamily = FontFamily.Serif) }
+                    navController.navigate("paragraph_editor")
+                }) { Text("Blank", fontFamily = GaeguRegular) }
             }
         }
     }
