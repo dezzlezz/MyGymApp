@@ -20,6 +20,8 @@ import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.viewmodel.LineViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
