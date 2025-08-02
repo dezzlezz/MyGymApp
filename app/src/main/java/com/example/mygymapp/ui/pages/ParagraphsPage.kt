@@ -210,8 +210,9 @@ fun ParagraphsPage(
                         onPlan = { onPlan(paragraph) },
                         onSaveTemplate = { onSaveTemplate(paragraph) },
                         onDelete = { onDelete(paragraph) },
+                        modifier = Modifier.animateItemPlacement(),
+                        showButtons = true,
                         onPreview = { onPreview(paragraph) },
-                        modifier = Modifier.animateItemPlacement()
                     )
                 }
                 if (planned.isNotEmpty()) {
@@ -235,10 +236,10 @@ fun ParagraphsPage(
                             onPlan = {},
                             onSaveTemplate = {},
                             onDelete = {},
+                            modifier = Modifier.animateItemPlacement(),
                             showButtons = false,
                             startDate = plannedParagraph.startDate.toString(),
                             onPreview = { onPreview(plannedParagraph.paragraph) },
-                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                 }

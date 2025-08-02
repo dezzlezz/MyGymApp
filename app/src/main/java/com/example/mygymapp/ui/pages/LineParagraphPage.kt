@@ -85,7 +85,7 @@ fun LineParagraphPage(
                         paragraphs = paragraphs,
                         planned = planned,
                         onEdit = { paragraph ->
-                            navController.navigate("paragraph_editor?id=${'$'}{paragraph.id}")
+                            navController.navigate("paragraph_editor?id=${paragraph.id}")
                         },
                         onPlan = { planTarget = it },
                         onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
@@ -175,7 +175,7 @@ fun LineParagraphPage(
                 templates.forEach { template ->
                     TextButton(onClick = {
                         showTemplateChooser = false
-                        navController.navigate("paragraph_editor?id=${'$'}{template.id}")
+                        navController.navigate("paragraph_editor?id=${template.id}")
                     }) { Text(template.title, fontFamily = GaeguRegular, color = Color.Black) }
                 }
                 TextButton(onClick = {
