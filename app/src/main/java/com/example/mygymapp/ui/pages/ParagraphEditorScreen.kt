@@ -25,7 +25,9 @@ fun ParagraphEditorScreen(
             } else {
                 paragraphViewModel.editParagraph(paragraph)
             }
-            navController.popBackStack()
+            navController.navigate("line_paragraph?tab=1") {
+                popUpTo("line_paragraph?tab=0") { inclusive = true }
+            }
         }
     )
 }
