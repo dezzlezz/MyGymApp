@@ -17,7 +17,7 @@ fun ParagraphEditorScreen(
     val templates by paragraphViewModel.templates.collectAsState()
     val initial = paragraphs.find { it.id == editId } ?: templates.find { it.id == editId }
 
-    ParagraphEditorPage(
+    ParagraphEditorPageSwipe(
         initial = initial,
         onSave = { paragraph ->
             if (initial == null || templates.any { it.id == editId }) {
@@ -26,7 +26,6 @@ fun ParagraphEditorScreen(
                 paragraphViewModel.editParagraph(paragraph)
             }
             navController.popBackStack()
-        },
-        onCancel = { navController.popBackStack() }
+        }
     )
 }
