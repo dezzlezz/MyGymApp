@@ -153,12 +153,32 @@ fun ParagraphEditorPageSwipe(
 
             Spacer(Modifier.height(16.dp))
 
-            TabRow(selectedTabIndex = pagerState.currentPage) {
+            ScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                edgePadding = 0.dp,
+                containerColor = Color(0xFFFFF8E1),
+                contentColor = Color.Black,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                        color = Color.Black
+                    )
+                }
+            ) {
                 dayNames.forEachIndexed { index, day ->
+                    val isSelected = pagerState.currentPage == index
                     Tab(
-                        selected = pagerState.currentPage == index,
+                        selected = isSelected,
                         onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                        text = { Text(day.take(3), fontFamily = GaeguRegular, color = Color.Black) },
+                        modifier = Modifier.background(if (isSelected) Color(0xFFF0E0C0) else Color(0xFFFFF8E1)),
+                        text = {
+                            Text(
+                                day,
+                                fontFamily = GaeguBold,
+                                color = Color.Black,
+                                maxLines = 1
+                            )
+                        }
                     )
                 }
             }
