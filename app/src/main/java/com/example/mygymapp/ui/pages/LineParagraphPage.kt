@@ -2,8 +2,6 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
@@ -24,7 +22,7 @@ import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.pages.LinesPage
 import com.example.mygymapp.ui.components.PaperBackground
-import com.example.mygymapp.ui.components.ParagraphCard
+import com.example.mygymapp.ui.pages.ParagraphsPage
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -85,9 +83,9 @@ fun LineParagraphPage(
                         onArchive = { lineViewModel.archive(it.id) },
                         onManageExercises = { navController.navigate("exercise_management") }
                     )
-                    else -> ParagraphList(
+                    else -> ParagraphsPage(
                         paragraphs = paragraphs,
-                        plannedParagraphs = planned,
+                        planned = planned,
                         onEdit = { paragraph ->
                             editingParagraph = paragraph
                             showEditor = true
@@ -196,57 +194,6 @@ fun LineParagraphPage(
                     showTemplateChooser = false
                     showEditor = true
                 }) { Text("Blank", fontFamily = FontFamily.Serif) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ParagraphList(
-    paragraphs: List<Paragraph>,
-    plannedParagraphs: List<PlannedParagraph>,
-    onEdit: (Paragraph) -> Unit,
-    onPlan: (Paragraph) -> Unit,
-    onSaveTemplate: (Paragraph) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(paragraphs) { paragraph ->
-            ParagraphCard(
-                paragraph = paragraph,
-                onEdit = { onEdit(paragraph) },
-                onPlan = { onPlan(paragraph) },
-                onSaveTemplate = { onSaveTemplate(paragraph) },
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
-        }
-        if (plannedParagraphs.isNotEmpty()) {
-            item {
-                Text(
-                    text = "Planned paragraphs:",
-                    fontFamily = FontFamily.Serif,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-                )
-            }
-            items(plannedParagraphs) { planned ->
-                ParagraphCard(
-                    paragraph = planned.paragraph,
-                    onEdit = {},
-                    onPlan = {},
-                    onSaveTemplate = {},
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-                Text(
-                    text = "Start: ${planned.startDate}",
-                    fontFamily = FontFamily.Serif,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
-                )
             }
         }
     }
