@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
@@ -59,7 +60,7 @@ fun LineParagraphPage(
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title, fontFamily = GaeguRegular) }
+                        text = { Text(title, fontFamily = GaeguRegular, color = Color.Black) }
                     )
                 }
             }
@@ -120,7 +121,8 @@ fun LineParagraphPage(
             ) {
                 Text(
                     text = if (selectedTab == 0) "➕ Write a new line" else "➕ Add Paragraph",
-                    fontFamily = GaeguRegular
+                    fontFamily = GaeguRegular,
+                    color = Color.Black
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -147,7 +149,7 @@ fun LineParagraphPage(
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = { planTarget = null }) {
-                        Text("Cancel", fontFamily = GaeguRegular)
+                        Text("Cancel", fontFamily = GaeguRegular, color = Color.Black)
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
@@ -156,7 +158,7 @@ fun LineParagraphPage(
                         paragraphViewModel.planParagraph(target, date)
                         planTarget = null
                     }) {
-                        Text("Plan", fontFamily = GaeguRegular)
+                        Text("Plan", fontFamily = GaeguRegular, color = Color.Black)
                     }
                 }
             }
@@ -166,18 +168,18 @@ fun LineParagraphPage(
     if (showTemplateChooser) {
         ModalBottomSheet(onDismissRequest = { showTemplateChooser = false }) {
             Column(Modifier.padding(16.dp)) {
-                Text("Choose Template", fontFamily = GaeguBold, style = MaterialTheme.typography.titleMedium)
+                Text("Choose Template", fontFamily = GaeguBold, style = MaterialTheme.typography.titleMedium, color = Color.Black)
                 Spacer(Modifier.height(8.dp))
                 templates.forEach { template ->
                     TextButton(onClick = {
                         showTemplateChooser = false
                         navController.navigate("paragraph_editor?id=${'$'}{template.id}")
-                    }) { Text(template.title, fontFamily = GaeguRegular) }
+                    }) { Text(template.title, fontFamily = GaeguRegular, color = Color.Black) }
                 }
                 TextButton(onClick = {
                     showTemplateChooser = false
                     navController.navigate("paragraph_editor")
-                }) { Text("Blank", fontFamily = GaeguRegular) }
+                }) { Text("Blank", fontFamily = GaeguRegular, color = Color.Black) }
             }
         }
     }

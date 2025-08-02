@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.menuAnchor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Paragraph
@@ -26,12 +28,15 @@ fun ParagraphEditorPage(
 
     val lineViewModel: LineViewModel = viewModel()
     val lines by lineViewModel.lines.collectAsState()
-    var selectedLineIds by remember { mutableStateOf(List<Long?>(7) { null }) }
+    val selectedLineIds = remember {
+        mutableStateListOf<Long?>().apply { repeat(7) { add(null) } }
+    }
 
     LaunchedEffect(lines) {
         if (initial != null && selectedLineIds.all { it == null }) {
-            selectedLineIds = initial.lineTitles.map { title -> lines.find { it.title == title }?.id }
-                .let { if (it.size < 7) it + List(7 - it.size) { null } else it }
+            initial.lineTitles.forEachIndexed { idx, title ->
+                selectedLineIds[idx] = lines.find { it.title == title }?.id
+            }
         }
     }
 
@@ -54,8 +59,8 @@ fun ParagraphEditorPage(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title", fontFamily = GaeguRegular) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
+                label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
@@ -68,10 +73,12 @@ fun ParagraphEditorPage(
                     value = mood,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Mood", fontFamily = GaeguRegular) },
+                    label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular)
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black)
                 )
                 ExposedDropdownMenu(
                     expanded = moodExpanded,
@@ -79,7 +86,7 @@ fun ParagraphEditorPage(
                 ) {
                     moods.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(option, fontFamily = GaeguRegular) },
+                            text = { Text(option, fontFamily = GaeguRegular, color = Color.Black) },
                             onClick = {
                                 mood = option
                                 moodExpanded = false
@@ -101,13 +108,14 @@ fun ParagraphEditorPage(
                         value = selectedTitle,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text(day, fontFamily = GaeguRegular) },
-                        placeholder = { Text("Select line for $day", fontFamily = GaeguRegular) },
+                        label = { Text(day, fontFamily = GaeguRegular, color = Color.Black) },
+                        placeholder = { Text("Select line for $day", fontFamily = GaeguRegular, color = Color.DarkGray) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier
+                            .menuAnchor()
                             .fillMaxWidth()
                             .padding(bottom = 8.dp),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black)
                     )
                     ExposedDropdownMenu(
                         expanded = expanded,
@@ -115,9 +123,9 @@ fun ParagraphEditorPage(
                     ) {
                         lines.forEach { line ->
                             DropdownMenuItem(
-                                text = { Text(line.title, fontFamily = GaeguRegular) },
+                                text = { Text(line.title, fontFamily = GaeguRegular, color = Color.Black) },
                                 onClick = {
-                                    selectedLineIds = selectedLineIds.toMutableList().also { it[index] = line.id }
+                                    selectedLineIds[index] = line.id
                                     expanded = false
                                 }
                             )
@@ -129,8 +137,8 @@ fun ParagraphEditorPage(
             OutlinedTextField(
                 value = tagsText,
                 onValueChange = { tagsText = it },
-                label = { Text("Tags (comma separated)", fontFamily = GaeguRegular) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
+                label = { Text("Tags (comma separated)", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -139,14 +147,14 @@ fun ParagraphEditorPage(
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note", fontFamily = GaeguRegular) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
+                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
+                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular) }
+                TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
@@ -163,7 +171,7 @@ fun ParagraphEditorPage(
                     )
                     onSave(paragraph)
                 }) {
-                    Text("Save", fontFamily = GaeguRegular)
+                    Text("Save", fontFamily = GaeguRegular, color = Color.Black)
                 }
             }
         }
