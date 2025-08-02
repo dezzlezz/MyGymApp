@@ -9,14 +9,16 @@ import com.example.mygymapp.data.StringListConverter
 import com.example.mygymapp.data.PlanDay
 import com.example.mygymapp.data.ExerciseConverters
 
+
 @Database(
     entities = [
         Plan::class,
         PlanExerciseCrossRef::class,
         Exercise::class,
-        PlanDay::class
+        PlanDay::class,
+        ParagraphEntity::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 @TypeConverters(PlanConverters::class, StringListConverter::class, ExerciseConverters::class)
@@ -24,6 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun planDao(): PlanDao
     abstract fun exerciseDao(): ExerciseDao   // <<< sicherstellen, dass es hier steht
+    abstract fun paragraphDao(): ParagraphDao
 
     companion object {
         @Volatile
