@@ -152,7 +152,7 @@ fun ParagraphEditorPage(
                     val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
                     val selectedLineTitles = selectedLineIds.map { id ->
                         lines.find { it.id == id }?.title ?: ""
-                    }in
+                    }
                     val paragraph = Paragraph(
                         id = initial?.id ?: System.currentTimeMillis(),
                         title = title,
