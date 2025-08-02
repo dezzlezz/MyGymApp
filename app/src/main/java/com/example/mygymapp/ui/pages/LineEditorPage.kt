@@ -24,6 +24,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.components.LineCard
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.background
@@ -85,25 +86,29 @@ fun LineEditorPage(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
+                placeholder = { Text("What would you call this Line?", fontFamily = GaeguRegular, color = Color.Gray) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 24.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = category,
                 onValueChange = { category = it },
-                label = { Text("Category", fontFamily = GaeguRegular, color = Color.Black) },
+                placeholder = { Text("Category", fontFamily = GaeguRegular, color = Color.Gray) },
                 textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = muscleGroup,
                 onValueChange = { muscleGroup = it },
-                label = { Text("Muscle Group", fontFamily = GaeguRegular, color = Color.Black) },
+                placeholder = { Text("Muscle Group", fontFamily = GaeguRegular, color = Color.Gray) },
                 textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
+                placeholder = { Text("Anything else you'd like to remember?", fontFamily = GaeguRegular, color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
                 textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
 
@@ -138,14 +143,14 @@ fun LineEditorPage(
                         TextButton(onClick = {
                             selectedExerciseIndex = index
                             showExerciseEditor = true
-                        }) { Text("Edit", fontFamily = GaeguRegular, color = Color.Black) }
-                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("Remove", fontFamily = GaeguRegular, color = Color.Black) }
+                        }) { Text("✏ Edit", fontFamily = GaeguRegular, color = Color.Black) }
+                        TextButton(onClick = { exerciseList.removeAt(index) }) { Text("🗑 Remove", fontFamily = GaeguRegular, color = Color.Black) }
                     }
                 }
             }
             Button(onClick = {
                 showExercisePicker = true
-            }) { Text("➕ Add movement", fontFamily = GaeguRegular, color = Color.Black) }
+            }) { Text("➕ Add a movement", fontFamily = GaeguRegular, color = Color.Black) }
 
             Text(
                 "Supersets",
@@ -170,7 +175,7 @@ fun LineEditorPage(
                                 supersetSelection.clear()
                                 supersetMode = false
                             }
-                        }) { Text("Group selected", fontFamily = GaeguRegular, color = Color.Black) }
+                        }) { Text("Group into superset", fontFamily = GaeguRegular, color = Color.Black) }
                         TextButton(onClick = { supersetMode = false; supersetSelection.clear() }) { Text("Cancel", fontFamily = GaeguRegular, color = Color.Black) }
                     }
                 } else {
@@ -178,6 +183,29 @@ fun LineEditorPage(
                 }
             }
 
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "Preview this line",
+                style = MaterialTheme.typography.titleMedium,
+                fontFamily = GaeguBold,
+                color = Color.Black
+            )
+            LineCard(
+                line = Line(
+                    id = initial?.id ?: 0L,
+                    title = title.ifBlank { "Untitled" },
+                    category = category,
+                    muscleGroup = muscleGroup,
+                    exercises = exerciseList.toList(),
+                    supersets = supersets.toList(),
+                    note = note,
+                    isArchived = false
+                ),
+                onEdit = {},
+                onArchive = {},
+                onRestore = {},
+                onUse = {}
+            )
             Spacer(Modifier.height(16.dp))
             Row(
                 horizontalArrangement = Arrangement.End,
@@ -200,7 +228,7 @@ fun LineEditorPage(
                     )
                     onSave(newLine)
                 }) {
-                    Text("Save", fontFamily = GaeguRegular, color = Color.Black)
+                    Text("💾 Save this line", fontFamily = GaeguRegular, color = Color.Black)
                 }
             }
         }
