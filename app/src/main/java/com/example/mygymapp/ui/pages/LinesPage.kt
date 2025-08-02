@@ -1,21 +1,20 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.mygymapp.R
 import com.example.mygymapp.model.Line
+import com.example.mygymapp.ui.components.LineCard
 
 @Composable
 fun LinesPage(
@@ -26,68 +25,41 @@ fun LinesPage(
     onManageExercises: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.fillMaxSize()) {
-        TextButton(
-            onClick = onAdd,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
-        ) {
-            Text("\u2795 Write a new line", fontFamily = GaeguRegular)
-        }
-        TextButton(
-            onClick = onManageExercises,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("\u2699\uFE0F Manage Exercises", fontFamily = GaeguRegular)
-        }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(lines) { line ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(
-                            line.title,
-                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 22.sp)
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "${line.category} · ${line.muscleGroup} · ${line.mood}",
-                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        val supersetInfo = if (line.supersets.isNotEmpty()) " • ${line.supersets.size} supersets" else ""
-                        Text(
-                            "${line.exercises.size} exercises$supersetInfo",
-                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp)
-                        )
-                        if (line.note.isNotBlank()) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "\uD83D\uDCCC ${line.note}",
-                                style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp)
-                            )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            TextButton(onClick = { onEdit(line) }) {
-                                Text("\u270F\uFE0F Edit", fontFamily = GaeguRegular)
-                            }
-                            TextButton(onClick = { onArchive(line) }) {
-                                Text("\uD83D\uDCC3 Archive", fontFamily = GaeguRegular)
-                            }
-                        }
-                    }
+    Box(modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.background_parchment),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        Column(Modifier.fillMaxSize()) {
+            TextButton(
+                onClick = onAdd,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+            ) {
+                Text("\u2795 Write a new line", fontFamily = GaeguRegular)
+            }
+            TextButton(
+                onClick = onManageExercises,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("\u2699\uFE0F Manage Exercises", fontFamily = GaeguRegular)
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(lines) { line ->
+                    LineCard(
+                        line = line,
+                        onEdit = { onEdit(line) },
+                        onAdd = { onAdd() },
+                        onArchive = { onArchive(line) }
+                    )
                 }
             }
         }
