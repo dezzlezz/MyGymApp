@@ -1,25 +1,29 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.components.PaperBackground
-
 
 @Composable
 fun ParagraphEntryCard(
@@ -30,12 +34,14 @@ fun ParagraphEntryCard(
     modifier: Modifier = Modifier,
     showButtons: Boolean = true,
     startDate: String? = null,
-    backgroundColor: Color = Color(0xFFFFF8E1)
+    backgroundColor: Color = Color(0xFFFFF8E1),
+    onPreview: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 24.dp)
+            .combinedClickable(onClick = {}, onLongClick = onPreview),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -89,7 +95,7 @@ fun ParagraphEntryCard(
                         fontFamily = GaeguRegular,
                         fontSize = 14.sp,
                         fontStyle = FontStyle.Italic,
-                        color = Color(0xFF5D4037)
+                        color = Color.Gray
                     )
                 )
             }
@@ -101,7 +107,7 @@ fun ParagraphEntryCard(
                 ) {
                     TextButton(onClick = onEdit) {
                         Text(
-                            "\u270F\uFE0F Edit",
+                            "\u270F Edit",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
                             fontSize = 14.sp
@@ -117,7 +123,7 @@ fun ParagraphEntryCard(
                     }
                     TextButton(onClick = onSaveTemplate) {
                         Text(
-                            "\uD83D\uDCCE Save as Template",
+                            "\uD83D\uDCCE Save Template",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
                             fontSize = 14.sp
@@ -132,6 +138,7 @@ fun ParagraphEntryCard(
 /**
  * Displays a poetic list of paragraphs and planned paragraphs.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ParagraphsPage(
     paragraphs: List<Paragraph>,
@@ -140,41 +147,77 @@ fun ParagraphsPage(
     onPlan: (Paragraph) -> Unit,
     onSaveTemplate: (Paragraph) -> Unit,
     onAdd: () -> Unit,
+    onPreview: (Paragraph) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     PaperBackground(modifier = modifier.fillMaxSize()) {
         Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "\uD83D\uDCDA Weekly Chapters",
+                    style = TextStyle(fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
+                )
+                Text(
+                    text = "Browse what you\u2019ve composed \u2013 week by week.",
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.DarkGray)
+                )
+            }
             TextButton(
                 onClick = onAdd,
                 modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .padding(top = 16.dp, bottom = 8.dp)
                     .fillMaxWidth()
             ) {
-                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular, color = Color.Black)
+                Text(
+                    "\u2795 Begin a new weekly paragraph",
+                    fontFamily = GaeguRegular,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 16.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 72.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(paragraphs) { paragraph ->
+                item {
+                    Text(
+                        text = "Saved Paragraphs",
+                        style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp, color = Color.Black),
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                    )
+                }
+                items(paragraphs, key = { it.id }) { paragraph ->
                     ParagraphEntryCard(
                         paragraph = paragraph,
                         onEdit = { onEdit(paragraph) },
                         onPlan = { onPlan(paragraph) },
-                        onSaveTemplate = { onSaveTemplate(paragraph) }
+                        onSaveTemplate = { onSaveTemplate(paragraph) },
+                        onPreview = { onPreview(paragraph) },
+                        modifier = Modifier.animateItemPlacement()
                     )
                 }
                 if (planned.isNotEmpty()) {
                     item {
+                        Divider(
+                            color = Color.Black.copy(alpha = 0.2f),
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                        )
+                    }
+                    item {
                         Text(
-                            text = "Planned paragraphs:",
+                            text = "\u23F3 Planned for the Future",
                             style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp, color = Color.Black),
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                         )
                     }
-                    items(planned) { plannedParagraph ->
+                    items(planned, key = { it.paragraph.id }) { plannedParagraph ->
                         ParagraphEntryCard(
                             paragraph = plannedParagraph.paragraph,
                             onEdit = {},
@@ -182,13 +225,13 @@ fun ParagraphsPage(
                             onSaveTemplate = {},
                             showButtons = false,
                             startDate = plannedParagraph.startDate.toString(),
-                            backgroundColor = Color(0xFFE0E0E0)
+                            onPreview = { onPreview(plannedParagraph.paragraph) },
+                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                 }
             }
         }
     }
-
-
 }
+
