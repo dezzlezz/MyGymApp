@@ -8,5 +8,6 @@ data class Paragraph(
     val title: String,
     val mood: String,
     val tags: List<String>,
-    val lineTitles: List<String>
+    val lineTitles: List<String>,
+    val note: String = ""
 )

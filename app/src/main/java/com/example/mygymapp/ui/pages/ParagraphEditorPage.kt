@@ -22,6 +22,7 @@ fun ParagraphEditorPage(
     var mood by remember { mutableStateOf(initial?.mood ?: "") }
     var tagsText by remember { mutableStateOf(initial?.tags?.joinToString(", ") ?: "") }
     var lineTitles by remember { mutableStateOf(initial?.lineTitles ?: List(7) { "" }) }
+    var note by remember { mutableStateOf(initial?.note ?: "") }
 
     var moodExpanded by remember { mutableStateOf(false) }
     val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
@@ -99,6 +100,16 @@ fun ParagraphEditorPage(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note", fontFamily = FontFamily.Serif) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     TextButton(onClick = onCancel) { Text("Cancel", fontFamily = FontFamily.Serif) }
@@ -110,7 +121,8 @@ fun ParagraphEditorPage(
                             title = title,
                             mood = mood,
                             tags = tags,
-                            lineTitles = lineTitles
+                            lineTitles = lineTitles,
+                            note = note
                         )
                         onSave(paragraph)
                     }) {
