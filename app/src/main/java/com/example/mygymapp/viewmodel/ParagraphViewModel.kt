@@ -34,7 +34,17 @@ class ParagraphViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch(Dispatchers.IO) { repo.add(paragraph) }
 
     fun editParagraph(paragraph: Paragraph) =
-        viewModelScope.launch(Dispatchers.IO) { repo.edit(paragraph) }
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.edit(paragraph)
+            _templates.update { list ->
+                list.map { if (it.id == paragraph.id) paragraph else it }
+            }
+            _planned.update { list ->
+                list.map {
+                    if (it.paragraph.id == paragraph.id) it.copy(paragraph = paragraph) else it
+                }
+            }
+        }
 
     fun deleteParagraph(paragraph: Paragraph) =
         viewModelScope.launch(Dispatchers.IO) { repo.delete(paragraph) }
