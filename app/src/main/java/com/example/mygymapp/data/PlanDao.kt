@@ -7,16 +7,16 @@ import kotlinx.coroutines.flow.Flow
 interface PlanDao {
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM plan WHERE type = :type ORDER BY name")
-    fun getPlansByType(type: PlanType): Flow<List<Plan>>
+    @Query("SELECT * FROM plan WHERE type = :planType ORDER BY name")
+    fun getPlansByType(planType: PlanType): Flow<List<Plan>>
 
     @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM plan")
     fun getAllPlans(): List<Plan>
 
     @Transaction
-    @Query("SELECT * FROM plan WHERE planId = :id")
-    fun getPlanWithExercises(id: Long): PlanWithExercises?
+    @Query("SELECT * FROM plan WHERE planId = :planId")
+    fun getPlanWithExercises(planId: Long): PlanWithExercises?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPlan(plan: Plan): Long
