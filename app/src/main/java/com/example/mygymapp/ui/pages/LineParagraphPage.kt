@@ -74,6 +74,10 @@ fun LineParagraphPage(
                 when (tab) {
                     0 -> LinesPage(
                         lines = lines.filter { !it.isArchived },
+                        onAdd = {
+                            editingLine = null
+                            showLineEditor = true
+                        },
                         onEdit = {
                             editingLine = it
                             showLineEditor = true

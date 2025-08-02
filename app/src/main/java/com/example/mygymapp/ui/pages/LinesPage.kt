@@ -20,12 +20,21 @@ import com.example.mygymapp.model.Line
 @Composable
 fun LinesPage(
     lines: List<Line>,
+    onAdd: () -> Unit,
     onEdit: (Line) -> Unit,
     onArchive: (Line) -> Unit,
     onManageExercises: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxSize()) {
+        TextButton(
+            onClick = onAdd,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp)
+        ) {
+            Text("\u2795 Write a new line", fontFamily = GaeguRegular)
+        }
         TextButton(
             onClick = onManageExercises,
             modifier = Modifier.align(Alignment.End)
