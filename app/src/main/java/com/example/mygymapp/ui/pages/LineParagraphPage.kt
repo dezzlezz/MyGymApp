@@ -42,8 +42,6 @@ fun LineParagraphPage(
     val planned by paragraphViewModel.planned.collectAsState()
     val lineViewModel: LineViewModel = viewModel()
     val lines by lineViewModel.lines.collectAsState()
-    var editingParagraph by remember { mutableStateOf<Paragraph?>(null) }
-    var showEditor by remember { mutableStateOf(false) }
     var editingLine by remember { mutableStateOf<Line?>(null) }
     var showLineEditor by remember { mutableStateOf(false) }
     var planTarget by remember { mutableStateOf<Paragraph?>(null) }
@@ -85,14 +83,16 @@ fun LineParagraphPage(
                         paragraphs = paragraphs,
                         planned = planned,
                         onEdit = { paragraph ->
-                            editingParagraph = paragraph
-                            showEditor = true
+                            navController.navigate("paragraph_editor?id=${'$'}{paragraph.id}")
                         },
                         onPlan = { planTarget = it },
                         onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
                         onAdd = {
-                            editingParagraph = null
-                            showEditor = true
+                            if (templates.isNotEmpty()) {
+                                showTemplateChooser = true
+                            } else {
+                                navController.navigate("paragraph_editor")
+                            }
                         }
                     )
                 }
@@ -108,8 +108,7 @@ fun LineParagraphPage(
                         if (templates.isNotEmpty()) {
                             showTemplateChooser = true
                         } else {
-                            editingParagraph = null
-                            showEditor = true
+                            navController.navigate("paragraph_editor")
                         }
                     }
                 },
@@ -126,21 +125,6 @@ fun LineParagraphPage(
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-
-    if (showEditor) {
-        ParagraphEditorPage(
-            initial = editingParagraph,
-            onSave = { paragraph ->
-                if (editingParagraph == null) {
-                    paragraphViewModel.addParagraph(paragraph)
-                } else {
-                    paragraphViewModel.editParagraph(paragraph)
-                }
-                showEditor = false
-            },
-            onCancel = { showEditor = false }
-        )
     }
 
     if (showLineEditor) {
@@ -186,15 +170,13 @@ fun LineParagraphPage(
                 Spacer(Modifier.height(8.dp))
                 templates.forEach { template ->
                     TextButton(onClick = {
-                        editingParagraph = template
                         showTemplateChooser = false
-                        showEditor = true
+                        navController.navigate("paragraph_editor?id=${'$'}{template.id}")
                     }) { Text(template.title, fontFamily = GaeguRegular) }
                 }
                 TextButton(onClick = {
-                    editingParagraph = null
                     showTemplateChooser = false
-                    showEditor = true
+                    navController.navigate("paragraph_editor")
                 }) { Text("Blank", fontFamily = GaeguRegular) }
             }
         }
