@@ -2,7 +2,6 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,8 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
-import com.example.mygymapp.ui.components.LineCard
+import com.example.mygymapp.ui.components.ParagraphLineCard
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.viewmodel.LineViewModel
 import kotlinx.coroutines.launch
 
@@ -141,16 +141,12 @@ fun ParagraphEditorPageSwipe(
                 LazyColumn {
                     items(lines) { line ->
                         val isSelected = selectedLines[page]?.id == line.id
-                        LineCard(
+                        ParagraphLineCard(
                             line = line,
-                            onEdit = {},
-                            onAdd = {},
-                            onArchive = {},
-                            modifier = Modifier
-                                .border(
-                                    if (isSelected) BorderStroke(2.dp, Color(0xFF5D4037)) else BorderStroke(0.dp, Color.Transparent)
-                                )
-                                .clickable { selectedLines[page] = line }
+                            modifier = Modifier.border(
+                                if (isSelected) BorderStroke(2.dp, Color(0xFF5D4037)) else BorderStroke(0.dp, Color.Transparent)
+                            ),
+                            onClick = { selectedLines[page] = line }
                         )
                     }
                 }
