@@ -14,13 +14,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
-import com.example.mygymapp.ui.pages.LinesPage
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.pages.ParagraphsPage
 import java.time.Instant
@@ -69,17 +67,14 @@ fun LineParagraphPage(
             Crossfade(targetState = selectedTab, label = "tab") { tab ->
                 when (tab) {
                     0 -> LinesPage(
-                        lines = lines.filter { !it.isArchived },
-                        onAdd = {
-                            editingLine = null
-                            showLineEditor = true
-                        },
+                        lines = lines,
                         onEdit = {
                             editingLine = it
                             showLineEditor = true
                         },
                         onArchive = { lineViewModel.archive(it.id) },
-                        onManageExercises = { navController.navigate("exercise_management") }
+                        onRestore = { lineViewModel.unarchive(it.id) },
+                        onUse = { }
                     )
                     else -> ParagraphsPage(
                         paragraphs = paragraphs,
@@ -122,7 +117,7 @@ fun LineParagraphPage(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = if (selectedTab == 0) "➕ Write a new line" else "➕ Add Paragraph",
+                    text = if (selectedTab == 0) "➕ Compose a new line" else "➕ Add Paragraph",
                     fontFamily = GaeguRegular,
                     color = Color.Black
                 )

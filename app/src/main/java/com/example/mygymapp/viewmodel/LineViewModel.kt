@@ -16,7 +16,6 @@ class LineViewModel : ViewModel() {
                 title = "Silent Force",
                 category = "Push",
                 muscleGroup = "Core",
-                mood = "balanced",
                 exercises = emptyList(),
                 supersets = emptyList(),
                 note = "Felt steady and grounded throughout."
@@ -28,7 +27,6 @@ class LineViewModel : ViewModel() {
                 title = "Night Owl Session",
                 category = "Pull",
                 muscleGroup = "Back",
-                mood = "alert",
                 exercises = emptyList(),
                 supersets = listOf(1L to 2L),
                 note = "Late session with high focus."

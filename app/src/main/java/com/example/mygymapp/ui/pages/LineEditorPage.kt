@@ -39,7 +39,6 @@ fun LineEditorPage(
     var title by remember { mutableStateOf(initial?.title ?: "") }
     var category by remember { mutableStateOf(initial?.category ?: "") }
     var muscleGroup by remember { mutableStateOf(initial?.muscleGroup ?: "") }
-    var mood by remember { mutableStateOf(initial?.mood ?: "") }
     var note by remember { mutableStateOf(initial?.note ?: "") }
 
     var search by remember { mutableStateOf("") }
@@ -99,12 +98,6 @@ fun LineEditorPage(
                 value = muscleGroup,
                 onValueChange = { muscleGroup = it },
                 label = { Text("Muscle Group", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
-            )
-            OutlinedTextField(
-                value = mood,
-                onValueChange = { mood = it },
-                label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
                 textStyle = TextStyle(fontFamily = GaeguRegular, fontSize = 20.sp, color = Color.Black)
             )
             OutlinedTextField(
@@ -200,7 +193,6 @@ fun LineEditorPage(
                         title = title,
                         category = category,
                         muscleGroup = muscleGroup,
-                        mood = mood,
                         exercises = exerciseList.toList(),
                         supersets = supersets.toList(),
                         note = note,

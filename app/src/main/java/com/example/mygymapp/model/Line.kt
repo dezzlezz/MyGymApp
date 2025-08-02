@@ -10,7 +10,6 @@ data class Line(
     val title: String,
     val category: String,
     val muscleGroup: String,
-    val mood: String,
     val exercises: List<Exercise>,
     val supersets: List<Pair<Long, Long>>, // pair of exercise ids forming a superset
     val note: String,
