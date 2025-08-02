@@ -6,8 +6,6 @@ package com.example.mygymapp.model
 data class Paragraph(
     val id: Long,
     val title: String,
-    val mood: String,
-    val tags: List<String>,
     val lineTitles: List<String>,
     val note: String = ""
 )

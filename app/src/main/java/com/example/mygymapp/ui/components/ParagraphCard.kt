@@ -33,18 +33,6 @@ fun ParagraphCard(
                 text = paragraph.title,
                 style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif)
             )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Mood: ${paragraph.mood}",
-                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Serif)
-            )
-            if (paragraph.tags.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = paragraph.tags.joinToString(),
-                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Serif)
-                )
-            }
             Spacer(modifier = Modifier.height(12.dp))
             paragraph.lineTitles.forEachIndexed { index, title ->
                 Text(

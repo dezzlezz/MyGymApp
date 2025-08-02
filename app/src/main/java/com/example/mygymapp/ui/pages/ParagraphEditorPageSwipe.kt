@@ -36,8 +36,6 @@ fun ParagraphEditorPageSwipe(
     onSave: (Paragraph) -> Unit,
 ) {
     var title by remember { mutableStateOf(initial?.title ?: "") }
-    var mood by remember { mutableStateOf(initial?.mood ?: "") }
-    var tagsText by remember { mutableStateOf(initial?.tags?.joinToString(", ") ?: "") }
     var note by remember { mutableStateOf(initial?.note ?: "") }
 
     val lineViewModel: LineViewModel = viewModel()
@@ -55,8 +53,6 @@ fun ParagraphEditorPageSwipe(
     }
 
     val dayNames = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-    val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
-    var moodExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
     var showSavedOverlay by remember { mutableStateOf(false) }
@@ -82,46 +78,6 @@ fun ParagraphEditorPageSwipe(
             )
             Spacer(Modifier.height(8.dp))
 
-            ExposedDropdownMenuBox(
-                expanded = moodExpanded,
-                onExpandedChange = { moodExpanded = !moodExpanded },
-            ) {
-                OutlinedTextField(
-                    value = mood,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                )
-                ExposedDropdownMenu(
-                    expanded = moodExpanded,
-                    onDismissRequest = { moodExpanded = false },
-                ) {
-                    moods.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option, fontFamily = GaeguRegular, color = Color.Black) },
-                            onClick = {
-                                mood = option
-                                moodExpanded = false
-                            },
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = tagsText,
-                onValueChange = { tagsText = it },
-                label = { Text("Tags", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
@@ -257,13 +213,10 @@ fun ParagraphEditorPageSwipe(
             Spacer(Modifier.height(16.dp))
             Button(
                 onClick = {
-                    val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
                     val lineTitles = selectedLines.map { it?.title ?: "" }
                     val paragraph = Paragraph(
                         id = initial?.id ?: System.currentTimeMillis(),
                         title = title,
-                        mood = mood,
-                        tags = tags,
                         lineTitles = lineTitles,
                         note = note,
                     )

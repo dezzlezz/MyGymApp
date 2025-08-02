@@ -1,14 +1,9 @@
 package com.example.mygymapp.ui.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -26,7 +21,6 @@ import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.components.PaperBackground
 
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ParagraphEntryCard(
     paragraph: Paragraph,
@@ -36,19 +30,8 @@ fun ParagraphEntryCard(
     modifier: Modifier = Modifier,
     showButtons: Boolean = true,
     startDate: String? = null,
-    backgroundColor: Color = Color(0xFFFFF8E1),
-    moodDotBeforeTitle: Boolean = false
+    backgroundColor: Color = Color(0xFFFFF8E1)
 ) {
-    val moodColor = when (paragraph.mood.lowercase()) {
-        "calm" -> Color(0xFFB3E5FC)
-        "alert" -> Color(0xFFFFF9C4)
-        "connected" -> Color(0xFFE1BEE7)
-        "alive" -> Color(0xFFC8E6C9)
-        "empty" -> Color(0xFFFFE0B2)
-        "carried" -> Color(0xFFD7CCC8)
-        "searching" -> Color(0xFFDCE775)
-        else -> Color(0xFFD7CCC8)
-    }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -58,14 +41,6 @@ fun ParagraphEntryCard(
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (moodDotBeforeTitle) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(moodColor, CircleShape)
-                    )
-                    Spacer(Modifier.width(6.dp))
-                }
                 Text(
                     text = paragraph.title,
                     style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp, color = Color.Black)
@@ -77,31 +52,6 @@ fun ParagraphEntryCard(
                     text = "Starts on: $startDate",
                     style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.DarkGray)
                 )
-            }
-            if (!moodDotBeforeTitle) {
-                Spacer(Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(moodColor, CircleShape)
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = paragraph.mood,
-                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = moodColor)
-                    )
-                }
-            }
-            if (paragraph.tags.isNotEmpty()) {
-                Spacer(Modifier.height(4.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    paragraph.tags.forEach { tag ->
-                        AssistChip(
-                            onClick = {},
-                            label = { Text(tag, fontFamily = GaeguRegular, color = Color.Black) })
-                    }
-                }
             }
             Spacer(Modifier.height(4.dp))
             val days = listOf(
@@ -232,8 +182,7 @@ fun ParagraphsPage(
                             onSaveTemplate = {},
                             showButtons = false,
                             startDate = plannedParagraph.startDate.toString(),
-                            backgroundColor = Color(0xFFE0E0E0),
-                            moodDotBeforeTitle = true
+                            backgroundColor = Color(0xFFE0E0E0)
                         )
                     }
                 }
