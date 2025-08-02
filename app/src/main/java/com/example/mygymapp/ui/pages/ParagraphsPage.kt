@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -28,15 +31,25 @@ fun ParagraphsPage(
     onEdit: (Paragraph) -> Unit,
     onPlan: (Paragraph) -> Unit,
     onSaveTemplate: (Paragraph) -> Unit,
+    onAdd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     PaperBackground(modifier = modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        Column {
+            TextButton(
+                onClick = onAdd,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular)
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
             items(paragraphs) { paragraph ->
                 ParagraphEntryCard(
                     paragraph = paragraph,
@@ -74,6 +87,7 @@ fun ParagraphsPage(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ParagraphEntryCard(
     paragraph: Paragraph,
@@ -100,6 +114,14 @@ private fun ParagraphEntryCard(
                 text = paragraph.mood,
                 style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
             )
+            if (paragraph.tags.isNotEmpty()) {
+                Spacer(Modifier.height(4.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    paragraph.tags.forEach { tag ->
+                        AssistChip(onClick = {}, label = { Text(tag, fontFamily = GaeguRegular) })
+                    }
+                }
+            }
             Spacer(Modifier.height(4.dp))
             val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
             paragraph.lineTitles.forEachIndexed { index, title ->
