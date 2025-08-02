@@ -1,8 +1,10 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -14,7 +16,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Paragraph
@@ -32,6 +36,16 @@ fun ParagraphEntryCard(
     modifier: Modifier = Modifier,
     showButtons: Boolean = true
 ) {
+    val moodColor = when (paragraph.mood.lowercase()) {
+        "calm" -> Color(0xFFB3E5FC)
+        "alert" -> Color(0xFFFFF9C4)
+        "connected" -> Color(0xFFE1BEE7)
+        "alive" -> Color(0xFFC8E6C9)
+        "empty" -> Color(0xFFFFE0B2)
+        "carried" -> Color(0xFFD7CCC8)
+        "searching" -> Color(0xFFDCE775)
+        else -> Color(0xFFD7CCC8)
+    }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -45,10 +59,18 @@ fun ParagraphEntryCard(
                 style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp, color = Color.Black)
             )
             Spacer(Modifier.height(4.dp))
-            Text(
-                text = paragraph.mood,
-                style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = Color.Black)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(moodColor, CircleShape)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = paragraph.mood,
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = moodColor)
+                )
+            }
             if (paragraph.tags.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -71,30 +93,63 @@ fun ParagraphEntryCard(
             )
             paragraph.lineTitles.forEachIndexed { index, title ->
                 if (title.isNotBlank()) {
-                    Text(
-                        text = "${days.getOrNull(index) ?: "Day ${index + 1}"} \u2192 $title",
-                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
-                    )
+                    Row {
+                        Text(
+                            text = days.getOrNull(index) ?: "Day ${index + 1}",
+                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                        )
+                        Text(
+                            text = " \u2192 ",
+                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                        )
+                        Text(
+                            text = title,
+                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                        )
+                    }
                 }
             }
             if (paragraph.note.isNotBlank()) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "\uD83D\uDCCC ${paragraph.note}",
-                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                    text = paragraph.note,
+                    style = TextStyle(
+                        fontFamily = GaeguRegular,
+                        fontSize = 14.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = Color(0xFF5D4037)
+                    )
                 )
             }
             if (showButtons) {
                 Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.align(Alignment.Start)
+                ) {
                     TextButton(onClick = onEdit) {
-                        Text("\u270F\uFE0F Edit", fontFamily = GaeguRegular, color = Color.Black)
+                        Text(
+                            "\u270F\uFE0F Edit",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
                     }
                     TextButton(onClick = onPlan) {
-                        Text("\uD83D\uDCC6 Plan", fontFamily = GaeguRegular, color = Color.Black)
+                        Text(
+                            "\uD83D\uDCC6 Plan",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
                     }
                     TextButton(onClick = onSaveTemplate) {
-                        Text("\uD83D\uDCCE Save as Template", fontFamily = GaeguRegular, color = Color.Black)
+                        Text(
+                            "\uD83D\uDCCE Save as Template",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
