@@ -31,6 +31,7 @@ fun ParagraphEntryCard(
     onEdit: () -> Unit,
     onPlan: () -> Unit,
     onSaveTemplate: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     showButtons: Boolean = true,
     startDate: String? = null,
@@ -103,30 +104,43 @@ fun ParagraphEntryCard(
                 Spacer(Modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.align(Alignment.Start)
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = onEdit) {
+                    TextButton(onClick = onEdit, modifier = Modifier.weight(1f)) {
                         Text(
                             "\u270F Edit",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
-                    TextButton(onClick = onPlan) {
+                    TextButton(onClick = onPlan, modifier = Modifier.weight(1f)) {
                         Text(
                             "\uD83D\uDCC6 Plan",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
-                    TextButton(onClick = onSaveTemplate) {
+                    TextButton(onClick = onSaveTemplate, modifier = Modifier.weight(1f)) {
                         Text(
                             "\uD83D\uDCCE Save Template",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
+                        )
+                    }
+                    TextButton(onClick = onDelete, modifier = Modifier.weight(1f)) {
+                        Text(
+                            "\uD83D\uDDD1 Delete",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
                 }
@@ -146,6 +160,7 @@ fun ParagraphsPage(
     onEdit: (Paragraph) -> Unit,
     onPlan: (Paragraph) -> Unit,
     onSaveTemplate: (Paragraph) -> Unit,
+    onDelete: (Paragraph) -> Unit,
     onAdd: () -> Unit,
     onPreview: (Paragraph) -> Unit = {},
     modifier: Modifier = Modifier
@@ -199,8 +214,10 @@ fun ParagraphsPage(
                         onEdit = { onEdit(paragraph) },
                         onPlan = { onPlan(paragraph) },
                         onSaveTemplate = { onSaveTemplate(paragraph) },
+                        onDelete = { onDelete(paragraph) },
+                        modifier = Modifier.animateItemPlacement(),
+                        showButtons = true,
                         onPreview = { onPreview(paragraph) },
-                        modifier = Modifier.animateItemPlacement()
                     )
                 }
                 if (planned.isNotEmpty()) {
@@ -223,10 +240,11 @@ fun ParagraphsPage(
                             onEdit = {},
                             onPlan = {},
                             onSaveTemplate = {},
+                            onDelete = {},
+                            modifier = Modifier.animateItemPlacement(),
                             showButtons = false,
                             startDate = plannedParagraph.startDate.toString(),
                             onPreview = { onPreview(plannedParagraph.paragraph) },
-                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                 }
