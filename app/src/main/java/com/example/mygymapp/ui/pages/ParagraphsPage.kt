@@ -21,75 +21,10 @@ import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.components.PaperBackground
 
-/**
- * Displays a poetic list of paragraphs and planned paragraphs.
- */
-@Composable
-fun ParagraphsPage(
-    paragraphs: List<Paragraph>,
-    planned: List<PlannedParagraph>,
-    onEdit: (Paragraph) -> Unit,
-    onPlan: (Paragraph) -> Unit,
-    onSaveTemplate: (Paragraph) -> Unit,
-    onAdd: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    PaperBackground(modifier = modifier.fillMaxSize()) {
-        Column {
-            TextButton(
-                onClick = onAdd,
-                modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-            ) {
-                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular)
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-            items(paragraphs) { paragraph ->
-                ParagraphEntryCard(
-                    paragraph = paragraph,
-                    onEdit = { onEdit(paragraph) },
-                    onPlan = { onPlan(paragraph) },
-                    onSaveTemplate = { onSaveTemplate(paragraph) }
-                )
-            }
-            if (planned.isNotEmpty()) {
-                item {
-                    Text(
-                        text = "Planned paragraphs:",
-                        style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp),
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-                    )
-                }
-                items(planned) { plannedParagraph ->
-                    Column {
-                        ParagraphEntryCard(
-                            paragraph = plannedParagraph.paragraph,
-                            onEdit = {},
-                            onPlan = {},
-                            onSaveTemplate = {},
-                            showButtons = false
-                        )
-                        Text(
-                            text = "Starts on: ${plannedParagraph.startDate}",
-                            style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp),
-                            modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ParagraphEntryCard(
+fun ParagraphEntryCard(
     paragraph: Paragraph,
     onEdit: () -> Unit,
     onPlan: () -> Unit,
@@ -118,12 +53,22 @@ private fun ParagraphEntryCard(
                 Spacer(Modifier.height(4.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     paragraph.tags.forEach { tag ->
-                        AssistChip(onClick = {}, label = { Text(tag, fontFamily = GaeguRegular) })
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(tag, fontFamily = GaeguRegular) })
                     }
                 }
             }
             Spacer(Modifier.height(4.dp))
-            val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+            val days = listOf(
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            )
             paragraph.lineTitles.forEachIndexed { index, title ->
                 if (title.isNotBlank()) {
                     Text(
@@ -155,4 +100,73 @@ private fun ParagraphEntryCard(
             }
         }
     }
+}
+
+/**
+ * Displays a poetic list of paragraphs and planned paragraphs.
+ */
+@Composable
+fun ParagraphsPage(
+    paragraphs: List<Paragraph>,
+    planned: List<PlannedParagraph>,
+    onEdit: (Paragraph) -> Unit,
+    onPlan: (Paragraph) -> Unit,
+    onSaveTemplate: (Paragraph) -> Unit,
+    onAdd: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PaperBackground(modifier = modifier.fillMaxSize()) {
+        Column {
+            TextButton(
+                onClick = onAdd,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text("\u2795 Begin a new weekly chapter", fontFamily = GaeguRegular)
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(paragraphs) { paragraph ->
+                    ParagraphEntryCard(
+                        paragraph = paragraph,
+                        onEdit = { onEdit(paragraph) },
+                        onPlan = { onPlan(paragraph) },
+                        onSaveTemplate = { onSaveTemplate(paragraph) }
+                    )
+                }
+                if (planned.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Planned paragraphs:",
+                            style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp),
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(planned) { plannedParagraph ->
+                        Column {
+                            ParagraphEntryCard(
+                                paragraph = plannedParagraph.paragraph,
+                                onEdit = {},
+                                onPlan = {},
+                                onSaveTemplate = {},
+                                showButtons = false
+                            )
+                            Text(
+                                text = "Starts on: ${plannedParagraph.startDate}",
+                                style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp),
+                                modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 }
