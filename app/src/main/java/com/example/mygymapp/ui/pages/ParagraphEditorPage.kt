@@ -6,7 +6,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.ui.components.PaperBackground
@@ -41,8 +40,8 @@ fun ParagraphEditorPage(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
+                    label = { Text("Title", fontFamily = GaeguRegular) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
@@ -55,10 +54,10 @@ fun ParagraphEditorPage(
                         value = mood,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Mood", fontFamily = FontFamily.Serif) },
+                        label = { Text("Mood", fontFamily = GaeguRegular) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular)
                     )
                     ExposedDropdownMenu(
                         expanded = moodExpanded,
@@ -66,7 +65,7 @@ fun ParagraphEditorPage(
                     ) {
                         moods.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(option, fontFamily = FontFamily.Serif) },
+                                text = { Text(option, fontFamily = GaeguRegular) },
                                 onClick = {
                                     mood = option
                                     moodExpanded = false
@@ -84,8 +83,8 @@ fun ParagraphEditorPage(
                         onValueChange = { newValue ->
                             lineTitles = lineTitles.toMutableList().also { it[index] = newValue }
                         },
-                        label = { Text("Day ${index + 1}", fontFamily = FontFamily.Serif) },
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
+                        label = { Text("Day ${index + 1}", fontFamily = GaeguRegular) },
+                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
@@ -95,8 +94,8 @@ fun ParagraphEditorPage(
                 OutlinedTextField(
                     value = tagsText,
                     onValueChange = { tagsText = it },
-                    label = { Text("Tags (comma separated)", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
+                    label = { Text("Tags (comma separated)", fontFamily = GaeguRegular) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -105,14 +104,14 @@ fun ParagraphEditorPage(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text("Note", fontFamily = FontFamily.Serif) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Serif),
+                    label = { Text("Note", fontFamily = GaeguRegular) },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onCancel) { Text("Cancel", fontFamily = FontFamily.Serif) }
+                    TextButton(onClick = onCancel) { Text("Cancel", fontFamily = GaeguRegular) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
@@ -126,7 +125,7 @@ fun ParagraphEditorPage(
                         )
                         onSave(paragraph)
                     }) {
-                        Text("Save", fontFamily = FontFamily.Serif)
+                        Text("Save", fontFamily = GaeguRegular)
                     }
                 }
             }
