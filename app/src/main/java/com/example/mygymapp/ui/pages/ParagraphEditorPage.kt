@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.viewmodel.LineViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,11 +22,22 @@ fun ParagraphEditorPage(
     var title by remember { mutableStateOf(initial?.title ?: "") }
     var mood by remember { mutableStateOf(initial?.mood ?: "") }
     var tagsText by remember { mutableStateOf(initial?.tags?.joinToString(", ") ?: "") }
-    var lineTitles by remember { mutableStateOf(initial?.lineTitles ?: List(7) { "" }) }
     var note by remember { mutableStateOf(initial?.note ?: "") }
+
+    val lineViewModel: LineViewModel = viewModel()
+    val lines by lineViewModel.lines.collectAsState()
+    var selectedLineIds by remember { mutableStateOf(List<Long?>(7) { null }) }
+
+    LaunchedEffect(lines) {
+        if (initial != null && selectedLineIds.all { it == null }) {
+            selectedLineIds = initial.lineTitles.map { title -> lines.find { it.title == title }?.id }
+                .let { if (it.size < 7) it + List(7 - it.size) { null } else it }
+        }
+    }
 
     var moodExpanded by remember { mutableStateOf(false) }
     val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
+    val dayNames = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
     PaperBackground(
         modifier = Modifier
@@ -77,19 +90,40 @@ fun ParagraphEditorPage(
             }
 
             Spacer(Modifier.height(8.dp))
-
-            lineTitles.forEachIndexed { index, value ->
-                OutlinedTextField(
-                    value = value,
-                    onValueChange = { newValue ->
-                        lineTitles = lineTitles.toMutableList().also { it[index] = newValue }
-                    },
-                    label = { Text("Day ${index + 1}", fontFamily = GaeguRegular) },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                )
+            dayNames.forEachIndexed { index, day ->
+                var expanded by remember { mutableStateOf(false) }
+                val selectedTitle = lines.find { it.id == selectedLineIds[index] }?.title ?: ""
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedTitle,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(day, fontFamily = GaeguRegular) },
+                        placeholder = { Text("Select line for $day", fontFamily = GaeguRegular) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        lines.forEach { line ->
+                            DropdownMenuItem(
+                                text = { Text(line.title, fontFamily = GaeguRegular) },
+                                onClick = {
+                                    selectedLineIds = selectedLineIds.toMutableList().also { it[index] = line.id }
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
 
             OutlinedTextField(
@@ -116,12 +150,15 @@ fun ParagraphEditorPage(
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = {
                     val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
+                    val selectedLineTitles = selectedLineIds.map { id ->
+                        lines.find { it.id == id }?.title ?: ""
+                    }in
                     val paragraph = Paragraph(
                         id = initial?.id ?: System.currentTimeMillis(),
                         title = title,
                         mood = mood,
                         tags = tags,
-                        lineTitles = lineTitles,
+                        lineTitles = selectedLineTitles,
                         note = note
                     )
                     onSave(paragraph)
