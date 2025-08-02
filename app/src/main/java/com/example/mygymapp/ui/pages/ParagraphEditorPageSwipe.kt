@@ -1,6 +1,10 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,15 +14,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticLineCard
+import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.viewmodel.LineViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -51,6 +59,7 @@ fun ParagraphEditorPageSwipe(
     var moodExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
+    var showSavedOverlay by remember { mutableStateOf(false) }
 
     PaperBackground(
         modifier = Modifier
@@ -58,11 +67,12 @@ fun ParagraphEditorPageSwipe(
             .systemBarsPadding()
             .imePadding(),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+            ) {
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -257,11 +267,34 @@ fun ParagraphEditorPageSwipe(
                         lineTitles = lineTitles,
                         note = note,
                     )
-                    onSave(paragraph)
+                    showSavedOverlay = true
+                    coroutineScope.launch {
+                        delay(1000)
+                        onSave(paragraph)
+                    }
                 },
                 modifier = Modifier.align(Alignment.End),
             ) {
                 Text("Save", fontFamily = GaeguRegular, color = Color.Black)
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showSavedOverlay,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Eine Woche wurde geplant.",
+                    color = Color.White,
+                    style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp)
+                )
             }
         }
     }
