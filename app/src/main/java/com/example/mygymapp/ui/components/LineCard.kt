@@ -1,6 +1,7 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
@@ -13,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -43,7 +46,7 @@ fun LineCard(
             .padding(vertical = 8.dp)
             .alpha(fade),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -73,7 +76,15 @@ fun LineCard(
                     color = textColor
                 )
             )
-            if (line.note.isNotBlank()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = line.title,
+                    style = TextStyle(
+                        fontFamily = gaeguBold,
+                        fontSize = 24.sp,
+                        color = textColor
+                    )
+                )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "📎 ${line.note}",
