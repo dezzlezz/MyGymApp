@@ -91,7 +91,11 @@ fun LineParagraphPage(
                             showEditor = true
                         },
                         onPlan = { planTarget = it },
-                        onSaveTemplate = { paragraphViewModel.saveTemplate(it) }
+                        onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
+                        onAdd = {
+                            editingParagraph = null
+                            showEditor = true
+                        }
                     )
                 }
             }
