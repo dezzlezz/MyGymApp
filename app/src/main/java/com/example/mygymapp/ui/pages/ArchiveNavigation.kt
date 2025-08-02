@@ -11,9 +11,16 @@ import androidx.navigation.navArgument
 fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "line_paragraph") {
-        composable("line_paragraph") {
-            LineParagraphPage(navController = navController)
+    NavHost(navController = navController, startDestination = "line_paragraph?tab=0") {
+        composable(
+            route = "line_paragraph?tab={tab}",
+            arguments = listOf(navArgument("tab") {
+                type = NavType.IntType
+                defaultValue = 0
+            })
+        ) { backStackEntry ->
+            val tab = backStackEntry.arguments?.getInt("tab") ?: 0
+            LineParagraphPage(navController = navController, startTab = tab)
         }
         composable(
             route = "paragraph_editor?id={id}",

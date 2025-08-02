@@ -34,9 +34,10 @@ import androidx.navigation.NavController
 fun LineParagraphPage(
     navController: NavController,
     paragraphViewModel: ParagraphViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startTab: Int = 0
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableStateOf(startTab) }
     val tabs = listOf("Lines", "Paragraphs")
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
     val templates by paragraphViewModel.templates.collectAsState()

@@ -1,37 +1,50 @@
 package com.example.mygymapp.ui.pages
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.drawBehind
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
-import com.example.mygymapp.ui.components.ParagraphLineCard
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.components.PoeticLineCard
+import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.viewmodel.LineViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontFamily
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ParagraphEditorPageSwipe(
     initial: Paragraph?,
     onSave: (Paragraph) -> Unit,
+    onCancel: () -> Unit,
 ) {
     var title by remember { mutableStateOf(initial?.title ?: "") }
-    var mood by remember { mutableStateOf(initial?.mood ?: "") }
-    var tagsText by remember { mutableStateOf(initial?.tags?.joinToString(", ") ?: "") }
     var note by remember { mutableStateOf(initial?.note ?: "") }
 
     val lineViewModel: LineViewModel = viewModel()
@@ -49,87 +62,134 @@ fun ParagraphEditorPageSwipe(
     }
 
     val dayNames = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-    val moods = listOf("calm", "alert", "connected", "alive", "empty", "carried", "searching")
-    var moodExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
+    var showSavedOverlay by remember { mutableStateOf(false) }
 
     PaperBackground(
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
-            .imePadding()
+            .imePadding(),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+            ) {
+            TextButton(
+                onClick = onCancel,
+                modifier = Modifier.align(Alignment.Start),
+                colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text("Cancel", fontFamily = FontFamily.Serif, fontSize = 14.sp)
+            }
+            Spacer(Modifier.height(4.dp))
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
                 textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(8.dp))
 
-            ExposedDropdownMenuBox(
-                expanded = moodExpanded,
-                onExpandedChange = { moodExpanded = !moodExpanded }
+            val placeholder = remember {
+                listOf("What connects this week?", "Where did it lead you?").random()
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 150.dp)
             ) {
-                OutlinedTextField(
-                    value = mood,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Mood", fontFamily = GaeguRegular, color = Color.Black) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(moodExpanded) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                    textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black)
+                Image(
+                    painter = painterResource(R.drawable.background_parchment),
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop
                 )
-                ExposedDropdownMenu(
-                    expanded = moodExpanded,
-                    onDismissRequest = { moodExpanded = false }
-                ) {
-                    moods.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option, fontFamily = GaeguRegular, color = Color.Black) },
-                            onClick = {
-                                mood = option
-                                moodExpanded = false
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .drawBehind {
+                            val lineSpacing = 32.dp.toPx()
+                            val paddingStart = 8.dp.toPx()
+                            val paddingEnd = size.width - 8.dp.toPx()
+                            val lines = (size.height / lineSpacing).toInt()
+                            repeat(lines) { i ->
+                                val wave = if (i % 2 == 0) 0f else 1.5f
+                                val y = (i + 1) * lineSpacing + wave
+                                drawLine(
+                                    color = Color.Black.copy(alpha = 0.15f),
+                                    start = Offset(paddingStart, y),
+                                    end = Offset(paddingEnd, y),
+                                    strokeWidth = 1.2f
+                                )
                             }
-                        )
-                    }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                ) {
+                    BasicTextField(
+                        value = note,
+                        onValueChange = { note = it },
+                        textStyle = TextStyle(
+                            fontFamily = GaeguRegular,
+                            fontSize = 18.sp,
+                            lineHeight = 32.sp,
+                            color = Color.Black
+                        ),
+                        cursorBrush = SolidColor(Color.Black),
+                        modifier = Modifier.fillMaxSize(),
+                        decorationBox = { innerTextField ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.TopStart
+                            ) {
+                                if (note.isBlank()) {
+                                    Text(
+                                        placeholder,
+                                        fontFamily = GaeguRegular,
+                                        fontSize = 18.sp,
+                                        color = Color.Black.copy(alpha = 0.4f)
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = tagsText,
-                onValueChange = { tagsText = it },
-                label = { Text("Tags", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                label = { Text("Note", fontFamily = GaeguRegular, color = Color.Black) },
-                textStyle = LocalTextStyle.current.copy(fontFamily = GaeguRegular, color = Color.Black),
-                modifier = Modifier.fillMaxWidth()
-            )
-
             Spacer(Modifier.height(16.dp))
 
-            TabRow(selectedTabIndex = pagerState.currentPage) {
+            ScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                edgePadding = 0.dp,
+                containerColor = Color(0xFFFFF8E1),
+                contentColor = Color.Black,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                        color = Color.Black
+                    )
+                }
+            ) {
                 dayNames.forEachIndexed { index, day ->
+                    val isSelected = pagerState.currentPage == index
                     Tab(
-                        selected = pagerState.currentPage == index,
+                        selected = isSelected,
                         onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                        text = { Text(day.take(3), fontFamily = GaeguRegular, color = Color.Black) }
+                        modifier = Modifier.background(if (isSelected) Color(0xFFF0E0C0) else Color(0xFFFFF8E1)),
+                        text = {
+                            Text(
+                                day,
+                                fontFamily = GaeguBold,
+                                color = Color.Black,
+                                maxLines = 1
+                            )
+                        }
                     )
                 }
             }
@@ -138,18 +198,110 @@ fun ParagraphEditorPageSwipe(
                 state = pagerState,
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             ) { page ->
-                LazyColumn {
-                    items(lines) { line ->
-                        val isSelected = selectedLines[page]?.id == line.id
-                        ParagraphLineCard(
-                            line = line,
-                            modifier = Modifier.border(
-                                if (isSelected) BorderStroke(2.dp, Color(0xFF5D4037)) else BorderStroke(0.dp, Color.Transparent)
-                            ),
-                            onClick = { selectedLines[page] = line }
+                var query by remember(page) { mutableStateOf("") }
+                var selectedCategory by remember(page) { mutableStateOf<String?>(null) }
+                var categoryExpanded by remember(page) { mutableStateOf(false) }
+                var showAll by remember(page) { mutableStateOf(false) }
+                val sheetState = rememberModalBottomSheetState()
+
+                val categories = lines.map { it.category }.distinct().sorted()
+                val filteredLines = lines.filter { line ->
+                    line.title.contains(query, ignoreCase = true) &&
+                        (selectedCategory == null || line.category == selectedCategory)
+                }
+                val randomLines = remember(filteredLines) { filteredLines.shuffled().take(3) }
+
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("Search lines") },
                         )
+                        ExposedDropdownMenuBox(
+                            expanded = categoryExpanded,
+                            onExpandedChange = { categoryExpanded = !categoryExpanded },
+                        ) {
+                            OutlinedTextField(
+                                value = selectedCategory ?: "All",
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Category") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
+                                modifier = Modifier.menuAnchor(),
+                            )
+                            ExposedDropdownMenu(
+                                expanded = categoryExpanded,
+                                onDismissRequest = { categoryExpanded = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("All") },
+                                    onClick = {
+                                        selectedCategory = null
+                                        categoryExpanded = false
+                                    },
+                                )
+                                categories.forEach { cat ->
+                                    DropdownMenuItem(
+                                        text = { Text(cat) },
+                                        onClick = {
+                                            selectedCategory = cat
+                                            categoryExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        items(randomLines) { line ->
+                            val isSelected = selectedLines[page]?.id == line.id
+                            PoeticLineCard(
+                                line = line,
+                                isSelected = isSelected,
+                                onClick = { selectedLines[page] = line },
+                            )
+                        }
+                    }
+
+                    TextButton(
+                        onClick = { showAll = true },
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Text("Show all lines")
+                    }
+                }
+
+                if (showAll) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showAll = false },
+                        sheetState = sheetState,
+                    ) {
+                        LazyColumn {
+                            items(filteredLines) { line ->
+                                val isSelected = selectedLines[page]?.id == line.id
+                                PoeticLineCard(
+                                    line = line,
+                                    isSelected = isSelected,
+                                    onClick = {
+                                        selectedLines[page] = line
+                                        showAll = false
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -157,21 +309,41 @@ fun ParagraphEditorPageSwipe(
             Spacer(Modifier.height(16.dp))
             Button(
                 onClick = {
-                    val tags = tagsText.split(',').map { it.trim() }.filter { it.isNotBlank() }
                     val lineTitles = selectedLines.map { it?.title ?: "" }
                     val paragraph = Paragraph(
                         id = initial?.id ?: System.currentTimeMillis(),
                         title = title,
-                        mood = mood,
-                        tags = tags,
                         lineTitles = lineTitles,
-                        note = note
+                        note = note,
                     )
-                    onSave(paragraph)
+                    showSavedOverlay = true
+                    coroutineScope.launch {
+                        delay(1000)
+                        onSave(paragraph)
+                    }
                 },
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End),
             ) {
                 Text("Save", fontFamily = GaeguRegular, color = Color.Black)
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showSavedOverlay,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Eine Woche wurde geplant.",
+                    color = Color.White,
+                    style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp)
+                )
             }
         }
     }
