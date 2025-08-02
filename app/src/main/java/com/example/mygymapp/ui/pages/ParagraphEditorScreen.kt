@@ -14,16 +14,15 @@ fun ParagraphEditorScreen(
     paragraphViewModel: ParagraphViewModel = viewModel()
 ) {
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
-    val templates by paragraphViewModel.templates.collectAsState()
-    val initial = paragraphs.find { it.id == editId } ?: templates.find { it.id == editId }
+    val initial = paragraphs.find { it.id == editId }
 
     ParagraphEditorPageSwipe(
         initial = initial,
         onSave = { paragraph ->
-            if (initial == null || templates.any { it.id == editId }) {
-                paragraphViewModel.addParagraph(paragraph)
-            } else {
+            if (initial != null) {
                 paragraphViewModel.editParagraph(paragraph)
+            } else {
+                paragraphViewModel.addParagraph(paragraph)
             }
             navController.navigate("line_paragraph?tab=1") {
                 popUpTo("line_paragraph?tab=0") { inclusive = true }
