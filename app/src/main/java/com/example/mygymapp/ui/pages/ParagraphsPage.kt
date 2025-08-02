@@ -104,30 +104,43 @@ fun ParagraphEntryCard(
                 Spacer(Modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.align(Alignment.Start)
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    TextButton(onClick = onEdit) {
+                    TextButton(onClick = onEdit, modifier = Modifier.weight(1f)) {
                         Text(
                             "\u270F Edit",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
-                    TextButton(onClick = onPlan) {
+                    TextButton(onClick = onPlan, modifier = Modifier.weight(1f)) {
                         Text(
                             "\uD83D\uDCC6 Plan",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
-                    TextButton(onClick = onSaveTemplate) {
+                    TextButton(onClick = onSaveTemplate, modifier = Modifier.weight(1f)) {
                         Text(
                             "\uD83D\uDCCE Save Template",
                             fontFamily = GaeguRegular,
                             color = Color.Black,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            maxLines = 1
+                        )
+                    }
+                    TextButton(onClick = onDelete, modifier = Modifier.weight(1f)) {
+                        Text(
+                            "\uD83D\uDDD1 Delete",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            maxLines = 1
                         )
                     }
                     TextButton(onClick = onDelete) {
