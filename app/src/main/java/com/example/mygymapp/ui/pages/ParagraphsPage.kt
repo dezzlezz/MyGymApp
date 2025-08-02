@@ -31,6 +31,7 @@ fun ParagraphEntryCard(
     onEdit: () -> Unit,
     onPlan: () -> Unit,
     onSaveTemplate: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     showButtons: Boolean = true,
     startDate: String? = null,
@@ -129,6 +130,14 @@ fun ParagraphEntryCard(
                             fontSize = 14.sp
                         )
                     }
+                    TextButton(onClick = onDelete) {
+                        Text(
+                            "\uD83D\uDDD1 Delete",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
         }
@@ -146,6 +155,7 @@ fun ParagraphsPage(
     onEdit: (Paragraph) -> Unit,
     onPlan: (Paragraph) -> Unit,
     onSaveTemplate: (Paragraph) -> Unit,
+    onDelete: (Paragraph) -> Unit,
     onAdd: () -> Unit,
     onPreview: (Paragraph) -> Unit = {},
     modifier: Modifier = Modifier
@@ -199,8 +209,10 @@ fun ParagraphsPage(
                         onEdit = { onEdit(paragraph) },
                         onPlan = { onPlan(paragraph) },
                         onSaveTemplate = { onSaveTemplate(paragraph) },
+                        onDelete = { onDelete(paragraph) },
+                        modifier = Modifier.animateItemPlacement(),
+                        showButtons = true,
                         onPreview = { onPreview(paragraph) },
-                        modifier = Modifier.animateItemPlacement()
                     )
                 }
                 if (planned.isNotEmpty()) {
@@ -223,10 +235,11 @@ fun ParagraphsPage(
                             onEdit = {},
                             onPlan = {},
                             onSaveTemplate = {},
+                            onDelete = {},
+                            modifier = Modifier.animateItemPlacement(),
                             showButtons = false,
                             startDate = plannedParagraph.startDate.toString(),
                             onPreview = { onPreview(plannedParagraph.paragraph) },
-                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                 }
