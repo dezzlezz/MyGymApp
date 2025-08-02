@@ -5,7 +5,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,6 +24,7 @@ import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.components.PaperBackground
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ParagraphEntryCard(
     paragraph: Paragraph,
