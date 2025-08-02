@@ -35,12 +35,14 @@ import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.viewmodel.LineViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.font.FontFamily
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ParagraphEditorPageSwipe(
     initial: Paragraph?,
     onSave: (Paragraph) -> Unit,
+    onCancel: () -> Unit,
 ) {
     var title by remember { mutableStateOf(initial?.title ?: "") }
     var note by remember { mutableStateOf(initial?.note ?: "") }
@@ -76,6 +78,15 @@ fun ParagraphEditorPageSwipe(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
             ) {
+            TextButton(
+                onClick = onCancel,
+                modifier = Modifier.align(Alignment.Start),
+                colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text("Cancel", fontFamily = FontFamily.Serif, fontSize = 14.sp)
+            }
+            Spacer(Modifier.height(4.dp))
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },

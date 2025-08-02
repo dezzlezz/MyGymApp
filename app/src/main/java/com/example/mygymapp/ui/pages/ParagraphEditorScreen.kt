@@ -28,6 +28,7 @@ fun ParagraphEditorScreen(
             navController.navigate("line_paragraph?tab=1") {
                 popUpTo("line_paragraph?tab=0") { inclusive = true }
             }
-        }
+        },
+        onCancel = { navController.popBackStack() }
     )
 }
