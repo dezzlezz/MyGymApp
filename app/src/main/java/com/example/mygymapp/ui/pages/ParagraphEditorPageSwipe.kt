@@ -48,17 +48,16 @@ fun ParagraphEditorPageSwipe(
     onSave: (Paragraph) -> Unit,
     onCancel: () -> Unit,
 ) {
-    var title by remember { mutableStateOf(initial?.title ?: "") }
-    var note by remember { mutableStateOf(initial?.note ?: "") }
+    var title by remember(initial) { mutableStateOf(initial?.title ?: "") }
+    var note by remember(initial) { mutableStateOf(initial?.note ?: "") }
 
     val lineViewModel: LineViewModel = viewModel()
     val lines by lineViewModel.lines.collectAsState()
-    val selectedLines = remember {
-        mutableStateListOf<Line?>().apply { repeat(7) { add(null) } }
-    }
+    val selectedLines = remember { mutableStateListOf<Line?>().apply { repeat(7) { add(null) } } }
 
-    LaunchedEffect(lines) {
-        if (initial != null && selectedLines.all { it == null }) {
+    LaunchedEffect(initial, lines) {
+        selectedLines.indices.forEach { selectedLines[it] = null }
+        if (initial != null) {
             initial.lineTitles.forEachIndexed { idx, title ->
                 selectedLines[idx] = lines.find { it.title == title }
             }
