@@ -34,7 +34,10 @@ fun ParagraphEntryCard(
     onPlan: () -> Unit,
     onSaveTemplate: () -> Unit,
     modifier: Modifier = Modifier,
-    showButtons: Boolean = true
+    showButtons: Boolean = true,
+    startDate: String? = null,
+    backgroundColor: Color = Color(0xFFFFF8E1),
+    moodDotBeforeTitle: Boolean = false
 ) {
     val moodColor = when (paragraph.mood.lowercase()) {
         "calm" -> Color(0xFFB3E5FC)
@@ -51,25 +54,44 @@ fun ParagraphEntryCard(
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1))
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text(
-                text = paragraph.title,
-                style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp, color = Color.Black)
-            )
-            Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(moodColor, CircleShape)
-                )
-                Spacer(Modifier.width(6.dp))
+                if (moodDotBeforeTitle) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(moodColor, CircleShape)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                }
                 Text(
-                    text = paragraph.mood,
-                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = moodColor)
+                    text = paragraph.title,
+                    style = TextStyle(fontFamily = GaeguBold, fontSize = 22.sp, color = Color.Black)
                 )
+            }
+            if (startDate != null) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Starts on: $startDate",
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.DarkGray)
+                )
+            }
+            if (!moodDotBeforeTitle) {
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(moodColor, CircleShape)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = paragraph.mood,
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp, color = moodColor)
+                    )
+                }
             }
             if (paragraph.tags.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
@@ -203,20 +225,16 @@ fun ParagraphsPage(
                         )
                     }
                     items(planned) { plannedParagraph ->
-                        Column {
-                            ParagraphEntryCard(
-                                paragraph = plannedParagraph.paragraph,
-                                onEdit = {},
-                                onPlan = {},
-                                onSaveTemplate = {},
-                                showButtons = false
-                            )
-                            Text(
-                                text = "Starts on: ${plannedParagraph.startDate}",
-                                style = TextStyle(fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black),
-                                modifier = Modifier.padding(horizontal = 28.dp, vertical = 4.dp)
-                            )
-                        }
+                        ParagraphEntryCard(
+                            paragraph = plannedParagraph.paragraph,
+                            onEdit = {},
+                            onPlan = {},
+                            onSaveTemplate = {},
+                            showButtons = false,
+                            startDate = plannedParagraph.startDate.toString(),
+                            backgroundColor = Color(0xFFE0E0E0),
+                            moodDotBeforeTitle = true
+                        )
                     }
                 }
             }
