@@ -14,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
 import android.graphics.Paint
@@ -35,7 +36,10 @@ fun LinedTextField(
         color = Color.Black
     )
 
-    val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
+    // Round the line height to whole pixels so text layout and canvas lines
+    // use the exact same spacing, preventing the baseline from drifting
+    // further away with each additional line.
+    val lineHeightPx = with(density) { textStyle.lineHeight.toPx().roundToInt().toFloat() }
     val lineCount = maxOf(value.lineSequence().count() + 1, minLines)
     val height = with(density) { lineHeightPx.toDp() } * lineCount
 
