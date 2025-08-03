@@ -56,7 +56,10 @@ fun LineParagraphPage(
                             showLineEditor = true
                         },
                         onArchive = { lines.remove(it) },
-                        onAdd = { navController.navigate("line_editor") },
+                        onAdd = {
+                            editingLine = null
+                            showLineEditor = true
+                        },
                         onManageExercises = { navController.navigate("exercise_management") }
                     )
                     else -> ParagraphsPage(
