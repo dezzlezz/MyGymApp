@@ -73,7 +73,6 @@ fun LineParagraphPage(
                             showLineEditor = true
                         },
                         onArchive = { lineViewModel.archive(it.id) },
-                        onRestore = { lineViewModel.unarchive(it.id) },
                         onUse = { }
                     )
                     else -> ParagraphsPage(
