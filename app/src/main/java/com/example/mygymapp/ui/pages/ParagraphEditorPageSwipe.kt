@@ -1,8 +1,5 @@
 package com.example.mygymapp.ui.pages
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,14 +22,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
+import com.example.mygymapp.store.JournalStore
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticLineCard
+import com.example.mygymapp.ui.components.PoeticOverlay
 import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
-import com.example.mygymapp.viewmodel.LineViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontFamily
@@ -51,8 +48,7 @@ fun ParagraphEditorPageSwipe(
     var title by remember(initial) { mutableStateOf(initial?.title ?: "") }
     var note by remember(initial) { mutableStateOf(initial?.note ?: "") }
 
-    val lineViewModel: LineViewModel = viewModel()
-    val lines by lineViewModel.lines.collectAsState()
+    val lines = JournalStore.allLines
     val selectedLines = remember { mutableStateListOf<Line?>().apply { repeat(7) { add(null) } } }
 
     LaunchedEffect(initial, lines) {
@@ -400,24 +396,11 @@ fun ParagraphEditorPageSwipe(
                     Text("📜 Save this paragraph", fontFamily = GaeguRegular, color = Color.Black)
                 }
 
-                AnimatedVisibility(
+                PoeticOverlay(
                     visible = showSavedOverlay,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.8f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "A new chapter has been written...",
-                            color = Color.White,
-                            style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp)
-                        )
-                    }
-                }
+                    message = "A new chapter has been written...",
+                    onDismiss = { showSavedOverlay = false }
+                )
             }
         }
     }

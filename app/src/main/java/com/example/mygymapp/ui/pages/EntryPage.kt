@@ -31,6 +31,8 @@ import com.example.mygymapp.ui.theme.handwritingText
 import java.time.LocalDate
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Box
+import com.example.mygymapp.ui.components.MoodChip
+import com.example.mygymapp.store.JournalStore
 
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -62,6 +64,9 @@ import androidx.compose.foundation.layout.Box
                         entryNumber = entryNumber,
                         date = today
                     )
+                    JournalStore.currentMood.value?.let {
+                        MoodChip(mood = it)
+                    }
 
                         Text(
                             text = "Today: Push · 3 movements · 34 minutes",

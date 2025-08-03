@@ -10,9 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
+import com.example.mygymapp.store.JournalStore
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mygymapp.viewmodel.EntryViewModel
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.Image
@@ -32,8 +29,7 @@ import com.example.mygymapp.R
 @Composable
 fun EntryNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val vm: EntryViewModel = viewModel()
-    val entryNumber by vm.entryNumber.collectAsState()
+    val entryNumber = JournalStore.currentEntry.value?.id?.toInt() ?: 1
 
     NavHost(
         navController = navController,
@@ -41,13 +37,10 @@ fun EntryNavigation(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         composable("entry") {
-            androidx.compose.runtime.LaunchedEffect(Unit) {
-                vm.refresh()
-            }
             EntryPage(
                 entryNumber = entryNumber,
                 onFinished = {
-                    vm.markFinished()
+                    JournalStore.currentEntry.value = null
                     navController.navigate("done")
                 }
             )
