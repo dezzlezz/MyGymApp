@@ -63,7 +63,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
     implementation("androidx.datastore:datastore-preferences:1.1.0")
