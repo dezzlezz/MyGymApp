@@ -77,7 +77,8 @@ fun LineEditorPage(
             LinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                hint = "A poetic title..."
+                hint = "A poetic title...",
+                initialLines = 1
             )
 
 
@@ -123,7 +124,8 @@ fun LineEditorPage(
             LinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                hint = "Write your thoughts here..."
+                hint = "Write your thoughts here...",
+                initialLines = 3
             )
 
 

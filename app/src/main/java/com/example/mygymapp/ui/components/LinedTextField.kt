@@ -25,7 +25,7 @@ fun LinedTextField(
     hint: String,
     modifier: Modifier = Modifier,
     lineHeight: Dp = 32.dp,
-    minLines: Int = 1
+    initialLines: Int = 1
 ) {
     val density = LocalDensity.current
     val textStyle = TextStyle(
@@ -45,19 +45,18 @@ fun LinedTextField(
     }
     val baselineOffset = -metrics.ascent
 
-    val lineCount = maxOf(layoutResult?.lineCount ?: 1, minLines)
+    val lineCount = maxOf(layoutResult?.lineCount ?: 1, initialLines)
 
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
-            val descent = metrics.descent
             val layout = layoutResult
             for (i in 0 until lineCount) {
                 val y = if (layout != null && i < layout.lineCount) {
-                    layout.getLineBottom(i)
+                    layout.getLineBaseline(i)
                 } else {
-                    baselineOffset + descent + i * lineHeightPx
+                    baselineOffset + i * lineHeightPx
                 }
                 drawLine(
                     color = Color.Black,
