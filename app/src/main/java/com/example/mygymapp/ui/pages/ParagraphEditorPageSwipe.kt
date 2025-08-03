@@ -26,6 +26,7 @@ import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.store.JournalStore
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.ui.components.PoeticLineCard
 import com.example.mygymapp.ui.components.PoeticOverlay
 import com.example.mygymapp.ui.pages.GaeguBold
@@ -234,7 +235,7 @@ fun ParagraphEditorPageSwipe(
                         val sheetState = rememberModalBottomSheetState()
 
                         Column(modifier = Modifier.fillMaxSize()) {
-                            Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth()) {
                                 val selected = selectedLines[page]
                                 if (selected != null) {
                                     PoeticLineCard(
@@ -242,18 +243,9 @@ fun ParagraphEditorPageSwipe(
                                         isSelected = true
                                     )
                                 } else {
-                                    Card(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color(
-                                                0xFFFFF8E1
-                                            )
-                                        ),
-                                        shape = RoundedCornerShape(12.dp),
-                                    ) {
+                                    PoeticCard {
                                         Text(
                                             "No page selected for ${dayNames[page]}",
-                                            modifier = Modifier.padding(16.dp),
                                             fontFamily = GaeguRegular,
                                             color = Color.Black.copy(alpha = 0.6f)
                                         )
