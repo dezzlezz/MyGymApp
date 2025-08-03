@@ -28,15 +28,23 @@ fun LinedTextField(
     minLines: Int = 4
 ) {
     val density = LocalDensity.current
-    val lineHeightPx = with(density) { lineHeight.toPx() }
+    val textStyle = TextStyle(
+        fontSize = 18.sp,
+        lineHeight = lineHeight.value.sp,
+        fontFamily = GaeguRegular,
+        color = Color.Black
+    )
+
+    val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
     val lineCount = maxOf(value.lineSequence().count() + 1, minLines)
-    val height = lineHeight * lineCount
-    val baselineOffset = remember(density) {
-        val paint = Paint().apply {
-            textSize = with(density) { 18.sp.toPx() }
-        }
-        -paint.fontMetrics.ascent
+    val height = with(density) { lineHeightPx.toDp() } * lineCount
+
+    val paint = remember(density) {
+        Paint().apply { textSize = with(density) { textStyle.fontSize.toPx() } }
     }
+    val fm = paint.fontMetrics
+    val textHeight = fm.descent - fm.ascent
+    val baselineOffset = (lineHeightPx - textHeight) / 2f - fm.ascent
 
     Box(
         modifier = modifier
@@ -59,12 +67,7 @@ fun LinedTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = TextStyle(
-                fontSize = 18.sp,
-                lineHeight = lineHeight.value.sp,
-                fontFamily = GaeguRegular,
-                color = Color.Black
-            ),
+            textStyle = textStyle,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp)
