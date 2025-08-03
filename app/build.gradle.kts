@@ -66,7 +66,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
-    implementation("androidx.datastore:datastore-preferences:1.1.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("androidx.navigation:navigation-compose:2.9.3")
     implementation("androidx.compose.ui:ui:<version>")
     implementation("androidx.compose.animation:animation-core:1.8.3")
