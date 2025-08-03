@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.compose.compiler)
 
 
     // Falls du wirklich noch Navigation SafeArgs brauchst (meist nein bei Compose-only):

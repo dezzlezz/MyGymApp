@@ -23,7 +23,6 @@ import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.model.PlannedParagraph
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticCard
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ParagraphEntryCard(
