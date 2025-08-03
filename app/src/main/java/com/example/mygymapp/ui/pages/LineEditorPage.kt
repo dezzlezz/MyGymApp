@@ -123,8 +123,7 @@ fun LineEditorPage(
             LinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                hint = "Write your thoughts here...",
-                minLines = 4
+                hint = "Write your thoughts here..."
             )
 
 
