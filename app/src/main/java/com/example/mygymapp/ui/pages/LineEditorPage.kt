@@ -1,5 +1,9 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -9,7 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,9 +34,7 @@ import com.example.mygymapp.model.Line
 import com.example.mygymapp.ui.components.LineCard
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.viewmodel.ExerciseViewModel
-import androidx.compose.foundation.text.KeyboardOptions
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -53,7 +55,6 @@ fun LineEditorPage(
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
 
-    val scope = rememberCoroutineScope()
     var showSavedOverlay by remember { mutableStateOf(false) }
 
     PaperBackground(
@@ -335,28 +336,29 @@ fun LineEditorPage(
                         color = Color.Black,
                         modifier = Modifier
                             .clickable {
-                                scope.launch {
-                                    showSavedOverlay = true
-                                    delay(1000)
-                                    val newLine = Line(
-                                        id = initial?.id ?: System.currentTimeMillis(),
-                                        title = title,
-                                        category = category,
-                                        muscleGroup = muscleGroup,
-                                        exercises = exerciseList.toList(),
-                                        supersets = supersets.toList(),
-                                        note = note,
-                                        isArchived = false
-                                    )
-                                    onSave(newLine)
-                                }
+                                showSavedOverlay = true
+                                val newLine = Line(
+                                    id = initial?.id ?: System.currentTimeMillis(),
+                                    title = title,
+                                    category = category,
+                                    muscleGroup = muscleGroup,
+                                    exercises = exerciseList.toList(),
+                                    supersets = supersets.toList(),
+                                    note = note,
+                                    isArchived = false
+                                )
+                                onSave(newLine)
                             }
                             .padding(8.dp)
                     )
                 }
             }
 
-            if (showSavedOverlay) {
+            AnimatedVisibility(
+                visible = showSavedOverlay,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -368,6 +370,13 @@ fun LineEditorPage(
                         color = Color.White,
                         style = TextStyle(fontFamily = GaeguBold, fontSize = 20.sp)
                     )
+                }
+            }
+
+            LaunchedEffect(showSavedOverlay) {
+                if (showSavedOverlay) {
+                    delay(1000)
+                    showSavedOverlay = false
                 }
             }
         }
