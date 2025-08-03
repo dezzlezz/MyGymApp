@@ -47,7 +47,7 @@ fun LinedTextField(
 
     val lineCount = maxOf(layoutResult?.lineCount ?: 0, minLines)
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier.fillMaxWidth()
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
@@ -79,8 +79,8 @@ fun LinedTextField(
                     lineHeight = lineHeight.value.sp,
                     color = Color.Gray
                 )
-
             }
+            innerTextField()
         }
     }
 }
