@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface PlanDao {
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM plan WHERE type = :arg0 ORDER BY name")
+    @Query("SELECT * FROM plan WHERE type = :planType ORDER BY name")
     fun getPlansByType(planType: PlanType): Flow<List<Plan>>
 
     @RewriteQueriesToDropUnusedColumns
@@ -15,7 +15,7 @@ interface PlanDao {
     fun getAllPlans(): List<Plan>
 
     @Transaction
-    @Query("SELECT * FROM plan WHERE planId = :arg0")
+    @Query("SELECT * FROM plan WHERE planId = :planId")
     fun getPlanWithExercises(planId: Long): PlanWithExercises?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -24,13 +24,13 @@ interface PlanDao {
     @Delete
     fun deletePlan(plan: Plan)
 
-    @Query("DELETE FROM PlanExerciseCrossRef WHERE planId = :arg0")
+    @Query("DELETE FROM PlanExerciseCrossRef WHERE planId = :planId")
     fun deleteCrossRefsForPlan(planId: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCrossRefs(refs: List<PlanExerciseCrossRef>)
 
-    @Query("DELETE FROM plan_day WHERE planId = :arg0")
+    @Query("DELETE FROM plan_day WHERE planId = :planId")
     fun deleteDaysForPlan(planId: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
