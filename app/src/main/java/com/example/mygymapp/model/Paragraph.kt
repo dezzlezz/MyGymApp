@@ -7,5 +7,6 @@ data class Paragraph(
     val id: Long,
     val title: String,
     val lineTitles: List<String>,
-    val note: String = ""
+    val note: String = "",
+    val isArchived: Boolean = false
 )
