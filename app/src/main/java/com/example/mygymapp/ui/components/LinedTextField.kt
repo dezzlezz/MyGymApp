@@ -51,12 +51,18 @@ fun LinedTextField(
         modifier = modifier.fillMaxWidth()
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
+            val descent = metrics.descent
+            val layout = layoutResult
             for (i in 0 until lineCount) {
-                val baseline = baselineOffset + i * lineHeightPx
+                val y = if (layout != null && i < layout.lineCount) {
+                    layout.getLineBottom(i)
+                } else {
+                    baselineOffset + descent + i * lineHeightPx
+                }
                 drawLine(
                     color = Color.Black,
-                    start = Offset(0f, baseline),
-                    end = Offset(size.width, baseline),
+                    start = Offset(0f, y),
+                    end = Offset(size.width, y),
                     strokeWidth = 1.2f
                 )
             }
