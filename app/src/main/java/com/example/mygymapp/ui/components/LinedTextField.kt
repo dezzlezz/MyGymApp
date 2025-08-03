@@ -37,8 +37,22 @@ fun LinedTextField(
         fontFamily = GaeguRegular,
         color = Color.Black
     )
+
     val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    val metrics = remember(textStyle.fontSize, density) {
+        Paint().apply {
+            textSize = with(density) { textStyle.fontSize.toPx() }
+        }.fontMetrics
+    }
+    val descent = metrics.descent
+    val baselineOffset = -metrics.ascent
+
+    val lineCount = maxOf(layoutResult?.lineCount ?: 0, minLines)
+    val height = with(density) {
+        (baselineOffset + descent + (lineCount - 1) * lineHeightPx).toDp()
+    }
 
     // Compute descent from the font metrics so we can translate the layout's
     // line bottoms to baselines and generate additional baselines for empty
@@ -111,12 +125,7 @@ fun LinedTextField(
             }
 
             for (i in 0 until lineCount) {
-                val baseline = if (layout != null && i < layout.lineCount) {
-                    layout.getLineBottom(i) - descent
-                } else {
-                    lastBaseline + (i - (layout?.lineCount ?: 0) + 1) * baselineSpacing
-                }
-
+                val baseline = baselineOffset + i * lineHeightPx
                 drawLine(
                     color = Color.Black,
                     start = Offset(0f, baseline),
@@ -148,3 +157,4 @@ fun LinedTextField(
         }
     }
 }
+
