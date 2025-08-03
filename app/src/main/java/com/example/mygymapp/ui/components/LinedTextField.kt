@@ -13,9 +13,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.getLineBottom
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,8 +54,9 @@ fun LinedTextField(
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
-    ) {        val layout = textMeasurer.measure(
-            text = value.ifEmpty(" "),
+    ) {
+        val layout = textMeasurer.measure(
+            text = value.ifEmpty { " " },
             style = textStyle,
             constraints = Constraints(maxWidth = constraints.maxWidth)
         )
