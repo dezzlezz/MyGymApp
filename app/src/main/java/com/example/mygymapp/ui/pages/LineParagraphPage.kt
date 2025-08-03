@@ -38,6 +38,7 @@ fun LineParagraphPage(
     var selectedTab by remember { mutableStateOf(startTab) }
     val tabs = listOf("Lines", "Paragraphs")
     val paragraphs by paragraphViewModel.paragraphs.collectAsState()
+    val archived by paragraphViewModel.archived.collectAsState()
     val templates by paragraphViewModel.templates.collectAsState()
     val planned by paragraphViewModel.planned.collectAsState()
     val lineViewModel: LineViewModel = viewModel()
@@ -73,18 +74,18 @@ fun LineParagraphPage(
                             showLineEditor = true
                         },
                         onArchive = { lineViewModel.archive(it.id) },
-                        onRestore = { lineViewModel.unarchive(it.id) },
                         onUse = { }
                     )
                     else -> ParagraphsPage(
                         paragraphs = paragraphs,
+                        archived = archived,
                         planned = planned,
                         onEdit = { paragraph ->
                             navController.navigate("paragraph_editor?id=${paragraph.id}")
                         },
                         onPlan = { planTarget = it },
                         onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
-                        onDelete = { paragraphViewModel.deleteParagraph(it) },
+                        onArchive = { paragraphViewModel.archiveParagraph(it) },
                         onAdd = {
                             if (templates.isNotEmpty()) {
                                 showTemplateChooser = true

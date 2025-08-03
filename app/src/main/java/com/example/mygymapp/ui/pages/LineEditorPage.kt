@@ -226,22 +226,21 @@ fun LineEditorPage(
                 fontFamily = GaeguBold,
                 color = Color.Black
             )
-            LineCard(
-                line = Line(
-                    id = initial?.id ?: 0L,
-                    title = title.ifBlank { "Untitled" },
-                    category = category,
-                    muscleGroup = muscleGroup,
-                    exercises = exerciseList.toList(),
-                    supersets = supersets.toList(),
-                    note = note,
-                    isArchived = false
-                ),
-                onEdit = {},
-                onArchive = {},
-                onRestore = {},
-                onUse = {}
-            )
+                LineCard(
+                    line = Line(
+                        id = initial?.id ?: 0L,
+                        title = title.ifBlank { "Untitled" },
+                        category = category,
+                        muscleGroup = muscleGroup,
+                        exercises = exerciseList.toList(),
+                        supersets = supersets.toList(),
+                        note = note,
+                        isArchived = false
+                    ),
+                    onEdit = {},
+                    onArchive = {},
+                    onUse = {}
+                )
             Spacer(Modifier.height(16.dp))
             Row(
                 horizontalArrangement = Arrangement.End,
