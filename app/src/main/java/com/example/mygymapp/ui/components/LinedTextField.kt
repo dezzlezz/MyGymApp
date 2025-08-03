@@ -1,5 +1,6 @@
 package com.example.mygymapp.ui.components
 
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.getLineBottom
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,11 +45,21 @@ fun LinedTextField(
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     val layout = layoutResult
 
-    // Use the layout's measured baseline distance when available so that
+    // Compute descent from the font metrics so we can translate the layout's
+    // line bottoms to baselines and generate additional baselines for empty
+    // trailing lines.
+    val fontSizePx = with(density) { textStyle.fontSize.toPx() }
+    val paint = remember { Paint() }
+    paint.textSize = fontSizePx
+    val fontMetrics = paint.fontMetrics
+    val descent = fontMetrics.descent
+    val baselineOffset = -fontMetrics.ascent
+
+    // Use the layout's measured line spacing when available so that
     // additional lines are spaced identically to the rendered text.
     val baselineSpacing = layout?.let {
         if (it.lineCount > 1) {
-            (it.getLineBaseline(1) - it.getLineBaseline(0)).toFloat()
+            (it.getLineBottom(1) - it.getLineBottom(0)).toFloat()
         } else {
             lineHeightPx
         }
@@ -64,19 +76,21 @@ fun LinedTextField(
             .padding(4.dp)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
-            val lastBaseline = layout?.getLineBaseline(
-                (layout.lineCount - 1).coerceAtLeast(0)
-            )?.toFloat() ?: 0f
+            val lastBaseline = if (layout != null && layout.lineCount > 0) {
+                layout.getLineBottom(layout.lineCount - 1) - descent
+            } else {
+                baselineOffset
+            }
 
             for (i in 0 until lineCount) {
                 val baseline = if (layout != null) {
                     if (i < layout.lineCount) {
-                        layout.getLineBaseline(i).toFloat()
+                        layout.getLineBottom(i) - descent
                     } else {
                         lastBaseline + (i - layout.lineCount + 1) * baselineSpacing
                     }
                 } else {
-                    (i + 1) * baselineSpacing
+                    baselineOffset + i * baselineSpacing
                 }
 
                 drawLine(
