@@ -32,9 +32,6 @@ fun ArchiveNavigation(onNavigateToEntry: () -> Unit = {}) {
             val editIdArg = backStackEntry.arguments?.getLong("id")?.takeIf { it != -1L }
             ParagraphEditorScreen(navController = navController, editId = editIdArg)
         }
-        composable("exercise_management") {
-            ExerciseManagementScreen(navController = navController)
-        }
         composable(
             route = "exercise_editor?editId={editId}",
             arguments = listOf(navArgument("editId") {
