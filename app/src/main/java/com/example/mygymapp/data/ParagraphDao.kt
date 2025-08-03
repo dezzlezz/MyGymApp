@@ -22,11 +22,11 @@ interface ParagraphDao {
     @Update
     fun update(paragraph: ParagraphEntity)
 
-    @Query("UPDATE paragraphs SET isArchived = 1 WHERE id = :id")
-    fun archive(id: Long)
+    @Query("UPDATE paragraphs SET isArchived = 1 WHERE id = :arg0")
+    fun archive(id: Long): Int
 
-    @Query("UPDATE paragraphs SET isArchived = 0 WHERE id = :id")
-    fun unarchive(id: Long)
+    @Query("UPDATE paragraphs SET isArchived = 0 WHERE id = :arg0")
+    fun unarchive(id: Long): Int
 
     @Delete
     fun delete(paragraph: ParagraphEntity)

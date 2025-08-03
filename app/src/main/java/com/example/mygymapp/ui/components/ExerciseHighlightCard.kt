@@ -25,7 +25,7 @@ import com.example.mygymapp.ui.pages.GaeguRegular
 import com.example.mygymapp.ui.theme.TextSecondary
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
-import com.example.mygymapp.ui.components.PrimaryButton
+import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.R
 
 @Composable
@@ -250,11 +250,12 @@ fun ExerciseDetailSheet(exercise: Exercise, onClose: () -> Unit) {
             }
 
             Spacer(Modifier.height(24.dp))
-            PrimaryButton(
+            Button(
                 onClick = onClose,
-                modifier = Modifier.fillMaxWidth(),
-                textRes = R.string.close
-            )
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.close), fontFamily = GaeguBold)
+            }
         }
     }
 }
