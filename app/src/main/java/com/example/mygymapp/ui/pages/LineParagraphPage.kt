@@ -74,7 +74,8 @@ fun LineParagraphPage(
                             showLineEditor = true
                         },
                         onArchive = { lineViewModel.archive(it.id) },
-                        onUse = { }
+                        onAdd = { navController.navigate("line_editor") },
+                        onManageExercises = { navController.navigate("exercise_management") }
                     )
                     else -> ParagraphsPage(
                         paragraphs = paragraphs,
@@ -182,4 +183,3 @@ fun LineParagraphPage(
         }
     }
 }
-
