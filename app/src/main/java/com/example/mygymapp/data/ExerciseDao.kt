@@ -20,10 +20,10 @@ interface ExerciseDao {
 
 
     // Lösche per ID, wie gehabt:
-    @Query("DELETE FROM exercises WHERE id = :exerciseId")
+    @Query("DELETE FROM exercises WHERE id = :arg0")
     fun deleteById(exerciseId: Long): Int
 
     // Hole einzelnen Exercise per ID:
-    @Query("SELECT * FROM exercises WHERE id = :exerciseId")
+    @Query("SELECT * FROM exercises WHERE id = :arg0")
     fun getById(exerciseId: Long): Exercise?
 }
