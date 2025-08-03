@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.Text
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
@@ -54,7 +55,7 @@ fun WaxSealButton(
             modifier = Modifier.size(sealSize),
             contentScale = ContentScale.Fit
         )
-        androidx.compose.material3.Text(
+        Text(
             text = label,
             style = TextStyle(
                 fontFamily = font,
