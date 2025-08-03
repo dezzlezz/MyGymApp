@@ -19,11 +19,11 @@ interface ExerciseDao {
     fun update(exercise: Exercise): Int
 
 
-    // Lösche per ID, wie gehabt:
-    @Query("DELETE FROM exercises WHERE id = :exerciseId")
-    fun deleteById(exerciseId: Long): Int
+    // Delete a single exercise by its primary key
+    @Query("DELETE FROM exercises WHERE id = :id")
+    fun deleteById(id: Long): Int
 
-    // Hole einzelnen Exercise per ID:
-    @Query("SELECT * FROM exercises WHERE id = :exerciseId")
-    fun getById(exerciseId: Long): Exercise?
+    // Retrieve a single exercise by its primary key
+    @Query("SELECT * FROM exercises WHERE id = :id")
+    fun getById(id: Long): Exercise?
 }

@@ -14,7 +14,6 @@ import com.example.mygymapp.ui.background.ForestBackgroundCanvas
 fun PageManager() {
     val pages = listOf<@Composable () -> Unit>(
         { StartPage() },
-        { PlanPage() },
         { WorkoutPage() },
         { ProfilePage() }
     )
