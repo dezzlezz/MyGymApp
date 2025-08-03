@@ -1,15 +1,21 @@
 package com.example.mygymapp.ui.components
 
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.getLineBottom
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,51 +32,93 @@ fun LinedTextField(
     minLines: Int = 4
 ) {
     val density = LocalDensity.current
-    val lineHeightPx = with(density) { lineHeight.toPx() }
-    val lineCount = maxOf(value.lineSequence().count() + 1, minLines)
-    val height = lineHeight * lineCount
+    val textStyle = TextStyle(
+        fontSize = 18.sp,
+        lineHeight = lineHeight.value.sp,
+        fontFamily = GaeguRegular,
+        color = Color.Black
+    )
+    val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
+    val textMeasurer = rememberTextMeasurer()
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-            .padding(4.dp)
+    // Compute descent from the font metrics so we can translate the layout's
+    // line bottoms to baselines and generate additional baselines for empty
+    // trailing lines.
+    val fontSizePx = with(density) { textStyle.fontSize.toPx() }
+    val paint = remember { Paint() }
+    paint.textSize = fontSizePx
+    val fontMetrics = paint.fontMetrics
+    val descent = fontMetrics.descent
+    val baselineOffset = -fontMetrics.ascent
+
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Canvas(modifier = Modifier.matchParentSize()) {
-            for (i in 0 until lineCount) {
-                val y = i * lineHeightPx + lineHeightPx * 0.92f
-                drawLine(
-                    color = Color.Black,
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1.2f
-                )
-            }
+        val layout = textMeasurer.measure(
+            text = value.ifEmpty { " " },
+            style = textStyle,
+            constraints = Constraints(maxWidth = constraints.maxWidth)
+        )
+
+        // Use the layout's measured line spacing when available so that
+        // additional lines are spaced identically to the rendered text.
+        val baselineSpacing = if (layout.lineCount > 1) {
+            (layout.getLineBottom(1) - layout.getLineBottom(0)).toFloat()
+        } else {
+            lineHeightPx
         }
 
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = TextStyle(
-                fontSize = 18.sp,
-                lineHeight = lineHeight.value.sp,
-                fontFamily = GaeguRegular,
-                color = Color.Black
-            ),
+        val lineCount = maxOf(layout.lineCount, minLines)
+        val height = with(density) { (baselineSpacing * lineCount).toDp() }
+
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp)
-        ) { innerTextField ->
-            if (value.isEmpty()) {
-                Text(
-                    hint,
-                    fontFamily = GaeguLight,
-                    fontSize = 18.sp,
-                    lineHeight = lineHeight.value.sp,
-                    color = Color.Gray
-                )
+                .fillMaxWidth()
+                .height(height)
+                .padding(4.dp)
+        ) {
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val lastBaseline = if (layout.lineCount > 0) {
+                    layout.getLineBottom(layout.lineCount - 1) - descent
+                } else {
+                    baselineOffset
+                }
+
+                for (i in 0 until lineCount) {
+                    val baseline = if (i < layout.lineCount) {
+                        layout.getLineBottom(i) - descent
+                    } else {
+                        lastBaseline + (i - layout.lineCount + 1) * baselineSpacing
+                    }
+
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(0f, baseline),
+                        end = Offset(size.width, baseline),
+                        strokeWidth = 1.2f
+                    )
+                }
             }
-            innerTextField()
+
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                textStyle = textStyle,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
+            ) { innerTextField ->
+                if (value.isEmpty()) {
+                    Text(
+                        hint,
+                        fontFamily = GaeguLight,
+                        fontSize = 18.sp,
+                        lineHeight = lineHeight.value.sp,
+                        color = Color.Gray
+                    )
+                }
+                innerTextField()
+            }
         }
     }
 }
