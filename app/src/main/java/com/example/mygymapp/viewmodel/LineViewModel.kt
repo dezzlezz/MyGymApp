@@ -3,6 +3,7 @@ package com.example.mygymapp.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.mygymapp.data.LineRepository
 import com.example.mygymapp.model.Line
+import com.example.mygymapp.model.Mood
 import kotlinx.coroutines.flow.StateFlow
 
 class LineViewModel : ViewModel() {
@@ -16,6 +17,7 @@ class LineViewModel : ViewModel() {
                 title = "Silent Force",
                 category = "Push",
                 muscleGroup = "Core",
+                mood = Mood.CALM,
                 exercises = emptyList(),
                 supersets = emptyList(),
                 note = "Felt steady and grounded throughout."
@@ -27,6 +29,7 @@ class LineViewModel : ViewModel() {
                 title = "Night Owl Session",
                 category = "Pull",
                 muscleGroup = "Back",
+                mood = Mood.FOCUSED,
                 exercises = emptyList(),
                 supersets = listOf(1L to 2L),
                 note = "Late session with high focus."
