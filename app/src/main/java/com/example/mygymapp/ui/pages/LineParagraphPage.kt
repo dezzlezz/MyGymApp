@@ -7,46 +7,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
-import com.example.mygymapp.model.PlannedParagraph
+import com.example.mygymapp.store.JournalStore
 import com.example.mygymapp.ui.components.PaperBackground
-import com.example.mygymapp.ui.pages.ParagraphsPage
-import java.time.Instant
-import java.time.ZoneId
-import com.example.mygymapp.viewmodel.ParagraphViewModel
-import com.example.mygymapp.viewmodel.LineViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun LineParagraphPage(
     navController: NavController,
-    paragraphViewModel: ParagraphViewModel = viewModel(),
     modifier: Modifier = Modifier,
     startTab: Int = 0
 ) {
     var selectedTab by remember { mutableStateOf(startTab) }
     val tabs = listOf("Lines", "Paragraphs")
-    val paragraphs by paragraphViewModel.paragraphs.collectAsState()
-    val archived by paragraphViewModel.archived.collectAsState()
-    val templates by paragraphViewModel.templates.collectAsState()
-    val planned by paragraphViewModel.planned.collectAsState()
-    val lineViewModel: LineViewModel = viewModel()
-    val lines by lineViewModel.lines.collectAsState()
+    val lines = JournalStore.allLines
+    val paragraphs = JournalStore.allParagraphs
     var editingLine by remember { mutableStateOf<Line?>(null) }
     var showLineEditor by remember { mutableStateOf(false) }
-    var planTarget by remember { mutableStateOf<Paragraph?>(null) }
-    var showTemplateChooser by remember { mutableStateOf(false) }
 
     PaperBackground(
         modifier = modifier
@@ -73,27 +55,21 @@ fun LineParagraphPage(
                             editingLine = it
                             showLineEditor = true
                         },
-                        onArchive = { lineViewModel.archive(it.id) },
+                        onArchive = { lines.remove(it) },
                         onAdd = { navController.navigate("line_editor") },
                         onManageExercises = { navController.navigate("exercise_management") }
                     )
                     else -> ParagraphsPage(
                         paragraphs = paragraphs,
-                        archived = archived,
-                        planned = planned,
+                        archived = emptyList(),
+                        planned = emptyList(),
                         onEdit = { paragraph ->
                             navController.navigate("paragraph_editor?id=${paragraph.id}")
                         },
-                        onPlan = { planTarget = it },
-                        onSaveTemplate = { paragraphViewModel.saveTemplate(it) },
-                        onArchive = { paragraphViewModel.archiveParagraph(it) },
-                        onAdd = {
-                            if (templates.isNotEmpty()) {
-                                showTemplateChooser = true
-                            } else {
-                                navController.navigate("paragraph_editor")
-                            }
-                        }
+                        onPlan = {},
+                        onSaveTemplate = {},
+                        onArchive = { paragraphs.remove(it) },
+                        onAdd = { navController.navigate("paragraph_editor") }
                     )
                 }
             }
@@ -105,11 +81,7 @@ fun LineParagraphPage(
                         editingLine = null
                         showLineEditor = true
                     } else {
-                        if (templates.isNotEmpty()) {
-                            showTemplateChooser = true
-                        } else {
-                            navController.navigate("paragraph_editor")
-                        }
+                        navController.navigate("paragraph_editor")
                     }
                 },
                 modifier = Modifier
@@ -132,54 +104,11 @@ fun LineParagraphPage(
         LineEditorPage(
             initial = editingLine,
             onSave = { line ->
-                if (editingLine == null) lineViewModel.add(line)
-                else lineViewModel.update(line)
+                val index = lines.indexOfFirst { it.id == line.id }
+                if (index >= 0) lines[index] = line else lines.add(line)
                 showLineEditor = false
             },
             onCancel = { showLineEditor = false }
         )
-    }
-
-    planTarget?.let { target ->
-        val dateState = rememberDatePickerState()
-        ModalBottomSheet(onDismissRequest = { planTarget = null }) {
-            Column(Modifier.padding(16.dp)) {
-                DatePicker(state = dateState)
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = { planTarget = null }) {
-                        Text("Cancel", fontFamily = GaeguRegular, color = Color.Black)
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(onClick = {
-                        val millis = dateState.selectedDateMillis ?: return@Button
-                        val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
-                        paragraphViewModel.planParagraph(target, date)
-                        planTarget = null
-                    }) {
-                        Text("Plan", fontFamily = GaeguRegular, color = Color.Black)
-                    }
-                }
-            }
-        }
-    }
-
-    if (showTemplateChooser) {
-        ModalBottomSheet(onDismissRequest = { showTemplateChooser = false }) {
-            Column(Modifier.padding(16.dp)) {
-                Text("Choose Template", fontFamily = GaeguBold, style = MaterialTheme.typography.titleMedium, color = Color.Black)
-                Spacer(Modifier.height(8.dp))
-                templates.forEach { template ->
-                    TextButton(onClick = {
-                        showTemplateChooser = false
-                        navController.navigate("paragraph_editor?id=${template.id}")
-                    }) { Text(template.title, fontFamily = GaeguRegular, color = Color.Black) }
-                }
-                TextButton(onClick = {
-                    showTemplateChooser = false
-                    navController.navigate("paragraph_editor")
-                }) { Text("Blank", fontFamily = GaeguRegular, color = Color.Black) }
-            }
-        }
     }
 }
