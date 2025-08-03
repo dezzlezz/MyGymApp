@@ -20,10 +20,10 @@ interface ExerciseDao {
 
 
     // Delete a single exercise by its primary key
-    @Query("DELETE FROM exercises WHERE id = :id")
+    @Query("DELETE FROM exercises WHERE id = :arg0")
     fun deleteById(id: Long): Int
 
     // Retrieve a single exercise by its primary key
-    @Query("SELECT * FROM exercises WHERE id = :id")
+    @Query("SELECT * FROM exercises WHERE id = :arg0")
     fun getById(id: Long): Exercise?
 }
