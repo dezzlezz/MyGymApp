@@ -35,8 +35,6 @@ fun LineCard(
 
     PoeticCard(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .alpha(fade)
     ) {
         Text(

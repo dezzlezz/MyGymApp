@@ -2,6 +2,7 @@ package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -17,16 +18,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PoeticCard(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFFFFF8E1),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5DC))
     ) {
-        Column(modifier = Modifier.padding(20.dp), content = content)
+        Column(modifier = Modifier.padding(16.dp)) {
+            content()
+        }
     }
 }
 

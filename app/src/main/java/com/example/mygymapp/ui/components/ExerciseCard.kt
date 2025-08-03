@@ -8,13 +8,17 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.ui.components.PoeticCard
 
 @Composable
 fun ExerciseCard(
@@ -23,31 +27,24 @@ fun ExerciseCard(
     onToggleFavorite: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    Card(
+    PoeticCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
             .defaultMinSize(minHeight = 80.dp)
             .indication(interactionSource, LocalIndication.current)
             .clickable(
                 onClick = onClick,
                 interactionSource = interactionSource,
                 indication = null
-            ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            )
     ) {
         Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
                 Text(ex.name, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${ex.muscleGroup.display} • ${ex.customCategory ?: ex.category.name}",
+                    "${'$'}{ex.muscleGroup.display} • ${'$'}{ex.customCategory ?: ex.category.name}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

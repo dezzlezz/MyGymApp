@@ -182,8 +182,7 @@ fun ExerciseManagementScreen(navController: NavController) {
             Spacer(Modifier.height(12.dp))
 
             LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.weight(1f)
             ) {
                 if (filtered.isEmpty()) {
                     item {
@@ -200,7 +199,8 @@ fun ExerciseManagementScreen(navController: NavController) {
                             query = rawQuery,
                             onEdit = { navController.navigate("exercise_editor?editId=${ex.id}") },
                             onDelete = { vm.delete(ex.id) },
-                            onToggleFavorite = { vm.toggleFavorite(ex) }
+                            onToggleFavorite = { vm.toggleFavorite(ex) },
+                            modifier = Modifier.padding(vertical = 6.dp)
                         )
                     }
                 } else {
@@ -228,7 +228,8 @@ fun ExerciseManagementScreen(navController: NavController) {
                                     query = "",
                                     onEdit = { navController.navigate("exercise_editor?editId=${ex.id}") },
                                     onDelete = { vm.delete(ex.id) },
-                                    onToggleFavorite = { vm.toggleFavorite(ex) }
+                                    onToggleFavorite = { vm.toggleFavorite(ex) },
+                                    modifier = Modifier.padding(vertical = 6.dp)
                                 )
                             }
                         }

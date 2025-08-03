@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Paragraph
+import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.pages.GaeguRegular
 
 @Composable
 fun ParagraphCard(
@@ -18,23 +20,23 @@ fun ParagraphCard(
     onSaveTemplate: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PoeticCard(modifier = modifier.fillMaxWidth()) {
+    PoeticCard(modifier = modifier.padding(vertical = 6.dp)) {
         Text(
             text = paragraph.title,
-            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Serif)
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = GaeguBold)
         )
         Spacer(modifier = Modifier.height(12.dp))
         paragraph.lineTitles.forEachIndexed { index, title ->
             Text(
                 text = "Day ${index + 1}: $title",
-                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Serif)
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = GaeguRegular)
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TextButton(onClick = onEdit) { Text("✏️ Edit") }
-            TextButton(onClick = onPlan) { Text("📆 Plan") }
-            TextButton(onClick = onSaveTemplate) { Text("📎 Save Template") }
+            TextButton(onClick = onEdit) { Text("✏️ Edit", fontFamily = GaeguRegular) }
+            TextButton(onClick = onPlan) { Text("📆 Plan", fontFamily = GaeguRegular) }
+            TextButton(onClick = onSaveTemplate) { Text("📎 Save Template", fontFamily = GaeguRegular) }
         }
     }
 }
