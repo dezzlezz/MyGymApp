@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mygymapp.data.Exercise
+import com.example.mygymapp.model.Exercise
 
 /** A soft, poetic representation of a single exercise item. */
 @Composable
@@ -31,10 +31,19 @@ fun ExerciseItem(
                     color = Color.Black
                 )
             )
-            if (exercise.description.isNotBlank()) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "${exercise.sets} × ${exercise.repsOrDuration}",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = FontFamily.Serif,
+                    color = Color.DarkGray,
+                    fontSize = 12.sp
+                )
+            )
+            if (exercise.note.isNotBlank()) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = exercise.description,
+                    text = exercise.note,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = FontFamily.Serif,
                         color = Color.DarkGray,
