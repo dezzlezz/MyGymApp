@@ -14,11 +14,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 /**
  * A poetic chip selector allowing multiple selections.
  * Styled gently with rounded corners and soft selection highlights.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PoeticMultiSelectChips(
     options: List<String>,
