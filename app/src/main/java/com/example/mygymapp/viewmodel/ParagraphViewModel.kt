@@ -24,6 +24,9 @@ class ParagraphViewModel(application: Application) : AndroidViewModel(applicatio
     val paragraphs: StateFlow<List<Paragraph>> =
         repo.paragraphs.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val archived: StateFlow<List<Paragraph>> =
+        repo.archived.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     private val _templates = MutableStateFlow<List<Paragraph>>(emptyList())
     val templates: StateFlow<List<Paragraph>> = _templates.asStateFlow()
 
@@ -46,8 +49,11 @@ class ParagraphViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
 
-    fun deleteParagraph(paragraph: Paragraph) =
-        viewModelScope.launch(Dispatchers.IO) { repo.delete(paragraph) }
+    fun archiveParagraph(paragraph: Paragraph) =
+        viewModelScope.launch(Dispatchers.IO) { repo.archive(paragraph.id) }
+
+    fun unarchiveParagraph(paragraph: Paragraph) =
+        viewModelScope.launch(Dispatchers.IO) { repo.unarchive(paragraph.id) }
 
     fun saveTemplate(paragraph: Paragraph) {
         _templates.update { it + paragraph.copy() }
