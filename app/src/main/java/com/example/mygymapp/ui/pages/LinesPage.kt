@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.ui.components.LineCard
 import com.example.mygymapp.ui.components.PaperBackground
-
+import androidx.compose.foundation.layout.fillMaxSize
 @Composable
 fun LinesPage(
     lines: List<Line>,

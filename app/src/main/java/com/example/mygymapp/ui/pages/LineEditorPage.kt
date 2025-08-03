@@ -326,7 +326,7 @@ fun LineEditorPage(
                         fontFamily = GaeguRegular,
                         color = Color.Gray,
                         modifier = Modifier
-                            .clickable(onCancel)
+                            .clickable { onCancel() }
                             .padding(8.dp)
                     )
                     Spacer(Modifier.width(16.dp))
