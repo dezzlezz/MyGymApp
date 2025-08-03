@@ -34,15 +34,10 @@ fun ExerciseCardWithHighlight(
     query: String,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onToggleFavorite: (() -> Unit)? = null
+    onToggleFavorite: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
-    val cardColor = Color.White.copy(alpha = 0.8f)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(cardColor)
-    ) {
+    PoeticCard(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (ex.imageUri != null) {
                 Image(
@@ -62,11 +57,10 @@ fun ExerciseCardWithHighlight(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "${ex.muscleGroup.display} · ${ex.customCategory ?: ex.category.name}",
+                    text = "${'$'}{ex.muscleGroup.display} · ${'$'}{ex.customCategory ?: ex.category.name}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontFamily = GaeguRegular),
                     color = Color.DarkGray
                 )
-
                 if (ex.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -78,43 +72,29 @@ fun ExerciseCardWithHighlight(
                     )
                 }
             }
-        }
-
-        if (ex.description.isNotBlank()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = ex.description,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = GaeguRegular,
-                    color = Color.DarkGray
-                ),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    if (onToggleFavorite != null) {
-                        IconButton(onClick = onToggleFavorite) {
-                            Icon(
-                                imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
-                                contentDescription = "Favorite",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    TextButton(onClick = onEdit) {
-                        Text("Edit", fontFamily = GaeguRegular)
-                    }
-                    TextButton(onClick = onDelete) {
-                        Text("Delete", fontFamily = GaeguRegular)
-                    }
+            if (onToggleFavorite != null) {
+                IconButton(onClick = onToggleFavorite) {
+                    Icon(
+                        imageVector = if (ex.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarBorder,
+                        contentDescription = "Favorite",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(onClick = onEdit) {
+                Text("Edit", fontFamily = GaeguRegular)
+            }
+            TextButton(onClick = onDelete) {
+                Text("Delete", fontFamily = GaeguRegular)
+            }
+        }
+    }
+}
 
 
 

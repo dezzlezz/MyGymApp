@@ -42,15 +42,15 @@ fun LinesPage(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(vertical = 16.dp)
             ) {
                 items(lines) { line ->
                     LineCard(
                         line = line,
                         onEdit = { onEdit(line) },
                         onAdd = { onAdd() },
-                        onArchive = { onArchive(line) }
+                        onArchive = { onArchive(line) },
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
                 }
             }

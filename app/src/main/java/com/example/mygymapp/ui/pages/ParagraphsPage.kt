@@ -210,7 +210,6 @@ fun ParagraphsPage(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 72.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(paragraphs, key = { it.id }) { paragraph ->
                         ParagraphEntryCard(
@@ -219,7 +218,9 @@ fun ParagraphsPage(
                             onPlan = { onPlan(paragraph) },
                             onSaveTemplate = { onSaveTemplate(paragraph) },
                             onArchive = { onArchive(paragraph) },
-                            modifier = Modifier.animateItemPlacement(),
+                            modifier = Modifier
+                                .padding(vertical = 6.dp)
+                                .animateItemPlacement(),
                             showButtons = true,
                             onPreview = { onPreview(paragraph) },
                         )
@@ -245,7 +246,9 @@ fun ParagraphsPage(
                                 onPlan = {},
                                 onSaveTemplate = {},
                                 onArchive = {},
-                                modifier = Modifier.animateItemPlacement(),
+                                modifier = Modifier
+                                    .padding(vertical = 6.dp)
+                                    .animateItemPlacement(),
                                 showButtons = false,
                                 startDate = plannedParagraph.startDate.toString(),
                                 onPreview = { onPreview(plannedParagraph.paragraph) },
@@ -257,7 +260,6 @@ fun ParagraphsPage(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 72.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(archived, key = { it.id }) { paragraph ->
                         ParagraphEntryCard(
@@ -266,7 +268,9 @@ fun ParagraphsPage(
                             onPlan = {},
                             onSaveTemplate = {},
                             onArchive = {},
-                            modifier = Modifier.animateItemPlacement(),
+                            modifier = Modifier
+                                .padding(vertical = 6.dp)
+                                .animateItemPlacement(),
                             showButtons = false,
                             onPreview = { onPreview(paragraph) },
                         )

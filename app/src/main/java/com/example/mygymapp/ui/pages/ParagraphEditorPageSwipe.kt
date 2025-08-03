@@ -348,6 +348,7 @@ fun ParagraphEditorPageSwipe(
                                                     selectedLines[page] = line
                                                     showAll = false
                                                 },
+                                                modifier = Modifier.padding(vertical = 6.dp)
                                             )
                                         }
                                     }
