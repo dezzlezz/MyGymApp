@@ -84,7 +84,6 @@ fun LinesPage(
                         line = line,
                         onEdit = { onEdit(line) },
                         onArchive = { onArchive(line) },
-                        onRestore = { onRestore(line) },
                         onUse = { onUse(line) }
                     )
                 }
