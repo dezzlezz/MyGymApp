@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Alignment
 import com.example.mygymapp.R
 import com.example.mygymapp.model.Line
 
@@ -37,14 +38,20 @@ fun LineCard(
         modifier = modifier
             .alpha(fade)
     ) {
-        Text(
-            text = line.title,
-            style = TextStyle(
-                fontFamily = gaeguBold,
-                fontSize = 24.sp,
-                color = textColor
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = line.title,
+                style = TextStyle(
+                    fontFamily = gaeguBold,
+                    fontSize = 24.sp,
+                    color = textColor
+                )
             )
-        )
+            line.mood?.let {
+                Spacer(modifier = Modifier.width(8.dp))
+                MoodChip(mood = it)
+            }
+        }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "${line.exercises.size} exercises · ${line.supersets.size} superset${if (line.supersets.size == 1) "" else "s"}",

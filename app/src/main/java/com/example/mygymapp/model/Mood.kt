@@ -1,11 +1,10 @@
 package com.example.mygymapp.model
 
-/** Simple mood indicator for an entry. */
+/** Soft mood states used to color journal lines. */
 enum class Mood {
-    HAPPY,
-    NEUTRAL,
-    SAD,
-    ENERGETIC,
-    TIRED
+    CALM,
+    FOCUSED,
+    BALANCED,
+    SEARCHING
 }
 
