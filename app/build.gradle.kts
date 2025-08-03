@@ -69,7 +69,6 @@ dependencies {
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("androidx.navigation:navigation-compose:2.9.3")
-    implementation("androidx.compose.ui:ui:<version>")
     implementation("androidx.compose.animation:animation-core:1.8.3")
     // DEBUG/DEV
     debugImplementation("androidx.compose.ui:ui-tooling")
