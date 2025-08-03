@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
+import android.graphics.Paint
 
 @Composable
 fun LinedTextField(
@@ -29,6 +31,12 @@ fun LinedTextField(
     val lineHeightPx = with(density) { lineHeight.toPx() }
     val lineCount = maxOf(value.lineSequence().count() + 1, minLines)
     val height = lineHeight * lineCount
+    val baselineOffset = remember(density) {
+        val paint = Paint().apply {
+            textSize = with(density) { 18.sp.toPx() }
+        }
+        -paint.fontMetrics.ascent
+    }
 
     Box(
         modifier = modifier
@@ -38,7 +46,7 @@ fun LinedTextField(
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             for (i in 0 until lineCount) {
-                val y = i * lineHeightPx + lineHeightPx * 0.92f
+                val y = baselineOffset + i * lineHeightPx
                 drawLine(
                     color = Color.Black,
                     start = Offset(0f, y),
