@@ -36,6 +36,7 @@ import com.example.mygymapp.ui.util.move
 import org.burnoutcrew.reorderable.*
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
