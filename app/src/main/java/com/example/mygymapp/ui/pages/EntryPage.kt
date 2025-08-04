@@ -47,7 +47,7 @@ import com.example.mygymapp.store.JournalStore
 
             Box(modifier = Modifier.fillMaxSize()) {
                 Image(
-                    painter = painterResource(R.drawable.hintergrundentry),
+                    painter = painterResource(R.drawable.background_parchment),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
