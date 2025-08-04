@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -67,6 +68,8 @@ fun LineEditorPage(
     }
 
     var showError by remember { mutableStateOf(false) }
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     PaperBackground(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -220,9 +223,11 @@ fun LineEditorPage(
                 LazyColumn(
                     state = reorderState.listState,
                     modifier = Modifier
+                        .heightIn(max = screenHeight)
                         .reorderable(reorderState)
                         .detectReorderAfterLongPress(reorderState)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    userScrollEnabled = false
                 ) {
                     itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
                         ReorderableItem(reorderState, key = item.id) { isDragging ->
