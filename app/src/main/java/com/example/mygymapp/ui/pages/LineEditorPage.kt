@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -35,9 +34,14 @@ import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
 import com.example.mygymapp.ui.util.move
-import org.burnoutcrew.reorderable.*
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
+import org.burnoutcrew.reorderable.reorderableItemDragHandle
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
