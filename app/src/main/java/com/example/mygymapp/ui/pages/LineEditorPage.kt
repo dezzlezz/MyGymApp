@@ -157,7 +157,11 @@ fun LineEditorPage(
                         modifier = Modifier.padding(12.dp)
                     )
                 } else {
-                    LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .heightIn(max = 320.dp)
+                            .fillMaxWidth()
+                    ) {
                         items(filteredExercises) { ex ->
                             Surface(
                                 modifier = Modifier
