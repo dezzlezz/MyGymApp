@@ -46,9 +46,12 @@ fun LinedTextField(
     val baselineOffset = -metrics.ascent
 
     val lineCount = maxOf(layoutResult?.lineCount ?: 1, initialLines)
+    val fieldHeight = lineHeight * lineCount
 
     Box(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .height(fieldHeight)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
             val layout = layoutResult
@@ -72,7 +75,8 @@ fun LinedTextField(
             onValueChange = onValueChange,
             textStyle = textStyle,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(fieldHeight)
                 .padding(horizontal = 8.dp),
             onTextLayout = { layoutResult = it }
         ) { innerTextField ->
