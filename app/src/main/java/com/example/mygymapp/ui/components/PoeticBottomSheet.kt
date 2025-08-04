@@ -24,7 +24,7 @@ fun PoeticBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     containerColor: Color = Color(0xFFF5F5DC),
     content: @Composable ColumnScope.() -> Unit
 ) {
