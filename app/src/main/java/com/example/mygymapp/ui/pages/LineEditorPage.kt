@@ -33,7 +33,7 @@ import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
 import com.example.mygymapp.ui.util.move
-import me.saket.compose.reorderable.*
+import org.burnoutcrew.reorderable.*
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
