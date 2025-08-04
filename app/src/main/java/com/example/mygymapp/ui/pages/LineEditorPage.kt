@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -38,10 +37,9 @@ import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
-import org.burnoutcrew.reorderable.reorderableItemDragHandle
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
     initial: Line? = null,
@@ -242,7 +240,7 @@ fun LineEditorPage(
                                         imageVector = Icons.Default.DragHandle,
                                         contentDescription = "Drag",
                                         tint = Color.Gray,
-                                        modifier = Modifier.reorderableItemDragHandle(reorderState)
+                                        modifier = Modifier.detectReorderAfterLongPress(reorderState)
                                     )
                                 }
                             )
