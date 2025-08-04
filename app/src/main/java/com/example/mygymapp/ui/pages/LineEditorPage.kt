@@ -9,7 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,6 +28,7 @@ import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticBottomSheet
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
+import com.example.mygymapp.ui.components.ReorderableExerciseItem
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
 @Composable
@@ -203,28 +204,19 @@ fun LineEditorPage(
             if (selectedExercises.isNotEmpty()) {
                 Text("Today's selected movements:", fontFamily = GaeguBold)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    selectedExercises.forEach { ex ->
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFEEE8D5),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(12.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(ex.name, fontFamily = GaeguRegular)
+                    selectedExercises.forEachIndexed { index, ex ->
+                        ReorderableExerciseItem(
+                            index = index,
+                            exercise = ex,
+                            onRemove = { selectedExercises.remove(ex) },
+                            dragHandle = {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove",
-                                    tint = Color.Red,
-                                    modifier = Modifier.clickable { selectedExercises.remove(ex) }
+                                    imageVector = Icons.Default.DragHandle,
+                                    contentDescription = "Reorder",
+                                    tint = Color.Gray
                                 )
                             }
-                        }
+                        )
                     }
                 }
             }
