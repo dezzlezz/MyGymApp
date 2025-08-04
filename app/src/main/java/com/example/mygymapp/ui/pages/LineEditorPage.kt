@@ -113,13 +113,15 @@ fun LineEditorPage(
             Text("Which movements do you want to add?", fontFamily = GaeguRegular)
             val showExerciseSheet = remember { mutableStateOf(false) }
             val exerciseSearch = remember { mutableStateOf("") }
-            val filterMuscles = selectedMuscles.toList()
+            val filterMuscles = selectedMuscles.ifEmpty {
+                allExercises.map { it.muscleGroup.display }.distinct()
+            }
             val selectedFilter = remember { mutableStateOf<String?>(null) }
 
             val filteredExercises = allExercises.filter {
                 val matchesFilter = selectedFilter.value == null || it.muscleGroup.display == selectedFilter.value
-                val matchesSearch =
-                    exerciseSearch.value.isBlank() || it.name.contains(exerciseSearch.value, ignoreCase = true)
+                val matchesSearch = exerciseSearch.value.isBlank() ||
+                    it.name.contains(exerciseSearch.value, ignoreCase = true)
                 matchesFilter && matchesSearch
             }
 
@@ -146,38 +148,48 @@ fun LineEditorPage(
                     onSelected = { selectedFilter.value = if (it == "All") null else it }
                 )
                 Spacer(Modifier.height(12.dp))
-                LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
-                    items(filteredExercises) { ex ->
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clickable {
-                                    if (selectedExercises.none { it.id == ex.id }) {
-                                        selectedExercises.add(
-                                            LineExercise(
-                                                id = ex.id,
-                                                name = ex.name,
-                                                sets = 3,
-                                                repsOrDuration = "10"
+                if (filteredExercises.isEmpty()) {
+                    Text(
+                        "No matching exercises found.",
+                        fontFamily = GaeguLight,
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxHeight(0.6f)) {
+                        items(filteredExercises) { ex ->
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clickable {
+                                        if (selectedExercises.none { it.id == ex.id }) {
+                                            selectedExercises.add(
+                                                LineExercise(
+                                                    id = ex.id,
+                                                    name = ex.name,
+                                                    sets = 3,
+                                                    repsOrDuration = "10"
+                                                )
                                             )
-                                        )
-                                    }
-                                    showExerciseSheet.value = false
-                                    exerciseSearch.value = ""
-                                    selectedFilter.value = null
-                                },
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color.White
-                        ) {
-                            Column(Modifier.padding(12.dp)) {
-                                Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
-                                Text(
-                                    "${ex.muscleGroup.display} · ${ex.category.display}",
-                                    fontFamily = GaeguLight,
-                                    fontSize = 13.sp,
-                                    color = Color.Gray
-                                )
+                                        }
+                                        showExerciseSheet.value = false
+                                        exerciseSearch.value = ""
+                                        selectedFilter.value = null
+                                    },
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color.White
+                            ) {
+                                Column(Modifier.padding(12.dp)) {
+                                    Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
+                                    Text(
+                                        "${ex.muscleGroup.display} · ${ex.category.display}",
+                                        fontFamily = GaeguLight,
+                                        fontSize = 13.sp,
+                                        color = Color.Gray
+                                    )
+                                }
                             }
                         }
                     }
