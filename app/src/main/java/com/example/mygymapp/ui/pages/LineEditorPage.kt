@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -15,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +32,8 @@ import com.example.mygymapp.ui.components.PoeticBottomSheet
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
+import com.example.mygymapp.ui.util.move
+import me.saket.compose.reorderable.*
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 
 @Composable
@@ -203,20 +208,39 @@ fun LineEditorPage(
 
             if (selectedExercises.isNotEmpty()) {
                 Text("Today's selected movements:", fontFamily = GaeguBold)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    selectedExercises.forEachIndexed { index, ex ->
-                        ReorderableExerciseItem(
-                            index = index,
-                            exercise = ex,
-                            onRemove = { selectedExercises.remove(ex) },
-                            dragHandle = {
-                                Icon(
-                                    imageVector = Icons.Default.DragHandle,
-                                    contentDescription = "Reorder",
-                                    tint = Color.Gray
-                                )
-                            }
-                        )
+                val reorderState = rememberReorderableLazyListState(
+                    onMove = { from, to ->
+                        selectedExercises.move(from.index, to.index)
+                    }
+                )
+                LazyColumn(
+                    state = reorderState.listState,
+                    modifier = Modifier
+                        .reorderable(reorderState)
+                        .detectReorderAfterLongPress(reorderState)
+                        .fillMaxWidth()
+                ) {
+                    itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
+                        ReorderableItem(reorderState, key = item.id) { isDragging ->
+                            val elevation = if (isDragging) 8.dp else 2.dp
+                            ReorderableExerciseItem(
+                                index = index,
+                                exercise = item,
+                                onRemove = { selectedExercises.remove(item) },
+                                modifier = Modifier
+                                    .padding(vertical = 4.dp)
+                                    .animateItemPlacement()
+                                    .shadow(elevation),
+                                dragHandle = {
+                                    Icon(
+                                        imageVector = Icons.Default.DragHandle,
+                                        contentDescription = "Drag",
+                                        tint = Color.Gray,
+                                        modifier = Modifier.reorderableItemDragHandle(reorderState)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
