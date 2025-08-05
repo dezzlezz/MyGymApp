@@ -2,20 +2,26 @@ package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.matchParentSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.R
-import androidx.compose.ui.Alignment
+import com.example.mygymapp.ui.theme.AppColors
+import com.example.mygymapp.ui.theme.AppPadding
+import com.example.mygymapp.ui.theme.AppShapes
 
 
 enum class PoeticCardStyle {
@@ -34,24 +40,22 @@ fun PoeticCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
+            .padding(horizontal = AppPadding.Small, vertical = 4.dp)
+            .clip(AppShapes.Card),
+        shape = AppShapes.Card,
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        colors = CardDefaults.cardColors(containerColor = AppColors.ButtonGreen)
     ) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF5F5DC)) // fallback color
+                .clip(AppShapes.Card)
+                .background(AppColors.ButtonGreen)
         ) {
             // Hintergrundtextur
             Image(
                 painter = painterResource(R.drawable.parchment),
                 contentDescription = null,
-                modifier = Modifier
-                    .matchParentSize(),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.matchParentSize()
             )
 
             // Optionales Eselsohr
@@ -80,7 +84,7 @@ fun PoeticCard(
 
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(AppPadding.Element)
             ) {
                 content()
             }
