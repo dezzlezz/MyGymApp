@@ -74,14 +74,14 @@ fun LineEditorPage(
 
     var showError by remember { mutableStateOf(false) }
 
-    fun setSuperset(ids: List<Long>) {
+    fun addSuperset(ids: List<Long>) {
         supersets.removeAll { group -> group.any { it in ids } }
         if (ids.size > 1) {
             supersets.add(ids.sorted().toMutableList())
         }
     }
 
-    fun removeSupersetGroup(id: Long) {
+    fun removeSuperset(id: Long) {
         supersets.removeAll { group -> group.contains(id) }
     }
 
@@ -260,7 +260,7 @@ fun LineEditorPage(
                                 exercise = item,
                                 onRemove = {
                                     selectedExercises.remove(item)
-                                    removeSupersetGroup(item.id)
+                                    removeSuperset(item.id)
                                 },
                                 onSupersetClick = { selectedForSuperset = item },
                                 modifier = Modifier
@@ -335,7 +335,7 @@ fun LineEditorPage(
                             horizontalArrangement = Arrangement.End
                         ) {
                             TextButton(onClick = {
-                                setSuperset(listOf(current.id))
+                                addSuperset(listOf(current.id))
                                 selectedForSuperset = null
                             }) {
                                 Text("Clear", fontFamily = GaeguRegular)
@@ -344,7 +344,7 @@ fun LineEditorPage(
                             GaeguButton(
                                 text = "Save",
                                 onClick = {
-                                    setSuperset(listOf(current.id) + selections)
+                                    addSuperset(listOf(current.id) + selections)
                                     selectedForSuperset = null
                                 }
                             )
