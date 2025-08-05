@@ -6,9 +6,11 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.awaitPointerEventScope
+import kotlinx.coroutines.yield
 
 /**
  * Simplified drag-and-drop compatibility layer that recreates the legacy
@@ -20,8 +22,13 @@ import androidx.compose.ui.input.pointer.awaitPointerEventScope
 /** Data container matching the older API surface. */
 data class DragAndDropTransferData(val clipData: ClipData? = null)
 
+private data class DragSession(
+    val data: DragAndDropTransferData,
+    val pointerId: PointerId
+)
+
 private object DragAndDropState {
-    var transferData: DragAndDropTransferData? = null
+    var session: DragSession? = null
 }
 
 /**
@@ -36,9 +43,14 @@ fun Modifier.dragAndDropSource(
         val down = awaitFirstDown()
         val longPress = awaitLongPressOrCancellation(down.id)
         if (longPress != null) {
-            DragAndDropState.transferData = dataProvider()
+            val session = DragSession(dataProvider(), longPress.id)
+            DragAndDropState.session = session
             waitForUpOrCancellation()
-            DragAndDropState.transferData = null
+            // Yield to allow targets to process the up event before clearing.
+            yield()
+            if (DragAndDropState.session === session) {
+                DragAndDropState.session = null
+            }
         }
     }
 }
@@ -55,11 +67,14 @@ fun Modifier.dragAndDropTarget(
     awaitPointerEventScope {
         while (true) {
             val event = awaitPointerEvent()
-            val data = DragAndDropState.transferData
-            if (data != null && shouldStartDragAndDrop() &&
-                event.changes.any { it.changedToUpIgnoreConsumed() }) {
-                onDrop(data)
-                DragAndDropState.transferData = null
+            val session = DragAndDropState.session
+            if (session != null && shouldStartDragAndDrop()) {
+                val change = event.changes.find {
+                    it.id == session.pointerId && it.changedToUpIgnoreConsumed()
+                }
+                if (change != null && onDrop(session.data)) {
+                    DragAndDropState.session = null
+                }
             }
         }
     }
