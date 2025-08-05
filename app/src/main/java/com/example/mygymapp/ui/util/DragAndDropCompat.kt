@@ -3,11 +3,14 @@ package com.example.mygymapp.ui.util
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource as foundationDragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget as foundationDragAndDropTarget
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.draganddrop.dragAndDropTransferData
+import androidx.compose.ui.input.pointer.PointerEventPass
 
 /**
  * Compatibility layer adapting the old drag-and-drop helpers used in the
@@ -24,10 +27,13 @@ typealias DragAndDropTransferData = androidx.compose.ui.draganddrop.DragAndDropT
 fun Modifier.dragAndDropSource(
     dataProvider: () -> DragAndDropTransferData
 ): Modifier = foundationDragAndDropSource {
-    detectDragGesturesAfterLongPress(
-        onDragStart = { startTransfer(dataProvider()) },
-        onDrag = { _, _ -> }
-    )
+    awaitEachGesture {
+        val down = awaitFirstDown(pass = PointerEventPass.Initial)
+        val longPress = awaitLongPressOrCancellation(down.id)
+        if (longPress != null) {
+            startTransfer(dataProvider())
+        }
+    }
 }
 
 // Adapter for the old onDrop/shouldStartDragAndDrop signature
@@ -39,8 +45,7 @@ fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop = { _: DragAndDropEvent -> shouldStartDragAndDrop() },
     target = object : DragAndDropTarget {
         override fun onDrop(event: DragAndDropEvent): Boolean {
-            val clipData = event.toAndroidDragEvent().clipData ?: return false
-            return onDrop(DragAndDropTransferData(clipData))
+            return onDrop(event.dragAndDropTransferData)
         }
     }
 )
