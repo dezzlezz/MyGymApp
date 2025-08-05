@@ -1,7 +1,6 @@
 package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,7 +59,9 @@ fun LineEditorPage(
             initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
         }
     }
-    var selectedForSuperset by remember { mutableStateOf<LineExercise?>(null) }
+    val supersetSelection = remember { mutableStateListOf<Long>() }
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
@@ -106,15 +107,33 @@ fun LineEditorPage(
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-    PaperBackground(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .systemBarsPadding()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
+    LaunchedEffect(supersetSelection.size) {
+        if (supersetSelection.size > 1) {
+            val res = snackbarHostState.showSnackbar(
+                message = "Create superset",
+                actionLabel = "Create"
+            )
+            if (res == SnackbarResult.ActionPerformed) {
+                addSuperset(supersetSelection.toList())
+                supersetSelection.clear()
+            }
+        } else {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .systemBarsPadding()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
             Text(
                 "✒ Compose your daily line",
                 fontFamily = GaeguBold,
@@ -276,8 +295,16 @@ fun LineEditorPage(
                                 onRemove = {
                                     selectedExercises.remove(item)
                                     removeSuperset(item.id)
+                                    supersetSelection.remove(item.id)
                                 },
-                                onSupersetClick = { selectedForSuperset = item },
+                                isSupersetSelected = supersetSelection.contains(item.id),
+                                onSupersetSelectedChange = { checked ->
+                                    if (checked) {
+                                        if (!supersetSelection.contains(item.id)) supersetSelection.add(item.id)
+                                    } else {
+                                        supersetSelection.remove(item.id)
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
                                     .animateItemPlacement()
@@ -297,124 +324,6 @@ fun LineEditorPage(
                 }
             }
 
-            PoeticBottomSheet(
-                visible = selectedForSuperset != null,
-                onDismiss = { selectedForSuperset = null }
-            ) {
-                val current = selectedForSuperset
-                if (current != null) {
-                    Text("Choose superset partners", fontFamily = GaeguBold)
-                    Spacer(Modifier.height(8.dp))
-                    val options = selectedExercises.filter { it.id != current.id }
-                    val selections = remember(current) {
-                        mutableStateListOf<Long>().apply { addAll(findSupersetPartners(current.id)) }
-                    }
-                    if (options.isEmpty()) {
-                        Text(
-                            "No other exercises available.",
-                            fontFamily = GaeguLight,
-                            fontSize = 14.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .heightIn(max = 320.dp)
-                                .fillMaxWidth()
-                        ) {
-                            items(options) { ex ->
-                                val checked = selections.contains(ex.id)
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp, horizontal = 8.dp)
-                                        .clickable {
-                                            if (checked) selections.remove(ex.id) else selections.add(ex.id)
-                                        },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Checkbox(
-                                        checked = checked,
-                                        onCheckedChange = {
-                                            if (it) selections.add(ex.id) else selections.remove(ex.id)
-                                        }
-                                    )
-                                    Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            TextButton(onClick = {
-                                removeSuperset(current.id)
-                                selectedForSuperset = null
-                            }) {
-                                Text("Clear", fontFamily = GaeguRegular)
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            GaeguButton(
-                                text = "Save",
-                                onClick = {
-                                    addSuperset(listOf(current.id) + selections)
-                                    selectedForSuperset = null
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            PoeticBottomSheet(
-                visible = selectedForSuperset != null,
-                onDismiss = { selectedForSuperset = null }
-            ) {
-                val current = selectedForSuperset
-                if (current != null) {
-                    Text("Choose a superset partner", fontFamily = GaeguBold)
-                    Spacer(Modifier.height(8.dp))
-                    val options = selectedExercises.filter { it.id != current.id }
-                    if (options.isEmpty()) {
-                        Text(
-                            "No other exercises available.",
-                            fontFamily = GaeguLight,
-                            fontSize = 14.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .heightIn(max = 320.dp)
-                                .fillMaxWidth()
-                        ) {
-                            items(options) { ex ->
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp)
-                                        .clickable {
-                                            val partner = ex.id
-                                            val already = findSupersetPartner(current.id) == partner
-                                            if (already) removeSuperset(current.id, partner)
-                                            else addSuperset(current.id, partner)
-                                            selectedForSuperset = null
-                                        },
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color.White
-                                ) {
-                                    Column(Modifier.padding(12.dp)) {
-                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) {

@@ -3,6 +3,7 @@ package com.example.mygymapp.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -25,14 +26,15 @@ import com.example.mygymapp.ui.pages.GaeguRegular
  * - Index number
  * - Exercise name
  * - Optional metadata (category, muscle group)
- * - Actions: delete, drag (and optionally superset or edit)
+ * - Actions: delete, drag and superset selection checkbox
  */
 @Composable
 fun ReorderableExerciseItem(
     index: Int,
     exercise: LineExercise,
     onRemove: () -> Unit,
-    onSupersetClick: () -> Unit,
+    isSupersetSelected: Boolean,
+    onSupersetSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     dragHandle: @Composable () -> Unit,
     supersetPartnerIndices: List<Int> = emptyList()
@@ -85,9 +87,10 @@ fun ReorderableExerciseItem(
                             tint = Color.Red
                         )
                     }
-                    IconButton(onClick = onSupersetClick) {
-                        Text("🧷", fontSize = 18.sp)
-                    }
+                    Checkbox(
+                        checked = isSupersetSelected,
+                        onCheckedChange = onSupersetSelectedChange
+                    )
                     dragHandle()
                 }
             }
