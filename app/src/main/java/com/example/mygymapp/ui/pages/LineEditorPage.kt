@@ -74,6 +74,10 @@ fun LineEditorPage(
 
     var showError by remember { mutableStateOf(false) }
 
+    /**
+     * Replace any groups containing the supplied ids and store the new grouping.
+     * A group must contain more than one exercise id to be persisted.
+     */
     fun addSuperset(ids: List<Long>) {
         supersets.removeAll { group -> group.any { it in ids } }
         if (ids.size > 1) {
@@ -81,13 +85,24 @@ fun LineEditorPage(
         }
     }
 
+    // Convenience overloads for callers using vararg or two-arg versions
+    fun addSuperset(vararg ids: Long) = addSuperset(ids.toList())
+
+    /** Remove any superset containing the given id(s). */
     fun removeSuperset(id: Long) {
         supersets.removeAll { group -> group.contains(id) }
+    }
+
+    fun removeSuperset(vararg ids: Long) {
+        supersets.removeAll { group -> ids.any { it in group } }
     }
 
     fun findSupersetPartners(id: Long): List<Long> {
         return supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
     }
+
+    // Backwards compatibility helper for previous single-partner usage
+    fun findSupersetPartner(id: Long): Long? = findSupersetPartners(id).firstOrNull()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
@@ -335,7 +350,7 @@ fun LineEditorPage(
                             horizontalArrangement = Arrangement.End
                         ) {
                             TextButton(onClick = {
-                                addSuperset(listOf(current.id))
+                                removeSuperset(current.id)
                                 selectedForSuperset = null
                             }) {
                                 Text("Clear", fontFamily = GaeguRegular)
