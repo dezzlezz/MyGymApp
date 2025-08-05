@@ -1,51 +1,66 @@
 package com.example.mygymapp.ui.util
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.draganddrop.dragAndDropSource as foundationDragAndDropSource
-import androidx.compose.foundation.draganddrop.dragAndDropTarget as foundationDragAndDropTarget
+import android.content.ClipData
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.awaitPointerEventScope
 
 /**
- * Compatibility layer adapting the old drag-and-drop helpers used in the
- * project to the new Compose drag-and-drop APIs. These wrappers delegate to the
- * official implementations so existing call sites continue to work without
- * rewriting call sites.
+ * Simplified drag-and-drop compatibility layer that recreates the legacy
+ * helpers used throughout the app without relying on the newer experimental
+ * Compose drag-and-drop APIs. A global in-memory transfer is used to bridge
+ * sources and targets.
  */
 
-// Expose the new TransferData type under the legacy name
-typealias DragAndDropTransferData = androidx.compose.ui.draganddrop.DragAndDropTransferData
+/** Data container matching the older API surface. */
+data class DragAndDropTransferData(val clipData: ClipData? = null)
 
-// Adapter for the old dataProvider signature
-@OptIn(ExperimentalFoundationApi::class)
+private object DragAndDropState {
+    var transferData: DragAndDropTransferData? = null
+}
+
+/**
+ * Start a drag session after a long press. The provided [dataProvider] is
+ * invoked once the gesture is confirmed and remains available until the
+ * pointer is released.
+ */
 fun Modifier.dragAndDropSource(
     dataProvider: () -> DragAndDropTransferData
-): Modifier = foundationDragAndDropSource {
+): Modifier = pointerInput(Unit) {
     awaitEachGesture {
-        val down = awaitFirstDown(pass = PointerEventPass.Initial)
+        val down = awaitFirstDown()
         val longPress = awaitLongPressOrCancellation(down.id)
         if (longPress != null) {
-            startTransfer(dataProvider())
+            DragAndDropState.transferData = dataProvider()
+            waitForUpOrCancellation()
+            DragAndDropState.transferData = null
         }
     }
 }
 
-// Adapter for the old onDrop/shouldStartDragAndDrop signature
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * Invoke [onDrop] when a pointer is released over this target while a drag
+ * session is active. The [shouldStartDragAndDrop] callback mirrors the legacy
+ * API and allows callers to veto drops.
+ */
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: () -> Boolean,
     onDrop: (DragAndDropTransferData) -> Boolean
-): Modifier = foundationDragAndDropTarget(
-    shouldStartDragAndDrop = { _: DragAndDropEvent -> shouldStartDragAndDrop() },
-    target = object : DragAndDropTarget {
-        override fun onDrop(event: DragAndDropEvent): Boolean {
-            val data = event as? DragAndDropTransferData ?: return false
-            return onDrop(data)
+): Modifier = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent()
+            val data = DragAndDropState.transferData
+            if (data != null && shouldStartDragAndDrop() &&
+                event.changes.any { it.changedToUpIgnoreConsumed() }) {
+                onDrop(data)
+                DragAndDropState.transferData = null
+            }
         }
     }
-)
+}
