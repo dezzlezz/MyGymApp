@@ -13,7 +13,7 @@ data class Line(
     val muscleGroup: String,
     val mood: Mood? = null,
     val exercises: List<Exercise>,
-    val supersets: List<Pair<Long, Long>>, // pair of exercise ids forming a superset
+    val supersets: List<List<Long>>, // group of exercise ids forming a superset
     val note: String,
     val isArchived: Boolean = false
 )
