@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.example.mygymapp.ui.components.BookmarkMenu
-import androidx.compose.foundation.layout.Column
 
 @Composable
 fun PageScaffold() {
@@ -22,7 +21,8 @@ fun PageScaffold() {
     Box(modifier = Modifier.fillMaxSize()) {
         when (currentPage) {
             "entry" -> EntryNavigation()
-            "toc" -> TocPage()
+            "toc" -> TocPage(onOpenDesignDemo = { currentPage = "design-demo" })
+            "design-demo" -> DesignDemoPage()
             "archive" -> ArchiveNavigation(onNavigateToEntry = { currentPage = "entry" })
             "chronicle" -> ChroniclePage()
             "impressum" -> ImpressumPage()
