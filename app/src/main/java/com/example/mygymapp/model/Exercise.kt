@@ -6,5 +6,6 @@ data class Exercise(
     val sets: Int,
     val repsOrDuration: String,
     val prGoal: Int? = null,
-    val note: String = ""
+    val note: String = "",
+    val section: String = ""
 )
