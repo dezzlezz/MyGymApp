@@ -19,6 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import android.content.ClipData
+import androidx.compose.foundation.draganddrop.DragAndDropTransferData
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,6 +36,7 @@ import com.example.mygymapp.ui.components.PoeticBottomSheet
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
+import com.example.mygymapp.ui.components.SectionWrapper
 import com.example.mygymapp.ui.util.move
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -53,6 +58,12 @@ fun LineEditorPage(
     var note by remember { mutableStateOf(initial?.note ?: "") }
     val selectedExercises = remember {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
+    }
+    val sections = remember {
+        mutableStateListOf<String>().apply {
+            initial?.exercises?.map { it.section }?.filter { it.isNotBlank() }?.distinct()
+                ?.let { addAll(it) }
+        }
     }
     val supersets = remember {
         mutableStateListOf<MutableList<Long>>().apply {
@@ -189,6 +200,7 @@ fun LineEditorPage(
 
                 Text("Which movements do you want to add?", fontFamily = GaeguRegular)
                 val showExerciseSheet = remember { mutableStateOf(false) }
+                val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
                 val filterMuscles = selectedMuscles.ifEmpty {
                     allExercises.map { it.muscleGroup.display }.distinct()
@@ -281,67 +293,353 @@ fun LineEditorPage(
                 }
 
                 if (selectedExercises.isNotEmpty()) {
-                    Text("Today's selected movements:", fontFamily = GaeguBold)
-                    val reorderState = rememberReorderableLazyListState(
-                        onMove = { from, to ->
-                            selectedExercises.move(from.index, to.index)
-                        }
-                    )
-                    LazyColumn(
-                        state = reorderState.listState,
-                        modifier = Modifier
-                            .heightIn(max = screenHeight)
-                            .reorderable(reorderState)
-                            .detectReorderAfterLongPress(reorderState)
-                            .fillMaxWidth(),
-                        userScrollEnabled = false
-                    ) {
-                        itemsIndexed(
-                            selectedExercises,
-                            key = { _, item -> item.id }) { index, item ->
-                            ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                val elevation = if (isDragging) 8.dp else 2.dp
-                                val partnerIndices =
-                                    findSupersetPartners(item.id).mapNotNull { pid ->
-                                        selectedExercises.indexOfFirst { it.id == pid }
-                                            .takeIf { it >= 0 }
-                                    }
-                                ReorderableExerciseItem(
-                                    index = index,
-                                    exercise = item,
-                                    onRemove = {
-                                        selectedExercises.remove(item)
-                                        removeSuperset(item.id)
-                                        supersetSelection.remove(item.id)
-                                    },
-                                    isSupersetSelected = supersetSelection.contains(item.id),
-                                    onSupersetSelectedChange = { checked ->
-                                        if (checked) {
-                                            if (!supersetSelection.contains(item.id)) supersetSelection.add(
-                                                item.id
-                                            )
-                                        } else {
-                                            supersetSelection.remove(item.id)
+                    if (sections.isEmpty()) {
+                        Text("Today's selected movements:", fontFamily = GaeguBold)
+                        val reorderState = rememberReorderableLazyListState(
+                            onMove = { from, to ->
+                                selectedExercises.move(from.index, to.index)
+                            }
+                        )
+                        LazyColumn(
+                            state = reorderState.listState,
+                            modifier = Modifier
+                                .heightIn(max = screenHeight)
+                                .reorderable(reorderState)
+                                .detectReorderAfterLongPress(reorderState)
+                                .fillMaxWidth(),
+                            userScrollEnabled = false
+                        ) {
+                            itemsIndexed(
+                                selectedExercises,
+                                key = { _, item -> item.id }) { index, item ->
+                                ReorderableItem(reorderState, key = item.id) { isDragging ->
+                                    val elevation = if (isDragging) 8.dp else 2.dp
+                                    val partnerIndices =
+                                        findSupersetPartners(item.id).mapNotNull { pid ->
+                                            selectedExercises.indexOfFirst { it.id == pid }
+                                                .takeIf { it >= 0 }
                                         }
-                                    },
-                                    modifier = Modifier
-                                        .padding(vertical = 4.dp)
-                                        .animateItemPlacement()
-                                        .shadow(elevation),
-                                    dragHandle = {
-                                        Icon(
-                                            imageVector = Icons.Default.DragHandle,
-                                            contentDescription = "Drag",
-                                            tint = Color.Gray,
-                                            modifier = Modifier.detectReorderAfterLongPress(
-                                                reorderState
+                                    ReorderableExerciseItem(
+                                        index = index,
+                                        exercise = item,
+                                        onRemove = {
+                                            selectedExercises.remove(item)
+                                            removeSuperset(item.id)
+                                            supersetSelection.remove(item.id)
+                                        },
+                                        isSupersetSelected = supersetSelection.contains(item.id),
+                                        onSupersetSelectedChange = { checked ->
+                                            if (checked) {
+                                                if (!supersetSelection.contains(item.id)) supersetSelection.add(
+                                                    item.id
+                                                )
+                                            } else {
+                                                supersetSelection.remove(item.id)
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp)
+                                            .animateItemPlacement()
+                                            .shadow(elevation),
+                                        dragHandle = {
+                                            Icon(
+                                                imageVector = Icons.Default.DragHandle,
+                                                contentDescription = "Drag",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.detectReorderAfterLongPress(
+                                                    reorderState
+                                                )
                                             )
-                                        )
-                                    },
-                                    supersetPartnerIndices = partnerIndices
-                                )
+                                        },
+                                        supersetPartnerIndices = partnerIndices
+                                    )
+                                }
                             }
                         }
+                    } else {
+                        val unassignedItems = selectedExercises.filter { it.section.isBlank() }
+                        if (unassignedItems.isNotEmpty()) {
+                            SectionWrapper(
+                                title = "Unassigned",
+                                modifier = Modifier.dragAndDropTarget(
+                                    shouldStartDragAndDrop = { true },
+                                    onDrop = { transferData: DragAndDropTransferData ->
+                                        val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                        id?.let { exId ->
+                                            val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                            if (idx >= 0) {
+                                                val oldSection = selectedExercises[idx].section
+                                                selectedExercises[idx] = selectedExercises[idx].copy(section = "")
+                                                if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
+                                                    sections.remove(oldSection)
+                                                }
+                                            }
+                                        }
+                                        true
+                                    }
+                                )
+                            ) {
+                                val reorderState = rememberReorderableLazyListState(
+                                    onMove = { from, to ->
+                                        val fromItem = unassignedItems[from.index]
+                                        val toItem = unassignedItems[to.index]
+                                        val fromIdx = selectedExercises.indexOf(fromItem)
+                                        val toIdx = selectedExercises.indexOf(toItem)
+                                        selectedExercises.move(fromIdx, toIdx)
+                                    }
+                                )
+                                LazyColumn(
+                                    state = reorderState.listState,
+                                    modifier = Modifier
+                                        .heightIn(max = screenHeight)
+                                        .reorderable(reorderState)
+                                        .detectReorderAfterLongPress(reorderState)
+                                        .fillMaxWidth(),
+                                    userScrollEnabled = false
+                                ) {
+                                    itemsIndexed(
+                                        unassignedItems,
+                                        key = { _, item -> item.id }) { index, item ->
+                                        ReorderableItem(reorderState, key = item.id) { isDragging ->
+                                            val elevation = if (isDragging) 8.dp else 2.dp
+                                            val partnerIndices =
+                                                findSupersetPartners(item.id).mapNotNull { pid ->
+                                                    selectedExercises.indexOfFirst { it.id == pid }
+                                                        .takeIf { it >= 0 }
+                                                }
+                                            ReorderableExerciseItem(
+                                                index = index,
+                                                exercise = item,
+                                                onRemove = {
+                                                    selectedExercises.remove(item)
+                                                    removeSuperset(item.id)
+                                                    supersetSelection.remove(item.id)
+                                                },
+                                                isSupersetSelected = supersetSelection.contains(item.id),
+                                                onSupersetSelectedChange = { checked ->
+                                                    if (checked) {
+                                                        if (!supersetSelection.contains(item.id)) supersetSelection.add(
+                                                            item.id
+                                                        )
+                                                    } else {
+                                                        supersetSelection.remove(item.id)
+                                                    }
+                                                },
+                                                modifier = Modifier
+                                                    .padding(vertical = 4.dp)
+                                                    .animateItemPlacement()
+                                                    .shadow(elevation)
+                                                    .dragAndDropSource(
+                                                        dataProvider = {
+                                                            DragAndDropTransferData(
+                                                                clipData = ClipData.newPlainText(
+                                                                    "exercise",
+                                                                    item.id.toString()
+                                                                )
+                                                            )
+                                                        }
+                                                    ),
+                                                dragHandle = {
+                                                    Icon(
+                                                        imageVector = Icons.Default.DragHandle,
+                                                        contentDescription = "Drag",
+                                                        tint = Color.Gray,
+                                                        modifier = Modifier.detectReorderAfterLongPress(
+                                                            reorderState
+                                                        )
+                                                    )
+                                                },
+                                                supersetPartnerIndices = partnerIndices
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        sections.forEach { sectionName ->
+                            val sectionItems = selectedExercises.filter { it.section == sectionName }
+                            if (sectionItems.isNotEmpty()) {
+                                SectionWrapper(
+                                    title = sectionName,
+                                    modifier = Modifier.dragAndDropTarget(
+                                        shouldStartDragAndDrop = { true },
+                                        onDrop = { transferData: DragAndDropTransferData ->
+                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                            id?.let { exId ->
+                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (idx >= 0) {
+                                                    val oldSection = selectedExercises[idx].section
+                                                    selectedExercises[idx] = selectedExercises[idx].copy(section = sectionName)
+                                                    if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
+                                                        sections.remove(oldSection)
+                                                    }
+                                                }
+                                            }
+                                            true
+                                        }
+                                    )
+                                ) {
+                                    val reorderState = rememberReorderableLazyListState(
+                                        onMove = { from, to ->
+                                            val fromItem = sectionItems[from.index]
+                                            val toItem = sectionItems[to.index]
+                                            val fromIdx = selectedExercises.indexOf(fromItem)
+                                            val toIdx = selectedExercises.indexOf(toItem)
+                                            selectedExercises.move(fromIdx, toIdx)
+                                        }
+                                    )
+                                    LazyColumn(
+                                        state = reorderState.listState,
+                                        modifier = Modifier
+                                            .heightIn(max = screenHeight)
+                                            .reorderable(reorderState)
+                                            .detectReorderAfterLongPress(reorderState)
+                                            .fillMaxWidth(),
+                                        userScrollEnabled = false
+                                    ) {
+                                        itemsIndexed(
+                                            sectionItems,
+                                            key = { _, item -> item.id }) { index, item ->
+                                            ReorderableItem(reorderState, key = item.id) { isDragging ->
+                                                val elevation = if (isDragging) 8.dp else 2.dp
+                                                val partnerIndices =
+                                                    findSupersetPartners(item.id).mapNotNull { pid ->
+                                                        selectedExercises.indexOfFirst { it.id == pid }
+                                                            .takeIf { it >= 0 }
+                                                    }
+                                                ReorderableExerciseItem(
+                                                    index = index,
+                                                    exercise = item,
+                                                    onRemove = {
+                                                        selectedExercises.remove(item)
+                                                        removeSuperset(item.id)
+                                                        supersetSelection.remove(item.id)
+                                                        if (selectedExercises.none { it.section == sectionName }) {
+                                                            sections.remove(sectionName)
+                                                        }
+                                                    },
+                                                    isSupersetSelected = supersetSelection.contains(item.id),
+                                                    onSupersetSelectedChange = { checked ->
+                                                        if (checked) {
+                                                            if (!supersetSelection.contains(item.id)) supersetSelection.add(
+                                                                item.id
+                                                            )
+                                                        } else {
+                                                            supersetSelection.remove(item.id)
+                                                        }
+                                                    },
+                                                    modifier = Modifier
+                                                        .padding(vertical = 4.dp)
+                                                        .animateItemPlacement()
+                                                        .shadow(elevation)
+                                                        .dragAndDropSource(
+                                                            dataProvider = {
+                                                                DragAndDropTransferData(
+                                                                    clipData = ClipData.newPlainText(
+                                                                        "exercise",
+                                                                        item.id.toString()
+                                                                    )
+                                                                )
+                                                            }
+                                                        ),
+                                                    dragHandle = {
+                                                        Icon(
+                                                            imageVector = Icons.Default.DragHandle,
+                                                            contentDescription = "Drag",
+                                                            tint = Color.Gray,
+                                                            modifier = Modifier.detectReorderAfterLongPress(
+                                                                reorderState
+                                                            )
+                                                        )
+                                                    },
+                                                    supersetPartnerIndices = partnerIndices
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    GaeguButton(
+                        text = "➕ Create Section",
+                        onClick = { showSectionSheet.value = true },
+                        textColor = Color.Black
+                    )
+
+                    PoeticBottomSheet(
+                        visible = showSectionSheet.value,
+                        onDismiss = { showSectionSheet.value = false }
+                    ) {
+                        var selectedOption by remember { mutableStateOf<String?>(null) }
+                        var customName by remember { mutableStateOf("") }
+                        val selection = remember { mutableStateListOf<Long>() }
+
+                        PoeticRadioChips(
+                            options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
+                            selected = selectedOption ?: "",
+                            onSelected = { selectedOption = it }
+                        )
+
+                        if (selectedOption == "Custom") {
+                            Spacer(Modifier.height(12.dp))
+                            LinedTextField(
+                                value = customName,
+                                onValueChange = { customName = it },
+                                hint = "Section name",
+                                modifier = Modifier.fillMaxWidth(),
+                                initialLines = 1
+                            )
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 240.dp)
+                                .fillMaxWidth()
+                        ) {
+                            items(selectedExercises) { ex ->
+                                val checked = selection.contains(ex.id)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                        .clickable {
+                                            if (checked) selection.remove(ex.id) else selection.add(ex.id)
+                                        }
+                                ) {
+                                    Checkbox(checked = checked, onCheckedChange = null)
+                                    Text(
+                                        ex.name,
+                                        fontFamily = GaeguRegular,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        GaeguButton(
+                            text = "Add",
+                            onClick = {
+                                val name = if (selectedOption == "Custom") customName else selectedOption ?: ""
+                                if (name.isNotBlank()) {
+                                    if (!sections.contains(name)) sections.add(name)
+                                    selectedExercises.forEachIndexed { idx, ex ->
+                                        if (selection.contains(ex.id)) {
+                                            selectedExercises[idx] = ex.copy(section = name)
+                                        }
+                                    }
+                                }
+                                showSectionSheet.value = false
+                                selection.clear()
+                                selectedOption = null
+                                customName = ""
+                            },
+                            textColor = Color.Black
+                        )
                     }
                 }
 
