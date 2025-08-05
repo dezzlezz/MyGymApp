@@ -78,7 +78,10 @@ fun LineEditorPage(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val categoryOptions =
+        listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
 
     val selectedCategories = remember {
@@ -184,41 +187,21 @@ fun LineEditorPage(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Text("What would you title this day?", fontFamily = GaeguRegular)
-            LinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                hint = "A poetic title...",
-                initialLines = 1
-            )
+    // Convenience overloads for callers using vararg or two-arg versions
+    fun addSuperset(vararg ids: Long) = addSuperset(ids.toList())
 
-            Text("What kind of movement is this?", fontFamily = GaeguRegular)
-            PoeticMultiSelectChips(
-                options = categoryOptions,
-                selectedItems = selectedCategories,
-                onSelectionChange = {
-                    selectedCategories.clear()
-                    selectedCategories.addAll(it)
-                }
-            )
+    /** Remove any superset containing the given id(s). */
+    fun removeSuperset(id: Long) {
+        supersets.removeAll { group -> group.contains(id) }
+    }
 
-            Text("Which areas are involved?", fontFamily = GaeguRegular)
-            PoeticMultiSelectChips(
-                options = muscleOptions,
-                selectedItems = selectedMuscles,
-                onSelectionChange = {
-                    selectedMuscles.clear()
-                    selectedMuscles.addAll(it)
-                }
-            )
+    fun removeSuperset(vararg ids: Long) {
+        supersets.removeAll { group -> ids.any { it in group } }
+    }
 
-            Text("Your notes on this movement", fontFamily = GaeguRegular)
-            LinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                hint = "Write your thoughts here...",
-                initialLines = 3
-            )
+    fun findSupersetPartners(id: Long): List<Long> {
+        return supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
+    }
 
             Text("Which movements do you want to add?", fontFamily = GaeguRegular)
             GaeguButton(
@@ -226,38 +209,187 @@ fun LineEditorPage(
                 onClick = { showExerciseSheet.value = true },
                 textColor = Color.Black
             )
+            if (res == SnackbarResult.ActionPerformed) {
+                addSuperset(supersetSelection.toList())
+                supersetSelection.clear()
+            }
+        } else {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
 
-            PoeticBottomSheet(
-                visible = showExerciseSheet.value,
-                onDismiss = { showExerciseSheet.value = false }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFFF5F5DC),
+                    contentColor = Color.Black,
+                    actionColor = Color.Black
+                )
+            }
+        }
+    ) { paddingValues ->
+        PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .systemBarsPadding()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                Text(
+                    "✒ Compose your daily line",
+                    fontFamily = GaeguBold,
+                    fontSize = 24.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Text("What would you title this day?", fontFamily = GaeguRegular)
                 LinedTextField(
-                    value = exerciseSearch.value,
-                    onValueChange = { exerciseSearch.value = it },
-                    hint = "Search exercises",
-                    modifier = Modifier.fillMaxWidth(),
+                    value = title,
+                    onValueChange = { title = it },
+                    hint = "A poetic title...",
                     initialLines = 1
                 )
-                Spacer(Modifier.height(12.dp))
-                PoeticRadioChips(
-                    options = listOf("All") + filterMuscles,
-                    selected = selectedFilter.value ?: "All",
-                    onSelected = { selectedFilter.value = if (it == "All") null else it }
+
+                Text("What kind of movement is this?", fontFamily = GaeguRegular)
+                PoeticMultiSelectChips(
+                    options = categoryOptions,
+                    selectedItems = selectedCategories,
+                    onSelectionChange = {
+                        selectedCategories.clear()
+                        selectedCategories.addAll(it)
+                    }
                 )
-                Spacer(Modifier.height(12.dp))
-                if (filteredExercises.isEmpty()) {
-                    Text(
-                        "No matching exercises found.",
-                        fontFamily = GaeguLight,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(12.dp)
+
+                Text("Which areas are involved?", fontFamily = GaeguRegular)
+                PoeticMultiSelectChips(
+                    options = muscleOptions,
+                    selectedItems = selectedMuscles,
+                    onSelectionChange = {
+                        selectedMuscles.clear()
+                        selectedMuscles.addAll(it)
+                    }
+                )
+
+                Text("Your notes on this movement", fontFamily = GaeguRegular)
+                LinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    hint = "Write your thoughts here...",
+                    initialLines = 3
+                )
+
+                Text("Which movements do you want to add?", fontFamily = GaeguRegular)
+                val showExerciseSheet = remember { mutableStateOf(false) }
+                val exerciseSearch = remember { mutableStateOf("") }
+                val filterMuscles = selectedMuscles.ifEmpty {
+                    allExercises.map { it.muscleGroup.display }.distinct()
+                }
+                val selectedFilter = remember { mutableStateOf<String?>(null) }
+
+                val filteredExercises = allExercises.filter {
+                    val matchesFilter =
+                        selectedFilter.value == null || it.muscleGroup.display == selectedFilter.value
+                    val matchesSearch = exerciseSearch.value.isBlank() ||
+                            it.name.contains(exerciseSearch.value, ignoreCase = true)
+                    matchesFilter && matchesSearch
+                }
+
+                GaeguButton(
+                    text = "➕ Add Exercise",
+                    onClick = { showExerciseSheet.value = true },
+                    textColor = Color.Black
+                )
+
+                PoeticBottomSheet(
+                    visible = showExerciseSheet.value,
+                    onDismiss = { showExerciseSheet.value = false }
+                ) {
+                    LinedTextField(
+                        value = exerciseSearch.value,
+                        onValueChange = { exerciseSearch.value = it },
+                        hint = "Search exercises",
+                        modifier = Modifier.fillMaxWidth(),
+                        initialLines = 1
                     )
-                } else {
+                    Spacer(Modifier.height(12.dp))
+                    PoeticRadioChips(
+                        options = listOf("All") + filterMuscles,
+                        selected = selectedFilter.value ?: "All",
+                        onSelected = { selectedFilter.value = if (it == "All") null else it }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    if (filteredExercises.isEmpty()) {
+                        Text(
+                            "No matching exercises found.",
+                            fontFamily = GaeguLight,
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 320.dp)
+                                .fillMaxWidth()
+                        ) {
+                            items(filteredExercises) { ex ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                        .clickable {
+                                            if (selectedExercises.none { it.id == ex.id }) {
+                                                selectedExercises.add(
+                                                    LineExercise(
+                                                        id = ex.id,
+                                                        name = ex.name,
+                                                        sets = 3,
+                                                        repsOrDuration = "10"
+                                                    )
+                                                )
+                                            }
+                                            showExerciseSheet.value = false
+                                            exerciseSearch.value = ""
+                                            selectedFilter.value = null
+                                        },
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color.White,
+                                    contentColor = Color.Black
+                                ) {
+                                    Column(Modifier.padding(12.dp)) {
+                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
+                                        Text(
+                                            "${ex.muscleGroup.display} · ${ex.category.display}",
+                                            fontFamily = GaeguLight,
+                                            fontSize = 13.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (selectedExercises.isNotEmpty()) {
+                    Text("Today's selected movements:", fontFamily = GaeguBold)
+                    val reorderState = rememberReorderableLazyListState(
+                        onMove = { from, to ->
+                            selectedExercises.move(from.index, to.index)
+                        }
+                    )
                     LazyColumn(
+                        state = reorderState.listState,
                         modifier = Modifier
-                            .heightIn(max = 320.dp)
-                            .fillMaxWidth()
+                            .heightIn(max = screenHeight)
+                            .reorderable(reorderState)
+                            .detectReorderAfterLongPress(reorderState)
+                            .fillMaxWidth(),
+                        userScrollEnabled = false
                     ) {
                         items(filteredExercises) { ex ->
                             Surface(
@@ -274,10 +406,9 @@ fun LineEditorPage(
                                                     repsOrDuration = "10"
                                                 )
                                             )
+                                        } else {
+                                            supersetSelection.remove(item.id)
                                         }
-                                        showExerciseSheet.value = false
-                                        exerciseSearch.value = ""
-                                        selectedFilter.value = null
                                     },
                                 shape = RoundedCornerShape(8.dp),
                                 color = Color.White,
@@ -296,7 +427,6 @@ fun LineEditorPage(
                         }
                     }
                 }
-            }
 
             if (allSelectedExercises.isNotEmpty()) {
                 Text("Today's selected movements:", fontFamily = GaeguBold)
@@ -379,6 +509,67 @@ fun LineEditorPage(
                             }
                         }
                     }
+                }
+
+            GaeguButton(
+                text = "➕ Create Section",
+                onClick = { showSectionSheet = true },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                textColor = Color.Black
+            )
+
+            PoeticBottomSheet(
+                visible = showSectionSheet,
+                onDismiss = {
+                    showSectionSheet = false
+                    showCustomSection = false
+                    customSectionName = ""
+                }
+            ) {
+                val options = listOf("Warm-up", "Workout", "Cooldown")
+                options.forEach { option ->
+                    Text(
+                        option,
+                        fontFamily = GaeguRegular,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                sections.add(ExerciseSection(option))
+                                showSectionSheet = false
+                                showCustomSection = false
+                                customSectionName = ""
+                            }
+                    )
+                }
+                Text(
+                    "Custom",
+                    fontFamily = GaeguRegular,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable { showCustomSection = true }
+                )
+                if (showCustomSection) {
+                    LinedTextField(
+                        value = customSectionName,
+                        onValueChange = { customSectionName = it },
+                        hint = "Section name"
+                    )
+                    GaeguButton(
+                        text = "Add",
+                        onClick = {
+                            val name = customSectionName.ifBlank { "Custom" }
+                            sections.add(ExerciseSection(name))
+                            showSectionSheet = false
+                            showCustomSection = false
+                            customSectionName = ""
+                        },
+                        modifier = Modifier.align(Alignment.End),
+                        textColor = Color.Black
+                    )
                 }
             }
 
