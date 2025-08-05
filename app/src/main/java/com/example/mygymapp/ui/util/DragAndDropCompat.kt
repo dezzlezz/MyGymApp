@@ -3,6 +3,7 @@ package com.example.mygymapp.ui.util
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.draganddrop.dragAndDropSource as foundationDragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget as foundationDragAndDropTarget
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
@@ -23,7 +24,10 @@ typealias DragAndDropTransferData = androidx.compose.ui.draganddrop.DragAndDropT
 fun Modifier.dragAndDropSource(
     dataProvider: () -> DragAndDropTransferData
 ): Modifier = foundationDragAndDropSource {
-    startTransfer(dataProvider())
+    detectDragGesturesAfterLongPress(
+        onDragStart = { startTransfer(dataProvider()) },
+        onDrag = { _, _ -> }
+    )
 }
 
 // Adapter for the old onDrop/shouldStartDragAndDrop signature
