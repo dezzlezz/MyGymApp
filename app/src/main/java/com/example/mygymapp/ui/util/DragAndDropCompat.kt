@@ -9,7 +9,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import kotlinx.coroutines.yield
+import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * Simplified drag-and-drop compatibility layer that recreates the legacy
@@ -44,8 +44,6 @@ fun Modifier.dragAndDropSource(
             val session = DragSession(dataProvider())
             DragAndDropState.session = session
             waitForUpOrCancellation()
-            // Yield so targets can observe the up event before clearing.
-            yield()
             if (DragAndDropState.session === session) {
                 DragAndDropState.session = null
             }
@@ -58,6 +56,7 @@ fun Modifier.dragAndDropSource(
  * session is active. The [shouldStartDragAndDrop] callback mirrors the legacy
  * API and allows callers to veto drops.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: () -> Boolean,
     onDrop: (DragAndDropTransferData) -> Boolean
