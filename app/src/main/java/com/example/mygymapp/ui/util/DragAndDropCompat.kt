@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
+import androidx.compose.ui.input.pointer.awaitPointerEvent
 import kotlinx.coroutines.yield
 
 /**
@@ -64,17 +64,15 @@ fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: () -> Boolean,
     onDrop: (DragAndDropTransferData) -> Boolean
 ): Modifier = pointerInput(Unit) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            val session = DragAndDropState.session
-            if (session != null && shouldStartDragAndDrop()) {
-                val change = event.changes.find {
-                    it.id == session.pointerId && it.changedToUpIgnoreConsumed()
-                }
-                if (change != null && onDrop(session.data)) {
-                    DragAndDropState.session = null
-                }
+    while (true) {
+        val event = awaitPointerEvent()
+        val session = DragAndDropState.session
+        if (session != null && shouldStartDragAndDrop()) {
+            val change = event.changes.find {
+                it.id == session.pointerId && it.changedToUpIgnoreConsumed()
+            }
+            if (change != null && onDrop(session.data)) {
+                DragAndDropState.session = null
             }
         }
     }
