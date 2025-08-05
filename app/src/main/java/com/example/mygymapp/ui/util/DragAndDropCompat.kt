@@ -1,15 +1,14 @@
 package com.example.mygymapp.ui.util
 
 import android.content.ClipData
+import android.view.MotionEvent
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import kotlinx.coroutines.yield
 
 /**
@@ -23,8 +22,7 @@ import kotlinx.coroutines.yield
 data class DragAndDropTransferData(val clipData: ClipData? = null)
 
 private data class DragSession(
-    val data: DragAndDropTransferData,
-    val pointerId: PointerId
+    val data: DragAndDropTransferData
 )
 
 private object DragAndDropState {
@@ -43,10 +41,10 @@ fun Modifier.dragAndDropSource(
         val down = awaitFirstDown()
         val longPress = awaitLongPressOrCancellation(down.id)
         if (longPress != null) {
-            val session = DragSession(dataProvider(), longPress.id)
+            val session = DragSession(dataProvider())
             DragAndDropState.session = session
             waitForUpOrCancellation()
-            // Yield to allow targets to process the up event before clearing.
+            // Yield so targets can observe the up event before clearing.
             yield()
             if (DragAndDropState.session === session) {
                 DragAndDropState.session = null
@@ -63,19 +61,15 @@ fun Modifier.dragAndDropSource(
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: () -> Boolean,
     onDrop: (DragAndDropTransferData) -> Boolean
-): Modifier = pointerInput(Unit) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            val session = DragAndDropState.session
-            if (session != null && shouldStartDragAndDrop()) {
-                val change = event.changes.find {
-                    it.id == session.pointerId && it.changedToUpIgnoreConsumed()
-                }
-                if (change != null && onDrop(session.data)) {
-                    DragAndDropState.session = null
-                }
+): Modifier = pointerInteropFilter { event ->
+    val session = DragAndDropState.session
+    if (session != null && shouldStartDragAndDrop()) {
+        if (event.actionMasked == MotionEvent.ACTION_UP) {
+            if (onDrop(session.data)) {
+                DragAndDropState.session = null
+                return@pointerInteropFilter true
             }
         }
     }
+    false
 }
