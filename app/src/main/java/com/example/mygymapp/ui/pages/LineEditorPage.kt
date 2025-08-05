@@ -123,7 +123,16 @@ fun LineEditorPage(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = Color(0xFFF5F5DC),
+                    contentColor = Color.Black,
+                    actionColor = Color.Black
+                )
+            }
+        }
     ) { paddingValues ->
         PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(
@@ -194,7 +203,8 @@ fun LineEditorPage(
 
             GaeguButton(
                 text = "➕ Add Exercise",
-                onClick = { showExerciseSheet.value = true }
+                onClick = { showExerciseSheet.value = true },
+                textColor = Color.Black
             )
 
             PoeticBottomSheet(
@@ -250,7 +260,8 @@ fun LineEditorPage(
                                         selectedFilter.value = null
                                     },
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color.White
+                                color = Color.White,
+                                contentColor = Color.Black
                             ) {
                                 Column(Modifier.padding(12.dp)) {
                                     Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
@@ -327,7 +338,7 @@ fun LineEditorPage(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) {
-                    Text("Cancel", fontFamily = GaeguRegular)
+                    Text("Cancel", fontFamily = GaeguRegular, color = Color.Black)
                 }
                 Spacer(Modifier.width(16.dp))
                 GaeguButton(
@@ -349,7 +360,8 @@ fun LineEditorPage(
                             isArchived = false
                         )
                         onSave(newLine)
-                    }
+                    },
+                    textColor = Color.Black
                 )
             }
 

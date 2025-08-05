@@ -1,5 +1,7 @@
 package com.example.mygymapp.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -59,13 +61,15 @@ fun ReorderableExerciseItem(
                         text = "${index + 1}.",
                         fontFamily = GaeguBold,
                         fontSize = 16.sp,
+                        color = Color.Black,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Column {
                         Text(
                             text = exercise.name,
                             fontFamily = GaeguRegular,
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
+                            color = Color.Black
                         )
                         exercise.repsOrDuration?.let {
                             Text(
@@ -96,13 +100,36 @@ fun ReorderableExerciseItem(
             }
 
             if (supersetPartnerIndices.isNotEmpty()) {
-                Text(
-                    text = "🧷 Superset with " +
-                        supersetPartnerIndices.joinToString(prefix = "#", separator = ", #") { (it + 1).toString() },
-                    fontFamily = GaeguLight,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(start = 32.dp, bottom = 8.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .padding(start = 32.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val indices = (listOf(index) + supersetPartnerIndices).sorted()
+                    indices.forEachIndexed { i, idx ->
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .border(1.dp, Color.Black, RoundedCornerShape(4.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${idx + 1}",
+                                fontFamily = GaeguLight,
+                                fontSize = 12.sp,
+                                color = Color.Black
+                            )
+                        }
+                        if (i < indices.lastIndex) {
+                            Box(
+                                modifier = Modifier
+                                    .width(12.dp)
+                                    .height(1.dp)
+                                    .background(Color.Black)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
