@@ -206,7 +206,7 @@ fun LineEditorPage(
                 GaeguButton(
                     text = "➕ Add Exercise",
                     onClick = { showExerciseSheet.value = true },
-                    textColor = Color.White
+                    textColor = Color.Black
                 )
 
                 PoeticBottomSheet(
