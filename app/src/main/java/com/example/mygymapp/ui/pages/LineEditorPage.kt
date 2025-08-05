@@ -353,6 +353,54 @@ fun LineEditorPage(
                 }
             }
 
+            PoeticBottomSheet(
+                visible = selectedForSuperset != null,
+                onDismiss = { selectedForSuperset = null }
+            ) {
+                val current = selectedForSuperset
+                if (current != null) {
+                    Text("Choose a superset partner", fontFamily = GaeguBold)
+                    Spacer(Modifier.height(8.dp))
+                    val options = selectedExercises.filter { it.id != current.id }
+                    if (options.isEmpty()) {
+                        Text(
+                            "No other exercises available.",
+                            fontFamily = GaeguLight,
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 320.dp)
+                                .fillMaxWidth()
+                        ) {
+                            items(options) { ex ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                        .clickable {
+                                            val partner = ex.id
+                                            val already = findSupersetPartner(current.id) == partner
+                                            if (already) removeSuperset(current.id, partner)
+                                            else addSuperset(current.id, partner)
+                                            selectedForSuperset = null
+                                        },
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color.White
+                                ) {
+                                    Column(Modifier.padding(12.dp)) {
+                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) {
                     Text("Cancel", fontFamily = GaeguRegular)
