@@ -381,11 +381,15 @@ fun LineEditorPage(
                             ) {
                                 val reorderState = rememberReorderableLazyListState(
                                     onMove = { from, to ->
-                                        val fromItem = unassignedItems[from.index]
-                                        val toItem = unassignedItems[to.index]
+                                        val fromItem = unassignedItems.getOrNull(from.index)
+                                            ?: return@rememberReorderableLazyListState
+                                        val toItem = unassignedItems.getOrNull(to.index)
+                                            ?: return@rememberReorderableLazyListState
                                         val fromIdx = selectedExercises.indexOf(fromItem)
                                         val toIdx = selectedExercises.indexOf(toItem)
-                                        selectedExercises.move(fromIdx, toIdx)
+                                        if (fromIdx >= 0 && toIdx >= 0) {
+                                            selectedExercises.move(fromIdx, toIdx)
+                                        }
                                     }
                                 )
                                 LazyColumn(
