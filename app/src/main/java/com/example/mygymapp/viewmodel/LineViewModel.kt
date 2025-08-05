@@ -31,7 +31,7 @@ class LineViewModel : ViewModel() {
                 muscleGroup = "Back",
                 mood = Mood.FOCUSED,
                 exercises = emptyList(),
-                supersets = listOf(1L to 2L),
+                supersets = listOf(listOf(1L, 2L)),
                 note = "Late session with high focus."
             )
         )
