@@ -20,9 +20,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.draganddrop.dragAndDropSource
-import androidx.compose.ui.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.draganddrop.DragAndDropTransferData
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -363,7 +363,7 @@ fun LineEditorPage(
                                 title = "Unassigned",
                                 modifier = Modifier.dragAndDropTarget(
                                     shouldStartDragAndDrop = { true },
-                                    onDrop = { transferData ->
+                                    onDrop = { transferData: DragAndDropTransferData ->
                                         val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                         id?.let { exId ->
                                             val idx = selectedExercises.indexOfFirst { it.id == exId }
@@ -463,7 +463,7 @@ fun LineEditorPage(
                                     title = sectionName,
                                     modifier = Modifier.dragAndDropTarget(
                                         shouldStartDragAndDrop = { true },
-                                        onDrop = { transferData ->
+                                        onDrop = { transferData: DragAndDropTransferData ->
                                             val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                             id?.let { exId ->
                                                 val idx = selectedExercises.indexOfFirst { it.id == exId }
