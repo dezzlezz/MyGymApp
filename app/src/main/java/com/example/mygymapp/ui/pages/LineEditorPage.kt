@@ -381,9 +381,12 @@ fun LineEditorPage(
                             ) {
                                 val reorderState = rememberReorderableLazyListState(
                                     onMove = { from, to ->
-                                        val fromItem = unassignedItems.getOrNull(from.index)
+                                        // Re-evaluate the current unassigned list each time to
+                                        // avoid capturing stale references that break dragging
+                                        val current = selectedExercises.filter { it.section.isBlank() }
+                                        val fromItem = current.getOrNull(from.index)
                                             ?: return@rememberReorderableLazyListState
-                                        val toItem = unassignedItems.getOrNull(to.index)
+                                        val toItem = current.getOrNull(to.index)
                                             ?: return@rememberReorderableLazyListState
                                         val fromIdx = selectedExercises.indexOf(fromItem)
                                         val toIdx = selectedExercises.indexOf(toItem)
@@ -485,11 +488,18 @@ fun LineEditorPage(
                                 ) {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
-                                            val fromItem = sectionItems[from.index]
-                                            val toItem = sectionItems[to.index]
+                                            // Use a fresh snapshot of this section's items for each
+                                            // move to keep indices in sync after reordering.
+                                            val current = selectedExercises.filter { it.section == sectionName }
+                                            val fromItem = current.getOrNull(from.index)
+                                                ?: return@rememberReorderableLazyListState
+                                            val toItem = current.getOrNull(to.index)
+                                                ?: return@rememberReorderableLazyListState
                                             val fromIdx = selectedExercises.indexOf(fromItem)
                                             val toIdx = selectedExercises.indexOf(toItem)
-                                            selectedExercises.move(fromIdx, toIdx)
+                                            if (fromIdx >= 0 && toIdx >= 0) {
+                                                selectedExercises.move(fromIdx, toIdx)
+                                            }
                                         }
                                     )
                                     LazyColumn(
