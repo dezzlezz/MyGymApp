@@ -7,10 +7,10 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.awaitPointerEvent
+import androidx.compose.ui.input.pointer.awaitPointerEventScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.awaitPointerEventScope
-import kotlinx.coroutines.yield
 
 /**
  * Simplified drag-and-drop compatibility layer that recreates the legacy
@@ -45,9 +45,11 @@ fun Modifier.dragAndDropSource(
         if (longPress != null) {
             val session = DragSession(dataProvider(), longPress.id)
             DragAndDropState.session = session
-            waitForUpOrCancellation()
-            // Yield to allow targets to process the up event before clearing.
-            yield()
+            awaitPointerEventScope {
+                waitForUpOrCancellation()
+                // Await one more event so targets can observe the up event
+                awaitPointerEvent()
+            }
             if (DragAndDropState.session === session) {
                 DragAndDropState.session = null
             }
@@ -63,7 +65,7 @@ fun Modifier.dragAndDropSource(
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: () -> Boolean,
     onDrop: (DragAndDropTransferData) -> Boolean
-): Modifier = pointerInput(Unit) {
+    ): Modifier = pointerInput(Unit) {
     awaitPointerEventScope {
         while (true) {
             val event = awaitPointerEvent()
