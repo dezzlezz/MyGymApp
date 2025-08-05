@@ -55,7 +55,8 @@ fun LineEditorPage(
     val selectedExercises = remember {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val supersets = remember { mutableStateListOf<Pair<Long, Long>>() }
+    val supersets = remember { mutableStateListOf<Pair<Long, Long>>().apply { initial?.supersets?.let { addAll(it) } } }
+    var selectedForSuperset by remember { mutableStateOf<LineExercise?>(null) }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
@@ -68,6 +69,23 @@ fun LineEditorPage(
     }
 
     var showError by remember { mutableStateOf(false) }
+
+    fun addSuperset(a: Long, b: Long) {
+        val pair = if (a < b) a to b else b to a
+        supersets.removeAll { it.first == a || it.second == a || it.first == b || it.second == b }
+        if (!supersets.contains(pair)) supersets.add(pair)
+    }
+
+    fun removeSuperset(a: Long, b: Long) {
+        val pair = if (a < b) a to b else b to a
+        supersets.remove(pair)
+    }
+
+    fun findSupersetPartner(id: Long): Long? {
+        return supersets.firstOrNull { it.first == id || it.second == id }?.let {
+            if (it.first == id) it.second else it.first
+        }
+    }
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
@@ -232,10 +250,18 @@ fun LineEditorPage(
                     itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
                         ReorderableItem(reorderState, key = item.id) { isDragging ->
                             val elevation = if (isDragging) 8.dp else 2.dp
+                            val partnerIndex = findSupersetPartner(item.id)?.let { pid ->
+                                selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
+                            }
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
-                                onRemove = { selectedExercises.remove(item) },
+                                onRemove = {
+                                    selectedExercises.remove(item)
+                                    val partnerId = findSupersetPartner(item.id)
+                                    partnerId?.let { removeSuperset(item.id, it) }
+                                },
+                                onSupersetClick = { selectedForSuperset = item },
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
                                     .animateItemPlacement()
@@ -247,8 +273,57 @@ fun LineEditorPage(
                                         tint = Color.Gray,
                                         modifier = Modifier.detectReorderAfterLongPress(reorderState)
                                     )
-                                }
+                                },
+                                supersetWithIndex = partnerIndex
                             )
+                        }
+                    }
+                }
+            }
+
+            PoeticBottomSheet(
+                visible = selectedForSuperset != null,
+                onDismiss = { selectedForSuperset = null }
+            ) {
+                val current = selectedForSuperset
+                if (current != null) {
+                    Text("Choose a superset partner", fontFamily = GaeguBold)
+                    Spacer(Modifier.height(8.dp))
+                    val options = selectedExercises.filter { it.id != current.id }
+                    if (options.isEmpty()) {
+                        Text(
+                            "No other exercises available.",
+                            fontFamily = GaeguLight,
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 320.dp)
+                                .fillMaxWidth()
+                        ) {
+                            items(options) { ex ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                        .clickable {
+                                            val partner = ex.id
+                                            val already = findSupersetPartner(current.id) == partner
+                                            if (already) removeSuperset(current.id, partner)
+                                            else addSuperset(current.id, partner)
+                                            selectedForSuperset = null
+                                        },
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color.White
+                                ) {
+                                    Column(Modifier.padding(12.dp)) {
+                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
