@@ -1,7 +1,6 @@
 package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +54,14 @@ fun LineEditorPage(
     val selectedExercises = remember {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val supersets = remember { mutableStateListOf<Pair<Long, Long>>() }
+    val supersets = remember {
+        mutableStateListOf<MutableList<Long>>().apply {
+            initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
+        }
+    }
+    val supersetSelection = remember { mutableStateListOf<Long>() }
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
@@ -69,17 +75,65 @@ fun LineEditorPage(
 
     var showError by remember { mutableStateOf(false) }
 
+    /**
+     * Replace any groups containing the supplied ids and store the new grouping.
+     * A group must contain more than one exercise id to be persisted.
+     */
+    fun addSuperset(ids: List<Long>) {
+        supersets.removeAll { group -> group.any { it in ids } }
+        if (ids.size > 1) {
+            supersets.add(ids.sorted().toMutableList())
+        }
+    }
+
+    // Convenience overloads for callers using vararg or two-arg versions
+    fun addSuperset(vararg ids: Long) = addSuperset(ids.toList())
+
+    /** Remove any superset containing the given id(s). */
+    fun removeSuperset(id: Long) {
+        supersets.removeAll { group -> group.contains(id) }
+    }
+
+    fun removeSuperset(vararg ids: Long) {
+        supersets.removeAll { group -> ids.any { it in group } }
+    }
+
+    fun findSupersetPartners(id: Long): List<Long> {
+        return supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
+    }
+
+    // Backwards compatibility helper for previous single-partner usage
+    fun findSupersetPartner(id: Long): Long? = findSupersetPartners(id).firstOrNull()
+
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-    PaperBackground(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .systemBarsPadding()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
+    LaunchedEffect(supersetSelection.size) {
+        if (supersetSelection.size > 1) {
+            val res = snackbarHostState.showSnackbar(
+                message = "Create superset",
+                actionLabel = "Create"
+            )
+            if (res == SnackbarResult.ActionPerformed) {
+                addSuperset(supersetSelection.toList())
+                supersetSelection.clear()
+            }
+        } else {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .systemBarsPadding()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
             Text(
                 "✒ Compose your daily line",
                 fontFamily = GaeguBold,
@@ -232,10 +286,25 @@ fun LineEditorPage(
                     itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
                         ReorderableItem(reorderState, key = item.id) { isDragging ->
                             val elevation = if (isDragging) 8.dp else 2.dp
+                            val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
+                                selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
+                            }
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
-                                onRemove = { selectedExercises.remove(item) },
+                                onRemove = {
+                                    selectedExercises.remove(item)
+                                    removeSuperset(item.id)
+                                    supersetSelection.remove(item.id)
+                                },
+                                isSupersetSelected = supersetSelection.contains(item.id),
+                                onSupersetSelectedChange = { checked ->
+                                    if (checked) {
+                                        if (!supersetSelection.contains(item.id)) supersetSelection.add(item.id)
+                                    } else {
+                                        supersetSelection.remove(item.id)
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
                                     .animateItemPlacement()
@@ -247,12 +316,14 @@ fun LineEditorPage(
                                         tint = Color.Gray,
                                         modifier = Modifier.detectReorderAfterLongPress(reorderState)
                                     )
-                                }
+                                },
+                                supersetPartnerIndices = partnerIndices
                             )
                         }
                     }
                 }
             }
+
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onCancel) {
@@ -273,7 +344,7 @@ fun LineEditorPage(
                             muscleGroup = selectedMuscles.joinToString(),
                             mood = null,
                             exercises = selectedExercises.toList(),
-                            supersets = supersets.toList(),
+                            supersets = supersets.map { it.toList() },
                             note = note,
                             isArchived = false
                         )

@@ -3,6 +3,7 @@ package com.example.mygymapp.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -25,15 +26,18 @@ import com.example.mygymapp.ui.pages.GaeguRegular
  * - Index number
  * - Exercise name
  * - Optional metadata (category, muscle group)
- * - Actions: delete, drag (and optionally superset or edit)
+ * - Actions: delete, drag and superset selection checkbox
  */
 @Composable
 fun ReorderableExerciseItem(
     index: Int,
     exercise: LineExercise,
     onRemove: () -> Unit,
+    isSupersetSelected: Boolean,
+    onSupersetSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    dragHandle: @Composable () -> Unit
+    dragHandle: @Composable () -> Unit,
+    supersetPartnerIndices: List<Int> = emptyList()
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -41,49 +45,64 @@ fun ReorderableExerciseItem(
         tonalElevation = 2.dp,
         modifier = modifier
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Index & Name
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${index + 1}.",
-                    fontFamily = GaeguBold,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Column {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Index & Name
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = exercise.name,
-                        fontFamily = GaeguRegular,
-                        fontSize = 16.sp
+                        text = "${index + 1}.",
+                        fontFamily = GaeguBold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(end = 8.dp)
                     )
-                    exercise.repsOrDuration?.let {
+                    Column {
                         Text(
-                            text = "e.g. $it reps",
-                            fontFamily = GaeguLight,
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            text = exercise.name,
+                            fontFamily = GaeguRegular,
+                            fontSize = 16.sp
+                        )
+                        exercise.repsOrDuration?.let {
+                            Text(
+                                text = "e.g. $it reps",
+                                fontFamily = GaeguLight,
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+
+                // Actions
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onRemove) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Red
                         )
                     }
+                    Checkbox(
+                        checked = isSupersetSelected,
+                        onCheckedChange = onSupersetSelectedChange
+                    )
+                    dragHandle()
                 }
             }
 
-            // Actions
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onRemove) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = Color.Red
-                    )
-                }
-
-                dragHandle()
+            if (supersetPartnerIndices.isNotEmpty()) {
+                Text(
+                    text = "🧷 Superset with " +
+                        supersetPartnerIndices.joinToString(prefix = "#", separator = ", #") { (it + 1).toString() },
+                    fontFamily = GaeguLight,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(start = 32.dp, bottom = 8.dp)
+                )
             }
         }
     }
