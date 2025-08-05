@@ -19,6 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import android.content.ClipData
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.dragAndDropSource
+import androidx.compose.ui.draganddrop.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -353,10 +357,128 @@ fun LineEditorPage(
                             }
                         }
                     } else {
+                        val unassignedItems = selectedExercises.filter { it.section.isBlank() }
+                        if (unassignedItems.isNotEmpty()) {
+                            SectionWrapper(
+                                title = "Unassigned",
+                                modifier = Modifier.dragAndDropTarget(
+                                    shouldStartDragAndDrop = { true },
+                                    onDrop = { transferData ->
+                                        val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                        id?.let { exId ->
+                                            val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                            if (idx >= 0) {
+                                                val oldSection = selectedExercises[idx].section
+                                                selectedExercises[idx] = selectedExercises[idx].copy(section = "")
+                                                if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
+                                                    sections.remove(oldSection)
+                                                }
+                                            }
+                                        }
+                                        true
+                                    }
+                                )
+                            ) {
+                                val reorderState = rememberReorderableLazyListState(
+                                    onMove = { from, to ->
+                                        val fromItem = unassignedItems[from.index]
+                                        val toItem = unassignedItems[to.index]
+                                        val fromIdx = selectedExercises.indexOf(fromItem)
+                                        val toIdx = selectedExercises.indexOf(toItem)
+                                        selectedExercises.move(fromIdx, toIdx)
+                                    }
+                                )
+                                LazyColumn(
+                                    state = reorderState.listState,
+                                    modifier = Modifier
+                                        .heightIn(max = screenHeight)
+                                        .reorderable(reorderState)
+                                        .detectReorderAfterLongPress(reorderState)
+                                        .fillMaxWidth(),
+                                    userScrollEnabled = false
+                                ) {
+                                    itemsIndexed(
+                                        unassignedItems,
+                                        key = { _, item -> item.id }) { index, item ->
+                                        ReorderableItem(reorderState, key = item.id) { isDragging ->
+                                            val elevation = if (isDragging) 8.dp else 2.dp
+                                            val partnerIndices =
+                                                findSupersetPartners(item.id).mapNotNull { pid ->
+                                                    selectedExercises.indexOfFirst { it.id == pid }
+                                                        .takeIf { it >= 0 }
+                                                }
+                                            ReorderableExerciseItem(
+                                                index = index,
+                                                exercise = item,
+                                                onRemove = {
+                                                    selectedExercises.remove(item)
+                                                    removeSuperset(item.id)
+                                                    supersetSelection.remove(item.id)
+                                                },
+                                                isSupersetSelected = supersetSelection.contains(item.id),
+                                                onSupersetSelectedChange = { checked ->
+                                                    if (checked) {
+                                                        if (!supersetSelection.contains(item.id)) supersetSelection.add(
+                                                            item.id
+                                                        )
+                                                    } else {
+                                                        supersetSelection.remove(item.id)
+                                                    }
+                                                },
+                                                modifier = Modifier
+                                                    .padding(vertical = 4.dp)
+                                                    .animateItemPlacement()
+                                                    .shadow(elevation)
+                                                    .dragAndDropSource(
+                                                        dataProvider = {
+                                                            DragAndDropTransferData(
+                                                                clipData = ClipData.newPlainText(
+                                                                    "exercise",
+                                                                    item.id.toString()
+                                                                )
+                                                            )
+                                                        }
+                                                    ),
+                                                dragHandle = {
+                                                    Icon(
+                                                        imageVector = Icons.Default.DragHandle,
+                                                        contentDescription = "Drag",
+                                                        tint = Color.Gray,
+                                                        modifier = Modifier.detectReorderAfterLongPress(
+                                                            reorderState
+                                                        )
+                                                    )
+                                                },
+                                                supersetPartnerIndices = partnerIndices
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         sections.forEach { sectionName ->
                             val sectionItems = selectedExercises.filter { it.section == sectionName }
                             if (sectionItems.isNotEmpty()) {
-                                SectionWrapper(title = sectionName) {
+                                SectionWrapper(
+                                    title = sectionName,
+                                    modifier = Modifier.dragAndDropTarget(
+                                        shouldStartDragAndDrop = { true },
+                                        onDrop = { transferData ->
+                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                            id?.let { exId ->
+                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (idx >= 0) {
+                                                    val oldSection = selectedExercises[idx].section
+                                                    selectedExercises[idx] = selectedExercises[idx].copy(section = sectionName)
+                                                    if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
+                                                        sections.remove(oldSection)
+                                                    }
+                                                }
+                                            }
+                                            true
+                                        }
+                                    )
+                                ) {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
                                             val fromItem = sectionItems[from.index]
@@ -409,7 +531,17 @@ fun LineEditorPage(
                                                     modifier = Modifier
                                                         .padding(vertical = 4.dp)
                                                         .animateItemPlacement()
-                                                        .shadow(elevation),
+                                                        .shadow(elevation)
+                                                        .dragAndDropSource(
+                                                            dataProvider = {
+                                                                DragAndDropTransferData(
+                                                                    clipData = ClipData.newPlainText(
+                                                                        "exercise",
+                                                                        item.id.toString()
+                                                                    )
+                                                                )
+                                                            }
+                                                        ),
                                                     dragHandle = {
                                                         Icon(
                                                             imageVector = Icons.Default.DragHandle,
