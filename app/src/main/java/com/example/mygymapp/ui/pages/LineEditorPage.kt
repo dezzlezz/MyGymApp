@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -79,6 +78,8 @@ fun LineEditorPage(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val categoryOptions =
         listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
@@ -93,6 +94,23 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     var renameTarget by remember { mutableStateOf<ExerciseSection?>(null) }
     var renameText by remember { mutableStateOf("") }
+
+    val showExerciseSheet = remember { mutableStateOf(false) }
+    val exerciseSearch = remember { mutableStateOf("") }
+    var showSectionSheet by remember { mutableStateOf(false) }
+    var showCustomSection by remember { mutableStateOf(false) }
+    var customSectionName by remember { mutableStateOf("") }
+    val filterMuscles = selectedMuscles.ifEmpty {
+        allExercises.map { it.muscleGroup.display }.distinct()
+    }
+    val selectedFilter = remember { mutableStateOf<String?>(null) }
+
+    val filteredExercises = allExercises.filter {
+        val matchesFilter = selectedFilter.value == null || it.muscleGroup.display == selectedFilter.value
+        val matchesSearch = exerciseSearch.value.isBlank() ||
+            it.name.contains(exerciseSearch.value, ignoreCase = true)
+        matchesFilter && matchesSearch
+    }
 
     /**
      * Replace any groups containing the supplied ids and store the new grouping.
@@ -186,18 +204,6 @@ fun LineEditorPage(
     }
 
             Text("Which movements do you want to add?", fontFamily = GaeguRegular)
-            val showExerciseSheet = remember { mutableStateOf(false) }
-            val exerciseSearch = remember { mutableStateOf("") }
-            var showSectionSheet by remember { mutableStateOf(false) }
-            var showCustomSection by remember { mutableStateOf(false) }
-            var customSectionName by remember { mutableStateOf("") }
-            val filterMuscles = selectedMuscles.ifEmpty {
-                allExercises.map { it.muscleGroup.display }.distinct()
-            }
-            val selectedFilter = remember { mutableStateOf<String?>(null) }
-
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-
             GaeguButton(
                 text = "➕ Add Exercise",
                 onClick = { showExerciseSheet.value = true },
@@ -504,6 +510,68 @@ fun LineEditorPage(
                         }
                     }
                 }
+
+            GaeguButton(
+                text = "➕ Create Section",
+                onClick = { showSectionSheet = true },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                textColor = Color.Black
+            )
+
+            PoeticBottomSheet(
+                visible = showSectionSheet,
+                onDismiss = {
+                    showSectionSheet = false
+                    showCustomSection = false
+                    customSectionName = ""
+                }
+            ) {
+                val options = listOf("Warm-up", "Workout", "Cooldown")
+                options.forEach { option ->
+                    Text(
+                        option,
+                        fontFamily = GaeguRegular,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                sections.add(ExerciseSection(option))
+                                showSectionSheet = false
+                                showCustomSection = false
+                                customSectionName = ""
+                            }
+                    )
+                }
+                Text(
+                    "Custom",
+                    fontFamily = GaeguRegular,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .clickable { showCustomSection = true }
+                )
+                if (showCustomSection) {
+                    LinedTextField(
+                        value = customSectionName,
+                        onValueChange = { customSectionName = it },
+                        hint = "Section name"
+                    )
+                    GaeguButton(
+                        text = "Add",
+                        onClick = {
+                            val name = customSectionName.ifBlank { "Custom" }
+                            sections.add(ExerciseSection(name))
+                            showSectionSheet = false
+                            showCustomSection = false
+                            customSectionName = ""
+                        },
+                        modifier = Modifier.align(Alignment.End),
+                        textColor = Color.Black
+                    )
+                }
+            }
 
             GaeguButton(
                 text = "➕ Create Section",
