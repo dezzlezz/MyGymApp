@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.draganddrop.dragAndDropTransferData
 import androidx.compose.ui.input.pointer.PointerEventPass
 
 /**
@@ -45,7 +44,8 @@ fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop = { _: DragAndDropEvent -> shouldStartDragAndDrop() },
     target = object : DragAndDropTarget {
         override fun onDrop(event: DragAndDropEvent): Boolean {
-            return onDrop(event.dragAndDropTransferData)
+            val data = event as? DragAndDropTransferData ?: return false
+            return onDrop(data)
         }
     }
 )
