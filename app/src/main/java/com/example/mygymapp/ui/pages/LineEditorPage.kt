@@ -20,9 +20,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
-import androidx.compose.foundation.draganddrop.DragAndDropTransferData
-import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import com.example.mygymapp.ui.util.DragAndDropTransferData
+import com.example.mygymapp.ui.util.dragAndDropSource
+import com.example.mygymapp.ui.util.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
