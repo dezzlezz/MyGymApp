@@ -35,7 +35,7 @@ fun ReorderableExerciseItem(
     onSupersetClick: () -> Unit,
     modifier: Modifier = Modifier,
     dragHandle: @Composable () -> Unit,
-    supersetWithIndex: Int? = null
+    supersetPartnerIndices: List<Int> = emptyList()
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -92,9 +92,10 @@ fun ReorderableExerciseItem(
                 }
             }
 
-            if (supersetWithIndex != null) {
+            if (supersetPartnerIndices.isNotEmpty()) {
                 Text(
-                    text = "🧷 Superset with #${supersetWithIndex + 1}",
+                    text = "🧷 Superset with " +
+                        supersetPartnerIndices.joinToString(prefix = "#", separator = ", #") { (it + 1).toString() },
                     fontFamily = GaeguLight,
                     fontSize = 13.sp,
                     modifier = Modifier.padding(start = 32.dp, bottom = 8.dp)
