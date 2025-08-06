@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.mygymapp.R
 import com.example.mygymapp.ui.components.LinedTextField
 import com.example.mygymapp.ui.components.PoeticCard
@@ -67,7 +68,11 @@ fun DesignDemoPage() {
             Spacer(Modifier.height(AppPadding.Section))
             PoeticDivider(centerText = "Poetic Card")
 
-            PoeticCard {
+            PoeticCard (
+                modifier = Modifier
+                    .height(200.dp)
+            )
+            {
                 Text("Normal Card", style = AppTypography.Title)
                 Text("Base style", style = AppTypography.Body)
             }
