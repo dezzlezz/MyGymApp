@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
@@ -33,6 +32,7 @@ import com.example.mygymapp.ui.components.GaeguButton
 import com.example.mygymapp.ui.components.LinedTextField
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticBottomSheet
+import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
@@ -159,10 +159,11 @@ fun LineEditorPage(
                     "✒ Compose your daily line",
                     fontFamily = GaeguBold,
                     fontSize = 24.sp,
+                    color = Color.Black,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Text("What would you title this day?", fontFamily = GaeguRegular)
+                Text("What would you title this day?", fontFamily = GaeguRegular, color = Color.Black)
                 LinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -170,7 +171,7 @@ fun LineEditorPage(
                     initialLines = 1
                 )
 
-                Text("What kind of movement is this?", fontFamily = GaeguRegular)
+                Text("What kind of movement is this?", fontFamily = GaeguRegular, color = Color.Black)
                 PoeticMultiSelectChips(
                     options = categoryOptions,
                     selectedItems = selectedCategories,
@@ -180,7 +181,7 @@ fun LineEditorPage(
                     }
                 )
 
-                Text("Which areas are involved?", fontFamily = GaeguRegular)
+                Text("Which areas are involved?", fontFamily = GaeguRegular, color = Color.Black)
                 PoeticMultiSelectChips(
                     options = muscleOptions,
                     selectedItems = selectedMuscles,
@@ -190,7 +191,7 @@ fun LineEditorPage(
                     }
                 )
 
-                Text("Your notes on this movement", fontFamily = GaeguRegular)
+                Text("Your notes on this movement", fontFamily = GaeguRegular, color = Color.Black)
                 LinedTextField(
                     value = note,
                     onValueChange = { note = it },
@@ -198,7 +199,7 @@ fun LineEditorPage(
                     initialLines = 3
                 )
 
-                Text("Which movements do you want to add?", fontFamily = GaeguRegular)
+                Text("Which movements do you want to add?", fontFamily = GaeguRegular, color = Color.Black)
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
@@ -244,7 +245,7 @@ fun LineEditorPage(
                             "No matching exercises found.",
                             fontFamily = GaeguLight,
                             fontSize = 14.sp,
-                            color = Color.Gray,
+                            color = Color.Black,
                             modifier = Modifier.padding(12.dp)
                         )
                     } else {
@@ -254,7 +255,7 @@ fun LineEditorPage(
                                 .fillMaxWidth()
                         ) {
                             items(filteredExercises) { ex ->
-                                Surface(
+                                PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
@@ -272,20 +273,15 @@ fun LineEditorPage(
                                             showExerciseSheet.value = false
                                             exerciseSearch.value = ""
                                             selectedFilter.value = null
-                                        },
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color.White,
-                                    contentColor = Color.Black
+                                        }
                                 ) {
-                                    Column(Modifier.padding(12.dp)) {
-                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
-                                        Text(
-                                            "${ex.muscleGroup.display} · ${ex.category.display}",
-                                            fontFamily = GaeguLight,
-                                            fontSize = 13.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
+                                    Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                                    Text(
+                                        "${ex.muscleGroup.display} · ${ex.category.display}",
+                                        fontFamily = GaeguLight,
+                                        fontSize = 13.sp,
+                                        color = Color.Black
+                                    )
                                 }
                             }
                         }
@@ -294,7 +290,7 @@ fun LineEditorPage(
 
                 if (selectedExercises.isNotEmpty()) {
                     if (sections.isEmpty()) {
-                        Text("Today's selected movements:", fontFamily = GaeguBold)
+                        Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
                         val reorderState = rememberReorderableLazyListState(
                             onMove = { from, to ->
                                 selectedExercises.move(from.index, to.index)
@@ -628,6 +624,7 @@ fun LineEditorPage(
                                     Text(
                                         ex.name,
                                         fontFamily = GaeguRegular,
+                                        color = Color.Black,
                                         modifier = Modifier.padding(start = 8.dp)
                                     )
                                 }
@@ -659,9 +656,11 @@ fun LineEditorPage(
 
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onCancel) {
-                        Text("Cancel", fontFamily = GaeguRegular, color = Color.Black)
-                    }
+                    GaeguButton(
+                        text = "Cancel",
+                        onClick = onCancel,
+                        textColor = Color.Black
+                    )
                     Spacer(Modifier.width(16.dp))
                     GaeguButton(
                         text = "Create",
@@ -690,7 +689,7 @@ fun LineEditorPage(
                 if (showError) {
                     Text(
                         "Please fill out title and at least one exercise",
-                        color = Color.Red,
+                        color = Color.Black,
                         fontFamily = GaeguRegular
                     )
                 }

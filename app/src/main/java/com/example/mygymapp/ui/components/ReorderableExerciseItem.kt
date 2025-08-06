@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,12 +40,7 @@ fun ReorderableExerciseItem(
     dragHandle: @Composable () -> Unit,
     supersetPartnerIndices: List<Int> = emptyList()
 ) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = Color(0xFFF5F5DC),
-        tonalElevation = 2.dp,
-        modifier = modifier
-    ) {
+    PoeticCard(modifier = modifier) {
         Column {
             Row(
                 modifier = Modifier
@@ -76,7 +70,7 @@ fun ReorderableExerciseItem(
                                 text = "e.g. $it reps",
                                 fontFamily = GaeguLight,
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = Color.Black
                             )
                         }
                     }
