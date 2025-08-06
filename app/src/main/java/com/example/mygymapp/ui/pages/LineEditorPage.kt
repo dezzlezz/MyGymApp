@@ -33,6 +33,7 @@ import com.example.mygymapp.ui.components.LinedTextField
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticBottomSheet
 import com.example.mygymapp.ui.components.PoeticCard
+import com.example.mygymapp.ui.components.PoeticDivider
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
@@ -163,6 +164,8 @@ fun LineEditorPage(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
+                PoeticDivider()
+
                 Text("What would you title this day?", fontFamily = GaeguRegular, color = Color.Black)
                 LinedTextField(
                     value = title,
@@ -170,6 +173,8 @@ fun LineEditorPage(
                     hint = "A poetic title...",
                     initialLines = 1
                 )
+
+                PoeticDivider()
 
                 Text("What kind of movement is this?", fontFamily = GaeguRegular, color = Color.Black)
                 PoeticMultiSelectChips(
@@ -181,6 +186,8 @@ fun LineEditorPage(
                     }
                 )
 
+                PoeticDivider()
+
                 Text("Which areas are involved?", fontFamily = GaeguRegular, color = Color.Black)
                 PoeticMultiSelectChips(
                     options = muscleOptions,
@@ -191,6 +198,8 @@ fun LineEditorPage(
                     }
                 )
 
+                PoeticDivider()
+
                 Text("Your notes on this movement", fontFamily = GaeguRegular, color = Color.Black)
                 LinedTextField(
                     value = note,
@@ -198,6 +207,8 @@ fun LineEditorPage(
                     hint = "Write your thoughts here...",
                     initialLines = 3
                 )
+
+                PoeticDivider()
 
                 Text("Which movements do you want to add?", fontFamily = GaeguRegular, color = Color.Black)
                 val showExerciseSheet = remember { mutableStateOf(false) }
@@ -654,6 +665,7 @@ fun LineEditorPage(
                     }
                 }
 
+                PoeticDivider()
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     GaeguButton(
