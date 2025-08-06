@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.theme.AppColors
@@ -42,7 +43,7 @@ fun PoeticDivider(
 
         if (centerText != null) {
             Spacer(Modifier.width(AppPadding.Small))
-            Text(centerText, style = AppTypography.Body)
+            Text(centerText, style = AppTypography.Body, color = Color.Black)
             Spacer(Modifier.width(AppPadding.Small))
             Divider(
                 color = AppColors.SectionLine,

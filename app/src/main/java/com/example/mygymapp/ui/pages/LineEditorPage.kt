@@ -164,19 +164,14 @@ fun LineEditorPage(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                PoeticDivider()
-
-                Text("What would you title this day?", fontFamily = GaeguRegular, color = Color.Black)
+                PoeticDivider(centerText = "What would you title this day?")
                 LinedTextField(
                     value = title,
                     onValueChange = { title = it },
                     hint = "A poetic title...",
                     initialLines = 1
                 )
-
-                PoeticDivider()
-
-                Text("What kind of movement is this?", fontFamily = GaeguRegular, color = Color.Black)
+                PoeticDivider(centerText = "What kind of movement is this?")
                 PoeticMultiSelectChips(
                     options = categoryOptions,
                     selectedItems = selectedCategories,
@@ -185,10 +180,7 @@ fun LineEditorPage(
                         selectedCategories.addAll(it)
                     }
                 )
-
-                PoeticDivider()
-
-                Text("Which areas are involved?", fontFamily = GaeguRegular, color = Color.Black)
+                PoeticDivider(centerText = "Which areas are involved?")
                 PoeticMultiSelectChips(
                     options = muscleOptions,
                     selectedItems = selectedMuscles,
@@ -197,20 +189,14 @@ fun LineEditorPage(
                         selectedMuscles.addAll(it)
                     }
                 )
-
-                PoeticDivider()
-
-                Text("Your notes on this movement", fontFamily = GaeguRegular, color = Color.Black)
+                PoeticDivider(centerText = "Your notes on this movement")
                 LinedTextField(
                     value = note,
                     onValueChange = { note = it },
                     hint = "Write your thoughts here...",
                     initialLines = 3
                 )
-
-                PoeticDivider()
-
-                Text("Which movements do you want to add?", fontFamily = GaeguRegular, color = Color.Black)
+                PoeticDivider(centerText = "Which movements do you want to add?")
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
