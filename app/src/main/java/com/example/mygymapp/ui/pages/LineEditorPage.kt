@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
@@ -33,6 +32,7 @@ import com.example.mygymapp.ui.components.GaeguButton
 import com.example.mygymapp.ui.components.LinedTextField
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticBottomSheet
+import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
@@ -254,7 +254,7 @@ fun LineEditorPage(
                                 .fillMaxWidth()
                         ) {
                             items(filteredExercises) { ex ->
-                                Surface(
+                                PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
@@ -272,20 +272,15 @@ fun LineEditorPage(
                                             showExerciseSheet.value = false
                                             exerciseSearch.value = ""
                                             selectedFilter.value = null
-                                        },
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color.White,
-                                    contentColor = Color.Black
+                                        }
                                 ) {
-                                    Column(Modifier.padding(12.dp)) {
-                                        Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
-                                        Text(
-                                            "${ex.muscleGroup.display} · ${ex.category.display}",
-                                            fontFamily = GaeguLight,
-                                            fontSize = 13.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
+                                    Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp)
+                                    Text(
+                                        "${ex.muscleGroup.display} · ${ex.category.display}",
+                                        fontFamily = GaeguLight,
+                                        fontSize = 13.sp,
+                                        color = Color.Gray
+                                    )
                                 }
                             }
                         }
@@ -659,9 +654,11 @@ fun LineEditorPage(
 
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onCancel) {
-                        Text("Cancel", fontFamily = GaeguRegular, color = Color.Black)
-                    }
+                    GaeguButton(
+                        text = "Cancel",
+                        onClick = onCancel,
+                        textColor = Color.Black
+                    )
                     Spacer(Modifier.width(16.dp))
                     GaeguButton(
                         text = "Create",
