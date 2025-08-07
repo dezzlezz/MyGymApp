@@ -5,7 +5,7 @@ import android.view.MotionEvent
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.awaitPointerEventScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -35,18 +35,27 @@ private object DragAndDropState {
  * pointer is released.
  */
 fun Modifier.dragAndDropSource(
-    dataProvider: () -> DragAndDropTransferData
+    dataProvider: () -> DragAndDropTransferData,
+    onDragStart: () -> Unit = {},
+    onDragEnd: () -> Unit = {}
 ): Modifier = pointerInput(Unit) {
     awaitEachGesture {
         val down = awaitFirstDown()
         val longPress = awaitLongPressOrCancellation(down.id)
         if (longPress != null) {
+            onDragStart()
             val session = DragSession(dataProvider())
             DragAndDropState.session = session
-            waitForUpOrCancellation()
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    if (event.changes.all { !it.pressed }) break
+                }
+            }
             if (DragAndDropState.session === session) {
                 DragAndDropState.session = null
             }
+            onDragEnd()
         }
     }
 }

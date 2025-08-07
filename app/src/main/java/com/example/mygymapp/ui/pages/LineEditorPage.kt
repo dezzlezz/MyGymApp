@@ -19,7 +19,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
@@ -29,6 +28,7 @@ import com.example.mygymapp.ui.util.dragAndDropSource
 import com.example.mygymapp.ui.util.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Line
@@ -125,6 +125,8 @@ fun LineEditorPage(
     }
 
     var showError by remember { mutableStateOf(false) }
+
+    var draggingSection by remember { mutableStateOf<String?>(null) }
 
     /**
      * Replace any groups containing the supplied ids and store the new grouping.
@@ -402,8 +404,7 @@ fun LineEditorPage(
                                             }
                                         },
                                         modifier = Modifier
-                                            .animateItemPlacement()
-                                            .shadow(elevation),
+                                            .animateItemPlacement(),
                                         dragHandle = {
                                             Icon(
                                                 imageVector = Icons.Default.DragHandle,
@@ -414,7 +415,8 @@ fun LineEditorPage(
                                                 )
                                             )
                                         },
-                                        supersetPartnerIndices = partnerIndices
+                                        supersetPartnerIndices = partnerIndices,
+                                        elevation = elevation
                                     )
                                 }
                             }
@@ -426,23 +428,27 @@ fun LineEditorPage(
                         if (unassignedItems.isNotEmpty()) {
                             SectionWrapper(
                                 title = "Unassigned",
-                                modifier = Modifier.dragAndDropTarget(
-                                    shouldStartDragAndDrop = { true },
-                                    onDrop = { transferData: DragAndDropTransferData ->
-                                        val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                        id?.let { exId ->
-                                            val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                            if (idx >= 0) {
-                                                val oldSection = selectedExercises[idx].section
-                                                selectedExercises[idx] = selectedExercises[idx].copy(section = "")
-                                                if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
-                                                    sections.remove(oldSection)
+                                modifier = Modifier
+                                    .zIndex(if (draggingSection == "") 1f else 0f)
+                                    .dragAndDropTarget(
+                                        shouldStartDragAndDrop = { true },
+                                        onDrop = { transferData: DragAndDropTransferData ->
+                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                            id?.let { exId ->
+                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (idx >= 0) {
+                                                    val item = selectedExercises.removeAt(idx)
+                                                    val oldSection = item.section
+                                                    val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
+                                                    selectedExercises.add(insertIdx, item.copy(section = ""))
+                                                    if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
+                                                        sections.remove(oldSection)
+                                                    }
                                                 }
                                             }
+                                            true
                                         }
-                                        true
-                                    }
-                                )
+                                    )
                             ) {
                                 val reorderState = rememberReorderableLazyListState(
                                     onMove = { from, to ->
@@ -499,7 +505,6 @@ fun LineEditorPage(
                                                 },
                                                 modifier = Modifier
                                                     .animateItemPlacement()
-                                                    .shadow(elevation)
                                                     .dragAndDropSource(
                                                         dataProvider = {
                                                             DragAndDropTransferData(
@@ -508,7 +513,9 @@ fun LineEditorPage(
                                                                     item.id.toString()
                                                                 )
                                                             )
-                                                        }
+                                                        },
+                                                        onDragStart = { draggingSection = item.section },
+                                                        onDragEnd = { draggingSection = null }
                                                     ),
                                                 dragHandle = {
                                                     Icon(
@@ -520,7 +527,8 @@ fun LineEditorPage(
                                                         )
                                                     )
                                                 },
-                                                supersetPartnerIndices = partnerIndices
+                                                supersetPartnerIndices = partnerIndices,
+                                                elevation = elevation
                                             )
                                         }
                                     }
@@ -534,23 +542,27 @@ fun LineEditorPage(
                             if (sectionItems.isNotEmpty()) {
                                 SectionWrapper(
                                     title = sectionName,
-                                    modifier = Modifier.dragAndDropTarget(
-                                        shouldStartDragAndDrop = { true },
-                                        onDrop = { transferData: DragAndDropTransferData ->
-                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                            id?.let { exId ->
-                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                if (idx >= 0) {
-                                                    val oldSection = selectedExercises[idx].section
-                                                    selectedExercises[idx] = selectedExercises[idx].copy(section = sectionName)
-                                                    if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
-                                                        sections.remove(oldSection)
+                                    modifier = Modifier
+                                        .zIndex(if (draggingSection == sectionName) 1f else 0f)
+                                        .dragAndDropTarget(
+                                            shouldStartDragAndDrop = { true },
+                                            onDrop = { transferData: DragAndDropTransferData ->
+                                                val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                                id?.let { exId ->
+                                                    val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                    if (idx >= 0) {
+                                                        val item = selectedExercises.removeAt(idx)
+                                                        val oldSection = item.section
+                                                        val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
+                                                        selectedExercises.add(insertIdx, item.copy(section = sectionName))
+                                                        if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
+                                                            sections.remove(oldSection)
+                                                        }
                                                     }
                                                 }
+                                                true
                                             }
-                                            true
-                                        }
-                                    )
+                                        )
                                 ) {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
@@ -610,7 +622,6 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
-                                                        .shadow(elevation)
                                                         .dragAndDropSource(
                                                             dataProvider = {
                                                                 DragAndDropTransferData(
@@ -619,7 +630,9 @@ fun LineEditorPage(
                                                                         item.id.toString()
                                                                     )
                                                                 )
-                                                            }
+                                                            },
+                                                            onDragStart = { draggingSection = item.section },
+                                                            onDragEnd = { draggingSection = null }
                                                         ),
                                                     dragHandle = {
                                                         Icon(
@@ -631,7 +644,8 @@ fun LineEditorPage(
                                                             )
                                                         )
                                                     },
-                                                    supersetPartnerIndices = partnerIndices
+                                                    supersetPartnerIndices = partnerIndices,
+                                                    elevation = elevation
                                                 )
                                             }
                                         }
