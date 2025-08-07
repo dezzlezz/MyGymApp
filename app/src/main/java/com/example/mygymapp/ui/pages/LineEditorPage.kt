@@ -211,12 +211,20 @@ fun LineEditorPage(
                 }
                 val selectedFilter = remember { mutableStateOf<String?>(null) }
 
-                val filteredExercises = allExercises.filter {
-                    val matchesFilter =
-                        selectedFilter.value == null || it.muscleGroup.display == selectedFilter.value
-                    val matchesSearch = exerciseSearch.value.isBlank() ||
-                            it.name.contains(exerciseSearch.value, ignoreCase = true)
-                    matchesFilter && matchesSearch
+                val filteredExercises by remember(
+                    exerciseSearch.value,
+                    selectedFilter.value,
+                    allExercises
+                ) {
+                    derivedStateOf {
+                        allExercises.filter { ex ->
+                            val matchesFilter =
+                                selectedFilter.value == null || ex.muscleGroup.display == selectedFilter.value
+                            val matchesSearch = exerciseSearch.value.isBlank() ||
+                                    ex.name.contains(exerciseSearch.value, ignoreCase = true)
+                            matchesFilter && matchesSearch
+                        }
+                    }
                 }
 
                 GaeguButton(
@@ -357,7 +365,9 @@ fun LineEditorPage(
                             }
                         }
                     } else {
-                        val unassignedItems = selectedExercises.filter { it.section.isBlank() }
+                        val unassignedItems by remember(selectedExercises) {
+                            derivedStateOf { selectedExercises.filter { it.section.isBlank() } }
+                        }
                         if (unassignedItems.isNotEmpty()) {
                             SectionWrapper(
                                 title = "Unassigned",
@@ -464,7 +474,9 @@ fun LineEditorPage(
                             }
                         }
                         sections.forEach { sectionName ->
-                            val sectionItems = selectedExercises.filter { it.section == sectionName }
+                            val sectionItems by remember(selectedExercises, sectionName) {
+                                derivedStateOf { selectedExercises.filter { it.section == sectionName } }
+                            }
                             if (sectionItems.isNotEmpty()) {
                                 SectionWrapper(
                                     title = sectionName,
