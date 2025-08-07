@@ -38,6 +38,7 @@ import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
 import com.example.mygymapp.ui.components.SectionWrapper
+import com.example.mygymapp.ui.components.WaxSealButton
 import com.example.mygymapp.ui.util.move
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -181,7 +182,7 @@ fun LineEditorPage(
                         selectedCategories.clear()
                         selectedCategories.addAll(it)
                     },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Which areas are involved?")
                 PoeticMultiSelectChips(
@@ -191,7 +192,7 @@ fun LineEditorPage(
                         selectedMuscles.clear()
                         selectedMuscles.addAll(it)
                     },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Your notes on this movement")
                 LinedTextField(
@@ -240,7 +241,7 @@ fun LineEditorPage(
                         options = listOf("All") + filterMuscles,
                         selected = selectedFilter.value ?: "All",
                         onSelected = { selectedFilter.value = if (it == "All") null else it },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                     )
                     Spacer(Modifier.height(12.dp))
                     if (filteredExercises.isEmpty()) {
@@ -593,7 +594,7 @@ fun LineEditorPage(
                             options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
                             selected = selectedOption ?: "",
                             onSelected = { selectedOption = it },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                         )
 
                         if (selectedOption == "Custom") {
@@ -660,19 +661,19 @@ fun LineEditorPage(
 
                 PoeticDivider()
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     GaeguButton(
                         text = "Cancel",
                         onClick = onCancel,
-                        textColor = Color.Black
+                        textColor = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterStart)
                     )
-                    Spacer(Modifier.width(16.dp))
-                    GaeguButton(
-                        text = "Create",
+                    WaxSealButton(
+                        label = "Create",
                         onClick = {
                             if (title.isBlank() || selectedExercises.isEmpty()) {
                                 showError = true
-                                return@GaeguButton
+                                return@WaxSealButton
                             }
                             val newLine = Line(
                                 id = initial?.id ?: System.currentTimeMillis(),
@@ -687,7 +688,7 @@ fun LineEditorPage(
                             )
                             onSave(newLine)
                         },
-                        textColor = Color.Black
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
