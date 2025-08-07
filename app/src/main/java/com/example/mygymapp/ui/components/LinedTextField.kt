@@ -25,7 +25,8 @@ fun LinedTextField(
     hint: String,
     modifier: Modifier = Modifier,
     lineHeight: Dp = 32.dp,
-    initialLines: Int = 1
+    initialLines: Int = 3,
+    padding: Dp = 12.dp
 ) {
     val density = LocalDensity.current
     val textStyle = TextStyle(
@@ -35,32 +36,26 @@ fun LinedTextField(
         color = Color.Black
     )
 
-    val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
     var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val lineHeightPx = with(density) { lineHeight.toPx() }
 
-    val metrics = remember(textStyle.fontSize, density) {
-        Paint().apply {
-            textSize = with(density) { textStyle.fontSize.toPx() }
-        }.fontMetrics
-    }
-    val baselineOffset = -metrics.ascent
-
-    val lineCount = maxOf(layoutResult?.lineCount ?: 1, initialLines)
-    val fieldHeight = lineHeight * lineCount
+    val layoutLineCount = layoutResult?.lineCount ?: 0
+    val totalLineCount = maxOf(layoutLineCount, initialLines)
+    val fieldHeight = lineHeight * totalLineCount
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(fieldHeight)
+            .padding(horizontal = padding)
     ) {
+        // 🎯 Linien zeichnen – mit absolutem Schutz gegen Absturz
         Canvas(modifier = Modifier.matchParentSize()) {
-            val layout = layoutResult
-            for (i in 0 until lineCount) {
-                val y = if (layout != null && i < layout.lineCount) {
-                    layout.getLineBaseline(i)
-                } else {
-                    baselineOffset + i * lineHeightPx
-                }
+            for (i in 0 until totalLineCount) {
+                val y = runCatching {
+                    layoutResult?.getLineBaseline(i)?.toFloat()
+                }.getOrNull() ?: ((i + 1) * lineHeightPx)
+
                 drawLine(
                     color = Color.Black,
                     start = Offset(0f, y),
@@ -70,27 +65,29 @@ fun LinedTextField(
             }
         }
 
+        // ✏️ Texteingabe + Hint
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = textStyle,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(fieldHeight)
-                .padding(horizontal = 8.dp),
-            onTextLayout = { layoutResult = it }
-        ) { innerTextField ->
-            if (value.isEmpty()) {
-                Text(
-                    hint,
-                    fontFamily = GaeguLight,
-                    fontSize = 18.sp,
-                    lineHeight = lineHeight.value.sp,
-                    color = Color.Gray
-                )
+                .padding(bottom = 4.dp),
+            onTextLayout = { layoutResult = it },
+            decorationBox = { innerTextField ->
+                Column {
+                    if (value.isEmpty()) {
+                        Text(
+                            text = hint,
+                            fontFamily = GaeguLight,
+                            fontSize = 18.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    innerTextField()
+                }
             }
-            innerTextField()
-        }
+        )
     }
 }
-
