@@ -370,6 +370,7 @@ fun LineEditorPage(
                             state = reorderState.listState,
                             modifier = Modifier
                                 .heightIn(max = screenHeight)
+                                .graphicsLayer { clip = false }
                                 .reorderable(reorderState)
                                 .detectReorderAfterLongPress(reorderState)
                                 .fillMaxWidth(),
@@ -470,6 +471,7 @@ fun LineEditorPage(
                                     state = reorderState.listState,
                                     modifier = Modifier
                                         .heightIn(max = screenHeight)
+                                        .graphicsLayer { clip = false }
                                         .reorderable(reorderState)
                                         .detectReorderAfterLongPress(reorderState)
                                         .fillMaxWidth(),
@@ -584,6 +586,7 @@ fun LineEditorPage(
                                         state = reorderState.listState,
                                         modifier = Modifier
                                             .heightIn(max = screenHeight)
+                                            .graphicsLayer { clip = false }
                                             .reorderable(reorderState)
                                             .detectReorderAfterLongPress(reorderState)
                                             .fillMaxWidth(),
