@@ -13,12 +13,17 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
+import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
 import com.example.mygymapp.ui.util.dragAndDropSource
 import com.example.mygymapp.ui.util.dragAndDropTarget
@@ -38,16 +43,19 @@ import com.example.mygymapp.ui.components.PoeticMultiSelectChips
 import com.example.mygymapp.ui.components.PoeticRadioChips
 import com.example.mygymapp.ui.components.ReorderableExerciseItem
 import com.example.mygymapp.ui.components.SectionWrapper
+import com.example.mygymapp.ui.components.WaxSealButton
 import com.example.mygymapp.ui.util.move
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import com.example.mygymapp.viewmodel.ExerciseViewModel
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
+    navController: NavController,
     initial: Line? = null,
     onSave: (Line) -> Unit,
     onCancel: () -> Unit
@@ -55,34 +63,64 @@ fun LineEditorPage(
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
 
-    var title by remember { mutableStateOf(initial?.title ?: "") }
-    var note by remember { mutableStateOf(initial?.note ?: "") }
-    val selectedExercises = remember {
+    var title by rememberSaveable { mutableStateOf(initial?.title ?: "") }
+    var note by rememberSaveable { mutableStateOf(initial?.note ?: "") }
+    val selectedExercises = rememberSaveable(
+        saver = listSaver<SnapshotStateList<LineExercise>, LineExercise>(
+            save = { stateList -> ArrayList(stateList) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val sections = remember {
+    val sections = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply {
             initial?.exercises?.map { it.section }?.filter { it.isNotBlank() }?.distinct()
                 ?.let { addAll(it) }
         }
     }
-    val supersets = remember {
+    val supersets = rememberSaveable(
+        saver = listSaver<SnapshotStateList<MutableList<Long>>, ArrayList<Long>>(
+            save = { list -> list.map { ArrayList(it) } },
+            restore = { restored -> restored.map { it.toMutableList() }.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<MutableList<Long>>().apply {
             initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
         }
     }
-    val supersetSelection = remember { mutableStateListOf<Long>() }
+    val supersetSelection = rememberSaveable(
+        saver = listSaver<SnapshotStateList<Long>, Long>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) { mutableStateListOf<Long>() }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     val categoryOptions =
         listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
-    val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
+    val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
 
-    val selectedCategories = remember {
+    val selectedCategories = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply { initial?.category?.split(",")?.let { addAll(it) } }
     }
-    val selectedMuscles = remember {
+    val selectedMuscles = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply { initial?.muscleGroup?.split(",")?.let { addAll(it) } }
     }
 
@@ -154,7 +192,8 @@ fun LineEditorPage(
                     .verticalScroll(rememberScrollState())
                     .systemBarsPadding()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     "✒ Compose your daily line",
@@ -169,7 +208,8 @@ fun LineEditorPage(
                     value = title,
                     onValueChange = { title = it },
                     hint = "A poetic title...",
-                    initialLines = 1
+                    initialLines = 1,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "What kind of movement is this?")
                 PoeticMultiSelectChips(
@@ -178,7 +218,8 @@ fun LineEditorPage(
                     onSelectionChange = {
                         selectedCategories.clear()
                         selectedCategories.addAll(it)
-                    }
+                    },
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Which areas are involved?")
                 PoeticMultiSelectChips(
@@ -187,30 +228,46 @@ fun LineEditorPage(
                     onSelectionChange = {
                         selectedMuscles.clear()
                         selectedMuscles.addAll(it)
-                    }
+                    },
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Your notes on this movement")
                 LinedTextField(
                     value = note,
                     onValueChange = { note = it },
                     hint = "Write your thoughts here...",
-                    initialLines = 3
+                    initialLines = 3,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Which movements do you want to add?")
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
-                val filterMuscles = selectedMuscles.ifEmpty {
-                    allExercises.map { it.muscleGroup.display }.distinct()
+                val filterOptions by remember {
+                    derivedStateOf {
+                        val base = listOf("All", "Full Body")
+                        if (selectedMuscles.isEmpty()) base else (base + selectedMuscles).distinct()
+                    }
                 }
                 val selectedFilter = remember { mutableStateOf<String?>(null) }
+                LaunchedEffect(filterOptions) {
+                    if (selectedFilter.value !in filterOptions) selectedFilter.value = null
+                }
 
-                val filteredExercises = allExercises.filter {
-                    val matchesFilter =
-                        selectedFilter.value == null || it.muscleGroup.display == selectedFilter.value
-                    val matchesSearch = exerciseSearch.value.isBlank() ||
-                            it.name.contains(exerciseSearch.value, ignoreCase = true)
-                    matchesFilter && matchesSearch
+                val filteredExercises by remember(
+                    exerciseSearch.value,
+                    selectedFilter.value,
+                    allExercises
+                ) {
+                    derivedStateOf {
+                        val query = exerciseSearch.value.trim().lowercase()
+                        allExercises.filter { ex ->
+                            val matchesFilter =
+                                selectedFilter.value == null || ex.muscleGroup.display == selectedFilter.value
+                            val matchesSearch = query.isEmpty() || ex.name.lowercase().contains(query)
+                            matchesFilter && matchesSearch
+                        }
+                    }
                 }
 
                 GaeguButton(
@@ -227,31 +284,45 @@ fun LineEditorPage(
                         value = exerciseSearch.value,
                         onValueChange = { exerciseSearch.value = it },
                         hint = "Search exercises",
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                         initialLines = 1
                     )
                     Spacer(Modifier.height(12.dp))
                     PoeticRadioChips(
-                        options = listOf("All") + filterMuscles,
+                        options = filterOptions,
                         selected = selectedFilter.value ?: "All",
-                        onSelected = { selectedFilter.value = if (it == "All") null else it }
+                        onSelected = { selectedFilter.value = if (it == "All") null else it },
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                     )
                     Spacer(Modifier.height(12.dp))
                     if (filteredExercises.isEmpty()) {
-                        Text(
-                            "No matching exercises found.",
-                            fontFamily = GaeguLight,
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(12.dp)
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "No matching exercises found.",
+                                fontFamily = GaeguLight,
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                            GaeguButton(
+                                text = "Create \"${exerciseSearch.value.trim()}\"",
+                                onClick = {
+                                    val encoded = Uri.encode(exerciseSearch.value.trim())
+                                    navController.navigate("movement_editor?name=$encoded")
+                                },
+                                textColor = Color.Black
+                            )
+                        }
                     } else {
                         LazyColumn(
                             modifier = Modifier
                                 .heightIn(max = 320.dp)
                                 .fillMaxWidth()
                         ) {
-                            items(filteredExercises) { ex ->
+                            items(filteredExercises, key = { it.id }) { ex ->
                                 PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -331,7 +402,6 @@ fun LineEditorPage(
                                             }
                                         },
                                         modifier = Modifier
-                                            .padding(vertical = 4.dp)
                                             .animateItemPlacement()
                                             .shadow(elevation),
                                         dragHandle = {
@@ -350,7 +420,9 @@ fun LineEditorPage(
                             }
                         }
                     } else {
-                        val unassignedItems = selectedExercises.filter { it.section.isBlank() }
+                        val unassignedItems by remember(selectedExercises) {
+                            derivedStateOf { selectedExercises.filter { it.section.isBlank() } }
+                        }
                         if (unassignedItems.isNotEmpty()) {
                             SectionWrapper(
                                 title = "Unassigned",
@@ -426,7 +498,6 @@ fun LineEditorPage(
                                                     }
                                                 },
                                                 modifier = Modifier
-                                                    .padding(vertical = 4.dp)
                                                     .animateItemPlacement()
                                                     .shadow(elevation)
                                                     .dragAndDropSource(
@@ -457,7 +528,9 @@ fun LineEditorPage(
                             }
                         }
                         sections.forEach { sectionName ->
-                            val sectionItems = selectedExercises.filter { it.section == sectionName }
+                            val sectionItems by remember(selectedExercises, sectionName) {
+                                derivedStateOf { selectedExercises.filter { it.section == sectionName } }
+                            }
                             if (sectionItems.isNotEmpty()) {
                                 SectionWrapper(
                                     title = sectionName,
@@ -536,7 +609,6 @@ fun LineEditorPage(
                                                         }
                                                     },
                                                     modifier = Modifier
-                                                        .padding(vertical = 4.dp)
                                                         .animateItemPlacement()
                                                         .shadow(elevation)
                                                         .dragAndDropSource(
@@ -586,7 +658,8 @@ fun LineEditorPage(
                         PoeticRadioChips(
                             options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
                             selected = selectedOption ?: "",
-                            onSelected = { selectedOption = it }
+                            onSelected = { selectedOption = it },
+                            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                         )
 
                         if (selectedOption == "Custom") {
@@ -595,7 +668,7 @@ fun LineEditorPage(
                                 value = customName,
                                 onValueChange = { customName = it },
                                 hint = "Section name",
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                                 initialLines = 1
                             )
                         }
@@ -653,19 +726,19 @@ fun LineEditorPage(
 
                 PoeticDivider()
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     GaeguButton(
                         text = "Cancel",
                         onClick = onCancel,
-                        textColor = Color.Black
+                        textColor = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterStart)
                     )
-                    Spacer(Modifier.width(16.dp))
-                    GaeguButton(
-                        text = "Create",
+                    WaxSealButton(
+                        label = "Create",
                         onClick = {
                             if (title.isBlank() || selectedExercises.isEmpty()) {
                                 showError = true
-                                return@GaeguButton
+                                return@WaxSealButton
                             }
                             val newLine = Line(
                                 id = initial?.id ?: System.currentTimeMillis(),
@@ -680,7 +753,7 @@ fun LineEditorPage(
                             )
                             onSave(newLine)
                         },
-                        textColor = Color.Black
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
