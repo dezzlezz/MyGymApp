@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.pages.GaeguBold
-import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
 
 /**
@@ -86,23 +85,22 @@ fun ReorderableExerciseItem(
                 .weight(1f)
         ) {
             Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Index & Name
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${index + 1}.",
-                            fontFamily = GaeguBold,
-                            fontSize = 16.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Index & Name
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${index + 1}.",
+                                fontFamily = GaeguBold,
+                                fontSize = 16.sp,
+                                color = Color.Black,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
                             Text(
                                 text = exercise.name,
                                 fontFamily = GaeguRegular,
@@ -118,7 +116,6 @@ fun ReorderableExerciseItem(
                                 )
                             }
                         }
-                    }
 
                     // Actions
                     Row(verticalAlignment = Alignment.CenterVertically) {
