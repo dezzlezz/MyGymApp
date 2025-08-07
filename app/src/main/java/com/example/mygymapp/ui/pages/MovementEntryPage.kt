@@ -440,6 +440,11 @@ fun MovementEntryPage(
                                 withContext(Dispatchers.IO) {
                                     if (editId != null) dao.update(exercise) else dao.insert(exercise)
                                 }
+                                // Signal the previous screen to reopen the line editor
+                                navController.previousBackStackEntry?.savedStateHandle?.set(
+                                    "resume_line_editor",
+                                    true
+                                )
                                 navController.popBackStack()
                             }
                         },

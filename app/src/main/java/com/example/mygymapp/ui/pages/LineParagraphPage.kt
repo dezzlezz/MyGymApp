@@ -30,6 +30,13 @@ fun LineParagraphPage(
     var editingLine by remember { mutableStateOf<Line?>(null) }
     var showLineEditor by remember { mutableStateOf(false) }
 
+    // When coming back from movement creation, reopen the line editor
+    val savedState = navController.currentBackStackEntry?.savedStateHandle
+    if (savedState?.get<Boolean>("resume_line_editor") == true) {
+        showLineEditor = true
+        savedState.remove<Boolean>("resume_line_editor")
+    }
+
     PaperBackground(
         modifier = modifier
             .fillMaxSize()
