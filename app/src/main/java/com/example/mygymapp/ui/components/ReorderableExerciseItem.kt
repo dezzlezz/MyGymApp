@@ -107,14 +107,6 @@ fun ReorderableExerciseItem(
                                 fontSize = 16.sp,
                                 color = Color.Black
                             )
-                            exercise.repsOrDuration?.let {
-                                Text(
-                                    text = "e.g. $it reps",
-                                    fontFamily = GaeguLight,
-                                    fontSize = 12.sp,
-                                    color = Color.Black
-                                )
-                            }
                         }
 
                     // Actions
