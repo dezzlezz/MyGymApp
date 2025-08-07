@@ -1,5 +1,7 @@
 package com.example.mygymapp.model
 
+import java.io.Serializable
+
 data class Exercise(
     val id: Long,
     val name: String,
@@ -8,4 +10,4 @@ data class Exercise(
     val prGoal: Int? = null,
     val note: String = "",
     val section: String = ""
-)
+) : Serializable

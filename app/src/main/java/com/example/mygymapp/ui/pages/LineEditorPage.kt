@@ -13,6 +13,10 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -59,23 +63,43 @@ fun LineEditorPage(
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
 
-    var title by remember { mutableStateOf(initial?.title ?: "") }
-    var note by remember { mutableStateOf(initial?.note ?: "") }
-    val selectedExercises = remember {
+    var title by rememberSaveable { mutableStateOf(initial?.title ?: "") }
+    var note by rememberSaveable { mutableStateOf(initial?.note ?: "") }
+    val selectedExercises = rememberSaveable(
+        saver = listSaver<SnapshotStateList<LineExercise>, LineExercise>(
+            save = { stateList -> ArrayList(stateList) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val sections = remember {
+    val sections = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply {
             initial?.exercises?.map { it.section }?.filter { it.isNotBlank() }?.distinct()
                 ?.let { addAll(it) }
         }
     }
-    val supersets = remember {
+    val supersets = rememberSaveable(
+        saver = listSaver<SnapshotStateList<MutableList<Long>>, ArrayList<Long>>(
+            save = { list -> list.map { ArrayList(it) } },
+            restore = { restored -> restored.map { it.toMutableList() }.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<MutableList<Long>>().apply {
             initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
         }
     }
-    val supersetSelection = remember { mutableStateListOf<Long>() }
+    val supersetSelection = rememberSaveable(
+        saver = listSaver<SnapshotStateList<Long>, Long>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) { mutableStateListOf<Long>() }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -83,10 +107,20 @@ fun LineEditorPage(
         listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
 
-    val selectedCategories = remember {
+    val selectedCategories = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply { initial?.category?.split(",")?.let { addAll(it) } }
     }
-    val selectedMuscles = remember {
+    val selectedMuscles = rememberSaveable(
+        saver = listSaver<SnapshotStateList<String>, String>(
+            save = { ArrayList(it) },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
         mutableStateListOf<String>().apply { initial?.muscleGroup?.split(",")?.let { addAll(it) } }
     }
 
