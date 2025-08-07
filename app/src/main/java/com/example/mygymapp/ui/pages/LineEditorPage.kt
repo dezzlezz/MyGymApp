@@ -19,7 +19,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
@@ -402,8 +401,7 @@ fun LineEditorPage(
                                             }
                                         },
                                         modifier = Modifier
-                                            .animateItemPlacement()
-                                            .shadow(elevation),
+                                            .animateItemPlacement(),
                                         dragHandle = {
                                             Icon(
                                                 imageVector = Icons.Default.DragHandle,
@@ -414,7 +412,8 @@ fun LineEditorPage(
                                                 )
                                             )
                                         },
-                                        supersetPartnerIndices = partnerIndices
+                                        supersetPartnerIndices = partnerIndices,
+                                        elevation = elevation
                                     )
                                 }
                             }
@@ -499,7 +498,6 @@ fun LineEditorPage(
                                                 },
                                                 modifier = Modifier
                                                     .animateItemPlacement()
-                                                    .shadow(elevation)
                                                     .dragAndDropSource(
                                                         dataProvider = {
                                                             DragAndDropTransferData(
@@ -520,7 +518,8 @@ fun LineEditorPage(
                                                         )
                                                     )
                                                 },
-                                                supersetPartnerIndices = partnerIndices
+                                                supersetPartnerIndices = partnerIndices,
+                                                elevation = elevation
                                             )
                                         }
                                     }
@@ -610,7 +609,6 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
-                                                        .shadow(elevation)
                                                         .dragAndDropSource(
                                                             dataProvider = {
                                                                 DragAndDropTransferData(
@@ -631,7 +629,8 @@ fun LineEditorPage(
                                                             )
                                                         )
                                                     },
-                                                    supersetPartnerIndices = partnerIndices
+                                                    supersetPartnerIndices = partnerIndices,
+                                                    elevation = elevation
                                                 )
                                             }
                                         }
