@@ -1,8 +1,8 @@
 package com.example.mygymapp.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
@@ -13,9 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguLight
@@ -40,88 +40,100 @@ fun ReorderableExerciseItem(
     dragHandle: @Composable () -> Unit,
     supersetPartnerIndices: List<Int> = emptyList()
 ) {
-    PoeticCard(modifier = modifier) {
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Index & Name
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "${index + 1}.",
-                        fontFamily = GaeguBold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Column {
-                        Text(
-                            text = exercise.name,
-                            fontFamily = GaeguRegular,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                        exercise.repsOrDuration?.let {
-                            Text(
-                                text = "e.g. $it reps",
-                                fontFamily = GaeguLight,
-                                fontSize = 12.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
+    val indices = (listOf(index) + supersetPartnerIndices).sorted()
+    val isSuperset = supersetPartnerIndices.isNotEmpty()
+    val isFirst = isSuperset && index == indices.first()
+    val isLast = isSuperset && index == indices.last()
 
-                // Actions
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onRemove) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color.Red
-                        )
-                    }
-                    Checkbox(
-                        checked = isSupersetSelected,
-                        onCheckedChange = onSupersetSelectedChange
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isSuperset) {
+            Box(
+                modifier = Modifier
+                    .width(16.dp)
+                    .fillMaxHeight()
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val stroke = 2.dp.toPx()
+                    val centerX = size.width / 2f
+                    val startY = if (isFirst) size.height / 2f else 0f
+                    val endY = if (isLast) size.height / 2f else size.height
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(centerX, startY),
+                        end = Offset(centerX, endY),
+                        strokeWidth = stroke
                     )
-                    dragHandle()
+                    drawLine(
+                        color = Color.Black,
+                        start = Offset(centerX, size.height / 2f),
+                        end = Offset(size.width, size.height / 2f),
+                        strokeWidth = stroke
+                    )
                 }
             }
+        } else {
+            Spacer(Modifier.width(16.dp))
+        }
 
-            if (supersetPartnerIndices.isNotEmpty()) {
+        PoeticCard(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .weight(1f)
+        ) {
+            Column {
                 Row(
                     modifier = Modifier
-                        .padding(start = 32.dp, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    val indices = (listOf(index) + supersetPartnerIndices).sorted()
-                    indices.forEachIndexed { i, idx ->
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .border(1.dp, Color.Black, RoundedCornerShape(4.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
+                    // Index & Name
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${index + 1}.",
+                            fontFamily = GaeguBold,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Column {
                             Text(
-                                text = "${idx + 1}",
-                                fontFamily = GaeguLight,
-                                fontSize = 12.sp,
+                                text = exercise.name,
+                                fontFamily = GaeguRegular,
+                                fontSize = 16.sp,
                                 color = Color.Black
                             )
+                            exercise.repsOrDuration?.let {
+                                Text(
+                                    text = "e.g. $it reps",
+                                    fontFamily = GaeguLight,
+                                    fontSize = 12.sp,
+                                    color = Color.Black
+                                )
+                            }
                         }
-                        if (i < indices.lastIndex) {
-                            Box(
-                                modifier = Modifier
-                                    .width(12.dp)
-                                    .height(1.dp)
-                                    .background(Color.Black)
+                    }
+
+                    // Actions
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = onRemove) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.Red
                             )
                         }
+                        Checkbox(
+                            checked = isSupersetSelected,
+                            onCheckedChange = onSupersetSelectedChange
+                        )
+                        dragHandle()
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.mygymapp.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,10 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -31,11 +35,12 @@ fun GaeguButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     font: FontFamily = GaeguBold,
-    backgroundColor: Color = Color(0xFFEDE5D0),
+    gradientColors: List<Color> = listOf(Color(0xFFFFAFBD), Color(0xFFFFC3A0)),
     textColor: Color = Color.Black,
     cornerRadius: Dp = 12.dp,
     elevation: Dp = 2.dp,
-    fontSize: TextUnit = 16.sp
+    fontSize: TextUnit = 16.sp,
+    enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -44,12 +49,21 @@ fun GaeguButton(
         label = "button-scale"
     )
 
+    val targetColors = if (isPressed) {
+        gradientColors.map { lerp(it, Color.White, 0.2f) }
+    } else gradientColors
+    val startColor by animateColorAsState(targetColors[0], label = "start-color")
+    val endColor by animateColorAsState(targetColors[1], label = "end-color")
+    val brush = Brush.linearGradient(listOf(startColor, endColor))
+
     Box(
         modifier = modifier
             .scale(scale)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(backgroundColor)
+            .background(brush)
+            .alpha(if (enabled) 1f else 0.5f)
             .clickable(
+                enabled = enabled,
                 interactionSource = interactionSource,
                 indication = null, // ⛔ Kein Ripple
                 onClick = onClick
