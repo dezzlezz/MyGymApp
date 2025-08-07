@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Exercise as LineExercise
@@ -37,7 +38,8 @@ fun ReorderableExerciseItem(
     onSupersetSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     dragHandle: @Composable () -> Unit,
-    supersetPartnerIndices: List<Int> = emptyList()
+    supersetPartnerIndices: List<Int> = emptyList(),
+    elevation: Dp = 2.dp
 ) {
     val indices = (listOf(index) + supersetPartnerIndices).sorted()
     val isSuperset = supersetPartnerIndices.isNotEmpty()
@@ -82,7 +84,8 @@ fun ReorderableExerciseItem(
         PoeticCard(
             modifier = Modifier
                 .padding(vertical = 4.dp)
-                .weight(1f)
+                .weight(1f),
+            elevation = elevation
         ) {
             Column {
                     Row(

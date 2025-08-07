@@ -35,18 +35,22 @@ private object DragAndDropState {
  * pointer is released.
  */
 fun Modifier.dragAndDropSource(
-    dataProvider: () -> DragAndDropTransferData
+    dataProvider: () -> DragAndDropTransferData,
+    onDragStart: () -> Unit = {},
+    onDragEnd: () -> Unit = {}
 ): Modifier = pointerInput(Unit) {
     awaitEachGesture {
         val down = awaitFirstDown()
         val longPress = awaitLongPressOrCancellation(down.id)
         if (longPress != null) {
+            onDragStart()
             val session = DragSession(dataProvider())
             DragAndDropState.session = session
             waitForUpOrCancellation()
             if (DragAndDropState.session === session) {
                 DragAndDropState.session = null
             }
+            onDragEnd()
         }
     }
 }
