@@ -35,11 +35,16 @@ fun SectionWrapper(
                 val h = size.height
                 val path = Path().apply {
                     moveTo(stroke / 2, 0f)
-                    lineTo(stroke / 2, h - radius)
+                    lineTo(stroke / 2, h - radius - stroke / 2)
                     arcTo(
-                        Rect(0f, h - 2 * radius, 2 * radius, h),
+                        Rect(
+                            stroke / 2,
+                            h - 2 * radius - stroke / 2,
+                            stroke / 2 + 2 * radius,
+                            h - stroke / 2
+                        ),
                         180f,
-                        90f,
+                        -90f,
                         false
                     )
                     lineTo(w - stroke / 2, h - stroke / 2)
