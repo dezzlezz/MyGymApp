@@ -105,6 +105,7 @@ fun LineParagraphPage(
 
     if (showLineEditor) {
         LineEditorPage(
+            navController = navController,
             initial = editingLine,
             onSave = { line ->
                 val index = lines.indexOfFirst { it.id == line.id }

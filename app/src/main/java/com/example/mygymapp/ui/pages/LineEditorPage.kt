@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
+import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
 import com.example.mygymapp.ui.util.dragAndDropSource
 import com.example.mygymapp.ui.util.dragAndDropTarget
@@ -45,10 +46,12 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import com.example.mygymapp.viewmodel.ExerciseViewModel
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
+    navController: NavController,
     initial: Line? = null,
     onSave: (Line) -> Unit,
     onCancel: () -> Unit
@@ -259,13 +262,26 @@ fun LineEditorPage(
                     )
                     Spacer(Modifier.height(12.dp))
                     if (filteredExercises.isEmpty()) {
-                        Text(
-                            "No matching exercises found.",
-                            fontFamily = GaeguLight,
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(12.dp)
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                "No matching exercises found.",
+                                fontFamily = GaeguLight,
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                            GaeguButton(
+                                text = "Create \"${exerciseSearch.value.trim()}\"",
+                                onClick = {
+                                    val encoded = Uri.encode(exerciseSearch.value.trim())
+                                    navController.navigate("movement_editor?name=$encoded")
+                                },
+                                textColor = Color.Black
+                            )
+                        }
                     } else {
                         LazyColumn(
                             modifier = Modifier

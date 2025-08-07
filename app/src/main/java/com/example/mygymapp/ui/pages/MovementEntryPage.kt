@@ -66,9 +66,10 @@ val GaeguLight = FontFamily(Font(R.font.gaegu_light))
 fun MovementEntryPage(
     navController: NavController,
     editId: Long? = null,
+    initialName: String? = null,
     userCategories: List<String> = com.example.mygymapp.model.CustomCategories.list
 ) {
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(initialName ?: "") }
     var category by remember { mutableStateOf("") }
     var muscleGroup by remember { mutableStateOf("") }
     var rating by remember { mutableStateOf(0) }
