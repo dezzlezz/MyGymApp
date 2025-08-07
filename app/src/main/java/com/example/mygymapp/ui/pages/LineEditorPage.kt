@@ -206,11 +206,10 @@ fun LineEditorPage(
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
-                val filterOptions = remember(selectedMuscles) {
-                    if (selectedMuscles.isEmpty()) {
-                        listOf("All")
-                    } else {
-                        listOf("All") + selectedMuscles
+                val filterOptions by remember {
+                    derivedStateOf {
+                        val base = listOf("All", "Full Body")
+                        if (selectedMuscles.isEmpty()) base else (base + selectedMuscles).distinct()
                     }
                 }
                 val selectedFilter = remember { mutableStateOf<String?>(null) }
