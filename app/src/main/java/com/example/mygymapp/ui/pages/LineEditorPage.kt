@@ -154,7 +154,8 @@ fun LineEditorPage(
                     .verticalScroll(rememberScrollState())
                     .systemBarsPadding()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     "✒ Compose your daily line",
@@ -169,7 +170,8 @@ fun LineEditorPage(
                     value = title,
                     onValueChange = { title = it },
                     hint = "A poetic title...",
-                    initialLines = 1
+                    initialLines = 1,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "What kind of movement is this?")
                 PoeticMultiSelectChips(
@@ -178,7 +180,8 @@ fun LineEditorPage(
                     onSelectionChange = {
                         selectedCategories.clear()
                         selectedCategories.addAll(it)
-                    }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Which areas are involved?")
                 PoeticMultiSelectChips(
@@ -187,14 +190,16 @@ fun LineEditorPage(
                     onSelectionChange = {
                         selectedMuscles.clear()
                         selectedMuscles.addAll(it)
-                    }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Your notes on this movement")
                 LinedTextField(
                     value = note,
                     onValueChange = { note = it },
                     hint = "Write your thoughts here...",
-                    initialLines = 3
+                    initialLines = 3,
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
                 )
                 PoeticDivider(centerText = "Which movements do you want to add?")
                 val showExerciseSheet = remember { mutableStateOf(false) }
@@ -227,14 +232,15 @@ fun LineEditorPage(
                         value = exerciseSearch.value,
                         onValueChange = { exerciseSearch.value = it },
                         hint = "Search exercises",
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                         initialLines = 1
                     )
                     Spacer(Modifier.height(12.dp))
                     PoeticRadioChips(
                         options = listOf("All") + filterMuscles,
                         selected = selectedFilter.value ?: "All",
-                        onSelected = { selectedFilter.value = if (it == "All") null else it }
+                        onSelected = { selectedFilter.value = if (it == "All") null else it },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     Spacer(Modifier.height(12.dp))
                     if (filteredExercises.isEmpty()) {
@@ -586,7 +592,8 @@ fun LineEditorPage(
                         PoeticRadioChips(
                             options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
                             selected = selectedOption ?: "",
-                            onSelected = { selectedOption = it }
+                            onSelected = { selectedOption = it },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
 
                         if (selectedOption == "Custom") {
@@ -595,7 +602,7 @@ fun LineEditorPage(
                                 value = customName,
                                 onValueChange = { customName = it },
                                 hint = "Section name",
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                                 initialLines = 1
                             )
                         }
