@@ -16,7 +16,7 @@ import com.example.mygymapp.ui.pages.GaeguBold
 
 /**
  * A poetic wrapper for grouping exercises into a section (e.g., Warm-up, Workout, Cooldown).
- * Instead of a full card, it draws a right and bottom line joined by a rounded corner,
+ * Instead of a full card, it draws a left and bottom line joined by a rounded corner,
  * giving the impression that the section gently hugs its exercises.
  */
 @Composable
@@ -34,15 +34,15 @@ fun SectionWrapper(
                 val w = size.width
                 val h = size.height
                 val path = Path().apply {
-                    moveTo(w - stroke / 2, 0f)
-                    lineTo(w - stroke / 2, h - radius)
+                    moveTo(stroke / 2, 0f)
+                    lineTo(stroke / 2, h - radius)
                     arcTo(
-                        Rect(w - 2 * radius, h - 2 * radius, w, h),
-                        0f,
+                        Rect(0f, h - 2 * radius, 2 * radius, h),
+                        180f,
                         90f,
                         false
                     )
-                    lineTo(stroke / 2, h - stroke / 2)
+                    lineTo(w - stroke / 2, h - stroke / 2)
                 }
                 drawPath(
                     path = path,
@@ -51,7 +51,7 @@ fun SectionWrapper(
                 )
             }
     ) {
-        Column(modifier = Modifier.padding(end = 12.dp, bottom = 12.dp)) {
+        Column(modifier = Modifier.padding(start = 12.dp, bottom = 12.dp)) {
             Text(
                 text = title,
                 fontFamily = GaeguBold,
