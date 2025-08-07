@@ -402,7 +402,6 @@ fun LineEditorPage(
                                             }
                                         },
                                         modifier = Modifier
-                                            .padding(vertical = 4.dp)
                                             .animateItemPlacement()
                                             .shadow(elevation),
                                         dragHandle = {
@@ -499,7 +498,6 @@ fun LineEditorPage(
                                                     }
                                                 },
                                                 modifier = Modifier
-                                                    .padding(vertical = 4.dp)
                                                     .animateItemPlacement()
                                                     .shadow(elevation)
                                                     .dragAndDropSource(
@@ -611,7 +609,6 @@ fun LineEditorPage(
                                                         }
                                                     },
                                                     modifier = Modifier
-                                                        .padding(vertical = 4.dp)
                                                         .animateItemPlacement()
                                                         .shadow(elevation)
                                                         .dragAndDropSource(
