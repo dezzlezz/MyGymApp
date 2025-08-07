@@ -78,7 +78,7 @@ fun LineEditorPage(
 
     val categoryOptions =
         listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌀 Recovery")
-    val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Full Body")
+    val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
 
     val selectedCategories = remember {
         mutableStateListOf<String>().apply { initial?.category?.split(",")?.let { addAll(it) } }
@@ -206,10 +206,17 @@ fun LineEditorPage(
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 val showSectionSheet = remember { mutableStateOf(false) }
                 val exerciseSearch = remember { mutableStateOf("") }
-                val filterMuscles = selectedMuscles.ifEmpty {
-                    allExercises.map { it.muscleGroup.display }.distinct()
+                val filterOptions = remember(selectedMuscles) {
+                    if (selectedMuscles.isEmpty()) {
+                        listOf("All", "Full Body")
+                    } else {
+                        listOf("All", "Full Body") + selectedMuscles.filter { it != "Full Body" }
+                    }
                 }
                 val selectedFilter = remember { mutableStateOf<String?>(null) }
+                LaunchedEffect(filterOptions) {
+                    if (selectedFilter.value !in filterOptions) selectedFilter.value = null
+                }
 
                 val filteredExercises by remember(
                     exerciseSearch.value,
@@ -217,11 +224,11 @@ fun LineEditorPage(
                     allExercises
                 ) {
                     derivedStateOf {
+                        val query = exerciseSearch.value.trim().lowercase()
                         allExercises.filter { ex ->
                             val matchesFilter =
                                 selectedFilter.value == null || ex.muscleGroup.display == selectedFilter.value
-                            val matchesSearch = exerciseSearch.value.isBlank() ||
-                                    ex.name.contains(exerciseSearch.value, ignoreCase = true)
+                            val matchesSearch = query.isEmpty() || ex.name.lowercase().contains(query)
                             matchesFilter && matchesSearch
                         }
                     }
@@ -246,7 +253,7 @@ fun LineEditorPage(
                     )
                     Spacer(Modifier.height(12.dp))
                     PoeticRadioChips(
-                        options = listOf("All") + filterMuscles,
+                        options = filterOptions,
                         selected = selectedFilter.value ?: "All",
                         onSelected = { selectedFilter.value = if (it == "All") null else it },
                         modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
@@ -266,7 +273,7 @@ fun LineEditorPage(
                                 .heightIn(max = 320.dp)
                                 .fillMaxWidth()
                         ) {
-                            items(filteredExercises) { ex ->
+                            items(filteredExercises, key = { it.id }) { ex ->
                                 PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
