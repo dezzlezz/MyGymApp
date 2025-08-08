@@ -519,6 +519,7 @@ fun LineEditorPage(
                                             selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                         }
                                         var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                        val globalIndex = selectedExercises.indexOf(item)
                                         ReorderableExerciseItem(
                                             index = index,
                                             exercise = item,
@@ -660,6 +661,7 @@ fun LineEditorPage(
                                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                 }
                                                 var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                                val globalIndex = selectedExercises.indexOf(item)
                                                 ReorderableExerciseItem(
                                                     index = index,
                                                     exercise = item,
@@ -806,6 +808,7 @@ fun LineEditorPage(
                                                         selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                     }
                                                     var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                                    val globalIndex = selectedExercises.indexOf(item)
                                                     ReorderableExerciseItem(
                                                         index = index,
                                                         exercise = item,
