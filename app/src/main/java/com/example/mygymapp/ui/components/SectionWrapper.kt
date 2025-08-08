@@ -1,6 +1,13 @@
 package com.example.mygymapp.ui.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,25 +15,27 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.ui.pages.GaeguBold
 
 /**
- * A poetic wrapper for grouping exercises into a section (e.g., Warm-up, Workout, Cooldown).
- * Instead of a full card, it draws a left and bottom line joined by a rounded corner,
- * giving the impression that the section gently hugs its exercises.
+ * Poetic section wrapper (Warm-up, Workout, Cooldown, …)
+ * Vergrößerte Hitbox & volle Breite, damit Drag & Drop zuverlässiger trifft.
  */
 @Composable
 fun SectionWrapper(
     title: String,
     modifier: Modifier = Modifier,
+    minDropHeightDp: Int = 64,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
         modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = minDropHeightDp.dp) // << fette Drop-Zone
             .padding(vertical = 12.dp)
             .drawBehind {
                 val stroke = 2.dp.toPx()
@@ -64,8 +73,9 @@ fun SectionWrapper(
                 color = Color.Black,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-
             content()
+            // Falls leer, ein bisschen „Futter“, damit die Drop-Fläche fühlbar ist
+            Spacer(Modifier.height(4.dp))
         }
     }
 }
