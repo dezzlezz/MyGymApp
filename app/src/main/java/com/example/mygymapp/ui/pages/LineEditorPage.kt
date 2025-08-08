@@ -22,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import android.content.ClipData
 import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
@@ -128,6 +132,8 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
 
     var draggingSection by remember { mutableStateOf<String?>(null) }
+    var dragPreview by remember { mutableStateOf<String?>(null) }
+    var dragPosition by remember { mutableStateOf(Offset.Zero) }
 
     /**
      * Replace any groups containing the supplied ids and store the new grouping.
@@ -189,15 +195,16 @@ fun LineEditorPage(
         }
     ) { paddingValues ->
         PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .systemBarsPadding()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Box(Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .systemBarsPadding()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 Text(
                     "✒ Compose your daily line",
                     fontFamily = GaeguBold,
@@ -326,10 +333,28 @@ fun LineEditorPage(
                                 .fillMaxWidth()
                         ) {
                             items(filteredExercises, key = { it.id }) { ex ->
+                                var cardOffset by remember { mutableStateOf(Offset.Zero) }
                                 PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
+                                        .onGloballyPositioned { cardOffset = it.positionInRoot() }
+                                        .dragAndDropSource(
+                                            dataProvider = {
+                                                DragAndDropTransferData(
+                                                    clipData = ClipData.newPlainText(
+                                                        "exercise",
+                                                        ex.id.toString()
+                                                    )
+                                                )
+                                            },
+                                            onDragStart = {
+                                                dragPreview = ex.name
+                                                showExerciseSheet.value = false
+                                            },
+                                            onDrag = { dragPosition = it + cardOffset },
+                                            onDragEnd = { dragPreview = null }
+                                        )
                                         .clickable {
                                             if (selectedExercises.none { it.id == ex.id }) {
                                                 selectedExercises.add(
@@ -446,6 +471,21 @@ fun LineEditorPage(
                                                     if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
                                                         sections.remove(oldSection)
                                                     }
+                                                } else {
+                                                    allExercises.firstOrNull { it.id == exId }?.let { ex ->
+                                                        val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
+                                                        selectedExercises.add(
+                                                            insertIdx,
+                                                            LineExercise(
+                                                                id = ex.id,
+                                                                name = ex.name,
+                                                                sets = 3,
+                                                                repsOrDuration = "10",
+                                                                section = ""
+                                                            )
+                                                        )
+                                                        showExerciseSheet.value = false
+                                                    }
                                                 }
                                             }
                                             true
@@ -488,6 +528,7 @@ fun LineEditorPage(
                                                     selectedExercises.indexOfFirst { it.id == pid }
                                                         .takeIf { it >= 0 }
                                                 }
+                                            var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                             ReorderableExerciseItem(
                                                 index = index,
                                                 exercise = item,
@@ -508,6 +549,7 @@ fun LineEditorPage(
                                                 },
                                                 modifier = Modifier
                                                     .animateItemPlacement()
+                                                    .onGloballyPositioned { itemOffset = it.positionInRoot() }
                                                     .dragAndDropSource(
                                                         dataProvider = {
                                                             DragAndDropTransferData(
@@ -517,8 +559,15 @@ fun LineEditorPage(
                                                                 )
                                                             )
                                                         },
-                                                        onDragStart = { draggingSection = item.section },
-                                                        onDragEnd = { draggingSection = null }
+                                                        onDragStart = {
+                                                            draggingSection = item.section
+                                                            dragPreview = item.name
+                                                        },
+                                                        onDrag = { dragPosition = it + itemOffset },
+                                                        onDragEnd = {
+                                                            draggingSection = null
+                                                            dragPreview = null
+                                                        }
                                                     ),
                                                 dragHandle = {
                                                     Icon(
@@ -542,31 +591,48 @@ fun LineEditorPage(
                             val sectionItems by remember(selectedExercises, sectionName) {
                                 derivedStateOf { selectedExercises.filter { it.section == sectionName } }
                             }
-                            if (sectionItems.isNotEmpty()) {
-                                SectionWrapper(
-                                    title = sectionName,
-                                    modifier = Modifier
-                                        .zIndex(if (draggingSection == sectionName) 1f else 0f)
-                                        .dragAndDropTarget(
-                                            shouldStartDragAndDrop = { true },
-                                            onDrop = { transferData: DragAndDropTransferData ->
-                                                val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                                id?.let { exId ->
-                                                    val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                    if (idx >= 0) {
-                                                        val item = selectedExercises.removeAt(idx)
-                                                        val oldSection = item.section
+                            SectionWrapper(
+                                title = sectionName,
+                                modifier = Modifier
+                                    .zIndex(if (draggingSection == sectionName) 1f else 0f)
+                                    .dragAndDropTarget(
+                                        shouldStartDragAndDrop = { true },
+                                        onDrop = { transferData: DragAndDropTransferData ->
+                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                            id?.let { exId ->
+                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (idx >= 0) {
+                                                    val item = selectedExercises.removeAt(idx)
+                                                    val oldSection = item.section
+                                                    val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
+                                                    selectedExercises.add(insertIdx, item.copy(section = sectionName))
+                                                    if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
+                                                        sections.remove(oldSection)
+                                                    }
+                                                } else {
+                                                    allExercises.firstOrNull { it.id == exId }?.let { ex ->
                                                         val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
-                                                        selectedExercises.add(insertIdx, item.copy(section = sectionName))
-                                                        if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
-                                                            sections.remove(oldSection)
-                                                        }
+                                                        selectedExercises.add(
+                                                            insertIdx,
+                                                            LineExercise(
+                                                                id = ex.id,
+                                                                name = ex.name,
+                                                                sets = 3,
+                                                                repsOrDuration = "10",
+                                                                section = sectionName
+                                                            )
+                                                        )
+                                                        showExerciseSheet.value = false
                                                     }
                                                 }
-                                                true
                                             }
-                                        )
-                                ) {
+                                            true
+                                        }
+                                    )
+                            ) {
+                                if (sectionItems.isEmpty()) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                } else {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
                                             // Use a fresh snapshot of this section's items for each
@@ -603,6 +669,7 @@ fun LineEditorPage(
                                                         selectedExercises.indexOfFirst { it.id == pid }
                                                             .takeIf { it >= 0 }
                                                     }
+                                                var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                                 ReorderableExerciseItem(
                                                     index = index,
                                                     exercise = item,
@@ -626,6 +693,7 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
+                                                        .onGloballyPositioned { itemOffset = it.positionInRoot() }
                                                         .dragAndDropSource(
                                                             dataProvider = {
                                                                 DragAndDropTransferData(
@@ -635,8 +703,15 @@ fun LineEditorPage(
                                                                     )
                                                                 )
                                                             },
-                                                            onDragStart = { draggingSection = item.section },
-                                                            onDragEnd = { draggingSection = null }
+                                                            onDragStart = {
+                                                                draggingSection = item.section
+                                                                dragPreview = item.name
+                                                            },
+                                                            onDrag = { dragPosition = it + itemOffset },
+                                                            onDragEnd = {
+                                                                draggingSection = null
+                                                                dragPreview = null
+                                                            }
                                                         ),
                                                     dragHandle = {
                                                         Icon(
@@ -781,6 +856,16 @@ fun LineEditorPage(
                         color = Color.Black,
                         fontFamily = GaeguRegular
                     )
+                }
+                }
+                dragPreview?.let { preview ->
+                    PoeticCard(
+                        modifier = Modifier
+                            .offset { IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()) }
+                            .zIndex(100f)
+                    ) {
+                        Text(preview, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                    }
                 }
             }
         }
