@@ -431,8 +431,8 @@ fun LineEditorPage(
                                 userScrollEnabled = false
                             ) {
                                 itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
-                                    ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                        val elevation = if (isDragging) 8.dp else 2.dp
+                                    ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                        val elevation = if (itemDragging) 8.dp else 2.dp
                                         val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                             selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                         }
@@ -565,8 +565,8 @@ fun LineEditorPage(
                                         userScrollEnabled = false
                                     ) {
                                         itemsIndexed(unassignedItems, key = { _, item -> item.id }) { index, item ->
-                                            ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                                val elevation = if (isDragging) 8.dp else 2.dp
+                                            ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                                val elevation = if (itemDragging) 8.dp else 2.dp
                                                 val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                 }
@@ -704,8 +704,8 @@ fun LineEditorPage(
                                             userScrollEnabled = false
                                         ) {
                                             itemsIndexed(sectionItems, key = { _, item -> item.id }) { index, item ->
-                                                ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                                    val elevation = if (isDragging) 8.dp else 2.dp
+                                                ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                                    val elevation = if (itemDragging) 8.dp else 2.dp
                                                     val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                                         selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                     }
