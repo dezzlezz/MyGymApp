@@ -918,6 +918,7 @@ fun LineEditorPage(
                 }
             }
 
+            // Render drag preview last so it appears above background and floating items
             if (isDragging && draggingExerciseId != null) {
                 val id = draggingExerciseId!!
                 val lineExercise = selectedExercises.find { it.id == id }
