@@ -133,14 +133,8 @@ fun LineEditorPage(
 
     var showError by remember { mutableStateOf(false) }
 
-    var draggingSection by remember { mutableStateOf<String?>(null) }
-    var dragPreview by remember { mutableStateOf<String?>(null) }
-    var dragPosition by remember { mutableStateOf(Offset.Zero) }
-    var draggingExerciseId by remember { mutableStateOf<Long?>(null) }
-    val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
-    var isDragging by remember { mutableStateOf(false) }
-    val sectionBounds = remember { mutableStateMapOf<String, Pair<Float, Float>>() }
-    var hoveredSection by remember { mutableStateOf<String?>(null) }
+    // Cross-section drag state removed; reordering within sections is handled by
+    // ReorderableLazyListState provided by the burnoutcrew library.
 
     fun addSuperset(ids: List<Long>) {
         supersets.removeAll { group -> group.any { it in ids } }
@@ -171,33 +165,6 @@ fun LineEditorPage(
         } else snackbarHostState.currentSnackbarData?.dismiss()
     }
 
-    fun findInsertIndexForDrop(
-        sectionName: String,
-        dropY: Float
-    ): Int {
-        val entriesInTarget = selectedExercises.withIndex()
-            .filter { it.value.section == sectionName }
-        if (entriesInTarget.isNotEmpty()) {
-            val closest = entriesInTarget.minByOrNull { (_, ex) ->
-                val b = itemBounds[ex.id]
-                val centerY = b?.let { (it.first + it.second) / 2f } ?: dropY
-                kotlin.math.abs(dropY - centerY)
-            }!!
-            val bounds = itemBounds[closest.value.id]
-            val center = bounds?.let { (it.first + it.second) / 2f } ?: dropY
-            return if (dropY >= center) closest.index + 1 else closest.index
-        }
-        val idxSection =
-            sections.indexOf(sectionName).takeIf { it >= 0 } ?: return selectedExercises.size
-        val nextSectionName = sections.drop(idxSection + 1)
-            .firstOrNull { next -> selectedExercises.any { it.section == next } }
-        return if (nextSectionName != null) {
-            selectedExercises.indexOfFirst { it.section == nextSectionName }.coerceAtLeast(0)
-        } else {
-            selectedExercises.size
-        }
-    }
-
 
     Scaffold(
         snackbarHost = {
@@ -211,20 +178,12 @@ fun LineEditorPage(
             }
         }
     ) { paddingValues ->
-        Box(Modifier.fillMaxSize()) {
-
-            var rootWindowTopLeft by remember { mutableStateOf(Offset.Zero) }
-
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned { coords ->
-                        rootWindowTopLeft = coords.positionInWindow()
-                    }
-            ) {
-
-
-                PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues).graphicsLayer { clip = false } ) {
+        PaperBackground(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .graphicsLayer { clip = false }
+        ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -366,94 +325,10 @@ fun LineEditorPage(
                                     modifier = Modifier.heightIn(max = 320.dp).fillMaxWidth()
                                 ) {
                                     items(filteredExercises, key = { it.id }) { ex ->
-                                        var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         PoeticCard(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(vertical = 4.dp)
-                                                .onGloballyPositioned {
-                                                    handleOffset = it.positionInWindow()
-                                                }
-                                                .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
-                                                .pointerInput(draggingExerciseId) {
-                                                    detectDragGesturesAfterLongPress(
-                                                        onDragStart = { offset ->
-                                                            isDragging = true
-                                                            dragPreview = ex.name
-                                                            draggingExerciseId = ex.id
-                                                            draggingSection = ""
-                                                            dragPosition = handleOffset + offset
-                                                            showExerciseSheet.value = false
-                                                        },
-                                                        onDrag = { change, _ ->
-                                                            change.consume()
-                                                            dragPosition = handleOffset + change.position
-                                                            hoveredSection = sectionBounds.entries.find { (name, range) ->
-                                                                dragPosition.y in range.first..range.second
-                                                            }?.key
-                                                        },
-                                                        onDragEnd = {
-                                                            hoveredSection?.let { sectionName ->
-                                                                val insertIdx =
-                                                                    findInsertIndexForDrop(
-                                                                        sectionName,
-                                                                        dragPosition.y
-                                                                    )
-                                                                val idx =
-                                                                    selectedExercises.indexOfFirst { it.id == ex.id }
-                                                                var clampedIdx = insertIdx.coerceIn(
-                                                                    0,
-                                                                    selectedExercises.size
-                                                                )
-                                                                if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
-                                                                    clampedIdx -= 1
-                                                                }
-                                                                if (idx >= 0) {
-                                                                    val item =
-                                                                        selectedExercises.removeAt(
-                                                                            idx
-                                                                        )
-                                                                    val oldSection = item.section
-                                                                    selectedExercises.add(
-                                                                        clampedIdx,
-                                                                        item.copy(section = sectionName)
-                                                                    )
-                                                                    if (oldSection.isNotBlank() && oldSection != sectionName &&
-                                                                        selectedExercises.none { it.section == oldSection }
-                                                                    ) {
-                                                                        sections.remove(oldSection)
-                                                                    }
-                                                                } else {
-                                                                    allExercises.firstOrNull { it.id == ex.id }
-                                                                        ?.let { exx ->
-                                                                            selectedExercises.add(
-                                                                                clampedIdx,
-                                                                                LineExercise(
-                                                                                    id = exx.id,
-                                                                                    name = exx.name,
-                                                                                    sets = 3,
-                                                                                    repsOrDuration = "10",
-                                                                                    section = sectionName
-                                                                                )
-                                                                            )
-                                                                        }
-                                                                }
-                                                            }
-                                                            isDragging = false
-                                                            draggingExerciseId = null
-                                                            dragPreview = null
-                                                            draggingSection = null
-                                                            hoveredSection = null
-                                                        },
-                                                        onDragCancel = {
-                                                            isDragging = false
-                                                            draggingExerciseId = null
-                                                            dragPreview = null
-                                                            draggingSection = null
-                                                            hoveredSection = null
-                                                        }
-                                                    )
-                                                }
                                                 .clickable {
                                                     if (selectedExercises.none { it.id == ex.id }) {
                                                         selectedExercises.add(
@@ -1208,46 +1083,6 @@ fun LineEditorPage(
                     }
                 }
 
-                if (isDragging && draggingExerciseId != null) {
-                    val id = draggingExerciseId!!
-                    val lineExercise = selectedExercises.find { it.id == id }
-                    val previewName = dragPreview ?: lineExercise?.name
-                    ?: allExercises.find { it.id == id }?.name
-
-                    previewName?.let { name ->
-                        androidx.compose.ui.window.Popup(
-                            onDismissRequest = {},
-                            properties = androidx.compose.ui.window.PopupProperties(
-                                focusable = false,
-                                excludeFromSystemGesture = true,
-                                clippingEnabled = false
-                            )
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .zIndex(10_000f)
-                                    .graphicsLayer {
-                                        translationX = dragPosition.x
-                                        translationY = dragPosition.y
-                                        clip = false
-                                    }
-                            ) {
-                                PoeticCard(
-                                    modifier = Modifier,
-                                    fillMaxWidth = false
-                                ) {
-                                    Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                                        Text(name, fontSize = 16.sp, color = Color.Black, fontFamily = GaeguRegular)
-                                        lineExercise?.let {
-                                            Text("${it.sets} x ${it.repsOrDuration}", fontSize = 12.sp, color = Color.Black, fontFamily = GaeguRegular)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
 
 
             }
