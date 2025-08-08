@@ -24,7 +24,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -931,29 +930,22 @@ fun LineEditorPage(
                 val lineExercise = selectedExercises.find { it.id == id }
                 val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
                 previewName?.let { name ->
-                    val density = LocalDensity.current
-                    val offsetX = with(density) { dragPosition.x.toDp() }
-                    val offsetY = with(density) { dragPosition.y.toDp() }
-                    Box(
-                        Modifier
-                            .zIndex(999f)
-                            .absoluteOffset(
-                                x = offsetX,
-                                y = offsetY
-                            )
+                    androidx.compose.ui.window.Popup(
+                        alignment = Alignment.TopStart,
+                        offset = IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()),
+                        properties = androidx.compose.ui.window.PopupProperties(
+                            focusable = false,
+                            dismissOnBackPress = false,
+                            dismissOnClickOutside = false,
+                            clippingEnabled = false,
+                            usePlatformDefaultWidth = false
+                        )
                     ) {
                         PoeticCard {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            ) {
+                            Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                                 Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
                                 lineExercise?.let {
-                                    Text(
-                                        "${it.sets} x ${it.repsOrDuration}",
-                                        fontFamily = GaeguRegular,
-                                        fontSize = 12.sp,
-                                        color = Color.Black
-                                    )
+                                    Text("${it.sets} x ${it.repsOrDuration}", fontFamily = GaeguRegular, fontSize = 12.sp, color = Color.Black)
                                 }
                             }
                         }
