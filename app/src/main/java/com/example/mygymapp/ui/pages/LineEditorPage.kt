@@ -139,6 +139,7 @@ fun LineEditorPage(
     val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
     var isDragging by remember { mutableStateOf(false) }
     var dragStartPointer by remember { mutableStateOf(Offset.Zero) }
+    var dragStartLocal by remember { mutableStateOf(Offset.Zero) }
     val sectionBounds = remember { mutableStateMapOf<String, Pair<Float, Float>>() }
     var hoveredSection by remember { mutableStateOf<String?>(null) }
 
@@ -192,40 +193,8 @@ fun LineEditorPage(
             }
         }
     ) { paddingValues ->
-        PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Box(Modifier.fillMaxSize()) {
-                if (isDragging && draggingExerciseId != null) {
-                    val id = draggingExerciseId!!
-                    val lineExercise = selectedExercises.find { it.id == id }
-                    val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
-                    previewName?.let { name ->
-                        Box(
-                            Modifier
-                                .zIndex(999f)
-                                .absoluteOffset(
-                                    x = dragPosition.x.dp,
-                                    y = dragPosition.y.dp
-                                )
-                        ) {
-                            PoeticCard {
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                                ) {
-                                    Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
-                                    lineExercise?.let {
-                                        Text(
-                                            "${it.sets} x ${it.repsOrDuration}",
-                                            fontFamily = GaeguRegular,
-                                            fontSize = 12.sp,
-                                            color = Color.Black
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
+        Box(Modifier.fillMaxSize()) {
+            PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -369,13 +338,14 @@ fun LineEditorPage(
                                                         dragPreview = ex.name
                                                         draggingExerciseId = ex.id
                                                         draggingSection = ""
+                                                        dragStartLocal = offset
                                                         dragStartPointer = cardOffset + offset
                                                         dragPosition = dragStartPointer
                                                         showExerciseSheet.value = false
                                                     },
                                                     onDrag = { change, _ ->
                                                         change.consume()
-                                                        dragPosition = cardOffset + change.position
+                                                        dragPosition = dragStartPointer + (change.position - dragStartLocal)
                                                         hoveredSection = sectionBounds.entries.find { entry ->
                                                             dragPosition.y in entry.value.first..entry.value.second
                                                         }?.key
@@ -506,12 +476,13 @@ fun LineEditorPage(
                                                                     draggingSection = item.section
                                                                     dragPreview = item.name
                                                                     draggingExerciseId = item.id
+                                                                    dragStartLocal = offset
                                                                     dragStartPointer = handleOffset + offset
                                                                     dragPosition = dragStartPointer
                                                                 },
                                                                 onDrag = { change, _ ->
                                                                     change.consume()
-                                                                    dragPosition = handleOffset + change.position
+                                                                    dragPosition = dragStartPointer + (change.position - dragStartLocal)
                                                                     hoveredSection = sectionBounds.entries.find { entry ->
                                                                         dragPosition.y in entry.value.first..entry.value.second
                                                                     }?.key
@@ -626,33 +597,34 @@ fun LineEditorPage(
                                                         },
                                                     dragHandle = {
                                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
-                                                        Icon(
-                                                            imageVector = Icons.Default.DragHandle,
-                                                            contentDescription = "Drag",
-                                                            tint = Color.Gray,
-                                                            modifier = Modifier
-                                                                .onGloballyPositioned { handleOffset = it.positionInWindow() }
-                                                                .pointerInput(Unit) {
-                                                                    detectDragGesturesAfterLongPress(
-                                                                        onDragStart = { offset ->
-                                                                            isDragging = true
-                                                                            draggingSection = item.section
-                                                                            dragPreview = item.name
-                                                                            draggingExerciseId = item.id
-                                                                            dragStartPointer = handleOffset + offset
-                                                                            dragPosition = dragStartPointer
-                                                                        },
-                                                                        onDrag = { change, _ ->
-                                                                            change.consume()
-                                                                            dragPosition = handleOffset + change.position
-                                                                            hoveredSection = sectionBounds.entries.find { entry ->
-                                                                                dragPosition.y in entry.value.first..entry.value.second
-                                                                            }?.key
-                                                                        },
-                                                                        onDragEnd = {
-                                                                            hoveredSection?.let { sectionName ->
-                                                                                val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
-                                                                                val idx = selectedExercises.indexOfFirst { it.id == item.id }
+                                                            Icon(
+                                                                imageVector = Icons.Default.DragHandle,
+                                                                contentDescription = "Drag",
+                                                                tint = Color.Gray,
+                                                                modifier = Modifier
+                                                                    .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                                    .pointerInput(Unit) {
+                                                                        detectDragGesturesAfterLongPress(
+                                                                            onDragStart = { offset ->
+                                                                                isDragging = true
+                                                                                draggingSection = item.section
+                                                                                dragPreview = item.name
+                                                                                draggingExerciseId = item.id
+                                                                                dragStartLocal = offset
+                                                                                dragStartPointer = handleOffset + offset
+                                                                                dragPosition = dragStartPointer
+                                                                            },
+                                                                            onDrag = { change, _ ->
+                                                                                change.consume()
+                                                                                dragPosition = dragStartPointer + (change.position - dragStartLocal)
+                                                                                hoveredSection = sectionBounds.entries.find { entry ->
+                                                                                    dragPosition.y in entry.value.first..entry.value.second
+                                                                                }?.key
+                                                                            },
+                                                                            onDragEnd = {
+                                                                                hoveredSection?.let { sectionName ->
+                                                                                    val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
+                                                                                    val idx = selectedExercises.indexOfFirst { it.id == item.id }
                                                                                 var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
                                                                                 if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
                                                                                     clampedIdx -= 1
@@ -780,12 +752,13 @@ fun LineEditorPage(
                                                                                 draggingSection = item.section
                                                                                 dragPreview = item.name
                                                                                 draggingExerciseId = item.id
+                                                                                dragStartLocal = offset
                                                                                 dragStartPointer = handleOffset + offset
                                                                                 dragPosition = dragStartPointer
                                                                             },
                                                                             onDrag = { change, _ ->
                                                                                 change.consume()
-                                                                                dragPosition = handleOffset + change.position
+                                                                                dragPosition = dragStartPointer + (change.position - dragStartLocal)
                                                                                 hoveredSection = sectionBounds.entries.find { entry ->
                                                                                     dragPosition.y in entry.value.first..entry.value.second
                                                                                 }?.key
@@ -941,6 +914,38 @@ fun LineEditorPage(
 
                     if (showError) {
                         Text("Please fill out title and at least one exercise", color = Color.Black, fontFamily = GaeguRegular)
+                    }
+                }
+            }
+
+            if (isDragging && draggingExerciseId != null) {
+                val id = draggingExerciseId!!
+                val lineExercise = selectedExercises.find { it.id == id }
+                val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
+                previewName?.let { name ->
+                    Box(
+                        Modifier
+                            .zIndex(999f)
+                            .absoluteOffset(
+                                x = dragPosition.x.dp,
+                                y = dragPosition.y.dp
+                            )
+                    ) {
+                        PoeticCard {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                                lineExercise?.let {
+                                    Text(
+                                        "${it.sets} x ${it.repsOrDuration}",
+                                        fontFamily = GaeguRegular,
+                                        fontSize = 12.sp,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
