@@ -34,8 +34,6 @@ import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Line
@@ -196,6 +194,38 @@ fun LineEditorPage(
     ) { paddingValues ->
         PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Box(Modifier.fillMaxSize()) {
+                if (isDragging && draggingExerciseId != null) {
+                    val id = draggingExerciseId!!
+                    val lineExercise = selectedExercises.find { it.id == id }
+                    val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
+                    previewName?.let { name ->
+                        Box(
+                            Modifier
+                                .zIndex(999f)
+                                .absoluteOffset(
+                                    x = dragPosition.x.dp,
+                                    y = dragPosition.y.dp
+                                )
+                        ) {
+                            PoeticCard {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                                    lineExercise?.let {
+                                        Text(
+                                            "${it.sets} x ${it.repsOrDuration}",
+                                            fontFamily = GaeguRegular,
+                                            fontSize = 12.sp,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -519,7 +549,6 @@ fun LineEditorPage(
                                                                 }
                                                             )
                                                         }
-                                                        .detectReorderAfterLongPress(reorderState)
                                                 )
                                             },
                                             supersetPartnerIndices = partnerIndices,
@@ -653,7 +682,6 @@ fun LineEditorPage(
                                                                         }
                                                                     )
                                                                 }
-                                                                .detectReorderAfterLongPress(reorderState)
                                                         )
                                                     },
                                                     supersetPartnerIndices = partnerIndices,
@@ -795,7 +823,6 @@ fun LineEditorPage(
                                                                             }
                                                                         )
                                                                     }
-                                                                    .detectReorderAfterLongPress(reorderState)
                                                             )
                                                         },
                                                         supersetPartnerIndices = partnerIndices,
@@ -914,41 +941,6 @@ fun LineEditorPage(
 
                     if (showError) {
                         Text("Please fill out title and at least one exercise", color = Color.Black, fontFamily = GaeguRegular)
-                    }
-                }
-
-                // Drag Preview (Koordinaten jetzt konsistent in Window-Space)
-                if (isDragging && draggingExerciseId != null) {
-                    val id = draggingExerciseId!!
-                    val lineExercise = selectedExercises.find { it.id == id }
-                    val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
-                    previewName?.let { name ->
-                        Popup(
-                            alignment = Alignment.TopStart,
-                            offset = IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()),
-                            properties = PopupProperties(
-                                focusable = false,
-                                dismissOnClickOutside = false,
-                                dismissOnBackPress = false,
-                                clippingEnabled = false
-                            )
-                        ) {
-                            PoeticCard {
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                                ) {
-                                    Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
-                                    lineExercise?.let {
-                                        Text(
-                                            "${it.sets} x ${it.repsOrDuration}",
-                                            fontFamily = GaeguRegular,
-                                            fontSize = 12.sp,
-                                            color = Color.Black
-                                        )
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
