@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,6 +37,7 @@ private object DragAndDropState {
 fun Modifier.dragAndDropSource(
     dataProvider: () -> DragAndDropTransferData,
     onDragStart: () -> Unit = {},
+    onDrag: (Offset) -> Unit = {},
     onDragEnd: () -> Unit = {}
 ): Modifier = pointerInput(Unit) {
     awaitEachGesture {
@@ -45,8 +47,11 @@ fun Modifier.dragAndDropSource(
             onDragStart()
             val session = DragSession(dataProvider())
             DragAndDropState.session = session
+            onDrag(longPress.position)
             while (true) {
                 val event = awaitPointerEvent()
+                val change = event.changes.firstOrNull()
+                change?.let { onDrag(it.position) }
                 if (event.changes.all { !it.pressed }) break
             }
             if (DragAndDropState.session === session) {

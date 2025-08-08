@@ -22,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import android.content.ClipData
 import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
@@ -128,6 +132,8 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
 
     var draggingSection by remember { mutableStateOf<String?>(null) }
+    var dragPreview by remember { mutableStateOf<String?>(null) }
+    var dragPosition by remember { mutableStateOf(Offset.Zero) }
 
     /**
      * Replace any groups containing the supplied ids and store the new grouping.
@@ -189,15 +195,16 @@ fun LineEditorPage(
         }
     ) { paddingValues ->
         PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .systemBarsPadding()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Box(Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .systemBarsPadding()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 Text(
                     "✒ Compose your daily line",
                     fontFamily = GaeguBold,
@@ -326,10 +333,12 @@ fun LineEditorPage(
                                 .fillMaxWidth()
                         ) {
                             items(filteredExercises, key = { it.id }) { ex ->
+                                var cardOffset by remember { mutableStateOf(Offset.Zero) }
                                 PoeticCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
+                                        .onGloballyPositioned { cardOffset = it.positionInRoot() }
                                         .dragAndDropSource(
                                             dataProvider = {
                                                 DragAndDropTransferData(
@@ -339,7 +348,12 @@ fun LineEditorPage(
                                                     )
                                                 )
                                             },
-                                            onDragStart = { showExerciseSheet.value = false }
+                                            onDragStart = {
+                                                dragPreview = ex.name
+                                                showExerciseSheet.value = false
+                                            },
+                                            onDrag = { dragPosition = it + cardOffset },
+                                            onDragEnd = { dragPreview = null }
                                         )
                                         .clickable {
                                             if (selectedExercises.none { it.id == ex.id }) {
@@ -514,6 +528,7 @@ fun LineEditorPage(
                                                     selectedExercises.indexOfFirst { it.id == pid }
                                                         .takeIf { it >= 0 }
                                                 }
+                                            var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                             ReorderableExerciseItem(
                                                 index = index,
                                                 exercise = item,
@@ -534,6 +549,7 @@ fun LineEditorPage(
                                                 },
                                                 modifier = Modifier
                                                     .animateItemPlacement()
+                                                    .onGloballyPositioned { itemOffset = it.positionInRoot() }
                                                     .dragAndDropSource(
                                                         dataProvider = {
                                                             DragAndDropTransferData(
@@ -543,8 +559,15 @@ fun LineEditorPage(
                                                                 )
                                                             )
                                                         },
-                                                        onDragStart = { draggingSection = item.section },
-                                                        onDragEnd = { draggingSection = null }
+                                                        onDragStart = {
+                                                            draggingSection = item.section
+                                                            dragPreview = item.name
+                                                        },
+                                                        onDrag = { dragPosition = it + itemOffset },
+                                                        onDragEnd = {
+                                                            draggingSection = null
+                                                            dragPreview = null
+                                                        }
                                                     ),
                                                 dragHandle = {
                                                     Icon(
@@ -646,6 +669,7 @@ fun LineEditorPage(
                                                         selectedExercises.indexOfFirst { it.id == pid }
                                                             .takeIf { it >= 0 }
                                                     }
+                                                var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                                 ReorderableExerciseItem(
                                                     index = index,
                                                     exercise = item,
@@ -669,6 +693,7 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
+                                                        .onGloballyPositioned { itemOffset = it.positionInRoot() }
                                                         .dragAndDropSource(
                                                             dataProvider = {
                                                                 DragAndDropTransferData(
@@ -678,8 +703,15 @@ fun LineEditorPage(
                                                                     )
                                                                 )
                                                             },
-                                                            onDragStart = { draggingSection = item.section },
-                                                            onDragEnd = { draggingSection = null }
+                                                            onDragStart = {
+                                                                draggingSection = item.section
+                                                                dragPreview = item.name
+                                                            },
+                                                            onDrag = { dragPosition = it + itemOffset },
+                                                            onDragEnd = {
+                                                                draggingSection = null
+                                                                dragPreview = null
+                                                            }
                                                         ),
                                                     dragHandle = {
                                                         Icon(
@@ -824,6 +856,16 @@ fun LineEditorPage(
                         color = Color.Black,
                         fontFamily = GaeguRegular
                     )
+                }
+                }
+                dragPreview?.let { preview ->
+                    PoeticCard(
+                        modifier = Modifier
+                            .offset { IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()) }
+                            .zIndex(100f)
+                    ) {
+                        Text(preview, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                    }
                 }
             }
         }
