@@ -424,7 +424,7 @@ fun LineEditorPage(
                                     .graphicsLayer { clip = false }
                                     .reorderable(reorderState)
                                     .then(
-                                        if (!isDragging || draggingSection == "") {
+                                        if (!isDragging) {
                                             Modifier.detectReorderAfterLongPress(reorderState)
                                         } else Modifier
                                     )
@@ -561,7 +561,7 @@ fun LineEditorPage(
                                             .graphicsLayer { clip = false }
                                             .reorderable(reorderState)
                                             .then(
-                                                if (!isDragging || draggingSection == "") {
+                                                if (!isDragging) {
                                                     Modifier.detectReorderAfterLongPress(reorderState)
                                                 } else Modifier
                                             )
@@ -703,7 +703,7 @@ fun LineEditorPage(
                                                 .graphicsLayer { clip = false }
                                                 .reorderable(reorderState)
                                                 .then(
-                                                    if (!isDragging || draggingSection == sectionName) {
+                                                    if (!isDragging) {
                                                         Modifier.detectReorderAfterLongPress(reorderState)
                                                     } else Modifier
                                                 )
