@@ -422,12 +422,8 @@ fun LineEditorPage(
                                 modifier = Modifier
                                     .heightIn(max = screenHeight)
                                     .graphicsLayer { clip = false }
-                                    .reorderable(reorderState)
-                                    .then(
-                                        if (!isDragging) {
-                                            Modifier.detectReorderAfterLongPress(reorderState)
-                                        } else Modifier
-                                    )
+                                    .then(if (!isDragging) Modifier.reorderable(reorderState) else Modifier)
+                                    .then(if (!isDragging) Modifier.detectReorderAfterLongPress(reorderState) else Modifier)
                                     .fillMaxWidth(),
                                 userScrollEnabled = false
                             ) {
@@ -559,12 +555,8 @@ fun LineEditorPage(
                                         modifier = Modifier
                                             .heightIn(max = screenHeight)
                                             .graphicsLayer { clip = false }
-                                            .reorderable(reorderState)
-                                            .then(
-                                                if (!isDragging) {
-                                                    Modifier.detectReorderAfterLongPress(reorderState)
-                                                } else Modifier
-                                            )
+                                            .then(if (!isDragging) Modifier.reorderable(reorderState) else Modifier)
+                                            .then(if (!isDragging) Modifier.detectReorderAfterLongPress(reorderState) else Modifier)
                                             .fillMaxWidth(),
                                         userScrollEnabled = false
                                     ) {
@@ -701,12 +693,8 @@ fun LineEditorPage(
                                             modifier = Modifier
                                                 .heightIn(max = screenHeight)
                                                 .graphicsLayer { clip = false }
-                                                .reorderable(reorderState)
-                                                .then(
-                                                    if (!isDragging) {
-                                                        Modifier.detectReorderAfterLongPress(reorderState)
-                                                    } else Modifier
-                                                )
+                                                .then(if (!isDragging) Modifier.reorderable(reorderState) else Modifier)
+                                                .then(if (!isDragging) Modifier.detectReorderAfterLongPress(reorderState) else Modifier)
                                                 .fillMaxWidth(),
                                             userScrollEnabled = false
                                         ) {
