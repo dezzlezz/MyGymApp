@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ fun ReorderableExerciseItem(
     index: Int,
     exercise: com.example.mygymapp.model.Exercise,
     onRemove: () -> Unit,
+    onMove: () -> Unit,
     isSupersetSelected: Boolean,
     onSupersetSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -95,6 +97,14 @@ fun ReorderableExerciseItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onRemove) {
                             Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                        }
+                        TextButton(onClick = onMove) {
+                            Text(
+                                "Move",
+                                fontFamily = GaeguRegular,
+                                fontSize = 14.sp,
+                                color = Color.Black
+                            )
                         }
                         Checkbox(
                             checked = isSupersetSelected,

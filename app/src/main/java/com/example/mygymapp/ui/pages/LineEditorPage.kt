@@ -258,6 +258,10 @@ fun LineEditorPage(
                         }
                     }
                     val selectedFilter = remember { mutableStateOf<String?>(null) }
+                    var moveIndex by remember { mutableStateOf<Int?>(null) }
+                    var moveSelectedSection by remember { mutableStateOf<String?>(null) }
+                    var creatingNewSection by remember { mutableStateOf(false) }
+                    var newSectionName by remember { mutableStateOf("") }
                     LaunchedEffect(filterOptions) {
                         if (selectedFilter.value !in filterOptions) selectedFilter.value = null
                     }
@@ -414,6 +418,87 @@ fun LineEditorPage(
                         }
                     }
 
+                    PoeticBottomSheet(
+                        visible = moveIndex != null,
+                        onDismiss = {
+                            moveIndex = null
+                            moveSelectedSection = null
+                            creatingNewSection = false
+                            newSectionName = ""
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 320.dp)
+                                .verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "➕ New Section",
+                                fontFamily = GaeguBold,
+                                fontSize = 18.sp,
+                                color = Color.Black,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        creatingNewSection = true
+                                        moveSelectedSection = null
+                                    }
+                            )
+                            sections.forEach { sec ->
+                                Text(
+                                    text = sec,
+                                    fontFamily = GaeguRegular,
+                                    fontSize = 16.sp,
+                                    color = Color.Black,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            moveSelectedSection = sec
+                                            creatingNewSection = false
+                                        }
+                                )
+                            }
+                            if (creatingNewSection) {
+                                LinedTextField(
+                                    value = newSectionName,
+                                    onValueChange = { newSectionName = it },
+                                    hint = "Section name",
+                                    initialLines = 1,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            GaeguButton(
+                                text = "Move",
+                                onClick = {
+                                    val idx = moveIndex ?: return@GaeguButton
+                                    val target = if (creatingNewSection) newSectionName.trim() else moveSelectedSection
+                                    if (target.isNullOrBlank()) return@GaeguButton
+                                    val ex = selectedExercises[idx]
+                                    val oldSection = ex.section
+                                    selectedExercises.removeAt(idx)
+                                    val insertIdx = selectedExercises.indexOfLast { it.section == target } + 1
+                                    selectedExercises.add(
+                                        insertIdx.coerceIn(0, selectedExercises.size),
+                                        ex.copy(section = target)
+                                    )
+                                    if (target.isNotBlank() && target !in sections) sections.add(target)
+                                    if (oldSection.isNotBlank() && oldSection != target &&
+                                        selectedExercises.none { it.section == oldSection }) {
+                                        sections.remove(oldSection)
+                                    }
+                                    moveIndex = null
+                                    moveSelectedSection = null
+                                    creatingNewSection = false
+                                    newSectionName = ""
+                                },
+                                textColor = Color.Black
+                            )
+                        }
+                    }
+
                     if (selectedExercises.isNotEmpty()) {
                         if (sections.isEmpty()) {
                             Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
@@ -437,6 +522,7 @@ fun LineEditorPage(
                                             selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                         }
                                         var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                        val globalIndex = selectedExercises.indexOf(item)
                                         ReorderableExerciseItem(
                                             index = index,
                                             exercise = item,
@@ -444,6 +530,12 @@ fun LineEditorPage(
                                                 selectedExercises.remove(item)
                                                 removeSuperset(item.id)
                                                 supersetSelection.remove(item.id)
+                                            },
+                                            onMove = {
+                                                moveIndex = globalIndex
+                                                moveSelectedSection = item.section.takeIf { it.isNotBlank() }
+                                                creatingNewSection = false
+                                                newSectionName = ""
                                             },
                                             isSupersetSelected = supersetSelection.contains(item.id),
                                             onSupersetSelectedChange = { checked ->
@@ -571,6 +663,7 @@ fun LineEditorPage(
                                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                 }
                                                 var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                                val globalIndex = selectedExercises.indexOf(item)
                                                 ReorderableExerciseItem(
                                                     index = index,
                                                     exercise = item,
@@ -578,6 +671,12 @@ fun LineEditorPage(
                                                         selectedExercises.remove(item)
                                                         removeSuperset(item.id)
                                                         supersetSelection.remove(item.id)
+                                                    },
+                                                    onMove = {
+                                                        moveIndex = globalIndex
+                                                        moveSelectedSection = item.section.takeIf { it.isNotBlank() }
+                                                        creatingNewSection = false
+                                                        newSectionName = ""
                                                     },
                                                     isSupersetSelected = supersetSelection.contains(item.id),
                                                     onSupersetSelectedChange = { checked ->
@@ -710,6 +809,7 @@ fun LineEditorPage(
                                                         selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                     }
                                                     var itemOffset by remember { mutableStateOf(Offset.Zero) }
+                                                    val globalIndex = selectedExercises.indexOf(item)
                                                     ReorderableExerciseItem(
                                                         index = index,
                                                         exercise = item,
@@ -720,6 +820,12 @@ fun LineEditorPage(
                                                             if (selectedExercises.none { it.section == sectionName }) {
                                                                 sections.remove(sectionName)
                                                             }
+                                                        },
+                                                        onMove = {
+                                                            moveIndex = globalIndex
+                                                            moveSelectedSection = item.section.takeIf { it.isNotBlank() }
+                                                            creatingNewSection = false
+                                                            newSectionName = ""
                                                         },
                                                         isSupersetSelected = supersetSelection.contains(item.id),
                                                         onSupersetSelectedChange = { checked ->
