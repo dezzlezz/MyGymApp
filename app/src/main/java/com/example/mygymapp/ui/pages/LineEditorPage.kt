@@ -427,6 +427,7 @@ fun LineEditorPage(
                             newSectionName = ""
                         }
                     ) {
+                        val presetSections = listOf("Warmup", "Workout", "Cooldown")
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -435,19 +436,7 @@ fun LineEditorPage(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                text = "➕ New Section",
-                                fontFamily = GaeguBold,
-                                fontSize = 18.sp,
-                                color = Color.Black,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        creatingNewSection = true
-                                        moveSelectedSection = null
-                                    }
-                            )
-                            sections.forEach { sec ->
+                            presetSections.forEach { sec ->
                                 Text(
                                     text = sec,
                                     fontFamily = GaeguRegular,
@@ -461,6 +450,18 @@ fun LineEditorPage(
                                         }
                                 )
                             }
+                            Text(
+                                text = "➕ Create Section",
+                                fontFamily = GaeguBold,
+                                fontSize = 18.sp,
+                                color = Color.Black,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        creatingNewSection = true
+                                        moveSelectedSection = null
+                                    }
+                            )
                             if (creatingNewSection) {
                                 LinedTextField(
                                     value = newSectionName,
