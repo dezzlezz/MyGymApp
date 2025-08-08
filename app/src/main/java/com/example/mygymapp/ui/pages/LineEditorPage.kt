@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.toSize
 import android.content.ClipData
 import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
@@ -135,6 +136,7 @@ fun LineEditorPage(
     var draggingSection by remember { mutableStateOf<String?>(null) }
     var dragPreview by remember { mutableStateOf<String?>(null) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
+    val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
 
     fun addSuperset(ids: List<Long>) {
         supersets.removeAll { group -> group.any { it in ids } }
@@ -156,6 +158,22 @@ fun LineEditorPage(
                 supersetSelection.clear()
             }
         } else snackbarHostState.currentSnackbarData?.dismiss()
+    }
+
+    fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
+        val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
+        if (entries.isEmpty()) {
+            val last = selectedExercises.indexOfLast { it.section == sectionName }
+            return if (last >= 0) last + 1 else 0
+        }
+        val closest = entries.minByOrNull { (_, ex) ->
+            val bounds = itemBounds[ex.id]
+            val center = bounds?.let { (it.first + it.second) / 2f } ?: dropY
+            kotlin.math.abs(dropY - center)
+        } ?: return entries.last().index + 1
+        val bounds = itemBounds[closest.value.id]
+        val center = bounds?.let { (it.first + it.second) / 2f } ?: dropY
+        return if (dropY >= center) closest.index + 1 else closest.index
     }
 
     Scaffold(
@@ -383,7 +401,12 @@ fun LineEditorPage(
                                             },
                                             modifier = Modifier
                                                 .animateItemPlacement()
-                                                .onGloballyPositioned { itemOffset = it.positionInWindow() }, // << hier
+                                                .onGloballyPositioned {
+                                                    val topLeft = it.positionInWindow()
+                                                    itemOffset = topLeft
+                                                    val size = it.size.toSize()
+                                                    itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                                },
                                             // >>> Drag NUR AM GRIFF starten
                                             dragHandle = {
                                                 Icon(
@@ -430,20 +453,21 @@ fun LineEditorPage(
                                             onDrop = { transferData: DragAndDropTransferData ->
                                                 val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                                 id?.let { exId ->
+                                                    val dropY = dragPosition.y
+                                                    val insertIdx = findInsertIndexForDrop(sectionName = "", dropY = dropY)
+                                                    val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
                                                     val idx = selectedExercises.indexOfFirst { it.id == exId }
                                                     if (idx >= 0) {
                                                         val item = selectedExercises.removeAt(idx)
                                                         val oldSection = item.section
-                                                        val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
-                                                        selectedExercises.add(insertIdx, item.copy(section = ""))
+                                                        selectedExercises.add(clampedIdx, item.copy(section = ""))
                                                         if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
                                                             sections.remove(oldSection)
                                                         }
                                                     } else {
                                                         allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                            val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
                                                             selectedExercises.add(
-                                                                insertIdx,
+                                                                clampedIdx,
                                                                 LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = "")
                                                             )
                                                             showExerciseSheet.value = false
@@ -497,7 +521,12 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
-                                                        .onGloballyPositioned { itemOffset = it.positionInWindow() }, // << hier
+                                                        .onGloballyPositioned {
+                                                            val topLeft = it.positionInWindow()
+                                                            itemOffset = topLeft
+                                                            val size = it.size.toSize()
+                                                            itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                                        },
                                                     // >>> Drag NUR AM GRIFF
                                                     dragHandle = {
                                                         Icon(
@@ -546,21 +575,22 @@ fun LineEditorPage(
                                             onDrop = { transferData: DragAndDropTransferData ->
                                                 val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                                 id?.let { exId ->
+                                                    val dropY = dragPosition.y
+                                                    val insertIdx = findInsertIndexForDrop(sectionName, dropY)
+                                                    val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
                                                     val idx = selectedExercises.indexOfFirst { it.id == exId }
                                                     if (idx >= 0) {
                                                         val item = selectedExercises.removeAt(idx)
                                                         val oldSection = item.section
-                                                        val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
-                                                        selectedExercises.add(insertIdx, item.copy(section = sectionName))
+                                                        selectedExercises.add(clampedIdx, item.copy(section = sectionName))
                                                         if (oldSection.isNotBlank() && oldSection != sectionName &&
                                                             selectedExercises.none { it.section == oldSection }) {
                                                             sections.remove(oldSection)
                                                         }
                                                     } else {
                                                         allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                            val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
                                                             selectedExercises.add(
-                                                                insertIdx,
+                                                                clampedIdx,
                                                                 LineExercise(
                                                                     id = ex.id,
                                                                     name = ex.name,
@@ -626,7 +656,12 @@ fun LineEditorPage(
                                                         },
                                                         modifier = Modifier
                                                             .animateItemPlacement()
-                                                            .onGloballyPositioned { itemOffset = it.positionInWindow() }, // << hier
+                                                            .onGloballyPositioned {
+                                                                val topLeft = it.positionInWindow()
+                                                                itemOffset = topLeft
+                                                                val size = it.size.toSize()
+                                                                itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                                            },
                                                         // >>> Drag NUR AM GRIFF
                                                         dragHandle = {
                                                             Icon(
