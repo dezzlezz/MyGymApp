@@ -57,6 +57,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalDensity
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -218,7 +219,7 @@ fun LineEditorPage(
                 Modifier
                     .fillMaxSize()
                     .onGloballyPositioned { coords ->
-                        rootWindowTopLeft = coords.positionInRoot()
+                        rootWindowTopLeft = coords.positionInWindow()
                     }
             ) {
 
@@ -371,7 +372,7 @@ fun LineEditorPage(
                                                 .fillMaxWidth()
                                                 .padding(vertical = 4.dp)
                                                 .onGloballyPositioned {
-                                                    handleOffset = it.positionInRoot()
+                                                    handleOffset = it.positionInWindow()
                                                 }
                                                 .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
                                                 .pointerInput(draggingExerciseId) {
@@ -551,7 +552,7 @@ fun LineEditorPage(
                                                     .zIndex(if (isDragging) 1000f else 0f)
                                                     .animateItem()
                                                     .onGloballyPositioned {
-                                                        val topLeft = it.positionInRoot()
+                                                        val topLeft = it.positionInWindow()
                                                         itemOffset = topLeft
                                                         val size = it.size.toSize()
                                                         itemBounds[item.id] =
@@ -569,7 +570,7 @@ fun LineEditorPage(
                                                         tint = Color.Gray,
                                                         modifier = Modifier
                                                             .onGloballyPositioned {
-                                                                handleOffset = it.positionInRoot()
+                                                                handleOffset = it.positionInWindow()
                                                             }
                                                             .pointerInput(draggingExerciseId) {
                                                                 detectDragGesturesAfterLongPress(
@@ -661,7 +662,7 @@ fun LineEditorPage(
                                         modifier = Modifier
                                             .zIndex(if (draggingSection == "") 1f else 0f)
                                             .onGloballyPositioned {
-                                                val top = it.positionInRoot().y
+                                                val top = it.positionInWindow().y
                                                 val bottom = top + it.size.height
                                                 sectionBounds[""] = top to bottom
                                             },
@@ -742,7 +743,7 @@ fun LineEditorPage(
                                                             .zIndex(if (isDragging) 1000f else 0f)
                                                             .animateItemPlacement()
                                                             .onGloballyPositioned {
-                                                                val topLeft = it.positionInRoot()
+                                                                val topLeft = it.positionInWindow()
                                                                 itemOffset = topLeft
                                                                 val size = it.size.toSize()
                                                                 itemBounds[item.id] =
@@ -761,7 +762,7 @@ fun LineEditorPage(
                                                                 modifier = Modifier
                                                                     .onGloballyPositioned {
                                                                         handleOffset =
-                                                                            it.positionInRoot()
+                                                                            it.positionInWindow()
                                                                     }
                                                                     .pointerInput(draggingExerciseId) {
                                                                         detectDragGesturesAfterLongPress(
@@ -864,7 +865,7 @@ fun LineEditorPage(
                                         modifier = Modifier
                                             .zIndex(if (draggingSection == sectionName) 1f else 0f)
                                             .onGloballyPositioned {
-                                                val top = it.positionInRoot().y
+                                                val top = it.positionInWindow().y
                                                 val bottom = top + it.size.height
                                                 sectionBounds[sectionName] = top to bottom
                                             },
@@ -957,7 +958,7 @@ fun LineEditorPage(
                                                                 .animateItemPlacement()
                                                                 .onGloballyPositioned {
                                                                     val topLeft =
-                                                                        it.positionInRoot()
+                                                                        it.positionInWindow()
                                                                     itemOffset = topLeft
                                                                     val size = it.size.toSize()
                                                                     itemBounds[item.id] =
@@ -976,7 +977,7 @@ fun LineEditorPage(
                                                                     modifier = Modifier
                                                                         .onGloballyPositioned {
                                                                             handleOffset =
-                                                                                it.positionInRoot()
+                                                                                it.positionInWindow()
                                                                         }
                                                                         .pointerInput(
                                                                             draggingExerciseId
@@ -1247,26 +1248,6 @@ fun LineEditorPage(
                         }
                     }
                 }
-
-                if (isDragging && dragPreview != null) {
-                    val y = dragPosition.y
-                    val x = 24.dp.toPx()
-
-                    PoeticCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer(
-                                translationX = x,
-                                translationY = y,
-                                clip = false
-                            )
-                            .zIndex(100_000f),
-                        elevation = 8.dp
-                    ) {
-                        Text(dragPreview!!, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
-                    }
-                }
-
 
 
             }
