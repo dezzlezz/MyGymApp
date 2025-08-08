@@ -249,7 +249,6 @@ fun LineEditorPage(
 
                     PoeticDivider(centerText = "Which movements do you want to add?")
                     val showExerciseSheet = remember { mutableStateOf(false) }
-                    val showSectionSheet = remember { mutableStateOf(false) }
                     val exerciseSearch = remember { mutableStateOf("") }
                     val filterOptions by remember {
                         derivedStateOf {
@@ -258,6 +257,10 @@ fun LineEditorPage(
                         }
                     }
                     val selectedFilter = remember { mutableStateOf<String?>(null) }
+                    var showMoveSheet by remember { mutableStateOf(false) }
+                    var moveSelectedOption by remember { mutableStateOf<String?>(null) }
+                    var moveCustomName by remember { mutableStateOf("") }
+                    val moveSelection = remember { mutableStateListOf<Long>() }
                     LaunchedEffect(filterOptions) {
                         if (selectedFilter.value !in filterOptions) selectedFilter.value = null
                     }
@@ -414,6 +417,85 @@ fun LineEditorPage(
                         }
                     }
 
+                    PoeticBottomSheet(
+                        visible = showMoveSheet,
+                        onDismiss = {
+                            showMoveSheet = false
+                            moveSelection.clear()
+                            moveSelectedOption = null
+                            moveCustomName = ""
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            PoeticRadioChips(
+                                options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
+                                selected = moveSelectedOption ?: "",
+                                onSelected = { moveSelectedOption = it },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (moveSelectedOption == "Custom") {
+                                Spacer(Modifier.height(12.dp))
+                                LinedTextField(
+                                    value = moveCustomName,
+                                    onValueChange = { moveCustomName = it },
+                                    hint = "Section name",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    initialLines = 1
+                                )
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            LazyColumn(
+                                modifier = Modifier.heightIn(max = 240.dp).fillMaxWidth()
+                            ) {
+                                items(selectedExercises) { ex ->
+                                    val checked = moveSelection.contains(ex.id)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp)
+                                            .clickable {
+                                                if (checked) moveSelection.remove(ex.id) else moveSelection.add(ex.id)
+                                            }
+                                    ) {
+                                        Checkbox(checked = checked, onCheckedChange = null)
+                                        Text(
+                                            ex.name,
+                                            fontFamily = GaeguRegular,
+                                            color = Color.Black,
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            GaeguButton(
+                                text = "Move",
+                                onClick = {
+                                    val name = if (moveSelectedOption == "Custom") moveCustomName else moveSelectedOption ?: ""
+                                    if (name.isNotBlank()) {
+                                        if (!sections.contains(name)) sections.add(name)
+                                        val affected = mutableSetOf<String>()
+                                        selectedExercises.forEachIndexed { idx, ex ->
+                                            if (moveSelection.contains(ex.id)) {
+                                                affected.add(ex.section)
+                                                selectedExercises[idx] = ex.copy(section = name)
+                                            }
+                                        }
+                                        affected.filter { it.isNotBlank() && it != name && selectedExercises.none { ex -> ex.section == it } }
+                                            .forEach { sections.remove(it) }
+                                    }
+                                    showMoveSheet = false
+                                    moveSelection.clear(); moveSelectedOption = null; moveCustomName = ""
+                                },
+                                textColor = Color.Black
+                            )
+                        }
+                    }
+
                     if (selectedExercises.isNotEmpty()) {
                         if (sections.isEmpty()) {
                             Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
@@ -444,6 +526,13 @@ fun LineEditorPage(
                                                 selectedExercises.remove(item)
                                                 removeSuperset(item.id)
                                                 supersetSelection.remove(item.id)
+                                            },
+                                            onMove = {
+                                                showMoveSheet = true
+                                                moveSelection.clear()
+                                                moveSelection.add(item.id)
+                                                moveSelectedOption = null
+                                                moveCustomName = ""
                                             },
                                             isSupersetSelected = supersetSelection.contains(item.id),
                                             onSupersetSelectedChange = { checked ->
@@ -578,6 +667,13 @@ fun LineEditorPage(
                                                         selectedExercises.remove(item)
                                                         removeSuperset(item.id)
                                                         supersetSelection.remove(item.id)
+                                                    },
+                                                    onMove = {
+                                                        showMoveSheet = true
+                                                        moveSelection.clear()
+                                                        moveSelection.add(item.id)
+                                                        moveSelectedOption = null
+                                                        moveCustomName = ""
                                                     },
                                                     isSupersetSelected = supersetSelection.contains(item.id),
                                                     onSupersetSelectedChange = { checked ->
@@ -721,6 +817,13 @@ fun LineEditorPage(
                                                                 sections.remove(sectionName)
                                                             }
                                                         },
+                                                        onMove = {
+                                                            showMoveSheet = true
+                                                            moveSelection.clear()
+                                                            moveSelection.add(item.id)
+                                                            moveSelectedOption = null
+                                                            moveCustomName = ""
+                                                        },
                                                         isSupersetSelected = supersetSelection.contains(item.id),
                                                         onSupersetSelectedChange = { checked ->
                                                             if (checked) {
@@ -808,78 +911,6 @@ fun LineEditorPage(
                                 }
                             }
                         }
-                    }
-
-                    GaeguButton(
-                        text = "➕ Create Section",
-                        onClick = { showSectionSheet.value = true },
-                        textColor = Color.Black
-                    )
-
-                    // (unverändert) – Section erstellen …
-                    PoeticBottomSheet(
-                        visible = showSectionSheet.value,
-                        onDismiss = { showSectionSheet.value = false }
-                    ) {
-                        var selectedOption by remember { mutableStateOf<String?>(null) }
-                        var customName by remember { mutableStateOf("") }
-                        val selection = remember { mutableStateListOf<Long>() }
-
-                        PoeticRadioChips(
-                            options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
-                            selected = selectedOption ?: "",
-                            onSelected = { selectedOption = it },
-                            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
-                        )
-
-                        if (selectedOption == "Custom") {
-                            Spacer(Modifier.height(12.dp))
-                            LinedTextField(
-                                value = customName,
-                                onValueChange = { customName = it },
-                                hint = "Section name",
-                                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
-                                initialLines = 1
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-                        LazyColumn(
-                            modifier = Modifier.heightIn(max = 240.dp).fillMaxWidth()
-                        ) {
-                            items(selectedExercises) { ex ->
-                                val checked = selection.contains(ex.id)
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp)
-                                        .clickable {
-                                            if (checked) selection.remove(ex.id) else selection.add(ex.id)
-                                        }
-                                ) {
-                                    Checkbox(checked = checked, onCheckedChange = null)
-                                    Text(ex.name, fontFamily = GaeguRegular, color = Color.Black, modifier = Modifier.padding(start = 8.dp))
-                                }
-                            }
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-                        GaeguButton(
-                            text = "Add",
-                            onClick = {
-                                val name = if (selectedOption == "Custom") customName else selectedOption ?: ""
-                                if (name.isNotBlank()) {
-                                    if (!sections.contains(name)) sections.add(name)
-                                    selectedExercises.forEachIndexed { idx, ex ->
-                                        if (selection.contains(ex.id)) selectedExercises[idx] = ex.copy(section = name)
-                                    }
-                                }
-                                showSectionSheet.value = false
-                                selection.clear(); selectedOption = null; customName = ""
-                            },
-                            textColor = Color.Black
-                        )
                     }
 
                     PoeticDivider()
