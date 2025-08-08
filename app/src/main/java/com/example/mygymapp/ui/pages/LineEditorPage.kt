@@ -19,6 +19,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -138,6 +139,7 @@ fun LineEditorPage(
     var draggingSection by remember { mutableStateOf<String?>(null) }
     var dragPreview by remember { mutableStateOf<String?>(null) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
+    var draggingExerciseId by remember { mutableStateOf<Long?>(null) }
     val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
 
     fun addSuperset(ids: List<Long>) {
@@ -327,6 +329,7 @@ fun LineEditorPage(
                                             .fillMaxWidth()
                                             .padding(vertical = 4.dp)
                                             .onGloballyPositioned { cardOffset = it.positionInWindow() } // << hier
+                                            .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
                                             .dragAndDropSource(
                                                 dataProvider = {
                                                     DragAndDropTransferData(
@@ -335,10 +338,14 @@ fun LineEditorPage(
                                                 },
                                                 onDragStart = {
                                                     dragPreview = ex.name
+                                                    draggingExerciseId = ex.id
                                                     showExerciseSheet.value = false
                                                 },
                                                 onDrag = { dragPosition = it + cardOffset },      // << hier
-                                                onDragEnd = { dragPreview = null }
+                                                onDragEnd = {
+                                                    dragPreview = null
+                                                    draggingExerciseId = null
+                                                }
                                             )
                                             .clickable {
                                                 if (selectedExercises.none { it.id == ex.id }) {
@@ -403,6 +410,7 @@ fun LineEditorPage(
                                             },
                                             modifier = Modifier
                                                 .zIndex(if (isDragging) 1000f else 0f)
+                                                .alpha(if (draggingExerciseId == item.id) 0f else 1f)
                                                 .animateItemPlacement()
                                                 .onGloballyPositioned {
                                                     val topLeft = it.positionInWindow()
@@ -426,11 +434,13 @@ fun LineEditorPage(
                                                             onDragStart = {
                                                                 draggingSection = item.section
                                                                 dragPreview = item.name
+                                                                draggingExerciseId = item.id
                                                             },
                                                             onDrag = { dragPosition = it + itemOffset }, // << hier
                                                             onDragEnd = {
                                                                 draggingSection = null
                                                                 dragPreview = null
+                                                                draggingExerciseId = null
                                                             }
                                                         )
                                                         .detectReorderAfterLongPress(reorderState) // Reorder weiterhin am Griff
@@ -527,6 +537,7 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .zIndex(if (isDragging) 1000f else 0f)
+                                                        .alpha(if (draggingExerciseId == item.id) 0f else 1f)
                                                         .animateItemPlacement()
                                                         .onGloballyPositioned {
                                                             val topLeft = it.positionInWindow()
@@ -550,11 +561,13 @@ fun LineEditorPage(
                                                                     onDragStart = {
                                                                         draggingSection = item.section
                                                                         dragPreview = item.name
+                                                                        draggingExerciseId = item.id
                                                                     },
                                                                     onDrag = { dragPosition = it + itemOffset }, // << hier
                                                                     onDragEnd = {
                                                                         draggingSection = null
                                                                         dragPreview = null
+                                                                        draggingExerciseId = null
                                                                     }
                                                                 )
                                                                 .detectReorderAfterLongPress(reorderState)
@@ -666,6 +679,7 @@ fun LineEditorPage(
                                                         },
                                                         modifier = Modifier
                                                             .zIndex(if (isDragging) 1000f else 0f)
+                                                            .alpha(if (draggingExerciseId == item.id) 0f else 1f)
                                                             .animateItemPlacement()
                                                             .onGloballyPositioned {
                                                                 val topLeft = it.positionInWindow()
@@ -691,11 +705,13 @@ fun LineEditorPage(
                                                                         onDragStart = {
                                                                             draggingSection = item.section
                                                                             dragPreview = item.name
+                                                                            draggingExerciseId = item.id
                                                                         },
                                                                         onDrag = { dragPosition = it + itemOffset }, // << hier
                                                                         onDragEnd = {
                                                                             draggingSection = null
                                                                             dragPreview = null
+                                                                            draggingExerciseId = null
                                                                         }
                                                                     )
                                                                     .detectReorderAfterLongPress(reorderState)
@@ -821,19 +837,35 @@ fun LineEditorPage(
                 }
 
                 // Drag Preview (Koordinaten jetzt konsistent in Window-Space)
-                dragPreview?.let { preview ->
-                    Popup(
-                        alignment = Alignment.TopStart,
-                        offset = IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()),
-                        properties = PopupProperties(
-                            focusable = false,
-                            dismissOnClickOutside = false,
-                            dismissOnBackPress = false,
-                            clippingEnabled = false
-                        )
-                    ) {
-                        PoeticCard {
-                            Text(preview, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                draggingExerciseId?.let { id ->
+                    val lineExercise = selectedExercises.find { it.id == id }
+                    val previewName = lineExercise?.name ?: allExercises.find { it.id == id }?.name
+                    previewName?.let { name ->
+                        Popup(
+                            alignment = Alignment.TopStart,
+                            offset = IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()),
+                            properties = PopupProperties(
+                                focusable = false,
+                                dismissOnClickOutside = false,
+                                dismissOnBackPress = false,
+                                clippingEnabled = false
+                            )
+                        ) {
+                            PoeticCard {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                                    lineExercise?.let {
+                                        Text(
+                                            "${it.sets} x ${it.repsOrDuration}",
+                                            fontFamily = GaeguRegular,
+                                            fontSize = 12.sp,
+                                            color = Color.Black
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
