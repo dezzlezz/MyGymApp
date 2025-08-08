@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -138,8 +139,6 @@ fun LineEditorPage(
     var draggingExerciseId by remember { mutableStateOf<Long?>(null) }
     val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
     var isDragging by remember { mutableStateOf(false) }
-    var dragStartPointer by remember { mutableStateOf(Offset.Zero) }
-    var dragStartLocal by remember { mutableStateOf(Offset.Zero) }
     val sectionBounds = remember { mutableStateMapOf<String, Pair<Float, Float>>() }
     var hoveredSection by remember { mutableStateOf<String?>(null) }
 
@@ -324,12 +323,12 @@ fun LineEditorPage(
                                 modifier = Modifier.heightIn(max = 320.dp).fillMaxWidth()
                             ) {
                                 items(filteredExercises, key = { it.id }) { ex ->
-                                    var cardOffset by remember { mutableStateOf(Offset.Zero) }
+                                    var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                     PoeticCard(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(vertical = 4.dp)
-                                            .onGloballyPositioned { cardOffset = it.positionInWindow() }
+                                            .onGloballyPositioned { handleOffset = it.positionInWindow() }
                                             .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
                                             .pointerInput(Unit) {
                                                 detectDragGesturesAfterLongPress(
@@ -338,14 +337,13 @@ fun LineEditorPage(
                                                         dragPreview = ex.name
                                                         draggingExerciseId = ex.id
                                                         draggingSection = ""
-                                                        dragStartLocal = offset
-                                                        dragStartPointer = cardOffset + offset
-                                                        dragPosition = dragStartPointer
+                                                        dragPosition = handleOffset + offset
                                                         showExerciseSheet.value = false
                                                     },
                                                     onDrag = { change, _ ->
                                                         change.consume()
-                                                        dragPosition = dragStartPointer + (change.position - dragStartLocal)
+                                                        val currentGlobal = handleOffset + change.position
+                                                        dragPosition = currentGlobal
                                                         hoveredSection = sectionBounds.entries.find { entry ->
                                                             dragPosition.y in entry.value.first..entry.value.second
                                                         }?.key
@@ -426,7 +424,11 @@ fun LineEditorPage(
                                     .heightIn(max = screenHeight)
                                     .graphicsLayer { clip = false }
                                     .reorderable(reorderState)
-                                    .detectReorderAfterLongPress(reorderState)
+                                    .then(
+                                        if (!isDragging) {
+                                            Modifier.detectReorderAfterLongPress(reorderState)
+                                        } else Modifier
+                                    )
                                     .fillMaxWidth(),
                                 userScrollEnabled = false
                             ) {
@@ -476,13 +478,12 @@ fun LineEditorPage(
                                                                     draggingSection = item.section
                                                                     dragPreview = item.name
                                                                     draggingExerciseId = item.id
-                                                                    dragStartLocal = offset
-                                                                    dragStartPointer = handleOffset + offset
-                                                                    dragPosition = dragStartPointer
+                                                                    dragPosition = handleOffset + offset
                                                                 },
                                                                 onDrag = { change, _ ->
                                                                     change.consume()
-                                                                    dragPosition = dragStartPointer + (change.position - dragStartLocal)
+                                                                    val currentGlobal = handleOffset + change.position
+                                                                    dragPosition = currentGlobal
                                                                     hoveredSection = sectionBounds.entries.find { entry ->
                                                                         dragPosition.y in entry.value.first..entry.value.second
                                                                     }?.key
@@ -560,7 +561,11 @@ fun LineEditorPage(
                                             .heightIn(max = screenHeight)
                                             .graphicsLayer { clip = false }
                                             .reorderable(reorderState)
-                                            .detectReorderAfterLongPress(reorderState)
+                                            .then(
+                                                if (!isDragging) {
+                                                    Modifier.detectReorderAfterLongPress(reorderState)
+                                                } else Modifier
+                                            )
                                             .fillMaxWidth(),
                                         userScrollEnabled = false
                                     ) {
@@ -610,13 +615,12 @@ fun LineEditorPage(
                                                                                 draggingSection = item.section
                                                                                 dragPreview = item.name
                                                                                 draggingExerciseId = item.id
-                                                                                dragStartLocal = offset
-                                                                                dragStartPointer = handleOffset + offset
-                                                                                dragPosition = dragStartPointer
+                                                                                dragPosition = handleOffset + offset
                                                                             },
                                                                             onDrag = { change, _ ->
                                                                                 change.consume()
-                                                                                dragPosition = dragStartPointer + (change.position - dragStartLocal)
+                                                                                val currentGlobal = handleOffset + change.position
+                                                                                dragPosition = currentGlobal
                                                                                 hoveredSection = sectionBounds.entries.find { entry ->
                                                                                     dragPosition.y in entry.value.first..entry.value.second
                                                                                 }?.key
@@ -699,7 +703,11 @@ fun LineEditorPage(
                                                 .heightIn(max = screenHeight)
                                                 .graphicsLayer { clip = false }
                                                 .reorderable(reorderState)
-                                                .detectReorderAfterLongPress(reorderState)
+                                                .then(
+                                                    if (!isDragging) {
+                                                        Modifier.detectReorderAfterLongPress(reorderState)
+                                                    } else Modifier
+                                                )
                                                 .fillMaxWidth(),
                                             userScrollEnabled = false
                                         ) {
@@ -752,13 +760,12 @@ fun LineEditorPage(
                                                                                 draggingSection = item.section
                                                                                 dragPreview = item.name
                                                                                 draggingExerciseId = item.id
-                                                                                dragStartLocal = offset
-                                                                                dragStartPointer = handleOffset + offset
-                                                                                dragPosition = dragStartPointer
+                                                                                dragPosition = handleOffset + offset
                                                                             },
                                                                             onDrag = { change, _ ->
                                                                                 change.consume()
-                                                                                dragPosition = dragStartPointer + (change.position - dragStartLocal)
+                                                                                val currentGlobal = handleOffset + change.position
+                                                                                dragPosition = currentGlobal
                                                                                 hoveredSection = sectionBounds.entries.find { entry ->
                                                                                     dragPosition.y in entry.value.first..entry.value.second
                                                                                 }?.key
@@ -918,17 +925,21 @@ fun LineEditorPage(
                 }
             }
 
+            // Render drag preview last so it appears above background and floating items
             if (isDragging && draggingExerciseId != null) {
                 val id = draggingExerciseId!!
                 val lineExercise = selectedExercises.find { it.id == id }
                 val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
                 previewName?.let { name ->
+                    val density = LocalDensity.current
+                    val offsetX = with(density) { dragPosition.x.toDp() }
+                    val offsetY = with(density) { dragPosition.y.toDp() }
                     Box(
                         Modifier
                             .zIndex(999f)
                             .absoluteOffset(
-                                x = dragPosition.x.dp,
-                                y = dragPosition.y.dp
+                                x = offsetX,
+                                y = offsetY
                             )
                     ) {
                         PoeticCard {
