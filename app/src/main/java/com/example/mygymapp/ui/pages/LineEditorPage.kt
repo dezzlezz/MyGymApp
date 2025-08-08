@@ -426,7 +426,11 @@ fun LineEditorPage(
                                     .heightIn(max = screenHeight)
                                     .graphicsLayer { clip = false }
                                     .reorderable(reorderState)
-                                    .detectReorderAfterLongPress(reorderState)
+                                    .then(
+                                        if (!isDragging || draggingSection == "") {
+                                            Modifier.detectReorderAfterLongPress(reorderState)
+                                        } else Modifier
+                                    )
                                     .fillMaxWidth(),
                                 userScrollEnabled = false
                             ) {
@@ -560,7 +564,11 @@ fun LineEditorPage(
                                             .heightIn(max = screenHeight)
                                             .graphicsLayer { clip = false }
                                             .reorderable(reorderState)
-                                            .detectReorderAfterLongPress(reorderState)
+                                            .then(
+                                                if (!isDragging || draggingSection == "") {
+                                                    Modifier.detectReorderAfterLongPress(reorderState)
+                                                } else Modifier
+                                            )
                                             .fillMaxWidth(),
                                         userScrollEnabled = false
                                     ) {
@@ -699,7 +707,11 @@ fun LineEditorPage(
                                                 .heightIn(max = screenHeight)
                                                 .graphicsLayer { clip = false }
                                                 .reorderable(reorderState)
-                                                .detectReorderAfterLongPress(reorderState)
+                                                .then(
+                                                    if (!isDragging || draggingSection == sectionName) {
+                                                        Modifier.detectReorderAfterLongPress(reorderState)
+                                                    } else Modifier
+                                                )
                                                 .fillMaxWidth(),
                                             userScrollEnabled = false
                                         ) {
@@ -918,6 +930,7 @@ fun LineEditorPage(
                 }
             }
 
+            // Render drag preview last so it appears above background and floating items
             if (isDragging && draggingExerciseId != null) {
                 val id = draggingExerciseId!!
                 val lineExercise = selectedExercises.find { it.id == id }
