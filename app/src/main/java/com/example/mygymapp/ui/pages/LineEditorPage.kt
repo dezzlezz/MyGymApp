@@ -1087,5 +1087,3 @@ fun LineEditorPage(
 
             }
         }
-    }
-}
