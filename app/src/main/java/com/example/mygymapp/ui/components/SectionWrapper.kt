@@ -27,6 +27,8 @@ fun SectionWrapper(
 ) {
     Box(
         modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 64.dp)
             .padding(vertical = 12.dp)
             .drawBehind {
                 val stroke = 2.dp.toPx()

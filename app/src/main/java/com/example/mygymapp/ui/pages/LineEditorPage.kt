@@ -25,13 +25,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import android.content.ClipData
 import android.net.Uri
 import com.example.mygymapp.ui.util.DragAndDropTransferData
 import com.example.mygymapp.ui.util.dragAndDropSource
 import com.example.mygymapp.ui.util.dragAndDropTarget
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,6 +57,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import androidx.navigation.NavController
+import androidx.compose.runtime.mutableStateMapOf
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -134,6 +136,7 @@ fun LineEditorPage(
     var draggingSection by remember { mutableStateOf<String?>(null) }
     var dragPreview by remember { mutableStateOf<String?>(null) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
+    val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
 
     /**
      * Replace any groups containing the supplied ids and store the new grouping.
@@ -338,7 +341,7 @@ fun LineEditorPage(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
-                                        .onGloballyPositioned { cardOffset = it.positionInRoot() }
+                                        .onGloballyPositioned { cardOffset = it.positionInWindow() }
                                         .dragAndDropSource(
                                             dataProvider = {
                                                 DragAndDropTransferData(
@@ -452,6 +455,24 @@ fun LineEditorPage(
                         val unassignedItems by remember(selectedExercises) {
                             derivedStateOf { selectedExercises.filter { it.section.isBlank() } }
                         }
+
+                        fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
+                            val candidates = selectedExercises.withIndex()
+                                .filter { it.value.section == sectionName }
+                            if (candidates.isEmpty()) {
+                                val last = selectedExercises.indexOfLast { it.section == sectionName }
+                                return if (last >= 0) last + 1 else 0
+                            }
+                            val closest = candidates.minBy { (_, ex) ->
+                                val bounds = itemBounds[ex.id] ?: return@minBy Float.MAX_VALUE
+                                val center = (bounds.first + bounds.second) / 2f
+                                kotlin.math.abs(dropY - center)
+                            }
+                            val bounds = itemBounds[closest.value.id]!!
+                            val center = (bounds.first + bounds.second) / 2f
+                            return if (dropY >= center) closest.index + 1 else closest.index
+                        }
+
                         if (unassignedItems.isNotEmpty()) {
                             SectionWrapper(
                                 title = "Unassigned",
@@ -462,27 +483,28 @@ fun LineEditorPage(
                                         onDrop = { transferData: DragAndDropTransferData ->
                                             val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                             id?.let { exId ->
-                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                if (idx >= 0) {
-                                                    val item = selectedExercises.removeAt(idx)
+                                                val dropY = dragPosition.y
+                                                val insertIdx = findInsertIndexForDrop("", dropY)
+                                                val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                val existingIdx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (existingIdx >= 0) {
+                                                    val item = selectedExercises.removeAt(existingIdx)
                                                     val oldSection = item.section
-                                                    val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
-                                                    selectedExercises.add(insertIdx, item.copy(section = ""))
+                                                    selectedExercises.add(clampedIdx, item.copy(section = ""))
                                                     if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
                                                         sections.remove(oldSection)
                                                     }
                                                 } else {
                                                     allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                        val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
                                                         selectedExercises.add(
-                                                            insertIdx,
+                                                            clampedIdx,
                                                             LineExercise(
                                                                 id = ex.id,
                                                                 name = ex.name,
                                                                 sets = 3,
                                                                 repsOrDuration = "10",
-                                                                section = ""
-                                                            )
+                                                                section = "",
+                                                        )
                                                         )
                                                         showExerciseSheet.value = false
                                                     }
@@ -507,7 +529,6 @@ fun LineEditorPage(
                                             selectedExercises.move(fromIdx, toIdx)
                                         }
                                     }
-                                )
                                 LazyColumn(
                                     state = reorderState.listState,
                                     modifier = Modifier
@@ -549,7 +570,12 @@ fun LineEditorPage(
                                                 },
                                                 modifier = Modifier
                                                     .animateItemPlacement()
-                                                    .onGloballyPositioned { itemOffset = it.positionInRoot() }
+                                                    .onGloballyPositioned { coords ->
+                                                        val topLeft = coords.positionInWindow()
+                                                        val size = coords.size.toSize()
+                                                        itemOffset = topLeft
+                                                        itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                                    }
                                                     .dragAndDropSource(
                                                         dataProvider = {
                                                             DragAndDropTransferData(
@@ -600,26 +626,27 @@ fun LineEditorPage(
                                         onDrop = { transferData: DragAndDropTransferData ->
                                             val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
                                             id?.let { exId ->
-                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                if (idx >= 0) {
-                                                    val item = selectedExercises.removeAt(idx)
+                                                val dropY = dragPosition.y
+                                                val insertIdx = findInsertIndexForDrop(sectionName, dropY)
+                                                val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                val existingIdx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (existingIdx >= 0) {
+                                                    val item = selectedExercises.removeAt(existingIdx)
                                                     val oldSection = item.section
-                                                    val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
-                                                    selectedExercises.add(insertIdx, item.copy(section = sectionName))
+                                                    selectedExercises.add(clampedIdx, item.copy(section = sectionName))
                                                     if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
                                                         sections.remove(oldSection)
                                                     }
                                                 } else {
                                                     allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                        val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
                                                         selectedExercises.add(
-                                                            insertIdx,
+                                                            clampedIdx,
                                                             LineExercise(
                                                                 id = ex.id,
                                                                 name = ex.name,
                                                                 sets = 3,
                                                                 repsOrDuration = "10",
-                                                                section = sectionName
+                                                                section = sectionName,
                                                             )
                                                         )
                                                         showExerciseSheet.value = false
@@ -693,7 +720,12 @@ fun LineEditorPage(
                                                     },
                                                     modifier = Modifier
                                                         .animateItemPlacement()
-                                                        .onGloballyPositioned { itemOffset = it.positionInRoot() }
+                                                        .onGloballyPositioned { coords ->
+                                                            val topLeft = coords.positionInWindow()
+                                                            val size = coords.size.toSize()
+                                                            itemOffset = topLeft
+                                                            itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                                        }
                                                         .dragAndDropSource(
                                                             dataProvider = {
                                                                 DragAndDropTransferData(
