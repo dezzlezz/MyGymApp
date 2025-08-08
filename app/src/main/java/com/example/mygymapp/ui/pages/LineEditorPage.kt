@@ -284,7 +284,10 @@ fun LineEditorPage(
                     // --- Exercise Picker Sheet (Drag-Quelle am Card-Body lassen, aber Window-Koords nutzen) ---
                     PoeticBottomSheet(
                         visible = showExerciseSheet.value,
-                        onDismiss = { showExerciseSheet.value = false }
+                        onDismiss = {
+                            showExerciseSheet.value = false
+                            hoveredSection = null
+                        }
                     ) {
                         LinedTextField(
                             value = exerciseSearch.value,
@@ -329,7 +332,7 @@ fun LineEditorPage(
                                             .padding(vertical = 4.dp)
                                             .onGloballyPositioned { handleOffset = it.positionInWindow() }
                                             .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
-                                            .pointerInput(Unit) {
+                                            .pointerInput(draggingExerciseId) {
                                                 detectDragGesturesAfterLongPress(
                                                     onDragStart = { offset ->
                                                         isDragging = true
@@ -466,7 +469,7 @@ fun LineEditorPage(
                                                     tint = Color.Gray,
                                                     modifier = Modifier
                                                         .onGloballyPositioned { handleOffset = it.positionInWindow() }
-                                                        .pointerInput(Unit) {
+                                                        .pointerInput(draggingExerciseId) {
                                                             detectDragGesturesAfterLongPress(
                                                                 onDragStart = { offset ->
                                                                     isDragging = true
@@ -599,7 +602,7 @@ fun LineEditorPage(
                                                                 tint = Color.Gray,
                                                                 modifier = Modifier
                                                                     .onGloballyPositioned { handleOffset = it.positionInWindow() }
-                                                                    .pointerInput(Unit) {
+                                                                    .pointerInput(draggingExerciseId) {
                                                                         detectDragGesturesAfterLongPress(
                                                                             onDragStart = { offset ->
                                                                                 isDragging = true
@@ -740,7 +743,7 @@ fun LineEditorPage(
                                                                 tint = Color.Gray,
                                                                 modifier = Modifier
                                                                     .onGloballyPositioned { handleOffset = it.positionInWindow() }
-                                                                    .pointerInput(Unit) {
+                                                                    .pointerInput(draggingExerciseId) {
                                                                         detectDragGesturesAfterLongPress(
                                                                             onDragStart = { offset ->
                                                                                 isDragging = true
@@ -813,7 +816,10 @@ fun LineEditorPage(
                     // (unverändert) – Section erstellen …
                     PoeticBottomSheet(
                         visible = showSectionSheet.value,
-                        onDismiss = { showSectionSheet.value = false }
+                        onDismiss = {
+                            showSectionSheet.value = false
+                            hoveredSection = null
+                        }
                     ) {
                         var selectedOption by remember { mutableStateOf<String?>(null) }
                         var customName by remember { mutableStateOf("") }
