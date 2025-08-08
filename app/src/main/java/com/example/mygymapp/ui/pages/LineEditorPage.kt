@@ -132,7 +132,6 @@ fun LineEditorPage(
 
     var showError by remember { mutableStateOf(false) }
 
-    // --- DnD Preview/State (unverändert, aber konsistente Window-Koordinaten) ---
     var draggingSection by remember { mutableStateOf<String?>(null) }
     var dragPreview by remember { mutableStateOf<String?>(null) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
@@ -314,7 +313,6 @@ fun LineEditorPage(
                             textColor = Color.Black
                         )
 
-                        // --- Exercise Picker Sheet (Drag-Quelle am Card-Body lassen, aber Window-Koords nutzen) ---
                         PoeticBottomSheet(
                             visible = showExerciseSheet.value,
                             onDismiss = {
@@ -1087,7 +1085,6 @@ fun LineEditorPage(
                             textColor = Color.Black
                         )
 
-                        // (unverändert) – Section erstellen …
                         PoeticBottomSheet(
                             visible = showSectionSheet.value,
                             onDismiss = {
