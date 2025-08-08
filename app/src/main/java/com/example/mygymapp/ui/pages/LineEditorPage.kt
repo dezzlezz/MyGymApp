@@ -35,6 +35,8 @@ import com.example.mygymapp.ui.util.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Line
@@ -400,6 +402,7 @@ fun LineEditorPage(
                                                 } else supersetSelection.remove(item.id)
                                             },
                                             modifier = Modifier
+                                                .zIndex(if (isDragging) 1000f else 0f)
                                                 .animateItemPlacement()
                                                 .onGloballyPositioned {
                                                     val topLeft = it.positionInWindow()
@@ -523,6 +526,7 @@ fun LineEditorPage(
                                                         } else supersetSelection.remove(item.id)
                                                     },
                                                     modifier = Modifier
+                                                        .zIndex(if (isDragging) 1000f else 0f)
                                                         .animateItemPlacement()
                                                         .onGloballyPositioned {
                                                             val topLeft = it.positionInWindow()
@@ -661,6 +665,7 @@ fun LineEditorPage(
                                                             } else supersetSelection.remove(item.id)
                                                         },
                                                         modifier = Modifier
+                                                            .zIndex(if (isDragging) 1000f else 0f)
                                                             .animateItemPlacement()
                                                             .onGloballyPositioned {
                                                                 val topLeft = it.positionInWindow()
@@ -817,12 +822,19 @@ fun LineEditorPage(
 
                 // Drag Preview (Koordinaten jetzt konsistent in Window-Space)
                 dragPreview?.let { preview ->
-                    PoeticCard(
-                        modifier = Modifier
-                            .offset { IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()) }
-                            .zIndex(100f)
+                    Popup(
+                        alignment = Alignment.TopStart,
+                        offset = IntOffset(dragPosition.x.toInt(), dragPosition.y.toInt()),
+                        properties = PopupProperties(
+                            focusable = false,
+                            dismissOnClickOutside = false,
+                            dismissOnBackPress = false,
+                            clippingEnabled = false
+                        )
                     ) {
-                        Text(preview, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                        PoeticCard {
+                            Text(preview, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                        }
                     }
                 }
             }
