@@ -21,21 +21,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.ui.pages.GaeguBold
 
-/**
- * Poetic section wrapper (Warm-up, Workout, Cooldown, …)
- * Vergrößerte Hitbox & volle Breite, damit Drag & Drop zuverlässiger trifft.
- */
+// In SectionWrapper.kt – Signatur minimal erweitern:
 @Composable
 fun SectionWrapper(
     title: String,
     modifier: Modifier = Modifier,
     minDropHeightDp: Int = 64,
+    isDropActive: Boolean = false,            // NEW
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = minDropHeightDp.dp) // << fette Drop-Zone
+            .defaultMinSize(minHeight = minDropHeightDp.dp)
             .padding(vertical = 12.dp)
             .drawBehind {
                 val stroke = 2.dp.toPx()
@@ -60,12 +58,14 @@ fun SectionWrapper(
                 }
                 drawPath(
                     path = path,
-                    color = Color.Black,
+                    color = if (isDropActive) Color(0xFF2E7D32) else Color.Black, // grün beim Hover
                     style = Stroke(width = stroke, cap = StrokeCap.Round)
                 )
             }
     ) {
-        Column(modifier = Modifier.padding(start = 12.dp, bottom = 12.dp)) {
+        Column(modifier = Modifier
+            .padding(start = 12.dp, bottom = 12.dp)
+        ) {
             Text(
                 text = title,
                 fontFamily = GaeguBold,
@@ -74,8 +74,8 @@ fun SectionWrapper(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             content()
-            // Falls leer, ein bisschen „Futter“, damit die Drop-Fläche fühlbar ist
             Spacer(Modifier.height(4.dp))
         }
     }
 }
+

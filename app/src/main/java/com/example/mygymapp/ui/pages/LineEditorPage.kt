@@ -455,8 +455,11 @@ fun LineEditorPage(
                                                 id?.let { exId ->
                                                     val dropY = dragPosition.y
                                                     val insertIdx = findInsertIndexForDrop(sectionName = "", dropY = dropY)
-                                                    val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
                                                     val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                                   if (idx >= 0 && selectedExercises[idx].section == "" && idx < clampedIdx) {
+                                                                            clampedIdx -= 1
+                                                                        }
                                                     if (idx >= 0) {
                                                         val item = selectedExercises.removeAt(idx)
                                                         val oldSection = item.section
@@ -577,8 +580,11 @@ fun LineEditorPage(
                                                 id?.let { exId ->
                                                     val dropY = dragPosition.y
                                                     val insertIdx = findInsertIndexForDrop(sectionName, dropY)
-                                                    val clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
                                                     val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                                                                            clampedIdx -= 1
+                                                                        }
                                                     if (idx >= 0) {
                                                         val item = selectedExercises.removeAt(idx)
                                                         val oldSection = item.section
