@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -930,12 +931,15 @@ fun LineEditorPage(
                 val lineExercise = selectedExercises.find { it.id == id }
                 val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
                 previewName?.let { name ->
+                    val density = LocalDensity.current
+                    val offsetX = with(density) { dragPosition.x.toDp() }
+                    val offsetY = with(density) { dragPosition.y.toDp() }
                     Box(
                         Modifier
                             .zIndex(999f)
                             .absoluteOffset(
-                                x = dragPosition.x.dp,
-                                y = dragPosition.y.dp
+                                x = offsetX,
+                                y = offsetY
                             )
                     ) {
                         PoeticCard {
