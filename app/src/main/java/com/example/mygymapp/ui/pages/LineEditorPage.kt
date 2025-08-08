@@ -330,6 +330,17 @@ fun LineEditorPage(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
+                                        .dragAndDropSource(
+                                            dataProvider = {
+                                                DragAndDropTransferData(
+                                                    clipData = ClipData.newPlainText(
+                                                        "exercise",
+                                                        ex.id.toString()
+                                                    )
+                                                )
+                                            },
+                                            onDragStart = { showExerciseSheet.value = false }
+                                        )
                                         .clickable {
                                             if (selectedExercises.none { it.id == ex.id }) {
                                                 selectedExercises.add(
@@ -446,6 +457,21 @@ fun LineEditorPage(
                                                     if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
                                                         sections.remove(oldSection)
                                                     }
+                                                } else {
+                                                    allExercises.firstOrNull { it.id == exId }?.let { ex ->
+                                                        val insertIdx = selectedExercises.indexOfLast { it.section.isBlank() } + 1
+                                                        selectedExercises.add(
+                                                            insertIdx,
+                                                            LineExercise(
+                                                                id = ex.id,
+                                                                name = ex.name,
+                                                                sets = 3,
+                                                                repsOrDuration = "10",
+                                                                section = ""
+                                                            )
+                                                        )
+                                                        showExerciseSheet.value = false
+                                                    }
                                                 }
                                             }
                                             true
@@ -542,31 +568,48 @@ fun LineEditorPage(
                             val sectionItems by remember(selectedExercises, sectionName) {
                                 derivedStateOf { selectedExercises.filter { it.section == sectionName } }
                             }
-                            if (sectionItems.isNotEmpty()) {
-                                SectionWrapper(
-                                    title = sectionName,
-                                    modifier = Modifier
-                                        .zIndex(if (draggingSection == sectionName) 1f else 0f)
-                                        .dragAndDropTarget(
-                                            shouldStartDragAndDrop = { true },
-                                            onDrop = { transferData: DragAndDropTransferData ->
-                                                val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                                id?.let { exId ->
-                                                    val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                    if (idx >= 0) {
-                                                        val item = selectedExercises.removeAt(idx)
-                                                        val oldSection = item.section
+                            SectionWrapper(
+                                title = sectionName,
+                                modifier = Modifier
+                                    .zIndex(if (draggingSection == sectionName) 1f else 0f)
+                                    .dragAndDropTarget(
+                                        shouldStartDragAndDrop = { true },
+                                        onDrop = { transferData: DragAndDropTransferData ->
+                                            val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
+                                            id?.let { exId ->
+                                                val idx = selectedExercises.indexOfFirst { it.id == exId }
+                                                if (idx >= 0) {
+                                                    val item = selectedExercises.removeAt(idx)
+                                                    val oldSection = item.section
+                                                    val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
+                                                    selectedExercises.add(insertIdx, item.copy(section = sectionName))
+                                                    if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
+                                                        sections.remove(oldSection)
+                                                    }
+                                                } else {
+                                                    allExercises.firstOrNull { it.id == exId }?.let { ex ->
                                                         val insertIdx = selectedExercises.indexOfLast { it.section == sectionName } + 1
-                                                        selectedExercises.add(insertIdx, item.copy(section = sectionName))
-                                                        if (oldSection.isNotBlank() && oldSection != sectionName && selectedExercises.none { it.section == oldSection }) {
-                                                            sections.remove(oldSection)
-                                                        }
+                                                        selectedExercises.add(
+                                                            insertIdx,
+                                                            LineExercise(
+                                                                id = ex.id,
+                                                                name = ex.name,
+                                                                sets = 3,
+                                                                repsOrDuration = "10",
+                                                                section = sectionName
+                                                            )
+                                                        )
+                                                        showExerciseSheet.value = false
                                                     }
                                                 }
-                                                true
                                             }
-                                        )
-                                ) {
+                                            true
+                                        }
+                                    )
+                            ) {
+                                if (sectionItems.isEmpty()) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                } else {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
                                             // Use a fresh snapshot of this section's items for each
