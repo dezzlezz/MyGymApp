@@ -2,6 +2,7 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,12 +28,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.toSize
-import android.content.ClipData
 import android.net.Uri
-import com.example.mygymapp.ui.util.DragAndDropTransferData
-import com.example.mygymapp.ui.util.dragAndDropSource
-import com.example.mygymapp.ui.util.dragAndDropTarget
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -141,6 +139,10 @@ fun LineEditorPage(
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
     var draggingExerciseId by remember { mutableStateOf<Long?>(null) }
     val itemBounds = remember { mutableStateMapOf<Long, Pair<Float, Float>>() }
+    var isDragging by remember { mutableStateOf(false) }
+    var dragStartPointer by remember { mutableStateOf(Offset.Zero) }
+    val sectionBounds = remember { mutableStateMapOf<String, Pair<Float, Float>>() }
+    var hoveredSection by remember { mutableStateOf<String?>(null) }
 
     fun addSuperset(ids: List<Long>) {
         supersets.removeAll { group -> group.any { it in ids } }
@@ -328,25 +330,66 @@ fun LineEditorPage(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(vertical = 4.dp)
-                                            .onGloballyPositioned { cardOffset = it.positionInWindow() } // << hier
+                                            .onGloballyPositioned { cardOffset = it.positionInWindow() }
                                             .alpha(if (draggingExerciseId == ex.id) 0f else 1f)
-                                            .dragAndDropSource(
-                                                dataProvider = {
-                                                    DragAndDropTransferData(
-                                                        clipData = ClipData.newPlainText("exercise", ex.id.toString())
-                                                    )
-                                                },
-                                                onDragStart = {
-                                                    dragPreview = ex.name
-                                                    draggingExerciseId = ex.id
-                                                    showExerciseSheet.value = false
-                                                },
-                                                onDrag = { dragPosition = it + cardOffset },      // << hier
-                                                onDragEnd = {
-                                                    dragPreview = null
-                                                    draggingExerciseId = null
-                                                }
-                                            )
+                                            .pointerInput(Unit) {
+                                                detectDragGesturesAfterLongPress(
+                                                    onDragStart = { offset ->
+                                                        isDragging = true
+                                                        dragPreview = ex.name
+                                                        draggingExerciseId = ex.id
+                                                        draggingSection = ""
+                                                        dragStartPointer = cardOffset + offset
+                                                        dragPosition = dragStartPointer
+                                                        showExerciseSheet.value = false
+                                                    },
+                                                    onDrag = { change, _ ->
+                                                        change.consume()
+                                                        dragPosition = cardOffset + change.position
+                                                        hoveredSection = sectionBounds.entries.find { entry ->
+                                                            dragPosition.y in entry.value.first..entry.value.second
+                                                        }?.key
+                                                    },
+                                                    onDragEnd = {
+                                                        hoveredSection?.let { sectionName ->
+                                                            val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
+                                                            val idx = selectedExercises.indexOfFirst { it.id == ex.id }
+                                                            var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                            if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                                                                clampedIdx -= 1
+                                                            }
+                                                            if (idx >= 0) {
+                                                                val item = selectedExercises.removeAt(idx)
+                                                                val oldSection = item.section
+                                                                selectedExercises.add(clampedIdx, item.copy(section = sectionName))
+                                                                if (oldSection.isNotBlank() && oldSection != sectionName &&
+                                                                    selectedExercises.none { it.section == oldSection }) {
+                                                                    sections.remove(oldSection)
+                                                                }
+                                                            } else {
+                                                                allExercises.firstOrNull { it.id == ex.id }?.let { exx ->
+                                                                    selectedExercises.add(
+                                                                        clampedIdx,
+                                                                        LineExercise(id = exx.id, name = exx.name, sets = 3, repsOrDuration = "10", section = sectionName)
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                        isDragging = false
+                                                        draggingExerciseId = null
+                                                        dragPreview = null
+                                                        draggingSection = null
+                                                        hoveredSection = null
+                                                    },
+                                                    onDragCancel = {
+                                                        isDragging = false
+                                                        draggingExerciseId = null
+                                                        dragPreview = null
+                                                        draggingSection = null
+                                                        hoveredSection = null
+                                                    }
+                                                )
+                                            }
                                             .clickable {
                                                 if (selectedExercises.none { it.id == ex.id }) {
                                                     selectedExercises.add(
@@ -388,8 +431,8 @@ fun LineEditorPage(
                                 userScrollEnabled = false
                             ) {
                                 itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
-                                    ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                        val elevation = if (isDragging) 8.dp else 2.dp
+                                    ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                        val elevation = if (itemDragging) 8.dp else 2.dp
                                         val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                             selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                         }
@@ -409,8 +452,8 @@ fun LineEditorPage(
                                                 } else supersetSelection.remove(item.id)
                                             },
                                             modifier = Modifier
-                                                .zIndex(if (isDragging) 1000f else 0f)
                                                 .alpha(if (draggingExerciseId == item.id) 0f else 1f)
+                                                .zIndex(if (isDragging) 1000f else 0f)
                                                 .animateItemPlacement()
                                                 .onGloballyPositioned {
                                                     val topLeft = it.positionInWindow()
@@ -418,32 +461,65 @@ fun LineEditorPage(
                                                     val size = it.size.toSize()
                                                     itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
                                                 },
-                                            // >>> Drag NUR AM GRIFF starten
                                             dragHandle = {
+                                                var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                                 Icon(
                                                     imageVector = Icons.Default.DragHandle,
                                                     contentDescription = "Drag",
                                                     tint = Color.Gray,
                                                     modifier = Modifier
-                                                        .dragAndDropSource(
-                                                            dataProvider = {
-                                                                DragAndDropTransferData(
-                                                                    clipData = ClipData.newPlainText("exercise", item.id.toString())
-                                                                )
-                                                            },
-                                                            onDragStart = {
-                                                                draggingSection = item.section
-                                                                dragPreview = item.name
-                                                                draggingExerciseId = item.id
-                                                            },
-                                                            onDrag = { dragPosition = it + itemOffset }, // << hier
-                                                            onDragEnd = {
-                                                                draggingSection = null
-                                                                dragPreview = null
-                                                                draggingExerciseId = null
-                                                            }
-                                                        )
-                                                        .detectReorderAfterLongPress(reorderState) // Reorder weiterhin am Griff
+                                                        .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                        .pointerInput(Unit) {
+                                                            detectDragGesturesAfterLongPress(
+                                                                onDragStart = { offset ->
+                                                                    isDragging = true
+                                                                    draggingSection = item.section
+                                                                    dragPreview = item.name
+                                                                    draggingExerciseId = item.id
+                                                                    dragStartPointer = handleOffset + offset
+                                                                    dragPosition = dragStartPointer
+                                                                },
+                                                                onDrag = { change, _ ->
+                                                                    change.consume()
+                                                                    dragPosition = handleOffset + change.position
+                                                                    hoveredSection = sectionBounds.entries.find { entry ->
+                                                                        dragPosition.y in entry.value.first..entry.value.second
+                                                                    }?.key
+                                                                },
+                                                                onDragEnd = {
+                                                                    hoveredSection?.let { sectionName ->
+                                                                        val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
+                                                                        val idx = selectedExercises.indexOfFirst { it.id == item.id }
+                                                                        var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                                        if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                                                                            clampedIdx -= 1
+                                                                        }
+                                                                        if (idx >= 0) {
+                                                                            val moved = selectedExercises.removeAt(idx)
+                                                                            val oldSection = moved.section
+                                                                            selectedExercises.add(clampedIdx, moved.copy(section = sectionName))
+                                                                            if (oldSection.isNotBlank() && oldSection != sectionName &&
+                                                                                selectedExercises.none { it.section == oldSection }) {
+                                                                                sections.remove(oldSection)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    isDragging = false
+                                                                    draggingSection = null
+                                                                    dragPreview = null
+                                                                    draggingExerciseId = null
+                                                                    hoveredSection = null
+                                                                },
+                                                                onDragCancel = {
+                                                                    isDragging = false
+                                                                    draggingSection = null
+                                                                    dragPreview = null
+                                                                    draggingExerciseId = null
+                                                                    hoveredSection = null
+                                                                }
+                                                            )
+                                                        }
+                                                        .detectReorderAfterLongPress(reorderState)
                                                 )
                                             },
                                             supersetPartnerIndices = partnerIndices,
@@ -461,38 +537,12 @@ fun LineEditorPage(
                                     title = "Unassigned",
                                     modifier = Modifier
                                         .zIndex(if (draggingSection == "") 1f else 0f)
-                                        .dragAndDropTarget(
-                                            shouldStartDragAndDrop = { true },
-                                            onDrop = { transferData: DragAndDropTransferData ->
-                                                val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                                id?.let { exId ->
-                                                    val dropY = dragPosition.y
-                                                    val insertIdx = findInsertIndexForDrop(sectionName = "", dropY = dropY)
-                                                    val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
-                                                                   if (idx >= 0 && selectedExercises[idx].section == "" && idx < clampedIdx) {
-                                                                            clampedIdx -= 1
-                                                                        }
-                                                    if (idx >= 0) {
-                                                        val item = selectedExercises.removeAt(idx)
-                                                        val oldSection = item.section
-                                                        selectedExercises.add(clampedIdx, item.copy(section = ""))
-                                                        if (oldSection.isNotBlank() && selectedExercises.none { it.section == oldSection }) {
-                                                            sections.remove(oldSection)
-                                                        }
-                                                    } else {
-                                                        allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                            selectedExercises.add(
-                                                                clampedIdx,
-                                                                LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = "")
-                                                            )
-                                                            showExerciseSheet.value = false
-                                                        }
-                                                    }
-                                                }
-                                                true
-                                            }
-                                        )
+                                        .onGloballyPositioned {
+                                            val top = it.positionInWindow().y
+                                            val bottom = top + it.size.height
+                                            sectionBounds[""] = top to bottom
+                                        },
+                                    isDropActive = hoveredSection == "",
                                 ) {
                                     val reorderState = rememberReorderableLazyListState(
                                         onMove = { from, to ->
@@ -515,8 +565,8 @@ fun LineEditorPage(
                                         userScrollEnabled = false
                                     ) {
                                         itemsIndexed(unassignedItems, key = { _, item -> item.id }) { index, item ->
-                                            ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                                val elevation = if (isDragging) 8.dp else 2.dp
+                                            ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                                val elevation = if (itemDragging) 8.dp else 2.dp
                                                 val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                 }
@@ -536,8 +586,8 @@ fun LineEditorPage(
                                                         } else supersetSelection.remove(item.id)
                                                     },
                                                     modifier = Modifier
-                                                        .zIndex(if (isDragging) 1000f else 0f)
                                                         .alpha(if (draggingExerciseId == item.id) 0f else 1f)
+                                                        .zIndex(if (isDragging) 1000f else 0f)
                                                         .animateItemPlacement()
                                                         .onGloballyPositioned {
                                                             val topLeft = it.positionInWindow()
@@ -545,31 +595,64 @@ fun LineEditorPage(
                                                             val size = it.size.toSize()
                                                             itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
                                                         },
-                                                    // >>> Drag NUR AM GRIFF
                                                     dragHandle = {
+                                                        var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                                         Icon(
                                                             imageVector = Icons.Default.DragHandle,
                                                             contentDescription = "Drag",
                                                             tint = Color.Gray,
                                                             modifier = Modifier
-                                                                .dragAndDropSource(
-                                                                    dataProvider = {
-                                                                        DragAndDropTransferData(
-                                                                            clipData = ClipData.newPlainText("exercise", item.id.toString())
-                                                                        )
-                                                                    },
-                                                                    onDragStart = {
-                                                                        draggingSection = item.section
-                                                                        dragPreview = item.name
-                                                                        draggingExerciseId = item.id
-                                                                    },
-                                                                    onDrag = { dragPosition = it + itemOffset }, // << hier
-                                                                    onDragEnd = {
-                                                                        draggingSection = null
-                                                                        dragPreview = null
-                                                                        draggingExerciseId = null
-                                                                    }
-                                                                )
+                                                                .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                                .pointerInput(Unit) {
+                                                                    detectDragGesturesAfterLongPress(
+                                                                        onDragStart = { offset ->
+                                                                            isDragging = true
+                                                                            draggingSection = item.section
+                                                                            dragPreview = item.name
+                                                                            draggingExerciseId = item.id
+                                                                            dragStartPointer = handleOffset + offset
+                                                                            dragPosition = dragStartPointer
+                                                                        },
+                                                                        onDrag = { change, _ ->
+                                                                            change.consume()
+                                                                            dragPosition = handleOffset + change.position
+                                                                            hoveredSection = sectionBounds.entries.find { entry ->
+                                                                                dragPosition.y in entry.value.first..entry.value.second
+                                                                            }?.key
+                                                                        },
+                                                                        onDragEnd = {
+                                                                            hoveredSection?.let { sectionName ->
+                                                                                val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
+                                                                                val idx = selectedExercises.indexOfFirst { it.id == item.id }
+                                                                                var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                                                if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                                                                                    clampedIdx -= 1
+                                                                                }
+                                                                                if (idx >= 0) {
+                                                                                    val moved = selectedExercises.removeAt(idx)
+                                                                                    val oldSection = moved.section
+                                                                                    selectedExercises.add(clampedIdx, moved.copy(section = sectionName))
+                                                                                    if (oldSection.isNotBlank() && oldSection != sectionName &&
+                                                                                        selectedExercises.none { it.section == oldSection }) {
+                                                                                        sections.remove(oldSection)
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            isDragging = false
+                                                                            draggingSection = null
+                                                                            dragPreview = null
+                                                                            draggingExerciseId = null
+                                                                            hoveredSection = null
+                                                                        },
+                                                                        onDragCancel = {
+                                                                            isDragging = false
+                                                                            draggingSection = null
+                                                                            dragPreview = null
+                                                                            draggingExerciseId = null
+                                                                            hoveredSection = null
+                                                                        }
+                                                                    )
+                                                                }
                                                                 .detectReorderAfterLongPress(reorderState)
                                                         )
                                                     },
@@ -590,45 +673,12 @@ fun LineEditorPage(
                                     title = sectionName,
                                     modifier = Modifier
                                         .zIndex(if (draggingSection == sectionName) 1f else 0f)
-                                        .dragAndDropTarget(
-                                            shouldStartDragAndDrop = { true },
-                                            onDrop = { transferData: DragAndDropTransferData ->
-                                                val id = transferData.clipData?.getItemAt(0)?.text?.toString()?.toLongOrNull()
-                                                id?.let { exId ->
-                                                    val dropY = dragPosition.y
-                                                    val insertIdx = findInsertIndexForDrop(sectionName, dropY)
-                                                    val idx = selectedExercises.indexOfFirst { it.id == exId }
-                                                                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
-                                                                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
-                                                                            clampedIdx -= 1
-                                                                        }
-                                                    if (idx >= 0) {
-                                                        val item = selectedExercises.removeAt(idx)
-                                                        val oldSection = item.section
-                                                        selectedExercises.add(clampedIdx, item.copy(section = sectionName))
-                                                        if (oldSection.isNotBlank() && oldSection != sectionName &&
-                                                            selectedExercises.none { it.section == oldSection }) {
-                                                            sections.remove(oldSection)
-                                                        }
-                                                    } else {
-                                                        allExercises.firstOrNull { it.id == exId }?.let { ex ->
-                                                            selectedExercises.add(
-                                                                clampedIdx,
-                                                                LineExercise(
-                                                                    id = ex.id,
-                                                                    name = ex.name,
-                                                                    sets = 3,
-                                                                    repsOrDuration = "10",
-                                                                    section = sectionName
-                                                                )
-                                                            )
-                                                            showExerciseSheet.value = false
-                                                        }
-                                                    }
-                                                }
-                                                true
-                                            }
-                                        )
+                                        .onGloballyPositioned {
+                                            val top = it.positionInWindow().y
+                                            val bottom = top + it.size.height
+                                            sectionBounds[sectionName] = top to bottom
+                                        },
+                                    isDropActive = hoveredSection == sectionName,
                                 ) {
                                     if (sectionItems.isEmpty()) {
                                         Spacer(modifier = Modifier.height(4.dp))
@@ -654,8 +704,8 @@ fun LineEditorPage(
                                             userScrollEnabled = false
                                         ) {
                                             itemsIndexed(sectionItems, key = { _, item -> item.id }) { index, item ->
-                                                ReorderableItem(reorderState, key = item.id) { isDragging ->
-                                                    val elevation = if (isDragging) 8.dp else 2.dp
+                                                ReorderableItem(reorderState, key = item.id) { itemDragging ->
+                                                    val elevation = if (itemDragging) 8.dp else 2.dp
                                                     val partnerIndices = findSupersetPartners(item.id).mapNotNull { pid ->
                                                         selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                                     }
@@ -678,8 +728,8 @@ fun LineEditorPage(
                                                             } else supersetSelection.remove(item.id)
                                                         },
                                                         modifier = Modifier
-                                                            .zIndex(if (isDragging) 1000f else 0f)
                                                             .alpha(if (draggingExerciseId == item.id) 0f else 1f)
+                                                            .zIndex(if (isDragging) 1000f else 0f)
                                                             .animateItemPlacement()
                                                             .onGloballyPositioned {
                                                                 val topLeft = it.positionInWindow()
@@ -687,33 +737,64 @@ fun LineEditorPage(
                                                                 val size = it.size.toSize()
                                                                 itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
                                                             },
-                                                        // >>> Drag NUR AM GRIFF
                                                         dragHandle = {
+                                                            var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                                             Icon(
                                                                 imageVector = Icons.Default.DragHandle,
                                                                 contentDescription = "Drag",
                                                                 tint = Color.Gray,
                                                                 modifier = Modifier
-                                                                    .dragAndDropSource(
-                                                                        dataProvider = {
-                                                                            DragAndDropTransferData(
-                                                                                clipData = ClipData.newPlainText(
-                                                                                    "exercise", item.id.toString()
-                                                                                )
-                                                                            )
-                                                                        },
-                                                                        onDragStart = {
-                                                                            draggingSection = item.section
-                                                                            dragPreview = item.name
-                                                                            draggingExerciseId = item.id
-                                                                        },
-                                                                        onDrag = { dragPosition = it + itemOffset }, // << hier
-                                                                        onDragEnd = {
-                                                                            draggingSection = null
-                                                                            dragPreview = null
-                                                                            draggingExerciseId = null
-                                                                        }
-                                                                    )
+                                                                    .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                                    .pointerInput(Unit) {
+                                                                        detectDragGesturesAfterLongPress(
+                                                                            onDragStart = { offset ->
+                                                                                isDragging = true
+                                                                                draggingSection = item.section
+                                                                                dragPreview = item.name
+                                                                                draggingExerciseId = item.id
+                                                                                dragStartPointer = handleOffset + offset
+                                                                                dragPosition = dragStartPointer
+                                                                            },
+                                                                            onDrag = { change, _ ->
+                                                                                change.consume()
+                                                                                dragPosition = handleOffset + change.position
+                                                                                hoveredSection = sectionBounds.entries.find { entry ->
+                                                                                    dragPosition.y in entry.value.first..entry.value.second
+                                                                                }?.key
+                                                                            },
+                                                                            onDragEnd = {
+                                                                                hoveredSection?.let { sectionName ->
+                                                                                    val insertIdx = findInsertIndexForDrop(sectionName, dragPosition.y)
+                                                                                    val idx = selectedExercises.indexOfFirst { it.id == item.id }
+                                                                                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                                                                                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                                                                                        clampedIdx -= 1
+                                                                                    }
+                                                                                    if (idx >= 0) {
+                                                                                        val moved = selectedExercises.removeAt(idx)
+                                                                                        val oldSection = moved.section
+                                                                                        selectedExercises.add(clampedIdx, moved.copy(section = sectionName))
+                                                                                        if (oldSection.isNotBlank() && oldSection != sectionName &&
+                                                                                            selectedExercises.none { it.section == oldSection }) {
+                                                                                            sections.remove(oldSection)
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                isDragging = false
+                                                                                draggingSection = null
+                                                                                dragPreview = null
+                                                                                draggingExerciseId = null
+                                                                                hoveredSection = null
+                                                                            },
+                                                                            onDragCancel = {
+                                                                                isDragging = false
+                                                                                draggingSection = null
+                                                                                dragPreview = null
+                                                                                draggingExerciseId = null
+                                                                                hoveredSection = null
+                                                                            }
+                                                                        )
+                                                                    }
                                                                     .detectReorderAfterLongPress(reorderState)
                                                             )
                                                         },
@@ -837,9 +918,10 @@ fun LineEditorPage(
                 }
 
                 // Drag Preview (Koordinaten jetzt konsistent in Window-Space)
-                draggingExerciseId?.let { id ->
+                if (isDragging && draggingExerciseId != null) {
+                    val id = draggingExerciseId!!
                     val lineExercise = selectedExercises.find { it.id == id }
-                    val previewName = lineExercise?.name ?: allExercises.find { it.id == id }?.name
+                    val previewName = dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
                     previewName?.let { name ->
                         Popup(
                             alignment = Alignment.TopStart,
