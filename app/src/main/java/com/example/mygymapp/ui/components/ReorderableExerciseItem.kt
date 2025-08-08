@@ -20,19 +20,12 @@ import androidx.compose.ui.unit.sp
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.ui.graphics.graphicsLayer
 
-/**
- * A draggable exercise card with poetic design.
- * Displays:
- * - Index number
- * - Exercise name
- * - Optional metadata (category, muscle group)
- * - Actions: delete, drag and superset selection checkbox
- */
 @Composable
 fun ReorderableExerciseItem(
     index: Int,
-    exercise: LineExercise,
+    exercise: com.example.mygymapp.model.Exercise,
     onRemove: () -> Unit,
     isSupersetSelected: Boolean,
     onSupersetSelectedChange: (Boolean) -> Unit,
@@ -53,28 +46,14 @@ fun ReorderableExerciseItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (isSuperset) {
-            Box(
-                modifier = Modifier
-                    .width(16.dp)
-                    .fillMaxHeight()
-            ) {
+            Box(modifier = Modifier.width(16.dp).fillMaxHeight()) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val stroke = 2.dp.toPx()
                     val centerX = size.width / 2f
                     val startY = if (isFirst) size.height / 2f else 0f
                     val endY = if (isLast) size.height / 2f else size.height
-                    drawLine(
-                        color = Color.Black,
-                        start = Offset(centerX, startY),
-                        end = Offset(centerX, endY),
-                        strokeWidth = stroke
-                    )
-                    drawLine(
-                        color = Color.Black,
-                        start = Offset(centerX, size.height / 2f),
-                        end = Offset(size.width, size.height / 2f),
-                        strokeWidth = stroke
-                    )
+                    drawLine(Color.Black, Offset(centerX, startY), Offset(centerX, endY), stroke)
+                    drawLine(Color.Black, Offset(centerX, size.height / 2f), Offset(size.width, size.height / 2f), stroke)
                 }
             }
         } else {
@@ -84,42 +63,38 @@ fun ReorderableExerciseItem(
         PoeticCard(
             modifier = Modifier
                 .padding(vertical = 4.dp)
-                .weight(1f),
+                .weight(1f)
+                .graphicsLayer(clip = false),   // <- HIER rein, noch vor der schließenden Klammer
             elevation = elevation
         ) {
             Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // Index & Name
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "${index + 1}.",
-                                fontFamily = GaeguBold,
-                                fontSize = 16.sp,
-                                color = Color.Black,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text(
-                                text = exercise.name,
-                                fontFamily = GaeguRegular,
-                                fontSize = 16.sp,
-                                color = Color.Black
-                            )
-                        }
-
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Index & Name
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${index + 1}.",
+                            fontFamily = GaeguBold,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = exercise.name,
+                            fontFamily = GaeguRegular,
+                            fontSize = 16.sp,
+                            color = Color.Black
+                        )
+                    }
                     // Actions
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onRemove) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = Color.Red
-                            )
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
                         }
                         Checkbox(
                             checked = isSupersetSelected,
@@ -132,4 +107,5 @@ fun ReorderableExerciseItem(
         }
     }
 }
+
 

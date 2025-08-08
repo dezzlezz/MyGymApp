@@ -38,6 +38,7 @@ fun PoeticCard(
     elevation: Dp = 2.dp,
     withTexture: Boolean = true,
     tintOverlayAlpha: Float = 0.16f, // Heller Schleier über Textur
+    fillMaxWidth: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape: Shape = if (style == PoeticCardStyle.ESELOHR) {
@@ -48,7 +49,7 @@ fun PoeticCard(
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .padding(horizontal = AppPadding.Small, vertical = 4.dp)
             .shadow(elevation, shape)
             .clip(shape)
