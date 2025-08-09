@@ -57,12 +57,15 @@ class DragAndDropState {
     val sectionBounds = mutableStateMapOf<String, Pair<Float, Float>>()
 }
 
-/** Helper encapsulating superset operations to keep logic consistent. */
-class SupersetHelper(private val supersets: SnapshotStateList<MutableList<Long>>) {
+/** State holder encapsulating superset operations to keep logic consistent. */
+class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>) {
 
     /** Return partners for [id] within its superset, if any. */
     fun partners(id: Long): List<Long> =
         supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
+
+    /** Whether [id] belongs to any superset group. */
+    fun containsGroup(id: Long): Boolean = supersets.any { it.contains(id) }
 
     /** Remove [id] from any supersets and drop groups smaller than two. */
     fun removeExercise(id: Long) {
@@ -73,12 +76,16 @@ class SupersetHelper(private val supersets: SnapshotStateList<MutableList<Long>>
         }
     }
 
-    /** Create a new superset with [ids], cleaning up prior groupings. */
-    fun create(ids: List<Long>) {
-        val distinctIds = ids.distinct()
-        supersets.removeAll { group -> group.any { it in distinctIds } }
-        if (distinctIds.size > 1) supersets.add(distinctIds.sorted().toMutableList())
+    /** Create a superset pairing [a] and [b], cleaning up prior groupings. */
+    fun addPair(a: Long, b: Long) {
+        val pair = listOf(a, b).distinct()
+        supersets.removeAll { group -> group.any { it in pair } }
+        if (pair.size > 1) supersets.add(pair.sorted().toMutableList())
     }
+
+    /** Snapshot of current groups for persistence. */
+    val groups: List<List<Long>>
+        get() = supersets.map { it.toList() }
 }
 
 /** Unified drag handler used by picker items and list handles. */
@@ -310,7 +317,7 @@ fun ExercisePickerSheet(
 fun SectionsWithDragDrop(
     sections: List<String>,
     selectedExercises: SnapshotStateList<LineExercise>,
-    supersetHelper: SupersetHelper,
+    supersetState: SupersetState,
     dragState: DragAndDropState,
     allExercises: List<Exercise>,
     dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
@@ -434,19 +441,19 @@ fun SectionsWithDragDrop(
                         ReorderableItem(reorderState, key = item.id) { dragging ->
                             val elevation = if (dragging) 8.dp else 2.dp
                             val partnerIndices =
-                                supersetHelper.partners(item.id).mapNotNull { pid ->
+                                supersetState.partners(item.id).mapNotNull { pid ->
                                     selectedExercises.indexOfFirst { it.id == pid }
                                         .takeIf { it >= 0 }
                                 }
                             val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                supersetHelper.partners(it).contains(item.id)
+                                supersetState.partners(it).contains(item.id)
                             } == true
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
                                 onRemove = {
                                     selectedExercises.remove(item)
-                                    supersetHelper.removeExercise(item.id)
+                                    supersetState.removeExercise(item.id)
                                 },
                                 onMove = {
                                     showMoveSheet = true
@@ -537,19 +544,19 @@ fun SectionsWithDragDrop(
                             ReorderableItem(reorderState, key = item.id) { dragging ->
                                 val elevation = if (dragging) 8.dp else 2.dp
                                 val partnerIndices =
-                                    supersetHelper.partners(item.id).mapNotNull { pid ->
+                                    supersetState.partners(item.id).mapNotNull { pid ->
                                         selectedExercises.indexOfFirst { it.id == pid }
                                             .takeIf { it >= 0 }
                                     }
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                    supersetHelper.partners(it).contains(item.id)
+                                    supersetState.partners(it).contains(item.id)
                                 } == true
                                 ReorderableExerciseItem(
                                     index = index,
                                     exercise = item,
                                     onRemove = {
                                         selectedExercises.remove(item)
-                                        supersetHelper.removeExercise(item.id)
+                                        supersetState.removeExercise(item.id)
                                     },
                                     onMove = {
                                         showMoveSheet = true
@@ -645,19 +652,19 @@ fun SectionsWithDragDrop(
                                 ReorderableItem(reorderState, key = item.id) { dragging ->
                                     val elevation = if (dragging) 8.dp else 2.dp
                                     val partnerIndices =
-                                        supersetHelper.partners(item.id).mapNotNull { pid ->
+                                        supersetState.partners(item.id).mapNotNull { pid ->
                                             selectedExercises.indexOfFirst { it.id == pid }
                                                 .takeIf { it >= 0 }
                                         }
                                     val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                        supersetHelper.partners(it).contains(item.id)
+                                        supersetState.partners(it).contains(item.id)
                                     } == true
                                     ReorderableExerciseItem(
                                         index = index,
                                         exercise = item,
                                         onRemove = {
                                             selectedExercises.remove(item)
-                                            supersetHelper.removeExercise(item.id)
+                                            supersetState.removeExercise(item.id)
                                         },
                                         onMove = {
                                             showMoveSheet = true
