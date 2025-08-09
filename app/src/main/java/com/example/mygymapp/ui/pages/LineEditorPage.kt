@@ -144,7 +144,6 @@ fun LineEditorPage(
             allExercises,
             selectedExercises,
             ::findInsertIndexForDrop,
-            supersetHelper,
             start
         )
     }

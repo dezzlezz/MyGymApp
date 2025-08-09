@@ -53,7 +53,6 @@ class DragAndDropState {
     var dragStartPointer by mutableStateOf(Offset.Zero)
     var dragStartLocal by mutableStateOf(Offset.Zero)
     var hoveredSection by mutableStateOf<String?>(null)
-    var hoveredItemId by mutableStateOf<Long?>(null)
     val itemBounds = mutableStateMapOf<Long, Pair<Float, Float>>()
     val sectionBounds = mutableStateMapOf<String, Pair<Float, Float>>()
 }
@@ -92,9 +91,8 @@ fun Modifier.exerciseDrag(
     allExercises: List<Exercise>,
     selectedExercises: SnapshotStateList<LineExercise>,
     findInsertIndex: (String, Float) -> Int,
-    supersetHelper: SupersetHelper,
     onStart: () -> Unit = {}
-): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises, supersetHelper) {
+): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises) {
     detectDragGesturesAfterLongPress(
         onDragStart = { offset ->
             onStart()
@@ -112,29 +110,27 @@ fun Modifier.exerciseDrag(
             state.hoveredSection = state.sectionBounds.entries.find { entry ->
                 state.dragPosition.y in entry.value.first..entry.value.second
             }?.key
-            state.hoveredItemId = state.itemBounds.entries.find { entry ->
-                entry.key != exerciseId && state.dragPosition.y in entry.value.first..entry.value.second
-            }?.key
         },
         onDragEnd = {
-            state.hoveredItemId?.let { targetId ->
-                supersetHelper.create(listOf(exerciseId, targetId))
-            } ?: state.hoveredSection?.let { sectionName ->
-                val insertIdx = findInsertIndex(sectionName, state.dragPosition.y)
+            state.hoveredSection?.let { sectionName ->
                 val idx = selectedExercises.indexOfFirst { it.id == exerciseId }
-                var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
-                if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
-                    clampedIdx -= 1
-                }
-                if (idx >= 0) {
-                    val item = selectedExercises.removeAt(idx)
-                    selectedExercises.add(clampedIdx, item.copy(section = sectionName))
-                } else {
-                    allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
-                        selectedExercises.add(
-                            clampedIdx,
-                            LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = sectionName)
-                        )
+                val fromSection = state.draggingSection
+                if (sectionName != fromSection || idx < 0) {
+                    val insertIdx = findInsertIndex(sectionName, state.dragPosition.y)
+                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                        clampedIdx -= 1
+                    }
+                    if (idx >= 0) {
+                        val item = selectedExercises.removeAt(idx)
+                        selectedExercises.add(clampedIdx, item.copy(section = sectionName))
+                    } else {
+                        allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
+                            selectedExercises.add(
+                                clampedIdx,
+                                LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = sectionName)
+                            )
+                        }
                     }
                 }
             }
@@ -143,7 +139,6 @@ fun Modifier.exerciseDrag(
             state.dragPreview = null
             state.draggingSection = null
             state.hoveredSection = null
-            state.hoveredItemId = null
         },
         onDragCancel = {
             state.isDragging = false
@@ -151,7 +146,6 @@ fun Modifier.exerciseDrag(
             state.dragPreview = null
             state.draggingSection = null
             state.hoveredSection = null
-            state.hoveredItemId = null
         }
     )
 }
@@ -400,12 +394,6 @@ fun SectionsWithDragDrop(
             )
         }
     }
-    if (dragState.hoveredItemId != null) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("Release to link them", fontFamily = GaeguRegular, color = Color.Gray)
-        }
-        Spacer(Modifier.height(8.dp))
-    }
     if (selectedExercises.isNotEmpty()) {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         if (sections.isEmpty()) {
@@ -453,8 +441,6 @@ fun SectionsWithDragDrop(
                             val isDraggingPartner = dragState.draggingExerciseId?.let {
                                 supersetHelper.partners(it).contains(item.id)
                             } == true
-                            var itemOffset by remember { mutableStateOf(Offset.Zero) }
-                            val isDragTarget = dragState.hoveredItemId == item.id
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
@@ -467,13 +453,11 @@ fun SectionsWithDragDrop(
                                     moveSelection.clear(); moveSelection.add(item.id)
                                     moveSelectedOption = null; moveCustomName = ""
                                 },
-                                isDragTarget = isDragTarget,
                                 modifier = Modifier
                                     .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                     .onGloballyPositioned {
                                         if (dragState.isDragging) {
                                             val topLeft = it.positionInWindow()
-                                            itemOffset = topLeft
                                             val size = it.size.toSize()
                                             dragState.itemBounds[item.id] =
                                                 topLeft.y to (topLeft.y + size.height)
@@ -560,8 +544,6 @@ fun SectionsWithDragDrop(
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
                                     supersetHelper.partners(it).contains(item.id)
                                 } == true
-                                var itemOffset by remember { mutableStateOf(Offset.Zero) }
-                                val isDragTarget = dragState.hoveredItemId == item.id
                                 ReorderableExerciseItem(
                                     index = index,
                                     exercise = item,
@@ -574,13 +556,11 @@ fun SectionsWithDragDrop(
                                         moveSelection.clear(); moveSelection.add(item.id)
                                         moveSelectedOption = null; moveCustomName = ""
                                     },
-                                    isDragTarget = isDragTarget,
                                     modifier = Modifier
                                         .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                         .onGloballyPositioned {
                                             if (dragState.isDragging) {
                                                 val topLeft = it.positionInWindow()
-                                                itemOffset = topLeft
                                                 val size = it.size.toSize()
                                                 dragState.itemBounds[item.id] =
                                                     topLeft.y to (topLeft.y + size.height)
@@ -672,7 +652,6 @@ fun SectionsWithDragDrop(
                                     val isDraggingPartner = dragState.draggingExerciseId?.let {
                                         supersetHelper.partners(it).contains(item.id)
                                     } == true
-                                    var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                     ReorderableExerciseItem(
                                         index = index,
                                         exercise = item,
@@ -685,13 +664,11 @@ fun SectionsWithDragDrop(
                                             moveSelection.clear(); moveSelection.add(item.id)
                                             moveSelectedOption = null; moveCustomName = ""
                                         },
-                                        isDragTarget = dragState.hoveredItemId == item.id,
                                         modifier = Modifier
                                             .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                             .onGloballyPositioned {
                                                 if (dragState.isDragging) {
                                                     val topLeft = it.positionInWindow()
-                                                    itemOffset = topLeft
                                                     val size = it.size.toSize()
                                                     dragState.itemBounds[item.id] =
                                                         topLeft.y to (topLeft.y + size.height)
