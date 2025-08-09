@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -327,7 +328,7 @@ fun ExerciseManagementScreen(navController: NavController) {
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F4E3A))
                 ) {
-                    Text("➕ Add", fontFamily = GaeguBold, color = Color.White)
+                    Text(stringResource(R.string.add_label), fontFamily = GaeguBold, color = Color.White)
                 }
             }
         }

@@ -1,10 +1,11 @@
 package com.example.mygymapp.ui.components
 
-import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -29,7 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.focus.onFocusChanged
+import kotlinx.coroutines.launch
 
 @Composable
 fun LinedTextField(
@@ -40,7 +42,8 @@ fun LinedTextField(
     lineHeight: Dp = 32.dp,
     initialLines: Int = 3,
     padding: Dp = 12.dp,
-    isError: Boolean = false
+    isError: Boolean = false,
+    bringIntoViewRequester: BringIntoViewRequester? = null
 ) {
     val density = LocalDensity.current
     val textStyle = TextStyle(
@@ -109,13 +112,25 @@ fun LinedTextField(
         }
 
         // ✏️ Texteingabe + Hint
+        val scope = rememberCoroutineScope()
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = textStyle,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 4.dp),
+                .padding(bottom = 4.dp)
+                .then(
+                    if (bringIntoViewRequester != null) {
+                        Modifier
+                            .bringIntoViewRequester(bringIntoViewRequester)
+                            .onFocusChanged { state ->
+                                if (state.isFocused) {
+                                    scope.launch { bringIntoViewRequester.bringIntoView() }
+                                }
+                            }
+                    } else Modifier
+                ),
             onTextLayout = { layoutResult = it },
             decorationBox = { innerTextField ->
                 Column {

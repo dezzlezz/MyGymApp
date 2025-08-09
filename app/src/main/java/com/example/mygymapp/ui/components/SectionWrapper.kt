@@ -1,5 +1,11 @@
 package com.example.mygymapp.ui.components
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -8,39 +14,38 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mygymapp.R
 import com.example.mygymapp.ui.pages.GaeguBold
-
-// In SectionWrapper.kt – Signatur minimal erweitern:
 @Composable
 fun SectionWrapper(
     title: String,
     modifier: Modifier = Modifier,
     minDropHeightDp: Int = 64,
-    isDropActive: Boolean = false,            // NEW
+    isDropActive: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val paddingY by animateDpAsState(targetValue = if (isDropActive) 20.dp else 12.dp)
+    val dropLabel = stringResource(R.string.drop_zone_for, title)
+    val hoveredDesc = stringResource(R.string.drop_zone_hovered)
     val infinite = rememberInfiniteTransition()
     val animatedStroke by infinite.animateFloat(
         initialValue = 2f,
@@ -60,6 +65,10 @@ fun SectionWrapper(
         modifier = Modifier
             .padding(vertical = paddingY)
             .then(modifier)
+            .semantics {
+                contentDescription = dropLabel
+                if (isDropActive) stateDescription = hoveredDesc
+            }
             .fillMaxWidth()
             .defaultMinSize(minHeight = minDropHeightDp.dp)
             .graphicsLayer(scaleX = scale, scaleY = scale)
