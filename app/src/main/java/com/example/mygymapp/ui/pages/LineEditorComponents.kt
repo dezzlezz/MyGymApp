@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -160,7 +161,8 @@ fun ColumnScope.LineTitleAndCategoriesSection(
     onCategoryChange: (List<String>) -> Unit,
     muscleOptions: List<String>,
     selectedMuscles: List<String>,
-    onMuscleChange: (List<String>) -> Unit
+    onMuscleChange: (List<String>) -> Unit,
+    titleError: Boolean = false
 ) {
     PoeticDivider(centerText = "What would you title this day?")
     LinedTextField(
@@ -168,7 +170,8 @@ fun ColumnScope.LineTitleAndCategoriesSection(
         onValueChange = onTitleChange,
         hint = "A poetic title...",
         initialLines = 1,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
+        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+        isError = titleError
     )
     PoeticDivider(centerText = "What kind of movement is this?")
     PoeticMultiSelectChips(
@@ -462,11 +465,13 @@ fun SectionsWithDragDrop(
                                 modifier = Modifier
                                     .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                     .onGloballyPositioned {
-                                        val topLeft = it.positionInWindow()
-                                        itemOffset = topLeft
-                                        val size = it.size.toSize()
-                                        dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
-                                },
+                                        if (dragState.isDragging) {
+                                            val topLeft = it.positionInWindow()
+                                            itemOffset = topLeft
+                                            val size = it.size.toSize()
+                                            dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                        }
+                                    },
                                 dragHandle = {
                                     var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                     Icon(
@@ -474,7 +479,11 @@ fun SectionsWithDragDrop(
                                         contentDescription = "Drag",
                                         tint = Color.Gray,
                                         modifier = Modifier
-                                            .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                            .onGloballyPositioned {
+                                                if (!dragState.isDragging) {
+                                                    handleOffset = it.positionInWindow()
+                                                }
+                                            }
                                             .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
                                     )
                                 },
@@ -492,14 +501,18 @@ fun SectionsWithDragDrop(
                 val isDropActive = dragState.hoveredSection == ""
                 val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
                 val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
+                val scale by animateFloatAsState(if (isDropActive) 1.02f else 1f)
                 SectionWrapper(
                     title = "Unassigned",
                     modifier = Modifier
                         .onGloballyPositioned {
-                            val top = it.positionInWindow().y
-                            val bottom = top + it.size.height
-                            dragState.sectionBounds[""] = top to bottom
+                            if (dragState.isDragging) {
+                                val top = it.positionInWindow().y
+                                val bottom = top + it.size.height
+                                dragState.sectionBounds[""] = top to bottom
+                            }
                         }
+                        .graphicsLayer(scaleX = scale, scaleY = scale)
                         .background(bgColor)
                         .border(1.dp, borderColor)
                         .shadow(if (isDropActive) 4.dp else 0.dp),
@@ -549,11 +562,13 @@ fun SectionsWithDragDrop(
                                     },
                                     modifier = Modifier
                                         .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                        .onGloballyPositioned {
+                                    .onGloballyPositioned {
+                                        if (dragState.isDragging) {
                                             val topLeft = it.positionInWindow()
                                             itemOffset = topLeft
                                             val size = it.size.toSize()
                                             dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                        }
                                     },
                                     dragHandle = {
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
@@ -562,7 +577,11 @@ fun SectionsWithDragDrop(
                                             contentDescription = "Drag",
                                             tint = Color.Gray,
                                             modifier = Modifier
-                                                .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                .onGloballyPositioned {
+                                                    if (!dragState.isDragging) {
+                                                        handleOffset = it.positionInWindow()
+                                                    }
+                                                }
                                                 .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
                                         )
                                     },
@@ -580,14 +599,18 @@ fun SectionsWithDragDrop(
                 val isDropActive = dragState.hoveredSection == sectionName
                 val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
                 val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
+                val scale by animateFloatAsState(if (isDropActive) 1.02f else 1f)
                 SectionWrapper(
                     title = sectionName,
                     modifier = Modifier
                         .onGloballyPositioned {
-                            val top = it.positionInWindow().y
-                            val bottom = top + it.size.height
-                            dragState.sectionBounds[sectionName] = top to bottom
+                            if (dragState.isDragging) {
+                                val top = it.positionInWindow().y
+                                val bottom = top + it.size.height
+                                dragState.sectionBounds[sectionName] = top to bottom
+                            }
                         }
+                        .graphicsLayer(scaleX = scale, scaleY = scale)
                         .background(bgColor)
                         .border(1.dp, borderColor)
                         .shadow(if (isDropActive) 4.dp else 0.dp),
@@ -635,12 +658,14 @@ fun SectionsWithDragDrop(
                                     },
                                     modifier = Modifier
                                         .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                        .onGloballyPositioned {
+                                    .onGloballyPositioned {
+                                        if (dragState.isDragging) {
                                             val topLeft = it.positionInWindow()
                                             itemOffset = topLeft
                                             val size = it.size.toSize()
                                             dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
-                                        },
+                                        }
+                                    },
                                     dragHandle = {
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         Icon(
@@ -648,7 +673,11 @@ fun SectionsWithDragDrop(
                                             contentDescription = "Drag",
                                             tint = Color.Gray,
                                             modifier = Modifier
-                                                .onGloballyPositioned { handleOffset = it.positionInWindow() }
+                                                .onGloballyPositioned {
+                                                    if (!dragState.isDragging) {
+                                                        handleOffset = it.positionInWindow()
+                                                    }
+                                                }
                                                 .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
                                         )
                                     },
