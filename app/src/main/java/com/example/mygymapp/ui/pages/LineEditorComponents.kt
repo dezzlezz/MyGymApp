@@ -507,7 +507,7 @@ fun SectionsWithDragDrop(
                                     var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                     Icon(
                                         imageVector = Icons.Default.DragHandle,
-                                        contentDescription = "Drag",
+                                        contentDescription = stringResource(R.string.reorder_movement),
                                         tint = Color.Gray,
                                         modifier = Modifier
                                             .onGloballyPositioned {
@@ -539,7 +539,7 @@ fun SectionsWithDragDrop(
                 val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
                 val scale by animateFloatAsState(if (isDropActive) 1.02f else 1f)
                 SectionWrapper(
-                    title = "Unassigned",
+                    title = stringResource(R.string.unassigned),
                     modifier = Modifier
                         .onGloballyPositioned {
                             if (dragState.isDragging) {
@@ -607,7 +607,7 @@ fun SectionsWithDragDrop(
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         Icon(
                                             imageVector = Icons.Default.DragHandle,
-                                            contentDescription = "Drag",
+                                            contentDescription = stringResource(R.string.reorder_movement),
                                             tint = Color.Gray,
                                             modifier = Modifier
                                                 .onGloballyPositioned {
@@ -712,7 +712,7 @@ fun SectionsWithDragDrop(
                                             var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                             Icon(
                                                 imageVector = Icons.Default.DragHandle,
-                                                contentDescription = "Drag",
+                                                contentDescription = stringResource(R.string.reorder_movement),
                                                 tint = Color.Gray,
                                                 modifier = Modifier
                                                     .onGloballyPositioned {

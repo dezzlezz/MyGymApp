@@ -276,7 +276,7 @@ fun LineEditorPage(
                                 Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
                                 lineExercise?.let {
                                     Text(
-                                        "${it.sets} x ${it.repsOrDuration}",
+                                        stringResource(R.string.sets_reps_format, it.sets, it.repsOrDuration),
                                         fontFamily = GaeguRegular,
                                         fontSize = 12.sp,
                                         color = Color.Black

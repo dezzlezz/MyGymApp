@@ -148,4 +148,9 @@
     <string name="save_template_label">Save Template</string>
     <string name="movement_removed">Movement removed</string>
     <string name="undo">Undo</string>
+    <string name="reorder_movement">Reorder movement</string>
+    <string name="drop_zone_for">Drop zone for %1$s</string>
+    <string name="drop_zone_hovered">current drop target</string>
+    <string name="sets_reps_format">%1$d x %2$s</string>
+    <string name="unassigned">Unassigned</string>
 </resources>
