@@ -41,7 +41,6 @@ import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.components.*
-import com.example.mygymapp.ui.util.move
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -93,6 +92,26 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
         get() = supersets.map { it.toList() }
 }
 
+private fun moveWithSuperset(
+    list: SnapshotStateList<LineExercise>,
+    supersetState: SupersetState,
+    fromIdx: Int,
+    toIdx: Int
+) {
+    if (fromIdx == toIdx) return
+    val moving = list.getOrNull(fromIdx) ?: return
+    val partnerIds = supersetState.partners(moving.id)
+    val groupIds = listOf(moving.id) + partnerIds
+    val groupItems = groupIds.mapNotNull { id -> list.find { it.id == id } }
+    val indices = groupItems.map { list.indexOf(it) }.sorted()
+    val block = indices.map { list[it] }
+    for (i in indices.asReversed()) list.removeAt(i)
+    var insert = toIdx
+    val first = indices.firstOrNull() ?: 0
+    if (insert > first) insert -= block.size
+    list.addAll(insert.coerceIn(0, list.size), block)
+}
+
 /** Unified drag handler used by picker items and list handles. */
 fun Modifier.exerciseDrag(
     state: DragAndDropState,
@@ -102,9 +121,10 @@ fun Modifier.exerciseDrag(
     getStartOffset: () -> Offset,
     allExercises: List<Exercise>,
     selectedExercises: SnapshotStateList<LineExercise>,
+    supersetState: SupersetState,
     findInsertIndex: (String, Float) -> Int,
     onStart: () -> Unit = {}
-): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises) {
+): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises, supersetState) {
     detectDragGesturesAfterLongPress(
         onDragStart = { offset ->
             onStart()
@@ -130,12 +150,21 @@ fun Modifier.exerciseDrag(
                 if (sectionName != fromSection || idx < 0) {
                     val insertIdx = findInsertIndex(sectionName, state.dragPosition.y)
                     var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
-                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
-                        clampedIdx -= 1
-                    }
-                    if (idx >= 0) {
-                        val item = selectedExercises.removeAt(idx)
-                        selectedExercises.add(clampedIdx, item.copy(section = sectionName))
+                    val partnerIds = supersetState.partners(exerciseId)
+                    val groupIds = listOf(exerciseId) + partnerIds
+                    val groupItems = groupIds.mapNotNull { id -> selectedExercises.find { it.id == id } }
+                    val indices = groupItems.map { selectedExercises.indexOf(it) }.sorted()
+                    if (indices.isNotEmpty()) {
+                        val firstIdx = indices.first()
+                        if (idx >= 0 && selectedExercises[idx].section == sectionName && firstIdx < clampedIdx) {
+                            clampedIdx -= indices.size
+                        }
+                        val block = indices.map { selectedExercises[it] }
+                        indices.asReversed().forEach { selectedExercises.removeAt(it) }
+                        selectedExercises.addAll(
+                            clampedIdx,
+                            block.map { it.copy(section = sectionName) }
+                        )
                     } else {
                         allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
                             selectedExercises.add(
@@ -442,10 +471,7 @@ fun SectionsWithDragDrop(
         if (sections.isEmpty()) {
             Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
             val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
-                selectedExercises.move(
-                    from.index,
-                    to.index
-                )
+                moveWithSuperset(selectedExercises, supersetState, from.index, to.index)
             })
             val isDropActive = dragState.hoveredSection == ""
             val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
@@ -484,6 +510,9 @@ fun SectionsWithDragDrop(
                             val isDraggingPartner = dragState.draggingExerciseId?.let {
                                 supersetState.partners(it).contains(item.id)
                             } == true
+                            val nextItem = selectedExercises.getOrNull(index + 1)
+                            val linkedWithNext =
+                                nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
@@ -525,6 +554,13 @@ fun SectionsWithDragDrop(
                                 },
                                 supersetPartnerIndices = partnerIndices,
                                 isDraggingPartner = isDraggingPartner,
+                                isLinkedWithNext = linkedWithNext,
+                                onToggleSuperset = nextItem?.let {
+                                    {
+                                        if (linkedWithNext) supersetState.removeExercise(item.id)
+                                        else supersetState.addPair(item.id, it.id)
+                                    }
+                                },
                                 elevation = elevation
                             )
                         }
@@ -562,7 +598,9 @@ fun SectionsWithDragDrop(
                             current.getOrNull(to.index) ?: return@rememberReorderableLazyListState
                         val fromIdx = selectedExercises.indexOf(fromItem)
                         val toIdx = selectedExercises.indexOf(toItem)
-                        if (fromIdx >= 0 && toIdx >= 0) selectedExercises.move(fromIdx, toIdx)
+                        if (fromIdx >= 0 && toIdx >= 0) {
+                            moveWithSuperset(selectedExercises, supersetState, fromIdx, toIdx)
+                        }
                     })
                     LazyColumn(
                         state = reorderState.listState,
@@ -584,6 +622,9 @@ fun SectionsWithDragDrop(
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
                                     supersetState.partners(it).contains(item.id)
                                 } == true
+                                val nextItem = unassignedItems.getOrNull(index + 1)
+                                val linkedWithNext =
+                                    nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                                 ReorderableExerciseItem(
                                     index = index,
                                     exercise = item,
@@ -625,6 +666,13 @@ fun SectionsWithDragDrop(
                                     },
                                     supersetPartnerIndices = partnerIndices,
                                     isDraggingPartner = isDraggingPartner,
+                                    isLinkedWithNext = linkedWithNext,
+                                    onToggleSuperset = nextItem?.let {
+                                        {
+                                            if (linkedWithNext) supersetState.removeExercise(item.id)
+                                            else supersetState.addPair(item.id, it.id)
+                                        }
+                                    },
                                     elevation = elevation
                                 )
                             }
@@ -667,7 +715,9 @@ fun SectionsWithDragDrop(
                         val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
                             val fromIdx = selectedExercises.indexOf(items[from.index])
                             val toIdx = selectedExercises.indexOf(items[to.index])
-                            if (fromIdx >= 0 && toIdx >= 0) selectedExercises.move(fromIdx, toIdx)
+                            if (fromIdx >= 0 && toIdx >= 0) {
+                                moveWithSuperset(selectedExercises, supersetState, fromIdx, toIdx)
+                            }
                         })
                         LazyColumn(
                             state = reorderState.listState,
@@ -689,6 +739,9 @@ fun SectionsWithDragDrop(
                                     val isDraggingPartner = dragState.draggingExerciseId?.let {
                                         supersetState.partners(it).contains(item.id)
                                     } == true
+                                    val nextItem = items.getOrNull(index + 1)
+                                    val linkedWithNext =
+                                        nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                                     ReorderableExerciseItem(
                                         index = index,
                                         exercise = item,
@@ -730,6 +783,13 @@ fun SectionsWithDragDrop(
                                         },
                                         supersetPartnerIndices = partnerIndices,
                                         isDraggingPartner = isDraggingPartner,
+                                        isLinkedWithNext = linkedWithNext,
+                                        onToggleSuperset = nextItem?.let {
+                                            {
+                                                if (linkedWithNext) supersetState.removeExercise(item.id)
+                                                else supersetState.addPair(item.id, it.id)
+                                            }
+                                        },
                                         elevation = elevation
                                     )
                                 }

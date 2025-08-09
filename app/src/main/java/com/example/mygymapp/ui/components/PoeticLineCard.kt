@@ -39,7 +39,7 @@ fun PoeticLineCard(
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "${'$'}{line.category} · ${'$'}{line.muscleGroup}",
+            text = "${line.category} · ${line.muscleGroup}",
             style = MaterialTheme.typography.bodySmall.copy(
                 fontFamily = GaeguLight,
                 color = Color(0xFF5D4037)

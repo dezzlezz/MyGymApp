@@ -7,10 +7,10 @@ class ExerciseGoalStore private constructor(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("exercise_goals", Context.MODE_PRIVATE)
 
-    fun getGoal(exerciseId: Long): Int = prefs.getInt("goal_${'$'}exerciseId", 0)
+    fun getGoal(exerciseId: Long): Int = prefs.getInt("goal_${exerciseId}", 0)
 
     fun setGoal(exerciseId: Long, target: Int) {
-        prefs.edit().putInt("goal_${'$'}exerciseId", target).apply()
+        prefs.edit().putInt("goal_${exerciseId}", target).apply()
     }
 
     companion object {

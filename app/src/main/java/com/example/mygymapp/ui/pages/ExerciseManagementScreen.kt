@@ -67,16 +67,22 @@ fun ExerciseManagementScreen(navController: NavController) {
         restore = { mutableStateListOf(*it.toTypedArray()) }
     )
     val userRegisters = rememberSaveable(saver = listSaver) { mutableStateListOf<String>() }
-    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var selectedCategoryKey by remember { mutableStateOf<String?>(null) }
+    var selectedIsCustom by remember { mutableStateOf(false) }
     val rawQuery = search.trim().lowercase().replace("\\s+".toRegex(), "")
 
     val categories = ExerciseCategory.values()
+    val customCategories = (userRegisters + exercises.mapNotNull { it.customCategory }).distinct()
     val isSearching = rawQuery.isNotEmpty()
 
-    val filtered = exercises.filter {
-        val catName = it.category.name
-        (selectedCategory == null || selectedCategory == catName) &&
-                it.name.lowercase().replace("\\s+".toRegex(), "").contains(rawQuery)
+    val filtered = exercises.filter { ex ->
+        val matchesCategory = when {
+            selectedCategoryKey == null -> true
+            selectedIsCustom -> ex.customCategory == selectedCategoryKey
+            else -> ex.category.name == selectedCategoryKey
+        }
+        matchesCategory &&
+                ex.name.lowercase().replace("\\s+".toRegex(), "").contains(rawQuery)
     }
 
     val grouped = if (!isSearching) filtered.groupBy { it.customCategory ?: it.muscleGroup.display } else emptyMap()
@@ -158,10 +164,13 @@ fun ExerciseManagementScreen(navController: NavController) {
                     text = "All",
                     modifier = Modifier
                         .background(
-                            if (selectedCategory == null) highlightColor else Color.Transparent,
+                            if (selectedCategoryKey == null) highlightColor else Color.Transparent,
                             RoundedCornerShape(8.dp)
                         )
-                        .clickable { selectedCategory = null }
+                        .clickable {
+                            selectedCategoryKey = null
+                            selectedIsCustom = false
+                        }
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                 )
@@ -170,10 +179,29 @@ fun ExerciseManagementScreen(navController: NavController) {
                         text = cat.display,
                         modifier = Modifier
                             .background(
-                                if (selectedCategory == cat.display) highlightColor else Color.Transparent,
+                                if (!selectedIsCustom && selectedCategoryKey == cat.name) highlightColor else Color.Transparent,
                                 RoundedCornerShape(8.dp)
                             )
-                            .clickable { selectedCategory = cat.display }
+                            .clickable {
+                                selectedCategoryKey = cat.name
+                                selectedIsCustom = false
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
+                    )
+                }
+                customCategories.forEach { cat ->
+                    Text(
+                        text = cat,
+                        modifier = Modifier
+                            .background(
+                                if (selectedIsCustom && selectedCategoryKey == cat) highlightColor else Color.Transparent,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clickable {
+                                selectedCategoryKey = cat
+                                selectedIsCustom = true
+                            }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp)
                     )

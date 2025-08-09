@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -101,6 +102,7 @@ fun LineEditorPage(
             offset,
             allExercises,
             selectedExercises,
+            supersetState,
             ::findInsertIndexForDrop,
             start
         )
@@ -260,13 +262,17 @@ fun LineEditorPage(
             }
 
             if (dragState.isDragging && dragState.draggingExerciseId != null) {
+                val density = LocalDensity.current
                 val id = dragState.draggingExerciseId!!
                 val lineExercise = selectedExercises.find { it.id == id }
                 val previewName = dragState.dragPreview ?: lineExercise?.name ?: allExercises.find { it.id == id }?.name
                 previewName?.let { name ->
                     Box(
                         Modifier
-                            .absoluteOffset(x = dragState.dragPosition.x.dp, y = dragState.dragPosition.y.dp)
+                            .absoluteOffset(
+                                x = with(density) { dragState.dragPosition.x.toDp() },
+                                y = with(density) { dragState.dragPosition.y.toDp() }
+                            )
                             .shadow(8.dp)
                             .alpha(0.85f)
                             .graphicsLayer { rotationZ = -3f }
