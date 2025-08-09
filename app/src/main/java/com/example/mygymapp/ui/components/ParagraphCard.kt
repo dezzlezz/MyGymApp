@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 @Composable
 fun ParagraphCard(
@@ -34,9 +36,9 @@ fun ParagraphCard(
         }
         Spacer(modifier = Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TextButton(onClick = onEdit) { Text("✏️ Edit", fontFamily = GaeguRegular) }
-            TextButton(onClick = onPlan) { Text("📆 Plan", fontFamily = GaeguRegular) }
-            TextButton(onClick = onSaveTemplate) { Text("📎 Save Template", fontFamily = GaeguRegular) }
+            TextButton(onClick = onEdit) { Text(stringResource(R.string.edit_label), fontFamily = GaeguRegular) }
+            TextButton(onClick = onPlan) { Text(stringResource(R.string.plan_label), fontFamily = GaeguRegular) }
+            TextButton(onClick = onSaveTemplate) { Text(stringResource(R.string.save_template_label), fontFamily = GaeguRegular) }
         }
     }
 }

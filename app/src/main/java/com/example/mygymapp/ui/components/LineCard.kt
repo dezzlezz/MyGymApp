@@ -11,14 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import com.example.mygymapp.R
 import com.example.mygymapp.model.Line
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.ui.pages.GaeguRegular
+import com.example.mygymapp.ui.pages.GaeguBold
 
 @Composable
 fun LineCard(
@@ -29,8 +30,6 @@ fun LineCard(
     modifier: Modifier = Modifier
 ) {
     val fade by animateFloatAsState(if (line.isArchived) 0f else 1f, label = "fade")
-    val gaeguRegular = FontFamily(Font(R.font.gaegu_regular))
-    val gaeguBold = FontFamily(Font(R.font.gaegu_bold))
     val textColor = Color(0xFF5D4037)
     val buttonBackground = Color(0xFFFFF8E1)
 
@@ -42,7 +41,7 @@ fun LineCard(
             Text(
                 text = line.title,
                 style = TextStyle(
-                    fontFamily = gaeguBold,
+                    fontFamily = GaeguBold,
                     fontSize = 24.sp,
                     color = textColor
                 )
@@ -53,10 +52,11 @@ fun LineCard(
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
+        val supersetWord = if (line.supersets.size == 1) stringResource(R.string.superset_singular) else stringResource(R.string.superset_plural)
         Text(
-            text = "${line.exercises.size} exercises · ${line.supersets.size} superset${if (line.supersets.size == 1) "" else "s"}",
+            text = stringResource(R.string.line_card_summary, line.exercises.size, line.supersets.size, supersetWord),
             style = TextStyle(
-                fontFamily = gaeguRegular,
+                fontFamily = GaeguRegular,
                 fontSize = 14.sp,
                 color = textColor
             )
@@ -64,9 +64,9 @@ fun LineCard(
         if (line.note.isNotBlank()) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "📎 ${line.note}",
+                text = stringResource(R.string.note_prefix, line.note),
                 style = TextStyle(
-                    fontFamily = gaeguRegular,
+                    fontFamily = GaeguRegular,
                     fontSize = 14.sp,
                     color = textColor
                 ),
@@ -91,8 +91,8 @@ fun LineCard(
                 )
             ) {
                 Text(
-                    "✏️ Edit",
-                    style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
+                    stringResource(R.string.edit_label),
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 14.sp)
                 )
             }
             TextButton(
@@ -103,8 +103,8 @@ fun LineCard(
                 )
             ) {
                 Text(
-                    "📥 Add",
-                    style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
+                    stringResource(R.string.add_label),
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 14.sp)
                 )
             }
             TextButton(
@@ -115,8 +115,8 @@ fun LineCard(
                 )
             ) {
                 Text(
-                    "📦 Archive",
-                    style = TextStyle(fontFamily = gaeguRegular, fontSize = 14.sp)
+                    stringResource(R.string.archive_label),
+                    style = TextStyle(fontFamily = GaeguRegular, fontSize = 14.sp)
                 )
             }
         }
