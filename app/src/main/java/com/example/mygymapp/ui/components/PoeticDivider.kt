@@ -15,7 +15,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.theme.AppColors
 import com.example.mygymapp.ui.theme.AppPadding
-import com.example.mygymapp.ui.theme.AppTypography
+import com.example.mygymapp.ui.pages.GaeguBold
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun PoeticDivider(
@@ -43,7 +44,7 @@ fun PoeticDivider(
 
         if (centerText != null) {
             Spacer(Modifier.width(AppPadding.Small))
-            Text(centerText, style = AppTypography.Body, color = Color.Black)
+            Text(centerText, fontFamily = GaeguBold, fontSize = 20.sp, color = Color.Black)
             Spacer(Modifier.width(AppPadding.Small))
             Divider(
                 color = AppColors.SectionLine,
