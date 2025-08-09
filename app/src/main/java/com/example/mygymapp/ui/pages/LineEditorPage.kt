@@ -83,6 +83,7 @@ fun LineEditorPage(
             restore = { it.toMutableStateList() }
         )
     ) { mutableStateListOf<Long>() }
+    val supersetHelper = remember { SupersetHelper(supersets) }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌈 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
@@ -102,13 +103,6 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val dragState = remember { DragAndDropState() }
-
-    fun addSuperset(ids: List<Long>) {
-        supersets.removeAll { group -> group.any { it in ids } }
-        if (ids.size > 1) supersets.add(ids.sorted().toMutableList())
-    }
-    fun removeSuperset(id: Long) { supersets.removeAll { group -> group.contains(id) } }
-    fun findSupersetPartners(id: Long): List<Long> = supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
         val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
@@ -193,12 +187,10 @@ fun LineEditorPage(
                     SectionsWithDragDrop(
                         sections = sections,
                         selectedExercises = selectedExercises,
-                        supersets = supersets,
+                        supersetHelper = supersetHelper,
                         supersetSelection = supersetSelection,
                         dragState = dragState,
                         allExercises = allExercises,
-                        findSupersetPartners = ::findSupersetPartners,
-                        removeSuperset = ::removeSuperset,
                         dragModifier = dragModifier,
                         findInsertIndexForDrop = ::findInsertIndexForDrop
                     )
