@@ -75,6 +75,7 @@ fun LineEditorPage(
     val pageScrollState = rememberScrollState()
     val titleBringIntoViewRequester = remember { BringIntoViewRequester() }
     val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val noteBringIntoViewRequester = remember { BringIntoViewRequester() }
     val errorMessage = stringResource(R.string.add_title_and_movement_error)
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
@@ -164,7 +165,11 @@ fun LineEditorPage(
                         titleBringIntoViewRequester = titleBringIntoViewRequester
                     )
 
-                    LineNotesSection(note = note, onNoteChange = { editorVm.note.value = it })
+                    LineNotesSection(
+                        note = note,
+                        onNoteChange = { editorVm.note.value = it },
+                        noteBringIntoViewRequester = noteBringIntoViewRequester
+                    )
 
                     PoeticDivider(centerText = stringResource(R.string.movements_prompt))
                     val showExerciseSheet = remember { mutableStateOf(false) }

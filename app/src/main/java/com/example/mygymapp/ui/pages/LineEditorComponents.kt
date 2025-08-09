@@ -180,9 +180,9 @@ fun ColumnScope.LineTitleAndCategoriesSection(
         initialLines = 1,
         modifier = Modifier
             .fillMaxWidth()
-            .align(Alignment.CenterHorizontally)
-            .then(if (titleBringIntoViewRequester != null) Modifier.bringIntoViewRequester(titleBringIntoViewRequester) else Modifier),
-        isError = titleError
+            .align(Alignment.CenterHorizontally),
+        isError = titleError,
+        bringIntoViewRequester = titleBringIntoViewRequester
     )
     PoeticDivider(centerText = "What kind of movement is this?")
     PoeticMultiSelectChips(
@@ -203,7 +203,8 @@ fun ColumnScope.LineTitleAndCategoriesSection(
 @Composable
 fun ColumnScope.LineNotesSection(
     note: String,
-    onNoteChange: (String) -> Unit
+    onNoteChange: (String) -> Unit,
+    noteBringIntoViewRequester: BringIntoViewRequester? = null
 ) {
     PoeticDivider(centerText = "Your notes on this movement")
     LinedTextField(
@@ -211,7 +212,8 @@ fun ColumnScope.LineNotesSection(
         onValueChange = onNoteChange,
         hint = "Write your thoughts here...",
         initialLines = 3,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
+        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+        bringIntoViewRequester = noteBringIntoViewRequester
     )
 }
 
