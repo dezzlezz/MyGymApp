@@ -209,6 +209,7 @@ fun ParagraphEditorPageSwipe(
                     ) {
                         dayNames.forEachIndexed { index, day ->
                             val isSelected = pagerState.currentPage == index
+                            val tabDescription = stringResource(R.string.weekday_tab_cd, day)
                             Tab(
                                 selected = isSelected,
                                 onClick = {
@@ -219,8 +220,7 @@ fun ParagraphEditorPageSwipe(
                                     }
                                 },
                                 modifier = Modifier.semantics {
-                                    contentDescription =
-                                        stringResource(R.string.weekday_tab_cd, day)
+                                    contentDescription = tabDescription
                                 }
                             ) {
                                 Surface(
@@ -255,12 +255,15 @@ fun ParagraphEditorPageSwipe(
                             Box(modifier = Modifier.fillMaxWidth()) {
                                 val selected = selectedLines[page]
                                 if (selected != null) {
+                                    val selectedDescription = stringResource(
+                                        R.string.line_item_cd,
+                                        selected.title
+                                    )
                                     PoeticLineCard(
                                         line = selected,
                                         isSelected = true,
                                         modifier = Modifier.semantics {
-                                            contentDescription =
-                                                stringResource(R.string.line_item_cd, selected.title)
+                                            contentDescription = selectedDescription
                                         }
                                     )
                                 } else {
@@ -373,6 +376,10 @@ fun ParagraphEditorPageSwipe(
                                     LazyColumn {
                                         items(filteredLines, key = { it.id }) { line ->
                                             val isSelected = selectedLines[page]?.id == line.id
+                                            val lineDescription = stringResource(
+                                                R.string.line_item_cd,
+                                                line.title
+                                            )
                                             PoeticLineCard(
                                                 line = line,
                                                 isSelected = isSelected,
@@ -383,10 +390,7 @@ fun ParagraphEditorPageSwipe(
                                                 modifier = Modifier
                                                     .padding(vertical = 6.dp)
                                                     .semantics {
-                                                        contentDescription = stringResource(
-                                                            R.string.line_item_cd,
-                                                            line.title
-                                                        )
+                                                        contentDescription = lineDescription
                                                     }
                                             )
                                         }
@@ -401,6 +405,7 @@ fun ParagraphEditorPageSwipe(
 
                 val context = LocalContext.current
                 var isSaving by remember { mutableStateOf(false) }
+                val saveDescription = stringResource(R.string.save_paragraph_cd)
                 Button(
                     onClick = {
                         val restDay = context.getString(R.string.rest_day)
@@ -423,7 +428,7 @@ fun ParagraphEditorPageSwipe(
                         .align(Alignment.BottomEnd)
                         .padding(24.dp)
                         .semantics {
-                            contentDescription = stringResource(R.string.save_paragraph_cd)
+                            contentDescription = saveDescription
                         },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0E0C0))
                 ) {
