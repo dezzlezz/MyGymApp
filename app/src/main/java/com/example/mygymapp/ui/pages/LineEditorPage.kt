@@ -120,6 +120,16 @@ fun LineEditorPage(
         }
     }
 
+    LaunchedEffect(showError) {
+        if (showError) {
+            if (title.isBlank()) {
+                scrollState.animateScrollTo(0)
+            } else if (selectedExercises.isEmpty()) {
+                exerciseBringIntoView.bringIntoView()
+            }
+        }
+    }
+
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
         val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
         if (entries.isEmpty()) {
@@ -139,6 +149,9 @@ fun LineEditorPage(
     val dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier = { id, name, section, offset, start ->
         Modifier.exerciseDrag(dragState, id, name, section, offset, allExercises, selectedExercises, sections, ::findInsertIndexForDrop, start)
     }
+
+    val scrollState = rememberScrollState()
+    val exerciseBringIntoView = remember { BringIntoViewRequester() }
 
     Scaffold(
         snackbarHost = {
