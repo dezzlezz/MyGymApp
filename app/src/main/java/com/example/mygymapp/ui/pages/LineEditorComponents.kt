@@ -339,7 +339,10 @@ fun SectionsWithDragDrop(
             moveSelection.clear(); moveSelectedOption = null; moveCustomName = ""
         }
     ) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             PoeticRadioChips(
                 options = listOf("Warm-up", "Workout", "Cooldown", "Custom"),
                 selected = moveSelectedOption ?: "",
@@ -365,7 +368,11 @@ fun SectionsWithDragDrop(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .clickable { if (checked) moveSelection.remove(ex.id) else moveSelection.add(ex.id) }
+                            .clickable {
+                                if (checked) moveSelection.remove(ex.id) else moveSelection.add(
+                                    ex.id
+                                )
+                            }
                     ) {
                         Checkbox(checked = checked, onCheckedChange = null)
                         Text(
@@ -381,7 +388,9 @@ fun SectionsWithDragDrop(
             GaeguButton(
                 text = "Move",
                 onClick = {
-                    val name = if (moveSelectedOption == "Custom") moveCustomName else moveSelectedOption ?: ""
+                    val name =
+                        if (moveSelectedOption == "Custom") moveCustomName else moveSelectedOption
+                            ?: ""
                     if (name.isNotBlank()) {
                         if (!sections.contains(name)) sections.add(name)
                         val affected = mutableSetOf<String>()
@@ -411,7 +420,12 @@ fun SectionsWithDragDrop(
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         if (sections.isEmpty()) {
             Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
-            val reorderState = rememberReorderableLazyListState(onMove = { from, to -> selectedExercises.move(from.index, to.index) })
+            val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
+                selectedExercises.move(
+                    from.index,
+                    to.index
+                )
+            })
             val isDropActive = dragState.hoveredSection == ""
             val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
             val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
@@ -441,10 +455,14 @@ fun SectionsWithDragDrop(
                     itemsIndexed(selectedExercises, key = { _, item -> item.id }) { index, item ->
                         ReorderableItem(reorderState, key = item.id) { dragging ->
                             val elevation = if (dragging) 8.dp else 2.dp
-                            val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
-                                selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
-                            }
-                            val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
+                            val partnerIndices =
+                                supersetHelper.partners(item.id).mapNotNull { pid ->
+                                    selectedExercises.indexOfFirst { it.id == pid }
+                                        .takeIf { it >= 0 }
+                                }
+                            val isDraggingPartner = dragState.draggingExerciseId?.let {
+                                supersetHelper.partners(it).contains(item.id)
+                            } == true
                             var itemOffset by remember { mutableStateOf(Offset.Zero) }
                             val isDragTarget = dragState.hoveredItemId == item.id
                             ReorderableExerciseItem(
@@ -467,7 +485,8 @@ fun SectionsWithDragDrop(
                                             val topLeft = it.positionInWindow()
                                             itemOffset = topLeft
                                             val size = it.size.toSize()
-                                            dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
+                                            dragState.itemBounds[item.id] =
+                                                topLeft.y to (topLeft.y + size.height)
                                         }
                                     },
                                 dragHandle = {
@@ -482,7 +501,12 @@ fun SectionsWithDragDrop(
                                                     handleOffset = it.positionInWindow()
                                                 }
                                             }
-                                            .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
+                                            .then(
+                                                dragModifier(
+                                                    item.id,
+                                                    item.name,
+                                                    item.section,
+                                                    { handleOffset }) { })
                                     )
                                 },
                                 supersetPartnerIndices = partnerIndices,
@@ -518,8 +542,10 @@ fun SectionsWithDragDrop(
                 ) {
                     val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
                         val current = selectedExercises.filter { it.section.isBlank() }
-                        val fromItem = current.getOrNull(from.index) ?: return@rememberReorderableLazyListState
-                        val toItem = current.getOrNull(to.index) ?: return@rememberReorderableLazyListState
+                        val fromItem =
+                            current.getOrNull(from.index) ?: return@rememberReorderableLazyListState
+                        val toItem =
+                            current.getOrNull(to.index) ?: return@rememberReorderableLazyListState
                         val fromIdx = selectedExercises.indexOf(fromItem)
                         val toIdx = selectedExercises.indexOf(toItem)
                         if (fromIdx >= 0 && toIdx >= 0) selectedExercises.move(fromIdx, toIdx)
@@ -536,10 +562,14 @@ fun SectionsWithDragDrop(
                         itemsIndexed(unassignedItems, key = { _, item -> item.id }) { index, item ->
                             ReorderableItem(reorderState, key = item.id) { dragging ->
                                 val elevation = if (dragging) 8.dp else 2.dp
-                                val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
-                                    selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
-                                }
-                                val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
+                                val partnerIndices =
+                                    supersetHelper.partners(item.id).mapNotNull { pid ->
+                                        selectedExercises.indexOfFirst { it.id == pid }
+                                            .takeIf { it >= 0 }
+                                    }
+                                val isDraggingPartner = dragState.draggingExerciseId?.let {
+                                    supersetHelper.partners(it).contains(item.id)
+                                } == true
                                 var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                 val isDragTarget = dragState.hoveredItemId == item.id
                                 ReorderableExerciseItem(
@@ -557,14 +587,15 @@ fun SectionsWithDragDrop(
                                     isDragTarget = isDragTarget,
                                     modifier = Modifier
                                         .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                    .onGloballyPositioned {
-                                        if (dragState.isDragging) {
-                                            val topLeft = it.positionInWindow()
-                                            itemOffset = topLeft
-                                            val size = it.size.toSize()
-                                            dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
-                                        }
-                                    },
+                                        .onGloballyPositioned {
+                                            if (dragState.isDragging) {
+                                                val topLeft = it.positionInWindow()
+                                                itemOffset = topLeft
+                                                val size = it.size.toSize()
+                                                dragState.itemBounds[item.id] =
+                                                    topLeft.y to (topLeft.y + size.height)
+                                            }
+                                        },
                                     dragHandle = {
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         Icon(
@@ -577,7 +608,12 @@ fun SectionsWithDragDrop(
                                                         handleOffset = it.positionInWindow()
                                                     }
                                                 }
-                                                .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
+                                                .then(
+                                                    dragModifier(
+                                                        item.id,
+                                                        item.name,
+                                                        item.section,
+                                                        { handleOffset }) { })
                                         )
                                     },
                                     supersetPartnerIndices = partnerIndices,

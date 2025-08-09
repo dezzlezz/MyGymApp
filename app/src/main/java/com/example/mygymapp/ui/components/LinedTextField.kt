@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 fun LinedTextField(
