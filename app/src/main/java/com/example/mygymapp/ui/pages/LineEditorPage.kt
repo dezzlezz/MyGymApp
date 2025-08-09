@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
@@ -22,7 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
@@ -250,6 +255,15 @@ fun LineEditorPage(
                     PoeticDivider(centerText = "Which movements do you want to add?")
                     val showExerciseSheet = remember { mutableStateOf(false) }
                     val exerciseSearch = remember { mutableStateOf("") }
+                    var pickerAlpha by remember { mutableStateOf(1f) }
+                    val pickerAnimatedAlpha by animateFloatAsState(
+                        targetValue = pickerAlpha,
+                        animationSpec = tween(durationMillis = 200),
+                        finishedListener = { if (it == 0f) showExerciseSheet.value = false }
+                    )
+                    LaunchedEffect(showExerciseSheet.value) {
+                        if (showExerciseSheet.value) pickerAlpha = 1f
+                    }
                     val filterOptions by remember {
                         derivedStateOf {
                             val base = listOf("All", "Full Body")
@@ -289,8 +303,9 @@ fun LineEditorPage(
                     // --- Exercise Picker Sheet (Drag-Quelle am Card-Body lassen, aber Window-Koords nutzen) ---
                     PoeticBottomSheet(
                         visible = showExerciseSheet.value,
-                        onDismiss = { showExerciseSheet.value = false }
+                        onDismiss = { pickerAlpha = 0f }
                     ) {
+                        Column(modifier = Modifier.alpha(pickerAnimatedAlpha)) {
                         LinedTextField(
                             value = exerciseSearch.value,
                             onValueChange = { exerciseSearch.value = it },
@@ -344,7 +359,7 @@ fun LineEditorPage(
                                                         dragStartLocal = offset
                                                         dragStartPointer = cardOffset + offset
                                                         dragPosition = dragStartPointer
-                                                        showExerciseSheet.value = false
+                                                        pickerAlpha = 0f
                                                     },
                                                     onDrag = { change, _ ->
                                                         change.consume()
@@ -401,7 +416,7 @@ fun LineEditorPage(
                                                         )
                                                     )
                                                 }
-                                                showExerciseSheet.value = false
+                                                pickerAlpha = 0f
                                                 exerciseSearch.value = ""
                                                 selectedFilter.value = null
                                             }
@@ -413,12 +428,13 @@ fun LineEditorPage(
                                         )
                                     }
                                 }
-                            }
                         }
                     }
+                }
+            }
 
-                    PoeticBottomSheet(
-                        visible = showMoveSheet,
+            PoeticBottomSheet(
+                visible = showMoveSheet,
                         onDismiss = {
                             showMoveSheet = false
                             moveSelection.clear()
@@ -916,6 +932,22 @@ fun LineEditorPage(
                         }
                     }
 
+                    if (showError) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFFF5F5F0))
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                "Please fill out title and at least one exercise",
+                                color = Color.DarkGray,
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
                     PoeticDivider()
 
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -946,9 +978,6 @@ fun LineEditorPage(
                         )
                     }
 
-                    if (showError) {
-                        Text("Please fill out title and at least one exercise", color = Color.Black, fontFamily = GaeguRegular)
-                    }
                 }
             }
 
@@ -964,6 +993,7 @@ fun LineEditorPage(
                                 x = dragPosition.x.dp,
                                 y = dragPosition.y.dp
                             )
+                            .shadow(6.dp)
                     ) {
                         PoeticCard {
                             Column(
