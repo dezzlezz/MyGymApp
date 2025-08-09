@@ -25,10 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.ui.res.stringResource
+import com.example.mygymapp.R
 
 /**
  * A poetic image picker box that allows the user to select and remove an illustration.
- * If no image is selected, shows a "📷 Add Illustration" button.
+ * If no image is selected, shows an "＋ Add Illustration" button.
  */
 @Composable
 fun ImagePickerBox(
@@ -36,7 +38,7 @@ fun ImagePickerBox(
     onPickImage: () -> Unit,
     onRemoveImage: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholderText: String = "📷 Add Illustration",
+    placeholderText: String = stringResource(R.string.add_illustration),
     font: FontFamily = GaeguRegular,
     imageSize: Dp = 200.dp
 ) {
