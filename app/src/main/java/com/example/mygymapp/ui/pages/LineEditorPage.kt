@@ -141,6 +141,9 @@ fun LineEditorPage(
         Modifier.exerciseDrag(dragState, id, name, section, offset, allExercises, selectedExercises, sections, ::findInsertIndexForDrop, start)
     }
 
+    val scrollState = rememberScrollState()
+    val exerciseBringIntoView = remember { BringIntoViewRequester() }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
