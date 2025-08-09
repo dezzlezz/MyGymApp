@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,13 +41,15 @@ fun WaxSealButton(
     textSize: TextUnit = 16.sp,
     shadowColor: Color = Color.Black,
     shadowOffset: Offset = Offset(1f, 1f),
-    sealSize: Dp = 100.dp
+    sealSize: Dp = 100.dp,
+    enabled: Boolean = true
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(sealSize)
-            .clickable { onClick() },
+            .alpha(if (enabled) 1f else 0.5f)
+            .clickable(enabled = enabled) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Image(
