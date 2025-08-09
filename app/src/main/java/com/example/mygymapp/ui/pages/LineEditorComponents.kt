@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
@@ -53,17 +55,19 @@ class DragAndDropState {
     var dragStartPointer by mutableStateOf(Offset.Zero)
     var dragStartLocal by mutableStateOf(Offset.Zero)
     var hoveredSection by mutableStateOf<String?>(null)
-    var hoveredItemId by mutableStateOf<Long?>(null)
     val itemBounds = mutableStateMapOf<Long, Pair<Float, Float>>()
     val sectionBounds = mutableStateMapOf<String, Pair<Float, Float>>()
 }
 
-/** Helper encapsulating superset operations to keep logic consistent. */
-class SupersetHelper(private val supersets: SnapshotStateList<MutableList<Long>>) {
+/** State holder encapsulating superset operations to keep logic consistent. */
+class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>) {
 
     /** Return partners for [id] within its superset, if any. */
     fun partners(id: Long): List<Long> =
         supersets.firstOrNull { it.contains(id) }?.filter { it != id } ?: emptyList()
+
+    /** Whether [id] belongs to any superset group. */
+    fun containsGroup(id: Long): Boolean = supersets.any { it.contains(id) }
 
     /** Remove [id] from any supersets and drop groups smaller than two. */
     fun removeExercise(id: Long) {
@@ -74,12 +78,16 @@ class SupersetHelper(private val supersets: SnapshotStateList<MutableList<Long>>
         }
     }
 
-    /** Create a new superset with [ids], cleaning up prior groupings. */
-    fun create(ids: List<Long>) {
-        val distinctIds = ids.distinct()
-        supersets.removeAll { group -> group.any { it in distinctIds } }
-        if (distinctIds.size > 1) supersets.add(distinctIds.sorted().toMutableList())
+    /** Create a superset pairing [a] and [b], cleaning up prior groupings. */
+    fun addPair(a: Long, b: Long) {
+        val pair = listOf(a, b).distinct()
+        supersets.removeAll { group -> group.any { it in pair } }
+        if (pair.size > 1) supersets.add(pair.sorted().toMutableList())
     }
+
+    /** Snapshot of current groups for persistence. */
+    val groups: List<List<Long>>
+        get() = supersets.map { it.toList() }
 }
 
 /** Unified drag handler used by picker items and list handles. */
@@ -91,11 +99,9 @@ fun Modifier.exerciseDrag(
     getStartOffset: () -> Offset,
     allExercises: List<Exercise>,
     selectedExercises: SnapshotStateList<LineExercise>,
-    sections: SnapshotStateList<String>,
     findInsertIndex: (String, Float) -> Int,
-    supersetHelper: SupersetHelper,
     onStart: () -> Unit = {}
-): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises, sections, supersetHelper) {
+): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises) {
     detectDragGesturesAfterLongPress(
         onDragStart = { offset ->
             onStart()
@@ -113,33 +119,27 @@ fun Modifier.exerciseDrag(
             state.hoveredSection = state.sectionBounds.entries.find { entry ->
                 state.dragPosition.y in entry.value.first..entry.value.second
             }?.key
-            state.hoveredItemId = state.itemBounds.entries.find { entry ->
-                entry.key != exerciseId && state.dragPosition.y in entry.value.first..entry.value.second
-            }?.key
         },
         onDragEnd = {
-            state.hoveredItemId?.let { targetId ->
-                supersetHelper.create(listOf(exerciseId, targetId))
-            } ?: state.hoveredSection?.let { sectionName ->
-                val insertIdx = findInsertIndex(sectionName, state.dragPosition.y)
+            state.hoveredSection?.let { sectionName ->
                 val idx = selectedExercises.indexOfFirst { it.id == exerciseId }
-                var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
-                if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
-                    clampedIdx -= 1
-                }
-                if (idx >= 0) {
-                    val item = selectedExercises.removeAt(idx)
-                    val old = item.section
-                    selectedExercises.add(clampedIdx, item.copy(section = sectionName))
-                    if (old.isNotBlank() && old != sectionName && selectedExercises.none { it.section == old }) {
-                        sections.remove(old)
+                val fromSection = state.draggingSection
+                if (sectionName != fromSection || idx < 0) {
+                    val insertIdx = findInsertIndex(sectionName, state.dragPosition.y)
+                    var clampedIdx = insertIdx.coerceIn(0, selectedExercises.size)
+                    if (idx >= 0 && selectedExercises[idx].section == sectionName && idx < clampedIdx) {
+                        clampedIdx -= 1
                     }
-                } else {
-                    allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
-                        selectedExercises.add(
-                            clampedIdx,
-                            LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = sectionName)
-                        )
+                    if (idx >= 0) {
+                        val item = selectedExercises.removeAt(idx)
+                        selectedExercises.add(clampedIdx, item.copy(section = sectionName))
+                    } else {
+                        allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
+                            selectedExercises.add(
+                                clampedIdx,
+                                LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10", section = sectionName)
+                            )
+                        }
                     }
                 }
             }
@@ -148,7 +148,6 @@ fun Modifier.exerciseDrag(
             state.dragPreview = null
             state.draggingSection = null
             state.hoveredSection = null
-            state.hoveredItemId = null
         },
         onDragCancel = {
             state.isDragging = false
@@ -156,7 +155,6 @@ fun Modifier.exerciseDrag(
             state.dragPreview = null
             state.draggingSection = null
             state.hoveredSection = null
-            state.hoveredItemId = null
         }
     )
 }
@@ -171,7 +169,8 @@ fun ColumnScope.LineTitleAndCategoriesSection(
     muscleOptions: List<String>,
     selectedMuscles: List<String>,
     onMuscleChange: (List<String>) -> Unit,
-    titleError: Boolean = false
+    titleError: Boolean = false,
+    titleBringIntoViewRequester: BringIntoViewRequester? = null
 ) {
     PoeticDivider(centerText = "What would you title this day?")
     LinedTextField(
@@ -179,7 +178,10 @@ fun ColumnScope.LineTitleAndCategoriesSection(
         onValueChange = onTitleChange,
         hint = "A poetic title...",
         initialLines = 1,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+        modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.CenterHorizontally)
+            .then(if (titleBringIntoViewRequester != null) Modifier.bringIntoViewRequester(titleBringIntoViewRequester) else Modifier),
         isError = titleError
     )
     PoeticDivider(centerText = "What kind of movement is this?")
@@ -319,9 +321,9 @@ fun ExercisePickerSheet(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SectionsWithDragDrop(
-    sections: SnapshotStateList<String>,
+    sections: List<String>,
     selectedExercises: SnapshotStateList<LineExercise>,
-    supersetHelper: SupersetHelper,
+    supersetState: SupersetState,
     dragState: DragAndDropState,
     allExercises: List<Exercise>,
     dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
@@ -392,16 +394,11 @@ fun SectionsWithDragDrop(
                         if (moveSelectedOption == "Custom") moveCustomName else moveSelectedOption
                             ?: ""
                     if (name.isNotBlank()) {
-                        if (!sections.contains(name)) sections.add(name)
-                        val affected = mutableSetOf<String>()
                         selectedExercises.forEachIndexed { idx, ex ->
                             if (moveSelection.contains(ex.id)) {
-                                affected.add(ex.section)
                                 selectedExercises[idx] = ex.copy(section = name)
                             }
                         }
-                        affected.filter { it.isNotBlank() && it != name && selectedExercises.none { ex -> ex.section == it } }
-                            .forEach { sections.remove(it) }
                     }
                     showMoveSheet = false
                     moveSelection.clear(); moveSelectedOption = null; moveCustomName = ""
@@ -409,12 +406,6 @@ fun SectionsWithDragDrop(
                 textColor = Color.Black
             )
         }
-    }
-    if (dragState.hoveredItemId != null) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text("Release to link them", fontFamily = GaeguRegular, color = Color.Gray)
-        }
-        Spacer(Modifier.height(8.dp))
     }
     if (selectedExercises.isNotEmpty()) {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -456,34 +447,30 @@ fun SectionsWithDragDrop(
                         ReorderableItem(reorderState, key = item.id) { dragging ->
                             val elevation = if (dragging) 8.dp else 2.dp
                             val partnerIndices =
-                                supersetHelper.partners(item.id).mapNotNull { pid ->
+                                supersetState.partners(item.id).mapNotNull { pid ->
                                     selectedExercises.indexOfFirst { it.id == pid }
                                         .takeIf { it >= 0 }
                                 }
                             val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                supersetHelper.partners(it).contains(item.id)
+                                supersetState.partners(it).contains(item.id)
                             } == true
-                            var itemOffset by remember { mutableStateOf(Offset.Zero) }
-                            val isDragTarget = dragState.hoveredItemId == item.id
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
                                 onRemove = {
                                     selectedExercises.remove(item)
-                                    supersetHelper.removeExercise(item.id)
+                                    supersetState.removeExercise(item.id)
                                 },
                                 onMove = {
                                     showMoveSheet = true
                                     moveSelection.clear(); moveSelection.add(item.id)
                                     moveSelectedOption = null; moveCustomName = ""
                                 },
-                                isDragTarget = isDragTarget,
                                 modifier = Modifier
                                     .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                     .onGloballyPositioned {
                                         if (dragState.isDragging) {
                                             val topLeft = it.positionInWindow()
-                                            itemOffset = topLeft
                                             val size = it.size.toSize()
                                             dragState.itemBounds[item.id] =
                                                 topLeft.y to (topLeft.y + size.height)
@@ -563,34 +550,30 @@ fun SectionsWithDragDrop(
                             ReorderableItem(reorderState, key = item.id) { dragging ->
                                 val elevation = if (dragging) 8.dp else 2.dp
                                 val partnerIndices =
-                                    supersetHelper.partners(item.id).mapNotNull { pid ->
+                                    supersetState.partners(item.id).mapNotNull { pid ->
                                         selectedExercises.indexOfFirst { it.id == pid }
                                             .takeIf { it >= 0 }
                                     }
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                    supersetHelper.partners(it).contains(item.id)
+                                    supersetState.partners(it).contains(item.id)
                                 } == true
-                                var itemOffset by remember { mutableStateOf(Offset.Zero) }
-                                val isDragTarget = dragState.hoveredItemId == item.id
                                 ReorderableExerciseItem(
                                     index = index,
                                     exercise = item,
                                     onRemove = {
                                         selectedExercises.remove(item)
-                                        supersetHelper.removeExercise(item.id)
+                                        supersetState.removeExercise(item.id)
                                     },
                                     onMove = {
                                         showMoveSheet = true
                                         moveSelection.clear(); moveSelection.add(item.id)
                                         moveSelectedOption = null; moveCustomName = ""
                                     },
-                                    isDragTarget = isDragTarget,
                                     modifier = Modifier
                                         .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                         .onGloballyPositioned {
                                             if (dragState.isDragging) {
                                                 val topLeft = it.positionInWindow()
-                                                itemOffset = topLeft
                                                 val size = it.size.toSize()
                                                 dragState.itemBounds[item.id] =
                                                     topLeft.y to (topLeft.y + size.height)
@@ -675,36 +658,30 @@ fun SectionsWithDragDrop(
                                 ReorderableItem(reorderState, key = item.id) { dragging ->
                                     val elevation = if (dragging) 8.dp else 2.dp
                                     val partnerIndices =
-                                        supersetHelper.partners(item.id).mapNotNull { pid ->
+                                        supersetState.partners(item.id).mapNotNull { pid ->
                                             selectedExercises.indexOfFirst { it.id == pid }
                                                 .takeIf { it >= 0 }
                                         }
                                     val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                        supersetHelper.partners(it).contains(item.id)
+                                        supersetState.partners(it).contains(item.id)
                                     } == true
-                                    var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                     ReorderableExerciseItem(
                                         index = index,
                                         exercise = item,
                                         onRemove = {
                                             selectedExercises.remove(item)
-                                            supersetHelper.removeExercise(item.id)
-                                            if (selectedExercises.none { it.section == sectionName }) sections.remove(
-                                                sectionName
-                                            )
+                                            supersetState.removeExercise(item.id)
                                         },
                                         onMove = {
                                             showMoveSheet = true
                                             moveSelection.clear(); moveSelection.add(item.id)
                                             moveSelectedOption = null; moveCustomName = ""
                                         },
-                                        isDragTarget = dragState.hoveredItemId == item.id,
                                         modifier = Modifier
                                             .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                             .onGloballyPositioned {
                                                 if (dragState.isDragging) {
                                                     val topLeft = it.positionInWindow()
-                                                    itemOffset = topLeft
                                                     val size = it.size.toSize()
                                                     dragState.itemBounds[item.id] =
                                                         topLeft.y to (topLeft.y + size.height)
