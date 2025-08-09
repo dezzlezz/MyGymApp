@@ -9,6 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +38,12 @@ fun SectionWrapper(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val paddingY by animateDpAsState(targetValue = if (isDropActive) 20.dp else 12.dp)
+    val infinite = rememberInfiniteTransition()
+    val animatedStroke by infinite.animateFloat(
+        initialValue = 2f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse)
+    )
     Box(
         modifier = Modifier
             .padding(vertical = paddingY)
@@ -40,7 +51,7 @@ fun SectionWrapper(
             .fillMaxWidth()
             .defaultMinSize(minHeight = minDropHeightDp.dp)
             .drawBehind {
-                val stroke = 2.dp.toPx()
+                val stroke = if (isDropActive) animatedStroke.dp.toPx() else 2.dp.toPx()
                 val radius = 12.dp.toPx()
                 val w = size.width
                 val h = size.height
