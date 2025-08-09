@@ -11,11 +11,8 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,6 +38,7 @@ import com.example.mygymapp.ui.components.PoeticDivider
 import com.example.mygymapp.ui.components.WaxSealButton
 import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.viewmodel.ExerciseViewModel
+import com.example.mygymapp.viewmodel.LineEditorViewModel
 import android.net.Uri
 import kotlinx.coroutines.launch
 
@@ -55,50 +53,17 @@ fun LineEditorPage(
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
 
-    var title by rememberSaveable { mutableStateOf(initial?.title ?: "") }
-    var note by rememberSaveable { mutableStateOf(initial?.note ?: "") }
-    val selectedExercises = rememberSaveable(
-        saver = listSaver<SnapshotStateList<LineExercise>, LineExercise>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) {
-        mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
-    }
-    val sections by remember {
-        derivedStateOf {
-            selectedExercises
-                .map { it.section }
-                .filter { it.isNotBlank() }
-                .distinct()
-        }
-    }
-    val supersetGroups = rememberSaveable(
-        saver = listSaver<SnapshotStateList<MutableList<Long>>, ArrayList<Long>>(
-            save = { list -> list.map { ArrayList(it) } },
-            restore = { restored -> restored.map { it.toMutableList() }.toMutableStateList() }
-        )
-    ) {
-        mutableStateListOf<MutableList<Long>>().apply {
-            initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
-        }
-    }
-    val supersetState = remember { SupersetState(supersetGroups) }
+    val editorVm: LineEditorViewModel = viewModel(factory = LineEditorViewModel.Factory(initial))
+    val title by editorVm.title.collectAsState()
+    val note by editorVm.note.collectAsState()
+    val selectedExercises = editorVm.selectedExercises
+    val supersetState = editorVm.supersetState
+    val selectedCategories = editorVm.selectedCategories
+    val selectedMuscles = editorVm.selectedMuscles
+    val sections by editorVm.sections
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌈 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
-    val selectedCategories = rememberSaveable(
-        saver = listSaver<SnapshotStateList<String>, String>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) { mutableStateListOf<String>().apply { initial?.category?.split(",")?.let { addAll(it) } } }
-    val selectedMuscles = rememberSaveable(
-        saver = listSaver<SnapshotStateList<String>, String>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) { mutableStateListOf<String>().apply { initial?.muscleGroup?.split(",")?.let { addAll(it) } } }
 
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -185,7 +150,7 @@ fun LineEditorPage(
                     val titleError = showError && title.isBlank()
                     LineTitleAndCategoriesSection(
                         title = title,
-                        onTitleChange = { title = it },
+                        onTitleChange = { editorVm.title.value = it },
                         categoryOptions = categoryOptions,
                         selectedCategories = selectedCategories,
                         onCategoryChange = { selectedCategories.clear(); selectedCategories.addAll(it) },
@@ -196,7 +161,7 @@ fun LineEditorPage(
                         titleBringIntoViewRequester = titleBringIntoViewRequester
                     )
 
-                    LineNotesSection(note = note, onNoteChange = { note = it })
+                    LineNotesSection(note = note, onNoteChange = { editorVm.note.value = it })
 
                     PoeticDivider(centerText = "Which movements do you want to add?")
                     val showExerciseSheet = remember { mutableStateOf(false) }
@@ -281,17 +246,7 @@ fun LineEditorPage(
                                     }
                                     return@WaxSealButton
                                 }
-                                pendingLine = Line(
-                                    id = initial?.id ?: System.currentTimeMillis(),
-                                    title = title,
-                                    category = selectedCategories.joinToString(),
-                                    muscleGroup = selectedMuscles.joinToString(),
-                                    mood = null,
-                                    exercises = selectedExercises.toList(),
-                                    supersets = supersetState.groups,
-                                    note = note,
-                                    isArchived = false
-                                )
+                                pendingLine = editorVm.buildLine()
                                 saving = true
                             },
                             modifier = Modifier.align(Alignment.Center)
