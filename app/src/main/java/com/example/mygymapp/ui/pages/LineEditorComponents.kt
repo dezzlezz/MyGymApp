@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
@@ -167,7 +169,8 @@ fun ColumnScope.LineTitleAndCategoriesSection(
     muscleOptions: List<String>,
     selectedMuscles: List<String>,
     onMuscleChange: (List<String>) -> Unit,
-    titleError: Boolean = false
+    titleError: Boolean = false,
+    titleBringIntoViewRequester: BringIntoViewRequester? = null
 ) {
     PoeticDivider(centerText = "What would you title this day?")
     LinedTextField(
@@ -175,7 +178,10 @@ fun ColumnScope.LineTitleAndCategoriesSection(
         onValueChange = onTitleChange,
         hint = "A poetic title...",
         initialLines = 1,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+        modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.CenterHorizontally)
+            .then(if (titleBringIntoViewRequester != null) Modifier.bringIntoViewRequester(titleBringIntoViewRequester) else Modifier),
         isError = titleError
     )
     PoeticDivider(centerText = "What kind of movement is this?")

@@ -1,7 +1,6 @@
 package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,13 +36,13 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.components.GaeguButton
-import com.example.mygymapp.ui.components.LinedTextField
 import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticDivider
 import com.example.mygymapp.ui.components.WaxSealButton
 import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import android.net.Uri
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -104,19 +103,11 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val dragState = remember { DragAndDropState() }
+    val scope = rememberCoroutineScope()
     // Single scroll and bring-into-view instances for validation and layout animation
     val pageScrollState = rememberScrollState()
+    val titleBringIntoViewRequester = remember { BringIntoViewRequester() }
     val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    LaunchedEffect(showError) {
-        if (showError) {
-            if (title.isBlank()) {
-                pageScrollState.animateScrollTo(0)
-            } else if (selectedExercises.isEmpty()) {
-                exerciseBringIntoViewRequester.bringIntoView()
-            }
-        }
-    }
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
         val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
@@ -148,8 +139,6 @@ fun LineEditorPage(
         )
     }
 
-    val scrollState = rememberScrollState()
-    val exerciseBringIntoView = remember { BringIntoViewRequester() }
     var saving by remember { mutableStateOf(false) }
     var pendingLine by remember { mutableStateOf<Line?>(null) }
     val saveOffset = remember { Animatable(0f) }
@@ -203,7 +192,8 @@ fun LineEditorPage(
                         muscleOptions = muscleOptions,
                         selectedMuscles = selectedMuscles,
                         onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) },
-                        titleError = titleError
+                        titleError = titleError,
+                        titleBringIntoViewRequester = titleBringIntoViewRequester
                     )
 
                     LineNotesSection(note = note, onNoteChange = { note = it })
@@ -277,8 +267,20 @@ fun LineEditorPage(
                         )
                         WaxSealButton(
                             label = "Create",
+                            enabled = title.isNotBlank() && selectedExercises.isNotEmpty(),
                             onClick = {
-                                if (title.isBlank() || selectedExercises.isEmpty()) { showError = true; return@WaxSealButton }
+                                if (title.isBlank() || selectedExercises.isEmpty()) {
+                                    showError = true
+                                    scope.launch {
+                                        if (title.isBlank()) {
+                                            titleBringIntoViewRequester.bringIntoView()
+                                        } else {
+                                            exerciseBringIntoViewRequester.bringIntoView()
+                                        }
+                                        snackbarHostState.showSnackbar("Please add a title and at least one movement.")
+                                    }
+                                    return@WaxSealButton
+                                }
                                 pendingLine = Line(
                                     id = initial?.id ?: System.currentTimeMillis(),
                                     title = title,
@@ -293,23 +295,6 @@ fun LineEditorPage(
                                 saving = true
                             },
                             modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
-            }
-
-            if (showError) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color(0xAA000000)),
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    PoeticCard(modifier = Modifier.padding(top = 48.dp)) {
-                        Text(
-                            "Diese Seite ist noch unvollständig.",
-                            fontFamily = GaeguRegular,
-                            color = Color.Black
                         )
                     }
                 }
