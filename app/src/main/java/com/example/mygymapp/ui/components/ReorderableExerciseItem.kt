@@ -60,7 +60,12 @@ fun ReorderableExerciseItem(
                     val startY = if (isFirst) size.height / 2f else 0f
                     val endY = if (isLast) size.height / 2f else size.height
                     drawLine(Color.Black, Offset(centerX, startY), Offset(centerX, endY), stroke)
-                    drawLine(Color.Black, Offset(centerX, size.height / 2f), Offset(size.width, size.height / 2f), stroke)
+                    drawLine(
+                        Color.Black,
+                        Offset(centerX, size.height / 2f),
+                        Offset(size.width, size.height / 2f),
+                        stroke
+                    )
                 }
             }
         } else {
@@ -94,47 +99,52 @@ fun ReorderableExerciseItem(
                 elevation = elevation
             ) {
                 Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Index & Name
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "${index + 1}.",
-                            fontFamily = GaeguBold,
-                            fontSize = 16.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(
-                            text = exercise.name,
-                            fontFamily = GaeguRegular,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                    }
-                    // Actions
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = onRemove) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
-                        }
-                        TextButton(onClick = onMove) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Index & Name
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "Move",
+                                text = "${index + 1}.",
+                                fontFamily = GaeguBold,
+                                fontSize = 16.sp,
+                                color = Color.Black,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(
+                                text = exercise.name,
                                 fontFamily = GaeguRegular,
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 color = Color.Black
                             )
                         }
-                        Checkbox(
-                            checked = isSupersetSelected,
-                            onCheckedChange = onSupersetSelectedChange
-                        )
-                        dragHandle()
+                        // Actions
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(onClick = onRemove) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Red
+                                )
+                            }
+                            TextButton(onClick = onMove) {
+                                Text(
+                                    "Move",
+                                    fontFamily = GaeguRegular,
+                                    fontSize = 14.sp,
+                                    color = Color.Black
+                                )
+                            }
+                            Checkbox(
+                                checked = isSupersetSelected,
+                                onCheckedChange = onSupersetSelectedChange
+                            )
+                            dragHandle()
+                        }
                     }
                 }
             }
