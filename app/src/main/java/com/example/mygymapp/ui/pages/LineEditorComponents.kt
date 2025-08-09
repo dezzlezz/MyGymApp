@@ -646,15 +646,8 @@ fun SectionsWithDragDrop(
                     isDropActive = isDropActive
                 ) {
                     if (items.isEmpty()) {
-                        Box(
-                            Modifier.fillMaxWidth().height(40.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "Drop a movement here",
-                                fontFamily = GaeguRegular,
-                                color = Color.Gray
-                            )
+                        Box(Modifier.fillMaxWidth().height(40.dp), contentAlignment = Alignment.Center) {
+                            Text("Drop a movement here", fontFamily = GaeguRegular, color = Color.Gray)
                         }
                     } else {
                         val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
@@ -674,14 +667,10 @@ fun SectionsWithDragDrop(
                             itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
                                 ReorderableItem(reorderState, key = item.id) { dragging ->
                                     val elevation = if (dragging) 8.dp else 2.dp
-                                    val partnerIndices =
-                                        supersetHelper.partners(item.id).mapNotNull { pid ->
-                                            selectedExercises.indexOfFirst { it.id == pid }
-                                                .takeIf { it >= 0 }
-                                        }
-                                    val isDraggingPartner = dragState.draggingExerciseId?.let {
-                                        supersetHelper.partners(it).contains(item.id)
-                                    } == true
+                                    val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
+                                        selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
+                                    }
+                                    val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
                                     var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                     ReorderableExerciseItem(
                                         index = index,
@@ -689,9 +678,7 @@ fun SectionsWithDragDrop(
                                         onRemove = {
                                             selectedExercises.remove(item)
                                             supersetHelper.removeExercise(item.id)
-                                            if (selectedExercises.none { it.section == sectionName }) sections.remove(
-                                                sectionName
-                                            )
+                                            if (selectedExercises.none { it.section == sectionName }) sections.remove(sectionName)
                                         },
                                         onMove = {
                                             showMoveSheet = true
@@ -706,8 +693,7 @@ fun SectionsWithDragDrop(
                                                     val topLeft = it.positionInWindow()
                                                     itemOffset = topLeft
                                                     val size = it.size.toSize()
-                                                    dragState.itemBounds[item.id] =
-                                                        topLeft.y to (topLeft.y + size.height)
+                                                    dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
                                                 }
                                             },
                                         dragHandle = {
@@ -722,12 +708,7 @@ fun SectionsWithDragDrop(
                                                             handleOffset = it.positionInWindow()
                                                         }
                                                     }
-                                                    .then(
-                                                        dragModifier(
-                                                            item.id,
-                                                            item.name,
-                                                            item.section,
-                                                            { handleOffset }) { })
+                                                    .then(dragModifier(item.id, item.name, item.section, { handleOffset }) { })
                                             )
                                         },
                                         supersetPartnerIndices = partnerIndices,
@@ -738,7 +719,6 @@ fun SectionsWithDragDrop(
                             }
                         }
                     }
-                }
             }
         }
     }

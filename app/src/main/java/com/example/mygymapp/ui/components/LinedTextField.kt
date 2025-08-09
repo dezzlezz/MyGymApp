@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.infiniteRepeatable
@@ -16,14 +17,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
 import androidx.compose.ui.graphics.graphicsLayer
@@ -75,7 +78,11 @@ fun LinedTextField(
         targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse)
     )
-    val borderBrush = if (isError) Brush.radialGradient(listOf(Color.Red.copy(alpha = glowAlpha), Color.Transparent)) else Brush.radialGradient(listOf(Color.Transparent, Color.Transparent))
+    val borderBrush = if (isError) {
+        Brush.radialGradient(listOf(Color.Red.copy(alpha = glowAlpha), Color.Transparent))
+    } else {
+        Brush.radialGradient(listOf(Color.Transparent, Color.Transparent))
+    }
 
     Box(
         modifier = modifier
@@ -83,7 +90,7 @@ fun LinedTextField(
             .height(fieldHeight)
             .padding(horizontal = padding)
             .graphicsLayer { translationX = shakeOffset }
-            .border(2.dp, borderBrush)
+            .border(BorderStroke(2.dp, borderBrush))
     ) {
         // 🎯 Linien zeichnen – mit absolutem Schutz gegen Absturz
         Canvas(modifier = Modifier.matchParentSize()) {
