@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import android.net.Uri
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.store.JournalStore
@@ -117,14 +118,17 @@ fun LineParagraphPage(
 
     if (showLineEditor) {
         LineEditorPage(
-            navController = navController,
             initial = editingLine,
             onSave = { line ->
                 val index = lines.indexOfFirst { it.id == line.id }
                 if (index >= 0) lines[index] = line else lines.add(line)
                 showLineEditor = false
             },
-            onCancel = { showLineEditor = false }
+            onCancel = { showLineEditor = false },
+            onCreateExercise = { name ->
+                val encoded = Uri.encode(name)
+                navController.navigate("movement_editor?name=$encoded")
+            }
         )
     }
 }

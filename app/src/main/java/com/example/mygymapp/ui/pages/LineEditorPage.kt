@@ -29,7 +29,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Exercise as LineExercise
@@ -41,16 +40,15 @@ import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.R
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.LineEditorViewModel
-import android.net.Uri
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LineEditorPage(
-    navController: NavController,
     initial: Line? = null,
     onSave: (Line) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    onCreateExercise: (String) -> Unit
 ) {
     val vm: ExerciseViewModel = viewModel()
     val allExercises by vm.allExercises.observeAsState(emptyList())
@@ -186,10 +184,7 @@ fun LineEditorPage(
                             }
                             showExerciseSheet.value = false
                         },
-                        onCreateExercise = { name ->
-                            val encoded = Uri.encode(name)
-                            navController.navigate("movement_editor?name=$encoded")
-                        },
+                        onCreateExercise = onCreateExercise,
                         onDismiss = { showExerciseSheet.value = false }
                     )
 
