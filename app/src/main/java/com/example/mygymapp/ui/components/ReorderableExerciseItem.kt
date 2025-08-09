@@ -8,6 +8,8 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
@@ -39,6 +41,8 @@ fun ReorderableExerciseItem(
     supersetPartnerIndices: List<Int> = emptyList(),
     isDraggingPartner: Boolean = false,
     isDragTarget: Boolean = false,
+    isLinkedWithNext: Boolean = false,
+    onToggleSuperset: (() -> Unit)? = null,
     elevation: Dp = 2.dp
 ) {
     val indices = (listOf(index) + supersetPartnerIndices).sorted()
@@ -139,6 +143,16 @@ fun ReorderableExerciseItem(
                                     fontFamily = GaeguRegular,
                                     fontSize = 14.sp,
                                     color = Color.Black
+                                )
+                            }
+                            IconButton(
+                                onClick = { onToggleSuperset?.invoke() },
+                                enabled = onToggleSuperset != null
+                            ) {
+                                Icon(
+                                    imageVector = if (isLinkedWithNext) Icons.Filled.Link else Icons.Filled.LinkOff,
+                                    contentDescription = "Toggle superset with next",
+                                    tint = if (isLinkedWithNext) Color(0xFF2E7D32) else Color.Gray
                                 )
                             }
                             dragHandle()
