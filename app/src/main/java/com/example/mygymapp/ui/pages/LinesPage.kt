@@ -10,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.ui.components.LineCard
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.R
 
 @Composable
 fun LinesPage(
@@ -31,13 +33,13 @@ fun LinesPage(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 8.dp)
             ) {
-                Text("\u2795 Write a new line", fontFamily = GaeguRegular, color = Color.Black)
+                Text(stringResource(R.string.write_new_line), fontFamily = GaeguRegular, color = Color.Black)
             }
             TextButton(
                 onClick = onManageExercises,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("\u2699\uFE0F Manage Exercises", fontFamily = GaeguRegular, color = Color.Black)
+                Text(stringResource(R.string.manage_exercises), fontFamily = GaeguRegular, color = Color.Black)
             }
             LazyColumn(
                 modifier = Modifier

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import coil.compose.rememberAsyncImagePainter
 import com.example.mygymapp.R
 import com.example.mygymapp.ui.theme.handwritingText
@@ -355,7 +356,7 @@ fun MovementEntryPage(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = highlightColor)
                         ) { // Content lambda for Button starts here
-                            Text("📷 Add Illustration", fontFamily = GaeguRegular)
+                            Text(stringResource(R.string.add_illustration), fontFamily = GaeguRegular)
                         } // Content lambda for Button ends here, THEN close the Button call
                     }
                 }
