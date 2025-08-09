@@ -2,8 +2,10 @@ package com.example.mygymapp.ui.components
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,7 +28,8 @@ fun LinedTextField(
     modifier: Modifier = Modifier,
     lineHeight: Dp = 32.dp,
     initialLines: Int = 3,
-    padding: Dp = 12.dp
+    padding: Dp = 12.dp,
+    isError: Boolean = false
 ) {
     val density = LocalDensity.current
     val textStyle = TextStyle(
@@ -43,11 +46,14 @@ fun LinedTextField(
     val totalLineCount = maxOf(layoutLineCount, initialLines)
     val fieldHeight = lineHeight * totalLineCount
 
+    val borderColor by animateColorAsState(if (isError) Color.Red else Color.Transparent)
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(fieldHeight)
             .padding(horizontal = padding)
+            .border(2.dp, borderColor)
     ) {
         // 🎯 Linien zeichnen – mit absolutem Schutz gegen Absturz
         Canvas(modifier = Modifier.matchParentSize()) {

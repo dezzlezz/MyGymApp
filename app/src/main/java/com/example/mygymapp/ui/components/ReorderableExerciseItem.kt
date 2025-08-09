@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Checkbox
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -139,10 +141,19 @@ fun ReorderableExerciseItem(
                                     color = Color.Black
                                 )
                             }
-                            Checkbox(
+                            IconToggleButton(
                                 checked = isSupersetSelected,
                                 onCheckedChange = onSupersetSelectedChange
-                            )
+                            ) {
+                                val tint by animateColorAsState(
+                                    if (isSupersetSelected) Color(0xFF2E7D32) else Color.Gray
+                                )
+                                Icon(
+                                    imageVector = if (isSupersetSelected) Icons.Filled.Link else Icons.Outlined.Link,
+                                    contentDescription = "Superset",
+                                    tint = tint
+                                )
+                            }
                             dragHandle()
                         }
                     }

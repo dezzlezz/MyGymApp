@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -17,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,6 +107,19 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val dragState = remember { DragAndDropState() }
+    // Single scroll and bring-into-view instances for validation and layout animation
+    val pageScrollState = rememberScrollState()
+    val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(showError) {
+        if (showError) {
+            if (title.isBlank()) {
+                pageScrollState.animateScrollTo(0)
+            } else if (selectedExercises.isEmpty()) {
+                exerciseBringIntoViewRequester.bringIntoView()
+            }
+        }
+    }
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
         val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
@@ -140,7 +158,7 @@ fun LineEditorPage(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(pageScrollState)
                         .systemBarsPadding()
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -148,6 +166,7 @@ fun LineEditorPage(
                 ) {
                     Text("✔ Compose your daily line", fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
 
+                    val titleError = showError && title.isBlank()
                     LineTitleAndCategoriesSection(
                         title = title,
                         onTitleChange = { title = it },
@@ -156,7 +175,8 @@ fun LineEditorPage(
                         onCategoryChange = { selectedCategories.clear(); selectedCategories.addAll(it) },
                         muscleOptions = muscleOptions,
                         selectedMuscles = selectedMuscles,
-                        onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) }
+                        onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) },
+                        titleError = titleError
                     )
 
                     LineNotesSection(note = note, onNoteChange = { note = it })
@@ -183,31 +203,24 @@ fun LineEditorPage(
                         onDismiss = { showExerciseSheet.value = false }
                     )
 
-                    SectionsWithDragDrop(
-                        sections = sections,
-                        selectedExercises = selectedExercises,
-                        supersetHelper = supersetHelper,
-                        supersetSelection = supersetSelection,
-                        dragState = dragState,
-                        allExercises = allExercises,
-                        dragModifier = dragModifier,
-                        findInsertIndexForDrop = ::findInsertIndexForDrop
+                    val exerciseBorderColor by animateColorAsState(
+                        if (showError && selectedExercises.isEmpty()) Color.Red else Color.Transparent
                     )
-
-                    if (showError) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFFF5F5F0))
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                "Please fill out title and at least one exercise",
-                                color = Color.DarkGray,
-                                fontFamily = FontFamily.Serif,
-                                fontSize = 14.sp
-                            )
-                        }
+                    Box(
+                        Modifier
+                            .border(2.dp, exerciseBorderColor)
+                            .bringIntoViewRequester(exerciseBringIntoViewRequester)
+                    ) {
+                        SectionsWithDragDrop(
+                            sections = sections,
+                            selectedExercises = selectedExercises,
+                            supersetHelper = supersetHelper,
+                            supersetSelection = supersetSelection,
+                            dragState = dragState,
+                            allExercises = allExercises,
+                            dragModifier = dragModifier,
+                            findInsertIndexForDrop = ::findInsertIndexForDrop
+                        )
                     }
 
                     PoeticDivider()
@@ -242,6 +255,23 @@ fun LineEditorPage(
                 }
             }
 
+            if (showError) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0xAA000000)),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    PoeticCard(modifier = Modifier.padding(top = 48.dp)) {
+                        Text(
+                            "Diese Seite ist noch unvollständig.",
+                            fontFamily = GaeguRegular,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+
             if (dragState.isDragging && dragState.draggingExerciseId != null) {
                 val id = dragState.draggingExerciseId!!
                 val lineExercise = selectedExercises.find { it.id == id }
@@ -250,9 +280,10 @@ fun LineEditorPage(
                     Box(
                         Modifier
                             .absoluteOffset(x = dragState.dragPosition.x.dp, y = dragState.dragPosition.y.dp)
-                            .shadow(6.dp)
+                            .shadow(8.dp)
+                            .alpha(0.7f)
                     ) {
-                        PoeticCard {
+                        PoeticCard(tintOverlayAlpha = 0.3f) {
                             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                                 Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
                                 lineExercise?.let {
