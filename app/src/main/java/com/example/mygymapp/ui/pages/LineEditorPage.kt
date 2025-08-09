@@ -66,14 +66,12 @@ fun LineEditorPage(
     ) {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val sections = rememberSaveable(
-        saver = listSaver<SnapshotStateList<String>, String>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) {
-        mutableStateListOf<String>().apply {
-            initial?.exercises?.map { it.section }?.filter { it.isNotBlank() }?.distinct()?.let { addAll(it) }
+    val sections by remember {
+        derivedStateOf {
+            selectedExercises
+                .map { it.section }
+                .filter { it.isNotBlank() }
+                .distinct()
         }
     }
     val supersets = rememberSaveable(
@@ -145,7 +143,6 @@ fun LineEditorPage(
             offset,
             allExercises,
             selectedExercises,
-            sections,
             ::findInsertIndexForDrop,
             supersetHelper,
             start
