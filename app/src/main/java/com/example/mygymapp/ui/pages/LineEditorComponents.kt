@@ -91,11 +91,10 @@ fun Modifier.exerciseDrag(
     getStartOffset: () -> Offset,
     allExercises: List<Exercise>,
     selectedExercises: SnapshotStateList<LineExercise>,
-    sections: SnapshotStateList<String>,
     findInsertIndex: (String, Float) -> Int,
     supersetHelper: SupersetHelper,
     onStart: () -> Unit = {}
-): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises, sections, supersetHelper) {
+): Modifier = pointerInput(state, exerciseId, allExercises, selectedExercises, supersetHelper) {
     detectDragGesturesAfterLongPress(
         onDragStart = { offset ->
             onStart()
@@ -129,11 +128,7 @@ fun Modifier.exerciseDrag(
                 }
                 if (idx >= 0) {
                     val item = selectedExercises.removeAt(idx)
-                    val old = item.section
                     selectedExercises.add(clampedIdx, item.copy(section = sectionName))
-                    if (old.isNotBlank() && old != sectionName && selectedExercises.none { it.section == old }) {
-                        sections.remove(old)
-                    }
                 } else {
                     allExercises.firstOrNull { it.id == exerciseId }?.let { ex ->
                         selectedExercises.add(
@@ -319,7 +314,7 @@ fun ExercisePickerSheet(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SectionsWithDragDrop(
-    sections: SnapshotStateList<String>,
+    sections: List<String>,
     selectedExercises: SnapshotStateList<LineExercise>,
     supersetHelper: SupersetHelper,
     dragState: DragAndDropState,
@@ -392,16 +387,11 @@ fun SectionsWithDragDrop(
                         if (moveSelectedOption == "Custom") moveCustomName else moveSelectedOption
                             ?: ""
                     if (name.isNotBlank()) {
-                        if (!sections.contains(name)) sections.add(name)
-                        val affected = mutableSetOf<String>()
                         selectedExercises.forEachIndexed { idx, ex ->
                             if (moveSelection.contains(ex.id)) {
-                                affected.add(ex.section)
                                 selectedExercises[idx] = ex.copy(section = name)
                             }
                         }
-                        affected.filter { it.isNotBlank() && it != name && selectedExercises.none { ex -> ex.section == it } }
-                            .forEach { sections.remove(it) }
                     }
                     showMoveSheet = false
                     moveSelection.clear(); moveSelectedOption = null; moveCustomName = ""
@@ -689,9 +679,6 @@ fun SectionsWithDragDrop(
                                         onRemove = {
                                             selectedExercises.remove(item)
                                             supersetHelper.removeExercise(item.id)
-                                            if (selectedExercises.none { it.section == sectionName }) sections.remove(
-                                                sectionName
-                                            )
                                         },
                                         onMove = {
                                             showMoveSheet = true
