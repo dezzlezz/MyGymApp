@@ -66,17 +66,15 @@ fun LineEditorPage(
     ) {
         mutableStateListOf<LineExercise>().apply { initial?.exercises?.let { addAll(it) } }
     }
-    val sections = rememberSaveable(
-        saver = listSaver<SnapshotStateList<String>, String>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) {
-        mutableStateListOf<String>().apply {
-            initial?.exercises?.map { it.section }?.filter { it.isNotBlank() }?.distinct()?.let { addAll(it) }
+    val sections by remember {
+        derivedStateOf {
+            selectedExercises
+                .map { it.section }
+                .filter { it.isNotBlank() }
+                .distinct()
         }
     }
-    val supersets = rememberSaveable(
+    val supersetGroups = rememberSaveable(
         saver = listSaver<SnapshotStateList<MutableList<Long>>, ArrayList<Long>>(
             save = { list -> list.map { ArrayList(it) } },
             restore = { restored -> restored.map { it.toMutableList() }.toMutableStateList() }
@@ -86,7 +84,7 @@ fun LineEditorPage(
             initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
         }
     }
-    val supersetHelper = remember { SupersetHelper(supersets) }
+    val supersetState = remember { SupersetState(supersetGroups) }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌈 Recovery")
     val muscleOptions = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body")
@@ -145,9 +143,7 @@ fun LineEditorPage(
             offset,
             allExercises,
             selectedExercises,
-            sections,
             ::findInsertIndexForDrop,
-            supersetHelper,
             start
         )
     }
@@ -262,7 +258,7 @@ fun LineEditorPage(
                         SectionsWithDragDrop(
                             sections = sections,
                             selectedExercises = selectedExercises,
-                            supersetHelper = supersetHelper,
+                            supersetState = supersetState,
                             dragState = dragState,
                             allExercises = allExercises,
                             dragModifier = dragModifier,
@@ -290,7 +286,7 @@ fun LineEditorPage(
                                     muscleGroup = selectedMuscles.joinToString(),
                                     mood = null,
                                     exercises = selectedExercises.toList(),
-                                    supersets = supersets.map { it.toList() },
+                                    supersets = supersetState.groups,
                                     note = note,
                                     isArchived = false
                                 )
