@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -66,8 +67,6 @@ fun ParagraphEditorPageSwipe(
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
     var showSavedOverlay by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-
     PaperBackground(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +74,6 @@ fun ParagraphEditorPageSwipe(
             .imePadding(),
     ) {
         Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
@@ -360,25 +358,21 @@ fun ParagraphEditorPageSwipe(
                     Spacer(Modifier.height(16.dp))
                 }
 
+                val context = LocalContext.current
                 Button(
                     onClick = {
-                        if (selectedLines.any { it == null }) {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Select a line for each day")
-                            }
-                        } else {
-                            val lineTitles = selectedLines.map { it?.title ?: "" }
-                            val paragraph = Paragraph(
-                                id = initial?.id ?: System.currentTimeMillis(),
-                                title = title,
-                                lineTitles = lineTitles,
-                                note = note,
-                            )
-                            showSavedOverlay = true
-                            coroutineScope.launch {
-                                delay(1000)
-                                onSave(paragraph)
-                            }
+                        val restDay = context.getString(R.string.rest_day)
+                        val lineTitles = selectedLines.map { it?.title ?: restDay }
+                        val paragraph = Paragraph(
+                            id = initial?.id ?: System.currentTimeMillis(),
+                            title = title,
+                            lineTitles = lineTitles,
+                            note = note,
+                        )
+                        showSavedOverlay = true
+                        coroutineScope.launch {
+                            delay(1000)
+                            onSave(paragraph)
                         }
                     },
                     modifier = Modifier
