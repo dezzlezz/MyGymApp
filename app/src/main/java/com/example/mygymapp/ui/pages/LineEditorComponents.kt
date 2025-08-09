@@ -3,6 +3,8 @@ package com.example.mygymapp.ui.pages
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,13 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.consume
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Exercise as LineExercise
@@ -120,7 +125,7 @@ fun Modifier.exerciseDrag(
 }
 
 @Composable
-fun LineTitleAndCategoriesSection(
+fun ColumnScope.LineTitleAndCategoriesSection(
     title: String,
     onTitleChange: (String) -> Unit,
     categoryOptions: List<String>,
@@ -155,7 +160,7 @@ fun LineTitleAndCategoriesSection(
 }
 
 @Composable
-fun LineNotesSection(
+fun ColumnScope.LineNotesSection(
     note: String,
     onNoteChange: (String) -> Unit
 ) {
