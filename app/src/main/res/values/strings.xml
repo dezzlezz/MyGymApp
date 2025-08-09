@@ -147,6 +147,17 @@
     <string name="plan_label">Plan</string>
     <string name="save_template_label">Save Template</string>
     <string name="movement_removed">Movement removed</string>
+    <string name="paragraph_editor_title">✒ Compose your weekly paragraph</string>
+    <string name="paragraph_title_label">Title</string>
+    <string name="paragraph_note_placeholder">What connects this week?</string>
+    <string name="no_line_selected_for_day">No line selected for %1$s</string>
+    <string name="browse_lines">📖 Browse lines</string>
+    <string name="search_lines">Search lines</string>
+    <string name="save_paragraph">📜 Save this paragraph</string>
+    <string name="paragraph_saved_message">A new chapter has been written...</string>
+    <string name="weekday_tab_cd">Tab for %1$s</string>
+    <string name="save_paragraph_cd">Save paragraph</string>
+    <string name="line_item_cd">Select line %1$s</string>
     <string name="undo">Undo</string>
     <string name="reorder_movement">Reorder movement</string>
     <string name="drop_zone_for">Drop zone for %1$s</string>

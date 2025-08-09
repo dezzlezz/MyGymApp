@@ -2,7 +2,6 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +19,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontFamily
 import com.example.mygymapp.R
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -62,8 +64,15 @@ fun ParagraphEditorPageSwipe(
         }
     }
 
-    val dayNames =
-        listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    val dayNames = listOf(
+        stringResource(R.string.monday),
+        stringResource(R.string.tuesday),
+        stringResource(R.string.wednesday),
+        stringResource(R.string.thursday),
+        stringResource(R.string.friday),
+        stringResource(R.string.saturday),
+        stringResource(R.string.sunday)
+    )
     val pagerState = rememberPagerState(pageCount = { 7 })
     val coroutineScope = rememberCoroutineScope()
     var showSavedOverlay by remember { mutableStateOf(false) }
@@ -88,11 +97,11 @@ fun ParagraphEditorPageSwipe(
                         colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray),
                         contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text("Cancel", fontFamily = FontFamily.Serif, fontSize = 14.sp)
+                        Text(stringResource(R.string.cancel), fontFamily = FontFamily.Serif, fontSize = 14.sp)
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "✒ Compose your weekly paragraph",
+                        stringResource(R.string.paragraph_editor_title),
                         fontFamily = GaeguBold,
                         fontSize = 20.sp,
                         color = Color.Black,
@@ -102,7 +111,13 @@ fun ParagraphEditorPageSwipe(
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Title", fontFamily = GaeguRegular, color = Color.Black) },
+                        label = {
+                            Text(
+                                stringResource(R.string.paragraph_title_label),
+                                fontFamily = GaeguRegular,
+                                color = Color.Black
+                            )
+                        },
                         textStyle = LocalTextStyle.current.copy(
                             fontFamily = GaeguRegular,
                             color = Color.Black
@@ -111,7 +126,7 @@ fun ParagraphEditorPageSwipe(
                     )
                     Spacer(Modifier.height(8.dp))
 
-                    val placeholder = "What connects this week?"
+                    val placeholder = stringResource(R.string.paragraph_note_placeholder)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -203,6 +218,10 @@ fun ParagraphEditorPageSwipe(
                                         )
                                     }
                                 },
+                                modifier = Modifier.semantics {
+                                    contentDescription =
+                                        stringResource(R.string.weekday_tab_cd, day)
+                                }
                             ) {
                                 Surface(
                                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
@@ -238,12 +257,19 @@ fun ParagraphEditorPageSwipe(
                                 if (selected != null) {
                                     PoeticLineCard(
                                         line = selected,
-                                        isSelected = true
+                                        isSelected = true,
+                                        modifier = Modifier.semantics {
+                                            contentDescription =
+                                                stringResource(R.string.line_item_cd, selected.title)
+                                        }
                                     )
                                 } else {
                                     PoeticCard {
                                         Text(
-                                            "No page selected for ${dayNames[page]}",
+                                            stringResource(
+                                                R.string.no_line_selected_for_day,
+                                                dayNames[page]
+                                            ),
                                             fontFamily = GaeguRegular,
                                             color = Color.Black.copy(alpha = 0.6f)
                                         )
@@ -256,7 +282,7 @@ fun ParagraphEditorPageSwipe(
                                 modifier = Modifier.align(Alignment.End)
                             ) {
                                 Text(
-                                    "📖 Browse lines",
+                                    stringResource(R.string.browse_lines),
                                     fontFamily = GaeguRegular,
                                     color = Color.Black
                                 )
@@ -267,10 +293,16 @@ fun ParagraphEditorPageSwipe(
                             var query by remember { mutableStateOf("") }
                             var selectedCategory by remember { mutableStateOf<String?>(null) }
                             var categoryExpanded by remember { mutableStateOf(false) }
-                            val categories = lines.map { it.category }.distinct().sorted()
-                            val filteredLines = lines.filter { line ->
-                                line.title.contains(query, ignoreCase = true) &&
-                                        (selectedCategory == null || line.category == selectedCategory)
+                            val categories = remember(lines) {
+                                lines.map { it.category }.distinct().sorted()
+                            }
+                            val filteredLines by remember(lines, query, selectedCategory) {
+                                derivedStateOf {
+                                    lines.filter { line ->
+                                        line.title.contains(query, ignoreCase = true) &&
+                                                (selectedCategory == null || line.category == selectedCategory)
+                                    }
+                                }
                             }
 
                             ModalBottomSheet(
@@ -292,7 +324,9 @@ fun ParagraphEditorPageSwipe(
                                             value = query,
                                             onValueChange = { query = it },
                                             modifier = Modifier.weight(1f),
-                                            placeholder = { Text("Search lines") },
+                                            placeholder = {
+                                                Text(stringResource(R.string.search_lines))
+                                            },
                                         )
                                         ExposedDropdownMenuBox(
                                             expanded = categoryExpanded,
@@ -301,10 +335,10 @@ fun ParagraphEditorPageSwipe(
                                             },
                                         ) {
                                             OutlinedTextField(
-                                                value = selectedCategory ?: "All",
+                                                value = selectedCategory ?: stringResource(R.string.all),
                                                 onValueChange = {},
                                                 readOnly = true,
-                                                label = { Text("Category") },
+                                                label = { Text(stringResource(R.string.category)) },
                                                 trailingIcon = {
                                                     ExposedDropdownMenuDefaults.TrailingIcon(
                                                         expanded = categoryExpanded
@@ -317,7 +351,7 @@ fun ParagraphEditorPageSwipe(
                                                 onDismissRequest = { categoryExpanded = false },
                                             ) {
                                                 DropdownMenuItem(
-                                                    text = { Text("All") },
+                                                    text = { Text(stringResource(R.string.all)) },
                                                     onClick = {
                                                         selectedCategory = null
                                                         categoryExpanded = false
@@ -337,7 +371,7 @@ fun ParagraphEditorPageSwipe(
                                     }
                                     Spacer(Modifier.height(8.dp))
                                     LazyColumn {
-                                        items(filteredLines) { line ->
+                                        items(filteredLines, key = { it.id }) { line ->
                                             val isSelected = selectedLines[page]?.id == line.id
                                             PoeticLineCard(
                                                 line = line,
@@ -346,7 +380,14 @@ fun ParagraphEditorPageSwipe(
                                                     selectedLines[page] = line
                                                     showAll = false
                                                 },
-                                                modifier = Modifier.padding(vertical = 6.dp)
+                                                modifier = Modifier
+                                                    .padding(vertical = 6.dp)
+                                                    .semantics {
+                                                        contentDescription = stringResource(
+                                                            R.string.line_item_cd,
+                                                            line.title
+                                                        )
+                                                    }
                                             )
                                         }
                                     }
@@ -359,6 +400,7 @@ fun ParagraphEditorPageSwipe(
                 }
 
                 val context = LocalContext.current
+                var isSaving by remember { mutableStateOf(false) }
                 Button(
                     onClick = {
                         val restDay = context.getString(R.string.rest_day)
@@ -371,21 +413,30 @@ fun ParagraphEditorPageSwipe(
                         )
                         showSavedOverlay = true
                         coroutineScope.launch {
+                            isSaving = true
                             delay(1000)
                             onSave(paragraph)
                         }
                     },
+                    enabled = !isSaving,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(24.dp),
+                        .padding(24.dp)
+                        .semantics {
+                            contentDescription = stringResource(R.string.save_paragraph_cd)
+                        },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF0E0C0))
                 ) {
-                    Text("📜 Save this paragraph", fontFamily = GaeguRegular, color = Color.Black)
+                    Text(
+                        stringResource(R.string.save_paragraph),
+                        fontFamily = GaeguRegular,
+                        color = Color.Black
+                    )
                 }
 
                 PoeticOverlay(
                     visible = showSavedOverlay,
-                    message = "A new chapter has been written...",
+                    message = stringResource(R.string.paragraph_saved_message),
                     onDismiss = { showSavedOverlay = false }
                 )
             }
