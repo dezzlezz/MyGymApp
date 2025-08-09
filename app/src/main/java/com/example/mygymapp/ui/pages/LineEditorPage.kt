@@ -107,25 +107,16 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val dragState = remember { DragAndDropState() }
-    val scrollState = rememberScrollState()
-    val exerciseBringIntoView = remember { BringIntoViewRequester() }
+    // Single scroll and bring-into-view instances for validation and layout animation
+    val pageScrollState = rememberScrollState()
+    val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
 
     LaunchedEffect(showError) {
         if (showError) {
             if (title.isBlank()) {
-                scrollState.animateScrollTo(0)
+                pageScrollState.animateScrollTo(0)
             } else if (selectedExercises.isEmpty()) {
-                exerciseBringIntoView.bringIntoView()
-            }
-        }
-    }
-
-    LaunchedEffect(showError) {
-        if (showError) {
-            if (title.isBlank()) {
-                scrollState.animateScrollTo(0)
-            } else if (selectedExercises.isEmpty()) {
-                exerciseBringIntoView.bringIntoView()
+                exerciseBringIntoViewRequester.bringIntoView()
             }
         }
     }
@@ -170,7 +161,7 @@ fun LineEditorPage(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(scrollState)
+                        .verticalScroll(pageScrollState)
                         .systemBarsPadding()
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -221,7 +212,7 @@ fun LineEditorPage(
                     Box(
                         Modifier
                             .border(2.dp, exerciseBorderColor)
-                            .bringIntoViewRequester(exerciseBringIntoView)
+                            .bringIntoViewRequester(exerciseBringIntoViewRequester)
                     ) {
                         SectionsWithDragDrop(
                             sections = sections,
