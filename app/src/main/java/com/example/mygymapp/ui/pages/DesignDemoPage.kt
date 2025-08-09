@@ -1,5 +1,6 @@
 package com.example.mygymapp.ui.pages
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import com.example.mygymapp.ui.theme.AppTypography
 /**
  * A showcase page to preview poetic UI components and styling.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DesignDemoPage() {
     var text by remember { mutableStateOf("") }

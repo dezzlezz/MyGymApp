@@ -191,6 +191,7 @@ fun Modifier.exerciseDrag(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ColumnScope.LineTitleAndCategoriesSection(
     title: String,
@@ -232,6 +233,7 @@ fun ColumnScope.LineTitleAndCategoriesSection(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ColumnScope.LineNotesSection(
     note: String,
@@ -249,7 +251,7 @@ fun ColumnScope.LineNotesSection(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ExercisePickerSheet(
     visible: Boolean,
