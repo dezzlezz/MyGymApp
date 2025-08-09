@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,11 +32,13 @@ fun SectionWrapper(
     isDropActive: Boolean = false,            // NEW
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val paddingY by animateDpAsState(targetValue = if (isDropActive) 20.dp else 12.dp)
     Box(
-        modifier = modifier
+        modifier = Modifier
+            .padding(vertical = paddingY)
+            .then(modifier)
             .fillMaxWidth()
             .defaultMinSize(minHeight = minDropHeightDp.dp)
-            .padding(vertical = 12.dp)
             .drawBehind {
                 val stroke = 2.dp.toPx()
                 val radius = 12.dp.toPx()
