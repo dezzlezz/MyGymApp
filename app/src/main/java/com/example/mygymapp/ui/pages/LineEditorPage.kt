@@ -107,6 +107,18 @@ fun LineEditorPage(
     var showError by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val dragState = remember { DragAndDropState() }
+    val scrollState = rememberScrollState()
+    val exerciseBringIntoView = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(showError) {
+        if (showError) {
+            if (title.isBlank()) {
+                scrollState.animateScrollTo(0)
+            } else if (selectedExercises.isEmpty()) {
+                exerciseBringIntoView.bringIntoView()
+            }
+        }
+    }
 
     LaunchedEffect(showError) {
         if (showError) {
