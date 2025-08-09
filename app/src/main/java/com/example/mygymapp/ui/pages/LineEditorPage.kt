@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -37,6 +38,7 @@ import com.example.mygymapp.ui.components.PaperBackground
 import com.example.mygymapp.ui.components.PoeticDivider
 import com.example.mygymapp.ui.components.WaxSealButton
 import com.example.mygymapp.ui.components.PoeticCard
+import com.example.mygymapp.R
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.LineEditorViewModel
 import android.net.Uri
@@ -73,6 +75,7 @@ fun LineEditorPage(
     val pageScrollState = rememberScrollState()
     val titleBringIntoViewRequester = remember { BringIntoViewRequester() }
     val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val errorMessage = stringResource(R.string.add_title_and_movement_error)
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
         val entries = selectedExercises.withIndex().filter { it.value.section == sectionName }
@@ -145,7 +148,7 @@ fun LineEditorPage(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("✔ Compose your daily line", fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
+                    Text(stringResource(R.string.compose_daily_line), fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
 
                     val titleError = showError && title.isBlank()
                     LineTitleAndCategoriesSection(
@@ -163,9 +166,9 @@ fun LineEditorPage(
 
                     LineNotesSection(note = note, onNoteChange = { editorVm.note.value = it })
 
-                    PoeticDivider(centerText = "Which movements do you want to add?")
+                    PoeticDivider(centerText = stringResource(R.string.movements_prompt))
                     val showExerciseSheet = remember { mutableStateOf(false) }
-                    GaeguButton(text = "➕ Add Exercise", onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
+                    GaeguButton(text = stringResource(R.string.add_exercise_button), onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
                     ExercisePickerSheet(
                         visible = showExerciseSheet.value,
                         allExercises = allExercises,
@@ -225,13 +228,13 @@ fun LineEditorPage(
 
                     Box(modifier = Modifier.fillMaxWidth()) {
                         GaeguButton(
-                            text = "Cancel",
+                            text = stringResource(R.string.cancel),
                             onClick = onCancel,
                             textColor = Color.Black,
                             modifier = Modifier.align(Alignment.CenterStart)
                         )
                         WaxSealButton(
-                            label = "Create",
+                            label = stringResource(R.string.create_line),
                             enabled = title.isNotBlank() && selectedExercises.isNotEmpty(),
                             onClick = {
                                 if (title.isBlank() || selectedExercises.isEmpty()) {
@@ -242,7 +245,7 @@ fun LineEditorPage(
                                         } else {
                                             exerciseBringIntoViewRequester.bringIntoView()
                                         }
-                                        snackbarHostState.showSnackbar("Please add a title and at least one movement.")
+                                        snackbarHostState.showSnackbar(errorMessage)
                                     }
                                     return@WaxSealButton
                                 }

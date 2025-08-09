@@ -11,11 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.store.JournalStore
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.R
 
 @Composable
 fun LineParagraphPage(
@@ -24,7 +26,10 @@ fun LineParagraphPage(
     startTab: Int = 0
 ) {
     var selectedTab by remember { mutableStateOf(startTab) }
-    val tabs = listOf("Lines", "Paragraphs")
+    val tabs = listOf(
+        stringResource(R.string.lines_tab),
+        stringResource(R.string.paragraphs_tab)
+    )
     val lines = JournalStore.allLines
     val paragraphs = JournalStore.allParagraphs
     var editingLine by remember { mutableStateOf<Line?>(null) }
@@ -101,7 +106,7 @@ fun LineParagraphPage(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = if (selectedTab == 0) "➕ Compose a new line" else "➕ Add Paragraph",
+                    text = if (selectedTab == 0) stringResource(R.string.compose_new_line_button) else stringResource(R.string.add_paragraph_button),
                     fontFamily = GaeguRegular,
                     color = Color.Black
                 )
