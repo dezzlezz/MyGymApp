@@ -225,7 +225,8 @@ fun LineEditorPage(
                             dragState = dragState,
                             allExercises = allExercises,
                             dragModifier = dragModifier,
-                            findInsertIndexForDrop = ::findInsertIndexForDrop
+                            findInsertIndexForDrop = ::findInsertIndexForDrop,
+                            snackbarHostState = snackbarHostState
                         )
                     }
 

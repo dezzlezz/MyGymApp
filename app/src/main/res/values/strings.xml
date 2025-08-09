@@ -146,4 +146,6 @@
     <string name="add_illustration">＋ Add Illustration</string>
     <string name="plan_label">Plan</string>
     <string name="save_template_label">Save Template</string>
+    <string name="movement_removed">Movement removed</string>
+    <string name="undo">Undo</string>
 </resources>

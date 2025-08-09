@@ -19,30 +19,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.components.*
 import com.example.mygymapp.ui.util.move
+import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
-import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 /** Container for drag and drop state shared across composables. */
@@ -329,12 +332,37 @@ fun SectionsWithDragDrop(
     dragState: DragAndDropState,
     allExercises: List<Exercise>,
     dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
-    findInsertIndexForDrop: (String, Float) -> Int
+    findInsertIndexForDrop: (String, Float) -> Int,
+    snackbarHostState: SnackbarHostState
 ) {
     var showMoveSheet by remember { mutableStateOf(false) }
     var moveSelectedOption by remember { mutableStateOf<String?>(null) }
     var moveCustomName by remember { mutableStateOf("") }
     val moveSelection = remember { mutableStateListOf<Long>() }
+    val scope = rememberCoroutineScope()
+    val removeMessage = stringResource(R.string.movement_removed)
+    val undoLabel = stringResource(R.string.undo)
+
+    fun removeExercise(exercise: LineExercise) {
+        val index = selectedExercises.indexOf(exercise)
+        if (index < 0) return
+        val partners = supersetState.partners(exercise.id)
+        selectedExercises.removeAt(index)
+        supersetState.removeExercise(exercise.id)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = removeMessage,
+                actionLabel = undoLabel
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                val insertIndex = index.coerceAtMost(selectedExercises.size)
+                selectedExercises.add(insertIndex, exercise)
+                partners.forEach { partner ->
+                    supersetState.addPair(exercise.id, partner)
+                }
+            }
+        }
+    }
 
     PoeticBottomSheet(
         visible = showMoveSheet,
@@ -459,10 +487,7 @@ fun SectionsWithDragDrop(
                             ReorderableExerciseItem(
                                 index = index,
                                 exercise = item,
-                                onRemove = {
-                                    selectedExercises.remove(item)
-                                    supersetState.removeExercise(item.id)
-                                },
+                                onRemove = { removeExercise(item) },
                                 onMove = {
                                     showMoveSheet = true
                                     moveSelection.clear(); moveSelection.add(item.id)
@@ -562,10 +587,7 @@ fun SectionsWithDragDrop(
                                 ReorderableExerciseItem(
                                     index = index,
                                     exercise = item,
-                                    onRemove = {
-                                        selectedExercises.remove(item)
-                                        supersetState.removeExercise(item.id)
-                                    },
+                                    onRemove = { removeExercise(item) },
                                     onMove = {
                                         showMoveSheet = true
                                         moveSelection.clear(); moveSelection.add(item.id)
@@ -670,10 +692,7 @@ fun SectionsWithDragDrop(
                                     ReorderableExerciseItem(
                                         index = index,
                                         exercise = item,
-                                        onRemove = {
-                                            selectedExercises.remove(item)
-                                            supersetState.removeExercise(item.id)
-                                        },
+                                        onRemove = { removeExercise(item) },
                                         onMove = {
                                             showMoveSheet = true
                                             moveSelection.clear(); moveSelection.add(item.id)
