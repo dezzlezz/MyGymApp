@@ -15,6 +15,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,12 +46,22 @@ fun SectionWrapper(
         targetValue = 4f,
         animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse)
     )
+    val scale by if (isDropActive) {
+        infinite.animateFloat(
+            initialValue = 1.02f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse)
+        )
+    } else {
+        remember { mutableStateOf(1f) }
+    }
     Box(
         modifier = Modifier
             .padding(vertical = paddingY)
             .then(modifier)
             .fillMaxWidth()
             .defaultMinSize(minHeight = minDropHeightDp.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale)
             .drawBehind {
                 val stroke = if (isDropActive) animatedStroke.dp.toPx() else 2.dp.toPx()
                 val radius = 12.dp.toPx()

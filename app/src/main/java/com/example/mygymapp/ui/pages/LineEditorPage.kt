@@ -26,6 +26,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.keyframes
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mygymapp.data.Exercise
@@ -81,12 +84,6 @@ fun LineEditorPage(
             initial?.supersets?.let { addAll(it.map { grp -> grp.toMutableList() }) }
         }
     }
-    val supersetSelection = rememberSaveable(
-        saver = listSaver<SnapshotStateList<Long>, Long>(
-            save = { ArrayList(it) },
-            restore = { it.toMutableStateList() }
-        )
-    ) { mutableStateListOf<Long>() }
     val supersetHelper = remember { SupersetHelper(supersets) }
 
     val categoryOptions = listOf("💪 Strength", "🔥 Cardio", "🌱 Warmup", "🧘 Flexibility", "🌈 Recovery")
@@ -138,11 +135,36 @@ fun LineEditorPage(
     }
 
     val dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier = { id, name, section, offset, start ->
-        Modifier.exerciseDrag(dragState, id, name, section, offset, allExercises, selectedExercises, sections, ::findInsertIndexForDrop, start)
+        Modifier.exerciseDrag(
+            dragState,
+            id,
+            name,
+            section,
+            offset,
+            allExercises,
+            selectedExercises,
+            sections,
+            ::findInsertIndexForDrop,
+            supersetHelper,
+            start
+        )
     }
 
     val scrollState = rememberScrollState()
     val exerciseBringIntoView = remember { BringIntoViewRequester() }
+    var saving by remember { mutableStateOf(false) }
+    var pendingLine by remember { mutableStateOf<Line?>(null) }
+    val saveOffset = remember { Animatable(0f) }
+    val saveAlpha = remember { Animatable(1f) }
+
+    LaunchedEffect(saving) {
+        val line = pendingLine
+        if (saving && line != null) {
+            saveOffset.animateTo(300f, tween(600))
+            saveAlpha.animateTo(0f, tween(600))
+            onSave(line)
+        }
+    }
 
     Scaffold(
         snackbarHost = {
@@ -163,7 +185,11 @@ fun LineEditorPage(
                         .fillMaxSize()
                         .verticalScroll(pageScrollState)
                         .systemBarsPadding()
-                        .padding(24.dp),
+                        .padding(24.dp)
+                        .graphicsLayer {
+                            translationX = saveOffset.value
+                            alpha = saveAlpha.value
+                        },
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -206,19 +232,35 @@ fun LineEditorPage(
                         onDismiss = { showExerciseSheet.value = false }
                     )
 
+                    val exerciseError = showError && selectedExercises.isEmpty()
+                    var exerciseShakeTrigger by remember { mutableStateOf(false) }
+                    val exerciseShake by animateFloatAsState(
+                        if (exerciseShakeTrigger) 8f else 0f,
+                        animationSpec = keyframes {
+                            durationMillis = 300
+                            0f at 0
+                            -8f at 50
+                            8f at 100
+                            -8f at 150
+                            0f at 200
+                        }
+                    )
+                    LaunchedEffect(exerciseError) {
+                        if (exerciseError) exerciseShakeTrigger = !exerciseShakeTrigger
+                    }
                     val exerciseBorderColor by animateColorAsState(
-                        if (showError && selectedExercises.isEmpty()) Color.Red else Color.Transparent
+                        if (exerciseError) Color.Red else Color.Transparent
                     )
                     Box(
                         Modifier
                             .border(2.dp, exerciseBorderColor)
+                            .graphicsLayer { translationX = exerciseShake }
                             .bringIntoViewRequester(exerciseBringIntoViewRequester)
                     ) {
                         SectionsWithDragDrop(
                             sections = sections,
                             selectedExercises = selectedExercises,
                             supersetHelper = supersetHelper,
-                            supersetSelection = supersetSelection,
                             dragState = dragState,
                             allExercises = allExercises,
                             dragModifier = dragModifier,
@@ -239,7 +281,7 @@ fun LineEditorPage(
                             label = "Create",
                             onClick = {
                                 if (title.isBlank() || selectedExercises.isEmpty()) { showError = true; return@WaxSealButton }
-                                val newLine = Line(
+                                pendingLine = Line(
                                     id = initial?.id ?: System.currentTimeMillis(),
                                     title = title,
                                     category = selectedCategories.joinToString(),
@@ -250,7 +292,7 @@ fun LineEditorPage(
                                     note = note,
                                     isArchived = false
                                 )
-                                onSave(newLine)
+                                saving = true
                             },
                             modifier = Modifier.align(Alignment.Center)
                         )
@@ -284,7 +326,8 @@ fun LineEditorPage(
                         Modifier
                             .absoluteOffset(x = dragState.dragPosition.x.dp, y = dragState.dragPosition.y.dp)
                             .shadow(8.dp)
-                            .alpha(0.7f)
+                            .alpha(0.85f)
+                            .graphicsLayer { rotationZ = -3f }
                     ) {
                         PoeticCard(tintOverlayAlpha = 0.3f) {
                             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
