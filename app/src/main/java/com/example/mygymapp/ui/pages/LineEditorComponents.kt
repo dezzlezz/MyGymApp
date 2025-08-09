@@ -2,6 +2,7 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -409,6 +410,7 @@ fun SectionsWithDragDrop(
             val isDropActive = dragState.hoveredSection == ""
             val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
             val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
+            val extraPadding by animateDpAsState(if (isDropActive) 8.dp else 0.dp)
             Box(
                 modifier = Modifier
                     .onGloballyPositioned {
@@ -419,6 +421,7 @@ fun SectionsWithDragDrop(
                     .background(bgColor)
                     .border(1.dp, borderColor)
                     .shadow(if (isDropActive) 4.dp else 0.dp)
+                    .padding(vertical = extraPadding)
                     .fillMaxWidth()
             ) {
                 LazyColumn(
@@ -436,6 +439,7 @@ fun SectionsWithDragDrop(
                             val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
                                 selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                             }
+                            val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
                             var itemOffset by remember { mutableStateOf(Offset.Zero) }
                             ReorderableExerciseItem(
                                 index = index,
@@ -461,7 +465,7 @@ fun SectionsWithDragDrop(
                                         itemOffset = topLeft
                                         val size = it.size.toSize()
                                         dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
-                                    },
+                                },
                                 dragHandle = {
                                     var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                     Icon(
@@ -474,6 +478,7 @@ fun SectionsWithDragDrop(
                                     )
                                 },
                                 supersetPartnerIndices = partnerIndices,
+                                isDraggingPartner = isDraggingPartner,
                                 elevation = elevation
                             )
                         }
@@ -522,6 +527,7 @@ fun SectionsWithDragDrop(
                                 val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                 }
+                                val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
                                 var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                 ReorderableExerciseItem(
                                     index = index,
@@ -547,7 +553,7 @@ fun SectionsWithDragDrop(
                                             itemOffset = topLeft
                                             val size = it.size.toSize()
                                             dragState.itemBounds[item.id] = topLeft.y to (topLeft.y + size.height)
-                                        },
+                                    },
                                     dragHandle = {
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         Icon(
@@ -560,6 +566,7 @@ fun SectionsWithDragDrop(
                                         )
                                     },
                                     supersetPartnerIndices = partnerIndices,
+                                    isDraggingPartner = isDraggingPartner,
                                     elevation = elevation
                                 )
                             }
@@ -605,6 +612,7 @@ fun SectionsWithDragDrop(
                                 val partnerIndices = supersetHelper.partners(item.id).mapNotNull { pid ->
                                     selectedExercises.indexOfFirst { it.id == pid }.takeIf { it >= 0 }
                                 }
+                                val isDraggingPartner = dragState.draggingExerciseId?.let { supersetHelper.partners(it).contains(item.id) } == true
                                 var itemOffset by remember { mutableStateOf(Offset.Zero) }
                                 ReorderableExerciseItem(
                                     index = index,
@@ -644,6 +652,7 @@ fun SectionsWithDragDrop(
                                         )
                                     },
                                     supersetPartnerIndices = partnerIndices,
+                                    isDraggingPartner = isDraggingPartner,
                                     elevation = elevation
                                 )
                             }

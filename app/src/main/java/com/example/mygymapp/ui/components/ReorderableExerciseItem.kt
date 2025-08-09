@@ -1,8 +1,11 @@
 package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
@@ -11,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +38,7 @@ fun ReorderableExerciseItem(
     modifier: Modifier = Modifier,
     dragHandle: @Composable () -> Unit,
     supersetPartnerIndices: List<Int> = emptyList(),
+    isDraggingPartner: Boolean = false,
     elevation: Dp = 2.dp
 ) {
     val indices = (listOf(index) + supersetPartnerIndices).sorted()
@@ -62,14 +67,33 @@ fun ReorderableExerciseItem(
             Spacer(Modifier.width(16.dp))
         }
 
-        PoeticCard(
+        val highlightColor by animateColorAsState(
+            targetValue = when {
+                isDraggingPartner -> Color(0xFFFFF59D)
+                isSuperset -> Color(0xFFFFFDE7)
+                else -> Color.Transparent
+            }
+        )
+        val borderColor by animateColorAsState(
+            targetValue = when {
+                isDraggingPartner -> Color(0xFFFBC02D)
+                isSuperset -> Color(0xFFFFF59D)
+                else -> Color.Transparent
+            }
+        )
+        Box(
             modifier = Modifier
                 .padding(vertical = 4.dp)
                 .weight(1f)
-                .graphicsLayer(clip = false),   // <- HIER rein, noch vor der schließenden Klammer
-            elevation = elevation
+                .graphicsLayer(clip = false)
+                .background(highlightColor)
+                .border(1.dp, borderColor)
         ) {
-            Column {
+            PoeticCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = elevation
+            ) {
+                Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
