@@ -153,4 +153,5 @@
     <string name="drop_zone_hovered">current drop target</string>
     <string name="sets_reps_format">%1$d x %2$s</string>
     <string name="unassigned">Unassigned</string>
+    <string name="rest_day">Rest Day</string>
 </resources>
