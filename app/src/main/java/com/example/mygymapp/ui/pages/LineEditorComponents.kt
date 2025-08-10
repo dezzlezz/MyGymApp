@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -52,6 +51,8 @@ import com.example.mygymapp.ui.motion.MotionSpec
 import com.example.mygymapp.ui.theme.AppTypography
 import com.example.mygymapp.ui.theme.AppColors
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import android.widget.Toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -236,7 +237,8 @@ fun LineTitleAndCategoriesSection(
     selectedMuscles: List<String>,
     onMuscleChange: (List<String>) -> Unit,
     titleError: Boolean = false,
-    titleBringIntoViewRequester: BringIntoViewRequester? = null
+    titleBringIntoViewRequester: BringIntoViewRequester? = null,
+    titleFocusRequester: FocusRequester? = null
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         PoeticDivider(centerText = "What would you title this day?")
@@ -245,10 +247,23 @@ fun LineTitleAndCategoriesSection(
             onValueChange = onTitleChange,
             hint = "A poetic title...",
             initialLines = 1,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (titleFocusRequester != null) Modifier.focusRequester(titleFocusRequester) else Modifier),
             isError = titleError,
             bringIntoViewRequester = titleBringIntoViewRequester
         )
+        if (titleError) {
+            Text(
+                text = "Title is required.",
+                fontFamily = AppTypography.GaeguLight,
+                fontSize = 14.sp,
+                color = Color.Red,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(top = 4.dp)
+            )
+        }
         PoeticDivider(centerText = "What kind of movement is this?")
         PoeticMultiSelectChips(
             options = categoryOptions,
@@ -695,7 +710,6 @@ fun SectionsWithDragDrop(
                                         directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
                                         background = {
                                             val progress = dismissState.progress.fraction
-                                            val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
                                             val iconScale by animateFloatAsState(
                                                 targetValue = if (progress > 0f) 1f else 0.6f,
                                                 animationSpec = MotionSpec.springSnappy()
@@ -707,14 +721,13 @@ fun SectionsWithDragDrop(
                                             Box(
                                                 Modifier
                                                     .fillMaxSize()
-                                                    .background(bg)
                                                     .padding(horizontal = 20.dp),
                                                 contentAlignment = Alignment.CenterEnd
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Delete,
                                                     contentDescription = null,
-                                                    tint = Color.White,
+                                                    tint = Color.Red,
                                                     modifier = Modifier.graphicsLayer(
                                                         scaleX = iconScale,
                                                         scaleY = iconScale,
@@ -859,7 +872,6 @@ fun SectionsWithDragDrop(
                             directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
                             background = {
                                 val progress = dismissState.progress.fraction
-                                val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
                                 val iconScale by animateFloatAsState(
                                     targetValue = if (progress > 0f) 1f else 0.6f,
                                     animationSpec = MotionSpec.springSnappy()
@@ -871,14 +883,13 @@ fun SectionsWithDragDrop(
                                 Box(
                                     Modifier
                                         .fillMaxSize()
-                                        .background(bg)
                                         .padding(horizontal = 20.dp),
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
                                         contentDescription = null,
-                                        tint = Color.White,
+                                        tint = Color.Red,
                                         modifier = Modifier.graphicsLayer(
                                             scaleX = iconScale,
                                             scaleY = iconScale,
@@ -1031,7 +1042,6 @@ fun SectionsWithDragDrop(
                                                 directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
                                                 background = {
                                                     val progress = dismissState.progress.fraction
-                                                    val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
                                                     val iconScale by animateFloatAsState(
                                                         targetValue = if (progress > 0f) 1f else 0.6f,
                                                         animationSpec = MotionSpec.springSnappy()
@@ -1043,14 +1053,13 @@ fun SectionsWithDragDrop(
                                                     Box(
                                                         Modifier
                                                             .fillMaxSize()
-                                                            .background(bg)
                                                             .padding(horizontal = 20.dp),
                                                         contentAlignment = Alignment.CenterEnd
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Delete,
                                                             contentDescription = null,
-                                                            tint = Color.White,
+                                                            tint = Color.Red,
                                                             modifier = Modifier.graphicsLayer(
                                                                 scaleX = iconScale,
                                                                 scaleY = iconScale,
