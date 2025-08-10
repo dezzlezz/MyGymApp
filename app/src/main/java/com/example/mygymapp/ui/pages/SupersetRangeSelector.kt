@@ -22,12 +22,16 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
     private var firstPointer: Long? = null
     private var secondPointer: Long? = null
     private var activeSelection: SupersetRangeSelection? = null
+    private var initialDistance: Float? = null
+    private var currentDistance: Float = 0f
 
     /** Reset internal tracking. */
     fun reset() {
         firstPointer = null
         secondPointer = null
         activeSelection = null
+        initialDistance = null
+        currentDistance = 0f
     }
 
     /**
@@ -66,6 +70,9 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
             return null
         }
 
+        currentDistance = kotlin.math.abs(firstPos.y - secondPos.y)
+        if (initialDistance == null) initialDistance = currentDistance
+
         val boundsTop = itemBounds.values.minOfOrNull { it.first } ?: return null
         val boundsBottom = itemBounds.values.maxOfOrNull { it.second } ?: return null
         if (firstPos.y !in boundsTop..boundsBottom || secondPos.y !in boundsTop..boundsBottom) {
@@ -86,6 +93,17 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
         activeSelection = selection
         return selection
     }
+
+    fun isOutwardPull(thresholdPx: Float): Boolean {
+        val start = initialDistance ?: return false
+        return currentDistance - start >= thresholdPx
+    }
+
+    val startDistance: Float?
+        get() = initialDistance
+
+    val distance: Float
+        get() = currentDistance
 
     private fun idAt(y: Float): Long? {
         return itemBounds.entries.firstOrNull { y >= it.value.first && y <= it.value.second }?.key

@@ -94,6 +94,7 @@
     <string name="superset">Superset</string>
     <string name="circuit">Circuit</string>
     <string name="create_superset">Create Superset</string>
+    <string name="superset_split">Superset split</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="rest_time">Rest: %1$ds</string>
