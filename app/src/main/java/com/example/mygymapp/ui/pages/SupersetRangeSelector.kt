@@ -1,6 +1,7 @@
 package com.example.mygymapp.ui.pages
 
 import android.content.res.Resources
+import android.os.SystemClock
 import androidx.compose.ui.geometry.Offset
 
 /** Snapshot of an active or completed range selection. */
@@ -28,6 +29,12 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
     private var initialDistance: Float? = null
     private var currentDistance: Float = 0f
     private val hysteresisPx = 20f * Resources.getSystem().displayMetrics.density
+    private val boundsTop = itemBounds.minOf { it.value.first }
+    private val boundsBottom = itemBounds.maxOf { it.value.second }
+    private val gracePeriodMs = 150L
+    private var firstOutsideSince: Long? = null
+    private var secondOutsideSince: Long? = null
+    private var outsideTimeout = false
 
     /** Reset internal tracking. */
     fun reset() {
@@ -38,6 +45,9 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
         activeSelection = null
         initialDistance = null
         currentDistance = 0f
+        firstOutsideSince = null
+        secondOutsideSince = null
+        outsideTimeout = false
     }
 
     /**
@@ -56,6 +66,8 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
             reset()
             return result
         }
+
+        val now = SystemClock.uptimeMillis()
 
         if (firstPointer == null && pointers.isNotEmpty()) {
             val p = pointers.first()
@@ -76,12 +88,22 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
 
         val firstPos = pointers.firstOrNull { it.id == firstPointer }?.position
         if (firstPos != null) {
-            startAnchorId = updateAnchor(startAnchorId, firstPos.y, sortedIds, idToIndex)
+            val clampedY = firstPos.y.coerceIn(boundsTop, boundsBottom)
+            val outside = firstPos.y < boundsTop || firstPos.y > boundsBottom
+            firstOutsideSince = if (outside) firstOutsideSince ?: now else null
+            startAnchorId = updateAnchor(startAnchorId, clampedY, sortedIds, idToIndex)
+        } else if (firstPointer != null) {
+            firstOutsideSince = firstOutsideSince ?: now
         }
 
         val secondPos = pointers.firstOrNull { it.id == secondPointer }?.position
         if (secondPos != null) {
-            endAnchorId = updateAnchor(endAnchorId, secondPos.y, sortedIds, idToIndex)
+            val clampedY = secondPos.y.coerceIn(boundsTop, boundsBottom)
+            val outside = secondPos.y < boundsTop || secondPos.y > boundsBottom
+            secondOutsideSince = if (outside) secondOutsideSince ?: now else null
+            endAnchorId = updateAnchor(endAnchorId, clampedY, sortedIds, idToIndex)
+        } else if (secondPointer != null) {
+            secondOutsideSince = secondOutsideSince ?: now
         }
 
         if (firstPos != null && secondPos != null) {
@@ -101,6 +123,11 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
         val ids = range.map { sortedIds[it] }
         val selection = SupersetRangeSelection(startId, endId, ids)
         activeSelection = selection
+
+        outsideTimeout =
+            firstOutsideSince?.let { now - it > gracePeriodMs } == true &&
+            secondOutsideSince?.let { now - it > gracePeriodMs } == true
+
         return selection
     }
 
@@ -114,6 +141,8 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
 
     val distance: Float
         get() = currentDistance
+
+    fun shouldCommit(): Boolean = outsideTimeout
 
     private fun idAt(y: Float): Long? {
         return itemBounds.entries.firstOrNull { y >= it.value.first && y <= it.value.second }?.key
