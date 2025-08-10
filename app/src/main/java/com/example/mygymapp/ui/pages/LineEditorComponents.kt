@@ -293,7 +293,7 @@ fun ExercisePickerSheet(
     allExercises: List<Exercise>,
     selectedMuscles: List<String>,
     dragState: DragAndDropState,
-    dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
+    dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
     onExerciseClicked: (Exercise) -> Unit,
     onCreateExercise: (String) -> Unit,
     onDismiss: () -> Unit
@@ -402,7 +402,7 @@ fun SectionsWithDragDrop(
     supersetState: SupersetState,
     dragState: DragAndDropState,
     allExercises: List<Exercise>,
-    dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
+    dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
     findInsertIndexForDrop: (String, Float) -> Int,
     snackbarHostState: SnackbarHostState
 ) {
