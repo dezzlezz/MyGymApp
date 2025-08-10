@@ -1,10 +1,16 @@
 package com.example.mygymapp.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.Icon
@@ -24,9 +30,12 @@ import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.IntOffset
+import com.example.mygymapp.ui.motion.MotionSpec
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReorderableExerciseItem(
+fun LazyItemScope.ReorderableExerciseItem(
     index: Int,
     exercise: LineExercise,
     onMove: () -> Unit,
@@ -65,36 +74,55 @@ fun ReorderableExerciseItem(
         }
 
         val highlightColor by animateColorAsState(
-            when {
+            targetValue = when {
                 isDragTarget -> Color(0xFFC8E6C9)
                 isDraggingPartner -> Color(0xFFFFF59D)
                 else -> Color.Transparent
-            }
+            }, animationSpec = MotionSpec.tweenMedium()
         )
         val borderColor by animateColorAsState(
-            when {
+            targetValue = when {
                 isDragTarget -> Color(0xFF2E7D32)
                 isDraggingPartner -> Color(0xFFFBC02D)
                 isSuperset -> Color(0xFFFFF59D)
                 else -> Color.Transparent
-            }
+            }, animationSpec = MotionSpec.tweenMedium()
         )
         val backgroundBrush = if (isSuperset) {
             Brush.verticalGradient(listOf(Color(0xFFFDF6EC), Color(0xFFE8F5E9)))
         } else {
             Brush.verticalGradient(listOf(highlightColor, highlightColor))
         }
+        val isDragging = elevation > 2.dp
+        val scale by animateFloatAsState(
+            targetValue = if (isDragging) 1.02f else 1f,
+            animationSpec = MotionSpec.springSoft()
+        )
+        val underlineAlpha by animateFloatAsState(
+            targetValue = if (isDragging) 1f else 0f,
+            animationSpec = MotionSpec.tweenFast()
+        )
+        val animatedElevation by animateDpAsState(
+            targetValue = elevation,
+            animationSpec = MotionSpec.springSoft()
+        )
         Box(
             modifier = Modifier
                 .padding(vertical = 4.dp)
                 .weight(1f)
-                .graphicsLayer(clip = false, rotationZ = if (isSuperset) if (index % 2 == 0) -2f else 2f else 0f)
+                .animateItemPlacement(MotionSpec.springSoft<IntOffset>())
+                .graphicsLayer(
+                    clip = false,
+                    rotationZ = if (isSuperset) if (index % 2 == 0) -2f else 2f else 0f,
+                    scaleX = scale,
+                    scaleY = scale
+                )
                 .background(backgroundBrush)
                 .border(1.dp, borderColor)
         ) {
             PoeticCard(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = elevation
+                elevation = animatedElevation
             ) {
                 Column {
                     Row(
@@ -135,6 +163,14 @@ fun ReorderableExerciseItem(
                     }
                 }
             }
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .alpha(underlineAlpha)
+                    .background(Color.Black.copy(alpha = 0.1f))
+            )
         }
     }
 }

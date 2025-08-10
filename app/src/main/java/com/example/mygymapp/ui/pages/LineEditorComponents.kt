@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -48,7 +49,9 @@ import com.example.mygymapp.R
 import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.components.*
+import com.example.mygymapp.ui.motion.MotionSpec
 import android.widget.Toast
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -416,6 +419,7 @@ fun SectionsWithDragDrop(
         selectedExercises.removeAt(index)
         supersetState.removeExercise(exercise.id)
         scope.launch {
+            delay(MotionSpec.VeryFast.toLong())
             val result = snackbarHostState.showSnackbar(
                 message = removeMessage,
                 actionLabel = undoLabel
@@ -675,21 +679,37 @@ fun SectionsWithDragDrop(
                                         state = dismissState,
                                         directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
                                         background = {
+                                            val progress = dismissState.progress.fraction
+                                            val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
+                                            val iconScale by animateFloatAsState(
+                                                targetValue = if (progress > 0f) 1f else 0.6f,
+                                                animationSpec = MotionSpec.springSnappy()
+                                            )
+                                            val iconRot by animateFloatAsState(
+                                                targetValue = if (progress > 0f) 0f else -30f,
+                                                animationSpec = MotionSpec.springSnappy()
+                                            )
                                             Box(
                                                 Modifier
                                                     .fillMaxSize()
-                                                    .background(Color.Red)
+                                                    .background(bg)
                                                     .padding(horizontal = 20.dp),
                                                 contentAlignment = Alignment.CenterEnd
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Delete,
                                                     contentDescription = null,
-                                                    tint = Color.White
+                                                    tint = Color.White,
+                                                    modifier = Modifier.graphicsLayer(
+                                                        scaleX = iconScale,
+                                                        scaleY = iconScale,
+                                                        rotationZ = iconRot
+                                                    )
                                                 )
                                             }
                                         },
                                         dismissContent = {
+                                            val offsetX = dismissState.offset.value * 0.1f
                                             ReorderableExerciseItem(
                                                 index = index,
                                                 exercise = item,
@@ -699,6 +719,7 @@ fun SectionsWithDragDrop(
                                                     moveSelectedOption = null; moveCustomName = ""
                                                 },
                                                 modifier = Modifier
+                                                    .graphicsLayer { translationX = offsetX }
                                                     .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                                     .onGloballyPositioned {
                                                         val topLeft = it.positionInWindow()
@@ -818,69 +839,86 @@ fun SectionsWithDragDrop(
                                                 false
                                             }
                                         })
-                                        SwipeToDismiss(
-                                            state = dismissState,
-                                            directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
-                                            background = {
-                                                Box(
-                                                    Modifier
-                                                        .fillMaxSize()
-                                                        .background(Color.Red)
-                                                        .padding(horizontal = 20.dp),
-                                                    contentAlignment = Alignment.CenterEnd
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Delete,
-                                                        contentDescription = null,
-                                                        tint = Color.White
-                                                    )
-                                                }
-                                            },
-                        
-                                            dismissContent = {
-                                                ReorderableExerciseItem(
-                                                    index = index,
-                                                    exercise = item,
-                                                    onMove = {
-                                                        showMoveSheet = true
-                                                        moveSelection.clear(); moveSelection.add(item.id)
-                                                        moveSelectedOption = null; moveCustomName = ""
-                                                    },
-                                                    modifier = Modifier
-                                                        .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                                        .onGloballyPositioned {
-                                                            val topLeft = it.positionInWindow()
-                                                            val size = it.size.toSize()
-                                                            dragState.itemBounds[item.id] =
-                                                                topLeft.y to (topLeft.y + size.height)
-                                                        },
-                                                    dragHandle = {
-                                                        var handleOffset by remember { mutableStateOf(Offset.Zero) }
-                                                        Icon(
-                                                            imageVector = Icons.Default.DragHandle,
-                                                            contentDescription = stringResource(R.string.reorder_movement),
-                                                            tint = Color.Gray,
-                                                            modifier = Modifier
-                                                                .onGloballyPositioned {
-                                                                    if (!dragState.isDragging) {
-                                                                        handleOffset = it.positionInWindow()
-                                                                    }
-                                                                }
-                                                                .then(
-                                                                    dragModifier(
-                                                                        item.id,
-                                                                        item.name,
-                                                                        item.section,
-                                                                        { handleOffset }) { })
-                                                        )
-                                                    },
-                                                    supersetPartnerIndices = partnerIndices,
-                                                    isDraggingPartner = isDraggingPartner,
-                                                    isDragTarget = isInRange,
-                                                    elevation = elevation
-                                                )
-                                            }
+                        SwipeToDismiss(
+                            state = dismissState,
+                            directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
+                            background = {
+                                val progress = dismissState.progress.fraction
+                                val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
+                                val iconScale by animateFloatAsState(
+                                    targetValue = if (progress > 0f) 1f else 0.6f,
+                                    animationSpec = MotionSpec.springSnappy()
+                                )
+                                val iconRot by animateFloatAsState(
+                                    targetValue = if (progress > 0f) 0f else -30f,
+                                    animationSpec = MotionSpec.springSnappy()
+                                )
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(bg)
+                                        .padding(horizontal = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.graphicsLayer(
+                                            scaleX = iconScale,
+                                            scaleY = iconScale,
+                                            rotationZ = iconRot
                                         )
+                                    )
+                                }
+                            },
+
+                            dismissContent = {
+                                val offsetX = dismissState.offset.value * 0.1f
+                                ReorderableExerciseItem(
+                                    index = index,
+                                    exercise = item,
+                                    onMove = {
+                                        showMoveSheet = true
+                                        moveSelection.clear(); moveSelection.add(item.id)
+                                        moveSelectedOption = null; moveCustomName = ""
+                                    },
+                                    modifier = Modifier
+                                        .graphicsLayer { translationX = offsetX }
+                                        .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
+                                        .onGloballyPositioned {
+                                            val topLeft = it.positionInWindow()
+                                            val size = it.size.toSize()
+                                            dragState.itemBounds[item.id] =
+                                                topLeft.y to (topLeft.y + size.height)
+                                        },
+                                    dragHandle = {
+                                        var handleOffset by remember { mutableStateOf(Offset.Zero) }
+                                        Icon(
+                                            imageVector = Icons.Default.DragHandle,
+                                            contentDescription = stringResource(R.string.reorder_movement),
+                                            tint = Color.Gray,
+                                            modifier = Modifier
+                                                .onGloballyPositioned {
+                                                    if (!dragState.isDragging) {
+                                                        handleOffset = it.positionInWindow()
+                                                    }
+                                                }
+                                                .then(
+                                                    dragModifier(
+                                                        item.id,
+                                                        item.name,
+                                                        item.section,
+                                                        { handleOffset }) { })
+                                        )
+                                    },
+                                    supersetPartnerIndices = partnerIndices,
+                                    isDraggingPartner = isDraggingPartner,
+                                    isDragTarget = isInRange,
+                                    elevation = elevation
+                                )
+                            }
+                        )
                                     }
                                 }
                             }
@@ -977,21 +1015,37 @@ fun SectionsWithDragDrop(
                                                 state = dismissState,
                                                 directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
                                                 background = {
+                                                    val progress = dismissState.progress.fraction
+                                                    val bg = lerp(Color.Transparent, Color(0xFFFFCDD2), progress)
+                                                    val iconScale by animateFloatAsState(
+                                                        targetValue = if (progress > 0f) 1f else 0.6f,
+                                                        animationSpec = MotionSpec.springSnappy()
+                                                    )
+                                                    val iconRot by animateFloatAsState(
+                                                        targetValue = if (progress > 0f) 0f else -30f,
+                                                        animationSpec = MotionSpec.springSnappy()
+                                                    )
                                                     Box(
                                                         Modifier
                                                             .fillMaxSize()
-                                                            .background(Color.Red)
+                                                            .background(bg)
                                                             .padding(horizontal = 20.dp),
                                                         contentAlignment = Alignment.CenterEnd
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Delete,
                                                             contentDescription = null,
-                                                            tint = Color.White
+                                                            tint = Color.White,
+                                                            modifier = Modifier.graphicsLayer(
+                                                                scaleX = iconScale,
+                                                                scaleY = iconScale,
+                                                                rotationZ = iconRot
+                                                            )
                                                         )
                                                     }
                                                 },
                                                 dismissContent = {
+                                                    val offsetX = dismissState.offset.value * 0.1f
                                                     ReorderableExerciseItem(
                                                         index = index,
                                                         exercise = item,
@@ -1001,6 +1055,7 @@ fun SectionsWithDragDrop(
                                                             moveSelectedOption = null; moveCustomName = ""
                                                         },
                                                         modifier = Modifier
+                                                            .graphicsLayer { translationX = offsetX }
                                                             .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                                             .onGloballyPositioned {
                                                                 val topLeft = it.positionInWindow()
