@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.theme.AppTypography
 import com.example.mygymapp.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
@@ -45,7 +45,7 @@ fun GaeguButton(
     modifier: Modifier = Modifier,
     textColor: Color = Color.Black,
     fontSize: TextUnit = 18.sp,
-    font: FontFamily = GaeguBold,
+    font: FontFamily = AppTypography.GaeguBold,
     imageRes: Int = R.drawable.button_page, // PNG muss in res/drawable
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
     icon: (@Composable () -> Unit)? = null
