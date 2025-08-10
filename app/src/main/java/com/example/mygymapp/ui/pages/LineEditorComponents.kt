@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
@@ -50,6 +49,9 @@ import com.example.mygymapp.data.Exercise
 import com.example.mygymapp.model.Exercise as LineExercise
 import com.example.mygymapp.ui.components.*
 import com.example.mygymapp.ui.motion.MotionSpec
+import com.example.mygymapp.ui.theme.AppTypography
+import com.example.mygymapp.ui.theme.AppColors
+import androidx.compose.ui.text.style.TextOverflow
 import android.widget.Toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -143,6 +145,7 @@ private fun moveWithSuperset(
 }
 
 /** Unified drag handler used by picker items and list handles. */
+@Composable
 fun Modifier.exerciseDrag(
     state: DragAndDropState,
     exerciseId: Long,
@@ -290,7 +293,7 @@ fun ExercisePickerSheet(
     allExercises: List<Exercise>,
     selectedMuscles: List<String>,
     dragState: DragAndDropState,
-    dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
+    dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
     onExerciseClicked: (Exercise) -> Unit,
     onCreateExercise: (String) -> Unit,
     onDismiss: () -> Unit
@@ -347,7 +350,7 @@ fun ExercisePickerSheet(
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         "No matching exercises found.",
-                        fontFamily = GaeguLight,
+                        fontFamily = AppTypography.GaeguLight,
                         fontSize = 14.sp,
                         color = Color.Black,
                         modifier = Modifier.padding(12.dp)
@@ -376,10 +379,10 @@ fun ExercisePickerSheet(
                                     selectedFilter.value = null
                                 }
                         ) {
-                            Text(ex.name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                            Text(ex.name, fontFamily = AppTypography.GaeguRegular, fontSize = 16.sp, color = Color.Black)
                             Text(
                                 "${ex.muscleGroup.display} · ${ex.category.display}",
-                                fontFamily = GaeguLight,
+                                fontFamily = AppTypography.GaeguLight,
                                 fontSize = 13.sp,
                                 color = Color.Black
                             )
@@ -399,7 +402,7 @@ fun SectionsWithDragDrop(
     supersetState: SupersetState,
     dragState: DragAndDropState,
     allExercises: List<Exercise>,
-    dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
+    dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier,
     findInsertIndexForDrop: (String, Float) -> Int,
     snackbarHostState: SnackbarHostState
 ) {
@@ -484,7 +487,7 @@ fun SectionsWithDragDrop(
                         Checkbox(checked = checked, onCheckedChange = null)
                         Text(
                             ex.name,
-                            fontFamily = GaeguRegular,
+                            fontFamily = AppTypography.GaeguRegular,
                             color = Color.Black,
                             modifier = Modifier.padding(start = 8.dp)
                         )
@@ -616,14 +619,9 @@ fun SectionsWithDragDrop(
                 }
         ) {
             if (sections.isEmpty()) {
-                Text("Today's selected movements:", fontFamily = GaeguBold, color = Color.Black)
                 val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
                     moveWithSuperset(selectedExercises, supersetState, from.index, to.index)
                 })
-                val isDropActive = dragState.hoveredSection == ""
-                val bgColor by animateColorAsState(if (isDropActive) Color(0xFFF5F5DC) else Color.Transparent)
-                val borderColor by animateColorAsState(if (isDropActive) Color(0xFFE0DCC8) else Color.Transparent)
-                val extraPadding by animateDpAsState(if (isDropActive) 8.dp else 0.dp)
                 Box(
                     modifier = Modifier
                         .onGloballyPositioned {
@@ -631,10 +629,6 @@ fun SectionsWithDragDrop(
                             val bottom = top + it.size.height
                             dragState.sectionBounds[""] = top to bottom
                         }
-                        .background(bgColor)
-                        .border(1.dp, borderColor)
-                        .shadow(if (isDropActive) 4.dp else 0.dp)
-                        .padding(vertical = extraPadding)
                         .fillMaxWidth()
                 ) {
                     LazyColumn(
@@ -645,10 +639,24 @@ fun SectionsWithDragDrop(
                             .detectReorderAfterLongPress(reorderState)
                             .fillMaxWidth(),
                         userScrollEnabled = false
-                    ) {
-                        itemsIndexed(
-                            selectedExercises,
-                            key = { _, item -> item.id }) { index, item ->
+                      ) {
+                          stickyHeader {
+                            Text(
+                                text = "Today's selected movements:",
+                                style = AppTypography.Title.copy(fontSize = 20.sp, color = AppColors.SubtleText),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(AppColors.Paper)
+                                    .padding(vertical = 8.dp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                          }
+                          item { Spacer(Modifier.height(8.dp)) }
+                          itemsIndexed(
+                              selectedExercises,
+                              key = { _, item -> item.id }
+                          ) { index, item ->
                             ReorderableItem(reorderState, key = item.id) { dragging ->
                                 val elevation = if (dragging) 8.dp else 2.dp
                                 val partnerIndices =
@@ -666,7 +674,7 @@ fun SectionsWithDragDrop(
                                     if (caption != null) {
                                         Text(
                                             caption,
-                                            fontFamily = GaeguRegular,
+                                            fontFamily = AppTypography.GaeguRegular,
                                             color = Color.Gray,
                                             modifier = Modifier.padding(
                                                 start = 32.dp,
@@ -830,7 +838,7 @@ fun SectionsWithDragDrop(
                                         if (caption != null) {
                                             Text(
                                                 caption,
-                                                fontFamily = GaeguRegular,
+                                                fontFamily = AppTypography.GaeguRegular,
                                                 color = Color.Gray,
                                                 modifier = Modifier.padding(
                                                     start = 32.dp,
@@ -957,7 +965,7 @@ fun SectionsWithDragDrop(
                             ) {
                                 Text(
                                     "Drop a movement here",
-                                    fontFamily = GaeguRegular,
+                                    fontFamily = AppTypography.GaeguRegular,
                                     color = Color.Gray
                                 )
                             }
@@ -1002,7 +1010,7 @@ fun SectionsWithDragDrop(
                                             if (caption != null) {
                                                 Text(
                                                     caption,
-                                                    fontFamily = GaeguRegular,
+                                                    fontFamily = AppTypography.GaeguRegular,
                                                     color = Color.Gray,
                                                     modifier = Modifier.padding(
                                                         start = 32.dp,
