@@ -26,6 +26,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -71,8 +72,9 @@ class DragAndDropState {
     var dragPreview by mutableStateOf<String?>(null)
     var dragPosition by mutableStateOf(Offset.Zero)
     var draggingSection by mutableStateOf<String?>(null)
-    var dragStartPointer by mutableStateOf(Offset.Zero)
-    var dragStartLocal by mutableStateOf(Offset.Zero)
+    var dragAnchorX by mutableStateOf(0f)
+    var dragAnchorY by mutableStateOf(0f)
+    var listTop by mutableStateOf(0f)
     var hoveredSection by mutableStateOf<String?>(null)
     val itemBounds = mutableStateMapOf<Long, Pair<Float, Float>>()
     val sectionBounds = mutableStateMapOf<String, Pair<Float, Float>>()
@@ -169,16 +171,26 @@ fun Modifier.exerciseDrag(
             state.draggingExerciseId = exerciseId
             state.dragPreview = exerciseName
             state.draggingSection = startSection
-            state.dragStartLocal = offset
-            state.dragStartPointer = getStartOffset() + offset
-            state.dragPosition = state.dragStartPointer
+            val startOffset = getStartOffset()
+            state.dragAnchorX = startOffset.x
+            state.dragAnchorY = startOffset.y - state.listTop
+            state.dragPosition = Offset(
+                state.dragAnchorX + offset.x,
+                state.listTop + state.dragAnchorY + offset.y
+            )
         },
         onDrag = { change, _ ->
             change.consume()
-            state.dragPosition = state.dragStartPointer + (change.position - state.dragStartLocal)
-            state.hoveredSection = state.sectionBounds.entries.find { entry ->
+            state.dragPosition = Offset(
+                state.dragAnchorX + change.position.x,
+                state.listTop + state.dragAnchorY + change.position.y
+            )
+            val newSection = state.sectionBounds.entries.find { entry ->
                 state.dragPosition.y in entry.value.first..entry.value.second
             }?.key
+            if (newSection != state.hoveredSection) {
+                state.hoveredSection = newSection
+            }
         },
         onDragEnd = {
             state.hoveredSection?.let { sectionName ->
@@ -437,7 +449,6 @@ fun SectionsWithDragDrop(
     var rawCaption by remember { mutableStateOf<String?>(null) }
     var pendingRangeIds by remember { mutableStateOf<List<Long>>(emptyList()) }
     var pendingCaption by remember { mutableStateOf<String?>(null) }
-    var listTop by remember { mutableStateOf(0f) }
     val context = LocalContext.current
     val density = LocalDensity.current
     val minSplitDistance = with(density) { 48.dp.toPx() }
@@ -549,7 +560,7 @@ fun SectionsWithDragDrop(
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         Box(
             modifier = Modifier
-                .onGloballyPositioned { listTop = it.positionInWindow().y }
+                .onGloballyPositioned { dragState.listTop = it.positionInWindow().y }
                 .pointerInput(dragState, selectedExercises) {
                     awaitPointerEventScope {
                         while (true) {
@@ -566,10 +577,10 @@ fun SectionsWithDragDrop(
                             val pointers = active.map { change ->
                                 PointerInfo(
                                     change.id.value,
-                                    Offset(0f, listTop + change.position.y)
+                                    Offset(0f, dragState.listTop + change.position.y)
                                 )
                             }
-                            val selection = rangeSelector.onPointerEvent(listTop, pointers)
+                            val selection = rangeSelector.onPointerEvent(dragState.listTop, pointers)
                             val groupHeight = selection?.idsInRange?.sumOf { id ->
                                 dragState.itemBounds[id]?.let { (it.second - it.first).toDouble() } ?: 0.0
                             }?.toFloat() ?: 0f
@@ -616,13 +627,13 @@ fun SectionsWithDragDrop(
                                                         rangeIds
                                                     )
                                                 }
-                                                if (exactGroup) {
-                                                    supersetState.removeGroup(rangeIds)
-                                                } else {
-                                                    rangeIds.forEach {
-                                                        supersetState.removeExercise(
-                                                            it
-                                                        )
+                                                Snapshot.withMutableSnapshot {
+                                                    if (exactGroup) {
+                                                        supersetState.removeGroup(rangeIds)
+                                                    } else {
+                                                        rangeIds.forEach {
+                                                            supersetState.removeExercise(it)
+                                                        }
                                                     }
                                                 }
                                                 scope.launch {
@@ -635,14 +646,17 @@ fun SectionsWithDragDrop(
                                                     }
                                                 }
                                             } else if (!sameGroup) {
-                                                supersetState.addGroup(sel.idsInRange)
+                                                val before = supersetState.groups
+                                                Snapshot.withMutableSnapshot {
+                                                    supersetState.addGroup(sel.idsInRange)
+                                                }
                                                 scope.launch {
                                                     val result = snackbarHostState.showSnackbar(
                                                         message = context.getString(R.string.create_superset),
                                                         actionLabel = undoLabel
                                                     )
                                                     if (result == SnackbarResult.ActionPerformed) {
-                                                        supersetState.removeGroup(sel.idsInRange)
+                                                        supersetState.replaceAll(before)
                                                     }
                                                 }
                                             }
