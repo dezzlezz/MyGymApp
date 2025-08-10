@@ -27,12 +27,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -82,24 +82,17 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
         }
     }
 
-    /** Create a superset pairing [a] and [b], cleaning up prior groupings. */
-    fun addPair(a: Long, b: Long) {
-        val pair = listOf(a, b).distinct()
-        supersets.removeAll { group -> group.any { it in pair } }
-        if (pair.size > 1) supersets.add(pair.sorted().toMutableList())
-    }
-
     /**
      * Create or merge a superset containing all [ids]. Existing groups that share any
      * of the provided ids are merged into a single group. The resulting group maintains
-     * sorted order for stability and is only added when it contains at least two items.
+     * the order supplied by [ids] and is only added when it contains at least two items.
      */
     fun addGroup(ids: List<Long>) {
         val distinct = ids.distinct()
         if (distinct.size < 2) return
 
         val merged = supersets.filter { group -> group.any { it in distinct } }
-        val combined = (distinct + merged.flatten()).distinct().sorted()
+        val combined = (distinct + merged.flatten()).distinct()
         supersets.removeAll(merged)
         supersets.add(combined.toMutableList())
     }
@@ -107,6 +100,12 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
     /** Remove an entire group matching [ids]. */
     fun removeGroup(ids: List<Long>) {
         supersets.removeAll { group -> ids.all { it in group } }
+    }
+
+    /** Replace all groups with [groups]. */
+    fun replaceAll(groups: List<List<Long>>) {
+        supersets.clear()
+        groups.forEach { supersets.add(it.toMutableList()) }
     }
 
     /** Snapshot of current groups for persistence. */
@@ -398,8 +397,11 @@ fun SectionsWithDragDrop(
 
     val rangeSelector = remember { SupersetRangeSelector(dragState.itemBounds) }
     var pendingRangeIds by remember { mutableStateOf<List<Long>>(emptyList()) }
+    var pendingCaption by remember { mutableStateOf<String?>(null) }
     var listTop by remember { mutableStateOf(0f) }
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val pullApartThreshold = with(density) { 24.dp.toPx() }
 
     fun removeExercise(exercise: LineExercise) {
         val index = selectedExercises.indexOf(exercise)
@@ -415,9 +417,7 @@ fun SectionsWithDragDrop(
             if (result == SnackbarResult.ActionPerformed) {
                 val insertIndex = index.coerceAtMost(selectedExercises.size)
                 selectedExercises.add(insertIndex, exercise)
-                partners.forEach { partner ->
-                    supersetState.addPair(exercise.id, partner)
-                }
+                supersetState.addGroup(listOf(exercise.id) + partners)
             }
         }
     }
@@ -507,17 +507,27 @@ fun SectionsWithDragDrop(
                             if (dragState.isDragging) {
                                 rangeSelector.reset()
                                 pendingRangeIds = emptyList()
+                                pendingCaption = null
                                 continue
                             }
                             val active = event.changes.filter { it.pressed }
                             val pointers = active.map { change ->
                                 PointerInfo(change.id.value, Offset(0f, listTop + change.position.y))
                             }
+                            val pulledApart = rangeSelector.isOutwardPull(pullApartThreshold)
                             val selection = rangeSelector.onPointerEvent(listTop, pointers)
                             if (active.size == 2 && selection != null) {
                                 pendingRangeIds = selection.idsInRange
+                                pendingCaption = if (selection.idsInRange.size < 2) {
+                                    "Select at least two"
+                                } else if (supersetState.partners(selection.startId).contains(selection.endId)) {
+                                    "Split Superset (${selection.idsInRange.size})"
+                                } else {
+                                    "Create Superset (${selection.idsInRange.size})"
+                                }
                             } else if (active.isEmpty()) {
                                 pendingRangeIds = emptyList()
+                                pendingCaption = null
                                 selection?.let { sel ->
                                     if (sel.idsInRange.size >= 2) {
                                         val firstSection = selectedExercises.find { it.id == sel.idsInRange.first() }?.section
@@ -527,14 +537,37 @@ fun SectionsWithDragDrop(
                                         if (!sameSection) {
                                             Toast.makeText(context, "Can't span multiple sections", Toast.LENGTH_SHORT).show()
                                         } else {
-                                            supersetState.addGroup(sel.idsInRange)
-                                            scope.launch {
-                                                val result = snackbarHostState.showSnackbar(
-                                                    message = context.getString(R.string.create_superset),
-                                                    actionLabel = undoLabel
-                                                )
-                                                if (result == SnackbarResult.ActionPerformed) {
-                                                    supersetState.removeGroup(sel.idsInRange)
+                                            val sameGroup = supersetState.partners(sel.startId).contains(sel.endId)
+                                            if (sameGroup && pulledApart) {
+                                                val before = supersetState.groups
+                                                val rangeIds = sel.idsInRange
+                                                val exactGroup = supersetState.groups.any { group ->
+                                                    group.size == rangeIds.size && group.containsAll(rangeIds)
+                                                }
+                                                if (exactGroup) {
+                                                    supersetState.removeGroup(rangeIds)
+                                                } else {
+                                                    rangeIds.forEach { supersetState.removeExercise(it) }
+                                                }
+                                                scope.launch {
+                                                    val result = snackbarHostState.showSnackbar(
+                                                        message = context.getString(R.string.superset_split),
+                                                        actionLabel = undoLabel
+                                                    )
+                                                    if (result == SnackbarResult.ActionPerformed) {
+                                                        supersetState.replaceAll(before)
+                                                    }
+                                                }
+                                            } else if (!sameGroup) {
+                                                supersetState.addGroup(sel.idsInRange)
+                                                scope.launch {
+                                                    val result = snackbarHostState.showSnackbar(
+                                                        message = context.getString(R.string.create_superset),
+                                                        actionLabel = undoLabel
+                                                    )
+                                                    if (result == SnackbarResult.ActionPerformed) {
+                                                        supersetState.removeGroup(sel.idsInRange)
+                                                    }
                                                 }
                                             }
                                         }
@@ -542,6 +575,7 @@ fun SectionsWithDragDrop(
                                 }
                             } else {
                                 pendingRangeIds = emptyList()
+                                pendingCaption = null
                             }
                         }
                     }
@@ -589,14 +623,8 @@ fun SectionsWithDragDrop(
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
                                     supersetState.partners(it).contains(item.id)
                                 } == true
-                                val nextItem = selectedExercises.getOrNull(index + 1)
-                                val linkedWithNext =
-                                    nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                                 val isInRange = pendingRangeIds.contains(item.id)
-                                val caption = if (item.id == pendingRangeIds.firstOrNull()) {
-                                    if (pendingRangeIds.size < 2) "Select at least two"
-                                    else "Create Superset (${pendingRangeIds.size})"
-                                } else null
+                                val caption = if (item.id == pendingRangeIds.firstOrNull()) pendingCaption else null
                                 Column {
                                     if (caption != null) {
                                         Text(
@@ -646,13 +674,6 @@ fun SectionsWithDragDrop(
                                         supersetPartnerIndices = partnerIndices,
                                         isDraggingPartner = isDraggingPartner,
                                         isDragTarget = isInRange,
-                                        isLinkedWithNext = linkedWithNext,
-                                        onToggleSuperset = nextItem?.let {
-                                            {
-                                                if (linkedWithNext) supersetState.removeExercise(item.id)
-                                                else supersetState.addPair(item.id, it.id)
-                                            }
-                                        },
                                         elevation = elevation
                                     )
                                 }
@@ -713,14 +734,8 @@ fun SectionsWithDragDrop(
                                 val isDraggingPartner = dragState.draggingExerciseId?.let {
                                     supersetState.partners(it).contains(item.id)
                                 } == true
-                                val nextItem = unassignedItems.getOrNull(index + 1)
-                                val linkedWithNext =
-                                    nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                                 val isInRange = pendingRangeIds.contains(item.id)
-                                val caption = if (item.id == pendingRangeIds.firstOrNull()) {
-                                    if (pendingRangeIds.size < 2) "Select at least two"
-                                    else "Create Superset (${pendingRangeIds.size})"
-                                } else null
+                                val caption = if (item.id == pendingRangeIds.firstOrNull()) pendingCaption else null
                                 Column {
                                     if (caption != null) {
                                         Text(
@@ -770,13 +785,6 @@ fun SectionsWithDragDrop(
                                         supersetPartnerIndices = partnerIndices,
                                         isDraggingPartner = isDraggingPartner,
                                         isDragTarget = isInRange,
-                                        isLinkedWithNext = linkedWithNext,
-                                        onToggleSuperset = nextItem?.let {
-                                            {
-                                                if (linkedWithNext) supersetState.removeExercise(item.id)
-                                                else supersetState.addPair(item.id, it.id)
-                                            }
-                                        },
                                         elevation = elevation
                                     )
                                 }
@@ -842,14 +850,8 @@ fun SectionsWithDragDrop(
                                     val isDraggingPartner = dragState.draggingExerciseId?.let {
                                         supersetState.partners(it).contains(item.id)
                                     } == true
-                                    val nextItem = items.getOrNull(index + 1)
-                                    val linkedWithNext =
-                                        nextItem?.let { supersetState.partners(item.id).contains(it.id) } == true
                                     val isInRange = pendingRangeIds.contains(item.id)
-                                    val caption = if (item.id == pendingRangeIds.firstOrNull()) {
-                                        if (pendingRangeIds.size < 2) "Select at least two"
-                                        else "Create Superset (${pendingRangeIds.size})"
-                                    } else null
+                                    val caption = if (item.id == pendingRangeIds.firstOrNull()) pendingCaption else null
                                     Column {
                                         if (caption != null) {
                                             Text(
@@ -899,13 +901,6 @@ fun SectionsWithDragDrop(
                                             supersetPartnerIndices = partnerIndices,
                                             isDraggingPartner = isDraggingPartner,
                                             isDragTarget = isInRange,
-                                            isLinkedWithNext = linkedWithNext,
-                                            onToggleSuperset = nextItem?.let {
-                                                {
-                                                    if (linkedWithNext) supersetState.removeExercise(item.id)
-                                                    else supersetState.addPair(item.id, it.id)
-                                                }
-                                            },
                                             elevation = elevation
                                         )
                                     }
