@@ -435,7 +435,7 @@ fun SectionsWithDragDrop(
     var listTop by remember { mutableStateOf(0f) }
     val context = LocalContext.current
     val density = LocalDensity.current
-    val pullApartThreshold = with(density) { 24.dp.toPx() }
+    val minSplitDistance = with(density) { 48.dp.toPx() }
 
     fun removeExercise(exercise: LineExercise) {
         val index = selectedExercises.indexOf(exercise)
@@ -552,7 +552,11 @@ fun SectionsWithDragDrop(
                                     Offset(0f, listTop + change.position.y)
                                 )
                             }
-                            val pulledApart = rangeSelector.isOutwardPull(pullApartThreshold)
+                            val groupHeight = pendingRangeIds.sumOf { id ->
+                                dragState.itemBounds[id]?.let { (it.second - it.first).toDouble() } ?: 0.0
+                            }.toFloat()
+                            val thresholdPx = kotlin.math.max(minSplitDistance, 0.35f * groupHeight)
+                            val pulledApart = rangeSelector.isOutwardPull(thresholdPx)
                             val selection = rangeSelector.onPointerEvent(listTop, pointers)
                             val timeoutCommit = rangeSelector.shouldCommit()
                             if (active.size == 2 && selection != null && !timeoutCommit) {
@@ -626,9 +630,7 @@ fun SectionsWithDragDrop(
                                         }
                                     }
                                 }
-                                if (timeoutCommit) {
-                                    rangeSelector.reset()
-                                }
+                                rangeSelector.reset()
                             } else {
                                 pendingRangeIds = emptyList()
                                 pendingCaption = null
