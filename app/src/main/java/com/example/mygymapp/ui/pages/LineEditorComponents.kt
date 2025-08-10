@@ -56,6 +56,9 @@ import androidx.compose.ui.focus.focusRequester
 import android.widget.Toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -430,12 +433,24 @@ fun SectionsWithDragDrop(
     val undoLabel = stringResource(R.string.undo)
 
     val rangeSelector = remember { SupersetRangeSelector(dragState.itemBounds) }
+    var rawRangeIds by remember { mutableStateOf<List<Long>>(emptyList()) }
+    var rawCaption by remember { mutableStateOf<String?>(null) }
     var pendingRangeIds by remember { mutableStateOf<List<Long>>(emptyList()) }
     var pendingCaption by remember { mutableStateOf<String?>(null) }
     var listTop by remember { mutableStateOf(0f) }
     val context = LocalContext.current
     val density = LocalDensity.current
-    val pullApartThreshold = with(density) { 24.dp.toPx() }
+    val minSplitDistance = with(density) { 48.dp.toPx() }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { rawRangeIds to rawCaption }
+            .debounce(120L)
+            .distinctUntilChanged { old, new -> old.first == new.first }
+            .collect { (ids, caption) ->
+                pendingRangeIds = ids
+                pendingCaption = caption
+            }
+    }
 
     fun removeExercise(exercise: LineExercise) {
         val index = selectedExercises.indexOf(exercise)
@@ -541,6 +556,8 @@ fun SectionsWithDragDrop(
                             val event = awaitPointerEvent()
                             if (dragState.isDragging) {
                                 rangeSelector.reset()
+                                rawRangeIds = emptyList()
+                                rawCaption = null
                                 pendingRangeIds = emptyList()
                                 pendingCaption = null
                                 continue
@@ -552,11 +569,16 @@ fun SectionsWithDragDrop(
                                     Offset(0f, listTop + change.position.y)
                                 )
                             }
-                            val pulledApart = rangeSelector.isOutwardPull(pullApartThreshold)
                             val selection = rangeSelector.onPointerEvent(listTop, pointers)
-                            if (active.size == 2 && selection != null) {
-                                pendingRangeIds = selection.idsInRange
-                                pendingCaption = if (selection.idsInRange.size < 2) {
+                            val groupHeight = selection?.idsInRange?.sumOf { id ->
+                                dragState.itemBounds[id]?.let { (it.second - it.first).toDouble() } ?: 0.0
+                            }?.toFloat() ?: 0f
+                            val thresholdPx = kotlin.math.max(minSplitDistance, 0.35f * groupHeight)
+                            val pulledApart = rangeSelector.isOutwardPull(thresholdPx)
+                            val timeoutCommit = rangeSelector.shouldCommit()
+                            if (active.size == 2 && selection != null && !timeoutCommit) {
+                                rawRangeIds = selection.idsInRange
+                                rawCaption = if (selection.idsInRange.size < 2) {
                                     "Select at least two"
                                 } else if (supersetState.partners(selection.startId)
                                         .contains(selection.endId)
@@ -565,7 +587,9 @@ fun SectionsWithDragDrop(
                                 } else {
                                     "Create Superset (${selection.idsInRange.size})"
                                 }
-                            } else if (active.isEmpty()) {
+                            } else if (active.isEmpty() || timeoutCommit) {
+                                rawRangeIds = emptyList()
+                                rawCaption = null
                                 pendingRangeIds = emptyList()
                                 pendingCaption = null
                                 selection?.let { sel ->
@@ -625,9 +649,7 @@ fun SectionsWithDragDrop(
                                         }
                                     }
                                 }
-                            } else {
-                                pendingRangeIds = emptyList()
-                                pendingCaption = null
+                                rangeSelector.reset()
                             }
                         }
                     }
