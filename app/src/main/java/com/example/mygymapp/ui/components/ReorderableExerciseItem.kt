@@ -5,7 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.animateItemPlacement
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.animateItemPlacement
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -29,11 +30,12 @@ import com.example.mygymapp.ui.pages.GaeguBold
 import com.example.mygymapp.ui.pages.GaeguRegular
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.IntOffset
 import com.example.mygymapp.ui.motion.MotionSpec
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReorderableExerciseItem(
+fun LazyItemScope.ReorderableExerciseItem(
     index: Int,
     exercise: LineExercise,
     onMove: () -> Unit,
@@ -108,7 +110,7 @@ fun ReorderableExerciseItem(
             modifier = Modifier
                 .padding(vertical = 4.dp)
                 .weight(1f)
-                .animateItemPlacement(MotionSpec.springSoft())
+                .animateItemPlacement(MotionSpec.springSoft<IntOffset>())
                 .graphicsLayer(
                     clip = false,
                     rotationZ = if (isSuperset) if (index % 2 == 0) -2f else 2f else 0f,
