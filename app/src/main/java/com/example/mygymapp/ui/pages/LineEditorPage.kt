@@ -117,6 +117,23 @@ fun LineEditorPage(
     val saveOffset = remember { Animatable(0f) }
     val saveAlpha = remember { Animatable(1f) }
 
+    val newLineLabel = stringResource(R.string.new_line)
+    val headerText by remember(title, newLineLabel) {
+        derivedStateOf { if (title.isBlank()) initial?.title ?: newLineLabel else title }
+    }
+
+    val canSave by remember(title, selectedExercises) {
+        derivedStateOf { title.isNotBlank() && selectedExercises.isNotEmpty() }
+    }
+
+    val titleError by remember(showError, title) {
+        derivedStateOf { showError && title.isBlank() }
+    }
+
+    val exerciseError by remember(showError, selectedExercises) {
+        derivedStateOf { showError && selectedExercises.isEmpty() }
+    }
+
     LaunchedEffect(saving) {
         val line = pendingLine
         if (saving && line != null) {
@@ -155,17 +172,16 @@ fun LineEditorPage(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    item(key = "header") {
+                    item(key = "header", contentType = "header") {
                         Text(
-                            text = stringResource(R.string.compose_daily_line),
+                            text = headerText,
                             style = AppTypography.Title,
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    item(key = "details") {
-                        val titleError = showError && title.isBlank()
+                    item(key = "details", contentType = "details") {
                         LineTitleAndCategoriesSection(
                             title = title,
                             onTitleChange = { editorVm.title.value = it },
@@ -179,17 +195,17 @@ fun LineEditorPage(
                             titleBringIntoViewRequester = titleBringIntoViewRequester
                         )
                     }
-                    item(key = "notes") {
+                    item(key = "notes", contentType = "notes") {
                         LineNotesSection(
                             note = note,
                             onNoteChange = { editorVm.note.value = it },
                             noteBringIntoViewRequester = noteBringIntoViewRequester
                         )
                     }
-                    stickyHeader {
+                    stickyHeader(key = "movements_header", contentType = "stickyHeader") {
                         PoeticDivider(centerText = stringResource(R.string.movements_prompt))
                     }
-                    item(key = "picker") {
+                    item(key = "picker", contentType = "picker") {
                         GaeguButton(text = stringResource(R.string.add_exercise_button), onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
                         ExercisePickerSheet(
                             visible = showExerciseSheet.value,
@@ -207,8 +223,7 @@ fun LineEditorPage(
                             onDismiss = { showExerciseSheet.value = false }
                         )
                     }
-                    item(key = "exercise_list") {
-                        val exerciseError = showError && selectedExercises.isEmpty()
+                    item(key = "exercise_list", contentType = "exercise_list") {
                         val exerciseShake by animateFloatAsState(
                             if (exerciseShakeTrigger) 8f else 0f,
                             animationSpec = keyframes {
@@ -244,10 +259,10 @@ fun LineEditorPage(
                             )
                         }
                     }
-                    item(key = "divider_end") { PoeticDivider() }
-                      item(key = "actions") {
-                          val canSave = title.isNotBlank() && selectedExercises.isNotEmpty()
+                    item(key = "divider_end", contentType = "divider") { PoeticDivider() }
+                    item(key = "actions", contentType = "actions") {
                           val cancelLabel = stringResource(R.string.cancel)
+                          val saveLabel = stringResource(R.string.create_line)
                           Box(modifier = Modifier.fillMaxWidth()) {
                               GaeguButton(
                                   text = cancelLabel,
@@ -258,7 +273,7 @@ fun LineEditorPage(
                                       .semantics { contentDescription = cancelLabel }
                               )
                               WaxSealButton(
-                                  label = stringResource(R.string.create_line),
+                                  label = saveLabel,
                                   onClick = {
                                     if (!canSave) {
                                         showError = true
@@ -278,6 +293,8 @@ fun LineEditorPage(
                                 modifier = Modifier
                                     .align(Alignment.Center)
                                     .alpha(if (canSave) 1f else 0.5f)
+                                    .semantics { contentDescription = saveLabel },
+                                enabled = canSave
                             )
                         }
                     }

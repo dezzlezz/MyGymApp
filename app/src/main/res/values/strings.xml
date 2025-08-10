@@ -126,7 +126,8 @@
     <string name="nav_library">Exercises</string>
     <string name="nav_plan">Plan</string>
     <string name="nav_profile">Profile</string>
-        <string name="progress_muscle_groups">Muscle Groups</string>
+    <string name="progress_muscle_groups">Muscle Groups</string>
+    <string name="new_line">New Line</string>
     <string name="compose_daily_line">✎ Compose your daily line</string>
     <string name="movements_prompt">Which movements do you want to add?</string>
     <string name="create_line">Create</string>
@@ -160,7 +161,7 @@
     <string name="save_paragraph_cd">Save paragraph</string>
     <string name="line_item_cd">Select line %1$s</string>
     <string name="undo">Undo</string>
-    <string name="reorder_movement">Reorder movement</string>
+    <string name="reorder_movement">Drag to reorder %1$s</string>
     <string name="drop_zone_for">Drop zone for %1$s</string>
     <string name="drop_zone_hovered">current drop target</string>
     <string name="sets_reps_format">%1$d x %2$s</string>

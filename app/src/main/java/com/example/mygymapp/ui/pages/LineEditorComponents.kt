@@ -746,7 +746,7 @@ fun SectionsWithDragDrop(
                                                     var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                                     Icon(
                                                         imageVector = Icons.Default.DragHandle,
-                                                        contentDescription = stringResource(R.string.reorder_movement),
+                                                        contentDescription = stringResource(R.string.reorder_movement, item.name),
                                                         tint = Color.Gray,
                                                         modifier = Modifier
                                                             .onGloballyPositioned {
@@ -911,7 +911,7 @@ fun SectionsWithDragDrop(
                                         var handleOffset by remember { mutableStateOf(Offset.Zero) }
                                         Icon(
                                             imageVector = Icons.Default.DragHandle,
-                                            contentDescription = stringResource(R.string.reorder_movement),
+                                            contentDescription = stringResource(R.string.reorder_movement, item.name),
                                             tint = Color.Gray,
                                             modifier = Modifier
                                                 .onGloballyPositioned {
@@ -1084,9 +1084,9 @@ fun SectionsWithDragDrop(
                                                                     Offset.Zero
                                                                 )
                                                             }
-                                                            Icon(
-                                                                imageVector = Icons.Default.DragHandle,
-                                                                contentDescription = stringResource(R.string.reorder_movement),
+                                                                Icon(
+                                                                    imageVector = Icons.Default.DragHandle,
+                                                                    contentDescription = stringResource(R.string.reorder_movement, item.name),
                                                                 tint = Color.Gray,
                                                                 modifier = Modifier
                                                                     .onGloballyPositioned {
