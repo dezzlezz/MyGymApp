@@ -145,6 +145,7 @@ private fun moveWithSuperset(
 }
 
 /** Unified drag handler used by picker items and list handles. */
+@Composable
 fun Modifier.exerciseDrag(
     state: DragAndDropState,
     exerciseId: Long,
