@@ -26,6 +26,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -616,13 +617,13 @@ fun SectionsWithDragDrop(
                                                         rangeIds
                                                     )
                                                 }
-                                                if (exactGroup) {
-                                                    supersetState.removeGroup(rangeIds)
-                                                } else {
-                                                    rangeIds.forEach {
-                                                        supersetState.removeExercise(
-                                                            it
-                                                        )
+                                                Snapshot.withMutableSnapshot {
+                                                    if (exactGroup) {
+                                                        supersetState.removeGroup(rangeIds)
+                                                    } else {
+                                                        rangeIds.forEach {
+                                                            supersetState.removeExercise(it)
+                                                        }
                                                     }
                                                 }
                                                 scope.launch {
@@ -635,14 +636,17 @@ fun SectionsWithDragDrop(
                                                     }
                                                 }
                                             } else if (!sameGroup) {
-                                                supersetState.addGroup(sel.idsInRange)
+                                                val before = supersetState.groups
+                                                Snapshot.withMutableSnapshot {
+                                                    supersetState.addGroup(sel.idsInRange)
+                                                }
                                                 scope.launch {
                                                     val result = snackbarHostState.showSnackbar(
                                                         message = context.getString(R.string.create_superset),
                                                         actionLabel = undoLabel
                                                     )
                                                     if (result == SnackbarResult.ActionPerformed) {
-                                                        supersetState.removeGroup(sel.idsInRange)
+                                                        supersetState.replaceAll(before)
                                                     }
                                                 }
                                             }
