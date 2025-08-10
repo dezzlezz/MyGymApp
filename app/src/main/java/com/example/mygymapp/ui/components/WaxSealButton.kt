@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.R
-import com.example.mygymapp.ui.pages.GaeguBold
+import com.example.mygymapp.ui.theme.AppTypography
 
 /**
  * A poetic action button using a wax seal illustration.
@@ -36,7 +36,7 @@ fun WaxSealButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     imageRes: Int = R.drawable.waxseal,
-    font: FontFamily = GaeguBold,
+    font: FontFamily = AppTypography.GaeguBold,
     textColor: Color = Color.White,
     textSize: TextUnit = 16.sp,
     shadowColor: Color = Color.Black,

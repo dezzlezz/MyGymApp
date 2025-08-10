@@ -19,12 +19,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -41,6 +43,7 @@ import com.example.mygymapp.ui.components.PoeticCard
 import com.example.mygymapp.R
 import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.LineEditorViewModel
+import com.example.mygymapp.ui.theme.AppTypography
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -93,22 +96,21 @@ fun LineEditorPage(
         return if (dropY >= center) closest.index + 1 else closest.index
     }
 
-    val dragModifier = remember(allExercises, selectedExercises, supersetState) {
-        { id: Long, name: String, section: String, offset: () -> Offset, start: () -> Unit ->
+    val dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier =
+        { id, name, section, offset, start ->
             Modifier.exerciseDrag(
-                dragState,
-                id,
-                name,
-                section,
-                offset,
-                allExercises,
-                selectedExercises,
-                supersetState,
-                ::findInsertIndexForDrop,
-                start
+                state = dragState,
+                exerciseId = id,
+                exerciseName = name,
+                startSection = section,
+                getStartOffset = offset,
+                allExercises = allExercises,
+                selectedExercises = selectedExercises,
+                supersetState = supersetState,
+                findInsertIndex = ::findInsertIndexForDrop,
+                onStart = start
             )
         }
-    }
 
     var saving by remember { mutableStateOf(false) }
     var pendingLine by remember { mutableStateOf<Line?>(null) }
@@ -154,7 +156,13 @@ fun LineEditorPage(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item(key = "header") {
-                        Text(stringResource(R.string.compose_daily_line), fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
+                        Text(
+                            text = stringResource(R.string.compose_daily_line),
+                            style = AppTypography.Title,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                     item(key = "details") {
                         val titleError = showError && title.isBlank()
@@ -237,19 +245,22 @@ fun LineEditorPage(
                         }
                     }
                     item(key = "divider_end") { PoeticDivider() }
-                    item(key = "actions") {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            GaeguButton(
-                                text = stringResource(R.string.cancel),
-                                onClick = onCancel,
-                                textColor = Color.Black,
-                                modifier = Modifier.align(Alignment.CenterStart)
-                            )
-                            WaxSealButton(
-                                label = stringResource(R.string.create_line),
-                                enabled = title.isNotBlank() && selectedExercises.isNotEmpty(),
-                                onClick = {
-                                    if (title.isBlank() || selectedExercises.isEmpty()) {
+                      item(key = "actions") {
+                          val canSave = title.isNotBlank() && selectedExercises.isNotEmpty()
+                          val cancelLabel = stringResource(R.string.cancel)
+                          Box(modifier = Modifier.fillMaxWidth()) {
+                              GaeguButton(
+                                  text = cancelLabel,
+                                  onClick = onCancel,
+                                  textColor = Color.Black,
+                                  modifier = Modifier
+                                      .align(Alignment.CenterStart)
+                                      .semantics { contentDescription = cancelLabel }
+                              )
+                              WaxSealButton(
+                                  label = stringResource(R.string.create_line),
+                                  onClick = {
+                                    if (!canSave) {
                                         showError = true
                                         scope.launch {
                                             if (title.isBlank()) {
@@ -264,7 +275,9 @@ fun LineEditorPage(
                                     pendingLine = editorVm.buildLine()
                                     saving = true
                                 },
-                                modifier = Modifier.align(Alignment.Center)
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .alpha(if (canSave) 1f else 0.5f)
                             )
                         }
                     }
@@ -289,11 +302,11 @@ fun LineEditorPage(
                     ) {
                         PoeticCard(tintOverlayAlpha = 0.3f) {
                             Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                                Text(name, fontFamily = GaeguRegular, fontSize = 16.sp, color = Color.Black)
+                                Text(name, fontFamily = AppTypography.GaeguRegular, fontSize = 16.sp, color = Color.Black)
                                 lineExercise?.let {
                                     Text(
                                         stringResource(R.string.sets_reps_format, it.sets, it.repsOrDuration),
-                                        fontFamily = GaeguRegular,
+                                        fontFamily = AppTypography.GaeguRegular,
                                         fontSize = 12.sp,
                                         color = Color.Black
                                     )
