@@ -17,6 +17,12 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -375,7 +381,7 @@ fun ExercisePickerSheet(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun SectionsWithDragDrop(
     sections: List<String>,
@@ -657,47 +663,75 @@ fun SectionsWithDragDrop(
                                             )
                                         )
                                     }
-                                    ReorderableExerciseItem(
-                                        index = index,
-                                        exercise = item,
-                                        onRemove = { removeExercise(item) },
-                                        onMove = {
-                                            showMoveSheet = true
-                                            moveSelection.clear(); moveSelection.add(item.id)
-                                            moveSelectedOption = null; moveCustomName = ""
+                                    val dismissState = rememberDismissState(confirmValueChange = {
+                                        if (it == DismissValue.DismissedToStart) {
+                                            removeExercise(item)
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    })
+                                    SwipeToDismiss(
+                                        state = dismissState,
+                                        directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
+                                        background = {
+                                            Box(
+                                                Modifier
+                                                    .fillMaxSize()
+                                                    .background(Color.Red)
+                                                    .padding(horizontal = 20.dp),
+                                                contentAlignment = Alignment.CenterEnd
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = null,
+                                                    tint = Color.White
+                                                )
+                                            }
                                         },
-                                        modifier = Modifier
-                                            .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                            .onGloballyPositioned {
-                                                val topLeft = it.positionInWindow()
-                                                val size = it.size.toSize()
-                                                dragState.itemBounds[item.id] =
-                                                    topLeft.y to (topLeft.y + size.height)
-                                            },
-                                        dragHandle = {
-                                            var handleOffset by remember { mutableStateOf(Offset.Zero) }
-                                            Icon(
-                                                imageVector = Icons.Default.DragHandle,
-                                                contentDescription = stringResource(R.string.reorder_movement),
-                                                tint = Color.Gray,
+                                        dismissContent = {
+                                            ReorderableExerciseItem(
+                                                index = index,
+                                                exercise = item,
+                                                onMove = {
+                                                    showMoveSheet = true
+                                                    moveSelection.clear(); moveSelection.add(item.id)
+                                                    moveSelectedOption = null; moveCustomName = ""
+                                                },
                                                 modifier = Modifier
+                                                    .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                                     .onGloballyPositioned {
-                                                        if (!dragState.isDragging) {
-                                                            handleOffset = it.positionInWindow()
-                                                        }
-                                                    }
-                                                    .then(
-                                                        dragModifier(
-                                                            item.id,
-                                                            item.name,
-                                                            item.section,
-                                                            { handleOffset }) { })
+                                                        val topLeft = it.positionInWindow()
+                                                        val size = it.size.toSize()
+                                                        dragState.itemBounds[item.id] =
+                                                            topLeft.y to (topLeft.y + size.height)
+                                                    },
+                                                dragHandle = {
+                                                    var handleOffset by remember { mutableStateOf(Offset.Zero) }
+                                                    Icon(
+                                                        imageVector = Icons.Default.DragHandle,
+                                                        contentDescription = stringResource(R.string.reorder_movement),
+                                                        tint = Color.Gray,
+                                                        modifier = Modifier
+                                                            .onGloballyPositioned {
+                                                                if (!dragState.isDragging) {
+                                                                    handleOffset = it.positionInWindow()
+                                                                }
+                                                            }
+                                                            .then(
+                                                                dragModifier(
+                                                                    item.id,
+                                                                    item.name,
+                                                                    item.section,
+                                                                    { handleOffset }) { })
+                                                    )
+                                                },
+                                                supersetPartnerIndices = partnerIndices,
+                                                isDraggingPartner = isDraggingPartner,
+                                                isDragTarget = isInRange,
+                                                elevation = elevation
                                             )
-                                        },
-                                        supersetPartnerIndices = partnerIndices,
-                                        isDraggingPartner = isDraggingPartner,
-                                        isDragTarget = isInRange,
-                                        elevation = elevation
+                                        }
                                     )
                                 }
                             }
@@ -776,47 +810,76 @@ fun SectionsWithDragDrop(
                                                 )
                                             )
                                         }
-                                        ReorderableExerciseItem(
-                                            index = index,
-                                            exercise = item,
-                                            onRemove = { removeExercise(item) },
-                                            onMove = {
-                                                showMoveSheet = true
-                                                moveSelection.clear(); moveSelection.add(item.id)
-                                                moveSelectedOption = null; moveCustomName = ""
+                                        val dismissState = rememberDismissState(confirmValueChange = {
+                                            if (it == DismissValue.DismissedToStart) {
+                                                removeExercise(item)
+                                                true
+                                            } else {
+                                                false
+                                            }
+                                        })
+                                        SwipeToDismiss(
+                                            state = dismissState,
+                                            directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
+                                            background = {
+                                                Box(
+                                                    Modifier
+                                                        .fillMaxSize()
+                                                        .background(Color.Red)
+                                                        .padding(horizontal = 20.dp),
+                                                    contentAlignment = Alignment.CenterEnd
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = null,
+                                                        tint = Color.White
+                                                    )
+                                                }
                                             },
-                                            modifier = Modifier
-                                                .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                                .onGloballyPositioned {
-                                                    val topLeft = it.positionInWindow()
-                                                    val size = it.size.toSize()
-                                                    dragState.itemBounds[item.id] =
-                                                        topLeft.y to (topLeft.y + size.height)
-                                                },
-                                            dragHandle = {
-                                                var handleOffset by remember { mutableStateOf(Offset.Zero) }
-                                                Icon(
-                                                    imageVector = Icons.Default.DragHandle,
-                                                    contentDescription = stringResource(R.string.reorder_movement),
-                                                    tint = Color.Gray,
+                        
+                                            dismissContent = {
+                                                ReorderableExerciseItem(
+                                                    index = index,
+                                                    exercise = item,
+                                                    onMove = {
+                                                        showMoveSheet = true
+                                                        moveSelection.clear(); moveSelection.add(item.id)
+                                                        moveSelectedOption = null; moveCustomName = ""
+                                                    },
                                                     modifier = Modifier
+                                                        .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
                                                         .onGloballyPositioned {
-                                                            if (!dragState.isDragging) {
-                                                                handleOffset = it.positionInWindow()
-                                                            }
-                                                        }
-                                                        .then(
-                                                            dragModifier(
-                                                                item.id,
-                                                                item.name,
-                                                                item.section,
-                                                                { handleOffset }) { })
+                                                            val topLeft = it.positionInWindow()
+                                                            val size = it.size.toSize()
+                                                            dragState.itemBounds[item.id] =
+                                                                topLeft.y to (topLeft.y + size.height)
+                                                        },
+                                                    dragHandle = {
+                                                        var handleOffset by remember { mutableStateOf(Offset.Zero) }
+                                                        Icon(
+                                                            imageVector = Icons.Default.DragHandle,
+                                                            contentDescription = stringResource(R.string.reorder_movement),
+                                                            tint = Color.Gray,
+                                                            modifier = Modifier
+                                                                .onGloballyPositioned {
+                                                                    if (!dragState.isDragging) {
+                                                                        handleOffset = it.positionInWindow()
+                                                                    }
+                                                                }
+                                                                .then(
+                                                                    dragModifier(
+                                                                        item.id,
+                                                                        item.name,
+                                                                        item.section,
+                                                                        { handleOffset }) { })
+                                                        )
+                                                    },
+                                                    supersetPartnerIndices = partnerIndices,
+                                                    isDraggingPartner = isDraggingPartner,
+                                                    isDragTarget = isInRange,
+                                                    elevation = elevation
                                                 )
-                                            },
-                                            supersetPartnerIndices = partnerIndices,
-                                            isDraggingPartner = isDraggingPartner,
-                                            isDragTarget = isInRange,
-                                            elevation = elevation
+                                            }
                                         )
                                     }
                                 }
@@ -902,52 +965,80 @@ fun SectionsWithDragDrop(
                                                     )
                                                 )
                                             }
-                                            ReorderableExerciseItem(
-                                                index = index,
-                                                exercise = item,
-                                                onRemove = { removeExercise(item) },
-                                                onMove = {
-                                                    showMoveSheet = true
-                                                    moveSelection.clear(); moveSelection.add(item.id)
-                                                    moveSelectedOption = null; moveCustomName = ""
-                                                },
-                                                modifier = Modifier
-                                                    .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
-                                                    .onGloballyPositioned {
-                                                        val topLeft = it.positionInWindow()
-                                                        val size = it.size.toSize()
-                                                        dragState.itemBounds[item.id] =
-                                                            topLeft.y to (topLeft.y + size.height)
-                                                    },
-                                                dragHandle = {
-                                                    var handleOffset by remember {
-                                                        mutableStateOf(
-                                                            Offset.Zero
+                                            val dismissState = rememberDismissState(confirmValueChange = {
+                                                if (it == DismissValue.DismissedToStart) {
+                                                    removeExercise(item)
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            })
+                                            SwipeToDismiss(
+                                                state = dismissState,
+                                                directions = if (dragState.isDragging) emptySet() else setOf(DismissDirection.EndToStart),
+                                                background = {
+                                                    Box(
+                                                        Modifier
+                                                            .fillMaxSize()
+                                                            .background(Color.Red)
+                                                            .padding(horizontal = 20.dp),
+                                                        contentAlignment = Alignment.CenterEnd
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Delete,
+                                                            contentDescription = null,
+                                                            tint = Color.White
                                                         )
                                                     }
-                                                    Icon(
-                                                        imageVector = Icons.Default.DragHandle,
-                                                        contentDescription = stringResource(R.string.reorder_movement),
-                                                        tint = Color.Gray,
-                                                        modifier = Modifier
-                                                            .onGloballyPositioned {
-                                                                if (!dragState.isDragging) {
-                                                                    handleOffset =
-                                                                        it.positionInWindow()
-                                                                }
-                                                            }
-                                                            .then(
-                                                                dragModifier(
-                                                                    item.id,
-                                                                    item.name,
-                                                                    item.section,
-                                                                    { handleOffset }) { })
-                                                    )
                                                 },
-                                                supersetPartnerIndices = partnerIndices,
-                                                isDraggingPartner = isDraggingPartner,
-                                                isDragTarget = isInRange,
-                                                elevation = elevation
+                                                dismissContent = {
+                                                    ReorderableExerciseItem(
+                                                        index = index,
+                                                        exercise = item,
+                                                        onMove = {
+                                                            showMoveSheet = true
+                                                            moveSelection.clear(); moveSelection.add(item.id)
+                                                            moveSelectedOption = null; moveCustomName = ""
+                                                        },
+                                                        modifier = Modifier
+                                                            .alpha(if (dragState.draggingExerciseId == item.id) 0f else 1f)
+                                                            .onGloballyPositioned {
+                                                                val topLeft = it.positionInWindow()
+                                                                val size = it.size.toSize()
+                                                                dragState.itemBounds[item.id] =
+                                                                    topLeft.y to (topLeft.y + size.height)
+                                                            },
+                                                        dragHandle = {
+                                                            var handleOffset by remember {
+                                                                mutableStateOf(
+                                                                    Offset.Zero
+                                                                )
+                                                            }
+                                                            Icon(
+                                                                imageVector = Icons.Default.DragHandle,
+                                                                contentDescription = stringResource(R.string.reorder_movement),
+                                                                tint = Color.Gray,
+                                                                modifier = Modifier
+                                                                    .onGloballyPositioned {
+                                                                        if (!dragState.isDragging) {
+                                                                            handleOffset =
+                                                                                it.positionInWindow()
+                                                                        }
+                                                                    }
+                                                                    .then(
+                                                                        dragModifier(
+                                                                            item.id,
+                                                                            item.name,
+                                                                            item.section,
+                                                                            { handleOffset }) { })
+                                                            )
+                                                        },
+                                                        supersetPartnerIndices = partnerIndices,
+                                                        isDraggingPartner = isDraggingPartner,
+                                                        isDragTarget = isInRange,
+                                                        elevation = elevation
+                                                    )
+                                                }
                                             )
                                         }
                                     }
