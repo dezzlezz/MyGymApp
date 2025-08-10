@@ -4,8 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.animation.animateColorAsState
@@ -45,6 +46,7 @@ import com.example.mygymapp.viewmodel.ExerciseViewModel
 import com.example.mygymapp.viewmodel.LineEditorViewModel
 import com.example.mygymapp.ui.theme.AppTypography
 import kotlinx.coroutines.launch
+import androidx.compose.ui.focus.FocusRequester
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -78,6 +80,7 @@ fun LineEditorPage(
     val titleBringIntoViewRequester = remember { BringIntoViewRequester() }
     val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
     val noteBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val titleFocusRequester = remember { FocusRequester() }
     val errorMessage = stringResource(R.string.add_title_and_movement_error)
 
     fun findInsertIndexForDrop(sectionName: String, dropY: Float): Int {
@@ -159,16 +162,19 @@ fun LineEditorPage(
             PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 val showExerciseSheet = remember { mutableStateOf(false) }
                 var exerciseShakeTrigger by remember { mutableStateOf(false) }
+                val layerModifier = if (saveOffset.value != 0f || saveAlpha.value != 1f) {
+                    Modifier.graphicsLayer {
+                        translationX = saveOffset.value
+                        alpha = saveAlpha.value
+                    }
+                } else Modifier
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .systemBarsPadding()
-                        .padding(24.dp)
-                        .graphicsLayer {
-                            translationX = saveOffset.value
-                            alpha = saveAlpha.value
-                        },
+                        .statusBarsPadding()
+                        .then(layerModifier),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -192,7 +198,8 @@ fun LineEditorPage(
                             selectedMuscles = selectedMuscles,
                             onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) },
                             titleError = titleError,
-                            titleBringIntoViewRequester = titleBringIntoViewRequester
+                            titleBringIntoViewRequester = titleBringIntoViewRequester,
+                            titleFocusRequester = titleFocusRequester
                         )
                     }
                     item(key = "notes", contentType = "notes") {
@@ -203,7 +210,10 @@ fun LineEditorPage(
                         )
                     }
                     stickyHeader(key = "movements_header", contentType = "stickyHeader") {
-                        PoeticDivider(centerText = stringResource(R.string.movements_prompt))
+                        PoeticDivider(
+                            centerText = stringResource(R.string.movements_prompt),
+                            modifier = Modifier.background(Color.Transparent)
+                        )
                     }
                     item(key = "picker", contentType = "picker") {
                         GaeguButton(text = stringResource(R.string.add_exercise_button), onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
@@ -241,45 +251,59 @@ fun LineEditorPage(
                         val exerciseBorderColor by animateColorAsState(
                             if (exerciseError) Color.Red else Color.Transparent
                         )
-                        Box(
-                            Modifier
-                                .border(2.dp, exerciseBorderColor)
-                                .graphicsLayer { translationX = exerciseShake }
-                                .bringIntoViewRequester(exerciseBringIntoViewRequester)
-                        ) {
-                            SectionsWithDragDrop(
-                                sections = sections,
-                                selectedExercises = selectedExercises,
-                                supersetState = supersetState,
-                                dragState = dragState,
-                                allExercises = allExercises,
-                                dragModifier = dragModifier,
-                                findInsertIndexForDrop = ::findInsertIndexForDrop,
-                                snackbarHostState = snackbarHostState
-                            )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                Modifier
+                                    .border(2.dp, exerciseBorderColor)
+                                    .graphicsLayer { translationX = exerciseShake }
+                                    .bringIntoViewRequester(exerciseBringIntoViewRequester)
+                            ) {
+                                SectionsWithDragDrop(
+                                    sections = sections,
+                                    selectedExercises = selectedExercises,
+                                    supersetState = supersetState,
+                                    dragState = dragState,
+                                    allExercises = allExercises,
+                                    dragModifier = dragModifier,
+                                    findInsertIndexForDrop = ::findInsertIndexForDrop,
+                                    snackbarHostState = snackbarHostState
+                                )
+                            }
+                            if (exerciseError) {
+                                Text(
+                                    text = "Add at least one movement.",
+                                    fontFamily = AppTypography.GaeguLight,
+                                    fontSize = 14.sp,
+                                    color = Color.Red,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                         }
                     }
                     item(key = "divider_end", contentType = "divider") { PoeticDivider() }
                     item(key = "actions", contentType = "actions") {
-                          val cancelLabel = stringResource(R.string.cancel)
-                          val saveLabel = stringResource(R.string.create_line)
-                          Box(modifier = Modifier.fillMaxWidth()) {
-                              GaeguButton(
-                                  text = cancelLabel,
-                                  onClick = onCancel,
-                                  textColor = Color.Black,
-                                  modifier = Modifier
-                                      .align(Alignment.CenterStart)
-                                      .semantics { contentDescription = cancelLabel }
-                              )
-                              WaxSealButton(
-                                  label = saveLabel,
-                                  onClick = {
+                        val cancelLabel = stringResource(R.string.cancel)
+                        val saveLabel = stringResource(R.string.create_line)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            GaeguButton(
+                                text = cancelLabel,
+                                onClick = onCancel,
+                                textColor = Color.Black,
+                                modifier = Modifier.semantics { contentDescription = cancelLabel }
+                            )
+                            WaxSealButton(
+                                label = saveLabel,
+                                onClick = {
                                     if (!canSave) {
                                         showError = true
                                         scope.launch {
                                             if (title.isBlank()) {
                                                 titleBringIntoViewRequester.bringIntoView()
+                                                titleFocusRequester.requestFocus()
                                             } else {
                                                 exerciseBringIntoViewRequester.bringIntoView()
                                             }
@@ -291,10 +315,9 @@ fun LineEditorPage(
                                     saving = true
                                 },
                                 modifier = Modifier
-                                    .align(Alignment.Center)
                                     .alpha(if (canSave) 1f else 0.5f)
                                     .semantics { contentDescription = saveLabel },
-                                enabled = canSave
+                                enabled = true
                             )
                         }
                     }

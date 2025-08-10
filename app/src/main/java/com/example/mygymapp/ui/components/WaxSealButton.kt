@@ -3,8 +3,6 @@ package com.example.mygymapp.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.Composable
@@ -46,8 +44,7 @@ fun WaxSealButton(
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .height(sealSize)
+            .size(sealSize)
             .alpha(if (enabled) 1f else 0.5f)
             .clickable(enabled = enabled) { onClick() },
         contentAlignment = Alignment.Center

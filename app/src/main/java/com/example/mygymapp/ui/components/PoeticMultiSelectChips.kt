@@ -2,6 +2,7 @@ package com.example.mygymapp.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,14 +10,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.pages.GaeguRegular
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 
 /**
  * A poetic chip selector allowing multiple selections.
@@ -42,10 +48,24 @@ fun PoeticMultiSelectChips(
     ) {
         options.forEach { option ->
             val isSelected = option in selectedItems
+            val bgColor by animateColorAsState(
+                targetValue = if (isSelected) selectedBackground else unselectedBackground,
+                animationSpec = tween(durationMillis = 150)
+            )
+            val scale by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.98f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            val alpha by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.6f,
+                animationSpec = tween(durationMillis = 150)
+            )
             Surface(
-                color = if (isSelected) selectedBackground else unselectedBackground,
+                color = bgColor,
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
+                    .graphicsLayer { scaleX = scale; scaleY = scale }
+                    .alpha(alpha)
                     .clickable {
                         val updated = if (isSelected) {
                             selectedItems - option
