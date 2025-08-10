@@ -10,13 +10,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mygymapp.ui.pages.GaeguRegular
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 
 /**
  * A poetic set of radio-style choice chips for selecting exactly one option.
@@ -42,10 +48,24 @@ fun PoeticRadioChips(
     ) {
         options.forEach { option ->
             val isSelected = option == selected
+            val bgColor by animateColorAsState(
+                targetValue = if (isSelected) selectedBackground else unselectedBackground,
+                animationSpec = tween(durationMillis = 150)
+            )
+            val scale by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.98f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            val alpha by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.6f,
+                animationSpec = tween(durationMillis = 150)
+            )
             Surface(
-                color = if (isSelected) selectedBackground else unselectedBackground,
+                color = bgColor,
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
+                    .graphicsLayer { scaleX = scale; scaleY = scale }
+                    .alpha(alpha)
                     .clickable { onSelected(option) }
                     .padding(horizontal = 4.dp)
             ) {

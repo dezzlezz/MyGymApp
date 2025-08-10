@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -32,6 +31,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import com.example.mygymapp.ui.pages.GaeguLight
 import com.example.mygymapp.ui.pages.GaeguRegular
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.draw.clipToBounds
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -59,8 +59,23 @@ fun LinedTextField(
     val lineHeightPx = with(density) { lineHeight.toPx() }
 
     val layoutLineCount = layoutResult?.lineCount ?: 0
-    val totalLineCount = maxOf(layoutLineCount, initialLines)
-    val fieldHeight = lineHeight * totalLineCount
+    val totalLineCount by remember(layoutLineCount) {
+        derivedStateOf { maxOf(layoutLineCount, initialLines) }
+    }
+    val fieldHeight by remember(totalLineCount) { derivedStateOf { lineHeight * totalLineCount } }
+
+    val linePositions by remember(layoutResult, totalLineCount) {
+        derivedStateOf {
+            val result = layoutResult
+            (0 until totalLineCount).map { i ->
+                if (result != null && i < result.lineCount) {
+                    result.getLineBaseline(i)
+                } else {
+                    (i + 1) * lineHeightPx
+                }
+            }
+        }
+    }
 
     var shakeTrigger by remember { mutableStateOf(false) }
     val shakeOffset by animateFloatAsState(
@@ -98,12 +113,8 @@ fun LinedTextField(
             .border(BorderStroke(2.dp, borderBrush))
     ) {
         // 🎯 Linien zeichnen – mit absolutem Schutz gegen Absturz
-        Canvas(modifier = Modifier.matchParentSize()) {
-            for (i in 0 until totalLineCount) {
-                val y = runCatching {
-                    layoutResult?.getLineBaseline(i)?.toFloat()
-                }.getOrNull() ?: ((i + 1) * lineHeightPx)
-
+        Canvas(modifier = Modifier.matchParentSize().clipToBounds()) {
+            linePositions.forEach { y ->
                 drawLine(
                     color = Color.Black,
                     start = Offset(0f, y),
