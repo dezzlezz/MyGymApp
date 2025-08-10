@@ -67,7 +67,11 @@ fun LinedTextField(
     val linePositions by remember(layoutResult, totalLineCount) {
         derivedStateOf {
             (0 until totalLineCount).map { i ->
-                layoutResult?.getLineBaseline(i)?.toFloat() ?: ((i + 1) * lineHeightPx)
+                if (layoutResult != null && i < layoutLineCount) {
+                    layoutResult.getLineBaseline(i).toFloat()
+                } else {
+                    (i + 1) * lineHeightPx
+                }
             }
         }
     }
