@@ -223,7 +223,7 @@ fun Modifier.exerciseDrag(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ColumnScope.LineTitleAndCategoriesSection(
+fun LineTitleAndCategoriesSection(
     title: String,
     onTitleChange: (String) -> Unit,
     categoryOptions: List<String>,
@@ -235,50 +235,52 @@ fun ColumnScope.LineTitleAndCategoriesSection(
     titleError: Boolean = false,
     titleBringIntoViewRequester: BringIntoViewRequester? = null
 ) {
-    PoeticDivider(centerText = "What would you title this day?")
-    LinedTextField(
-        value = title,
-        onValueChange = onTitleChange,
-        hint = "A poetic title...",
-        initialLines = 1,
-        modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.CenterHorizontally),
-        isError = titleError,
-        bringIntoViewRequester = titleBringIntoViewRequester
-    )
-    PoeticDivider(centerText = "What kind of movement is this?")
-    PoeticMultiSelectChips(
-        options = categoryOptions,
-        selectedItems = selectedCategories,
-        onSelectionChange = onCategoryChange,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
-    )
-    PoeticDivider(centerText = "Which areas are involved?")
-    PoeticMultiSelectChips(
-        options = muscleOptions,
-        selectedItems = selectedMuscles,
-        onSelectionChange = onMuscleChange,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)
-    )
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        PoeticDivider(centerText = "What would you title this day?")
+        LinedTextField(
+            value = title,
+            onValueChange = onTitleChange,
+            hint = "A poetic title...",
+            initialLines = 1,
+            modifier = Modifier.fillMaxWidth(),
+            isError = titleError,
+            bringIntoViewRequester = titleBringIntoViewRequester
+        )
+        PoeticDivider(centerText = "What kind of movement is this?")
+        PoeticMultiSelectChips(
+            options = categoryOptions,
+            selectedItems = selectedCategories,
+            onSelectionChange = onCategoryChange,
+            modifier = Modifier.fillMaxWidth()
+        )
+        PoeticDivider(centerText = "Which areas are involved?")
+        PoeticMultiSelectChips(
+            options = muscleOptions,
+            selectedItems = selectedMuscles,
+            onSelectionChange = onMuscleChange,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ColumnScope.LineNotesSection(
+fun LineNotesSection(
     note: String,
     onNoteChange: (String) -> Unit,
     noteBringIntoViewRequester: BringIntoViewRequester? = null
 ) {
-    PoeticDivider(centerText = "Your notes on this movement")
-    LinedTextField(
-        value = note,
-        onValueChange = onNoteChange,
-        hint = "Write your thoughts here...",
-        initialLines = 3,
-        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
-        bringIntoViewRequester = noteBringIntoViewRequester
-    )
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        PoeticDivider(centerText = "Your notes on this movement")
+        LinedTextField(
+            value = note,
+            onValueChange = onNoteChange,
+            hint = "Write your thoughts here...",
+            initialLines = 3,
+            modifier = Modifier.fillMaxWidth(),
+            bringIntoViewRequester = noteBringIntoViewRequester
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -301,7 +303,12 @@ fun ExercisePickerSheet(
         finishedListener = { if (it == 0f) onDismiss() }
     )
     LaunchedEffect(showExerciseSheet) { if (showExerciseSheet) pickerAlpha = 1f }
-    val exerciseSearch = remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
+    var debouncedQuery by remember { mutableStateOf("") }
+    LaunchedEffect(query) {
+        kotlinx.coroutines.delay(250)
+        debouncedQuery = query
+    }
     val filterOptions by remember(selectedMuscles) {
         derivedStateOf {
             val base = listOf("All", "Full Body")
@@ -309,21 +316,21 @@ fun ExercisePickerSheet(
         }
     }
     val selectedFilter = remember { mutableStateOf<String?>(null) }
-    val filteredExercises by remember(exerciseSearch.value, selectedFilter.value, allExercises) {
+    val filteredExercises by remember(allExercises, debouncedQuery, selectedFilter.value) {
         derivedStateOf {
-            val query = exerciseSearch.value.trim().lowercase()
-            allExercises.filter { ex ->
+            val q = debouncedQuery.trim().lowercase()
+            allExercises.asSequence().filter { ex ->
                 val matchesFilter = selectedFilter.value == null || ex.muscleGroup.display == selectedFilter.value
-                val matchesSearch = query.isEmpty() || ex.name.lowercase().contains(query)
+                val matchesSearch = q.isEmpty() || ex.name.lowercase().contains(q)
                 matchesFilter && matchesSearch
-            }
+            }.take(250).toList()
         }
     }
     PoeticBottomSheet(visible = showExerciseSheet, onDismiss = { pickerAlpha = 0f }) {
         Column(modifier = Modifier.alpha(pickerAnimatedAlpha)) {
             LinedTextField(
-                value = exerciseSearch.value,
-                onValueChange = { exerciseSearch.value = it },
+                value = query,
+                onValueChange = { query = it },
                 hint = "Search exercises",
                 modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
                 initialLines = 1
@@ -346,8 +353,8 @@ fun ExercisePickerSheet(
                         modifier = Modifier.padding(12.dp)
                     )
                     GaeguButton(
-                        text = "Create \"${exerciseSearch.value.trim()}\"",
-                        onClick = { onCreateExercise(exerciseSearch.value.trim()) },
+                        text = "Create \"${query.trim()}\"",
+                        onClick = { onCreateExercise(query.trim()) },
                         textColor = Color.Black
                     )
                 }
@@ -365,7 +372,7 @@ fun ExercisePickerSheet(
                                 .clickable {
                                     onExerciseClicked(ex)
                                     pickerAlpha = 0f
-                                    exerciseSearch.value = ""
+                                    query = ""
                                     selectedFilter.value = null
                                 }
                         ) {

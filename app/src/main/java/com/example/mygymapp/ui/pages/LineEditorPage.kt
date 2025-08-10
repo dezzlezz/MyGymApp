@@ -2,8 +2,8 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.border
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -71,7 +71,7 @@ fun LineEditorPage(
     val dragState = remember { DragAndDropState() }
     val scope = rememberCoroutineScope()
     // Single scroll and bring-into-view instances for validation and layout animation
-    val pageScrollState = rememberScrollState()
+    val listState = rememberLazyListState()
     val titleBringIntoViewRequester = remember { BringIntoViewRequester() }
     val exerciseBringIntoViewRequester = remember { BringIntoViewRequester() }
     val noteBringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -93,19 +93,21 @@ fun LineEditorPage(
         return if (dropY >= center) closest.index + 1 else closest.index
     }
 
-    val dragModifier: (Long, String, String, () -> Offset, () -> Unit) -> Modifier = { id, name, section, offset, start ->
-        Modifier.exerciseDrag(
-            dragState,
-            id,
-            name,
-            section,
-            offset,
-            allExercises,
-            selectedExercises,
-            supersetState,
-            ::findInsertIndexForDrop,
-            start
-        )
+    val dragModifier = remember(allExercises, selectedExercises, supersetState) {
+        { id: Long, name: String, section: String, offset: () -> Offset, start: () -> Unit ->
+            Modifier.exerciseDrag(
+                dragState,
+                id,
+                name,
+                section,
+                offset,
+                allExercises,
+                selectedExercises,
+                supersetState,
+                ::findInsertIndexForDrop,
+                start
+            )
+        }
     }
 
     var saving by remember { mutableStateOf(false) }
@@ -136,10 +138,12 @@ fun LineEditorPage(
     ) { paddingValues ->
         Box(Modifier.fillMaxSize()) {
             PaperBackground(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                Column(
+                val showExerciseSheet = remember { mutableStateOf(false) }
+                var exerciseShakeTrigger by remember { mutableStateOf(false) }
+                LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(pageScrollState)
                         .systemBarsPadding()
                         .padding(24.dp)
                         .graphicsLayer {
@@ -149,114 +153,120 @@ fun LineEditorPage(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(stringResource(R.string.compose_daily_line), fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
-
-                    val titleError = showError && title.isBlank()
-                    LineTitleAndCategoriesSection(
-                        title = title,
-                        onTitleChange = { editorVm.title.value = it },
-                        categoryOptions = categoryOptions,
-                        selectedCategories = selectedCategories,
-                        onCategoryChange = { selectedCategories.clear(); selectedCategories.addAll(it) },
-                        muscleOptions = muscleOptions,
-                        selectedMuscles = selectedMuscles,
-                        onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) },
-                        titleError = titleError,
-                        titleBringIntoViewRequester = titleBringIntoViewRequester
-                    )
-
-                    LineNotesSection(
-                        note = note,
-                        onNoteChange = { editorVm.note.value = it },
-                        noteBringIntoViewRequester = noteBringIntoViewRequester
-                    )
-
-                    PoeticDivider(centerText = stringResource(R.string.movements_prompt))
-                    val showExerciseSheet = remember { mutableStateOf(false) }
-                    GaeguButton(text = stringResource(R.string.add_exercise_button), onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
-                    ExercisePickerSheet(
-                        visible = showExerciseSheet.value,
-                        allExercises = allExercises,
-                        selectedMuscles = selectedMuscles,
-                        dragState = dragState,
-                        dragModifier = dragModifier,
-                        onExerciseClicked = { ex ->
-                            if (selectedExercises.none { it.id == ex.id }) {
-                                selectedExercises.add(LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10"))
-                            }
-                            showExerciseSheet.value = false
-                        },
-                        onCreateExercise = onCreateExercise,
-                        onDismiss = { showExerciseSheet.value = false }
-                    )
-
-                    val exerciseError = showError && selectedExercises.isEmpty()
-                    var exerciseShakeTrigger by remember { mutableStateOf(false) }
-                    val exerciseShake by animateFloatAsState(
-                        if (exerciseShakeTrigger) 8f else 0f,
-                        animationSpec = keyframes {
-                            durationMillis = 300
-                            0f at 0
-                            -8f at 50
-                            8f at 100
-                            -8f at 150
-                            0f at 200
-                        }
-                    )
-                    LaunchedEffect(exerciseError) {
-                        if (exerciseError) exerciseShakeTrigger = !exerciseShakeTrigger
+                    item(key = "header") {
+                        Text(stringResource(R.string.compose_daily_line), fontFamily = GaeguBold, fontSize = 24.sp, color = Color.Black)
                     }
-                    val exerciseBorderColor by animateColorAsState(
-                        if (exerciseError) Color.Red else Color.Transparent
-                    )
-                    Box(
-                        Modifier
-                            .border(2.dp, exerciseBorderColor)
-                            .graphicsLayer { translationX = exerciseShake }
-                            .bringIntoViewRequester(exerciseBringIntoViewRequester)
-                    ) {
-                        SectionsWithDragDrop(
-                            sections = sections,
-                            selectedExercises = selectedExercises,
-                            supersetState = supersetState,
-                            dragState = dragState,
+                    item(key = "details") {
+                        val titleError = showError && title.isBlank()
+                        LineTitleAndCategoriesSection(
+                            title = title,
+                            onTitleChange = { editorVm.title.value = it },
+                            categoryOptions = categoryOptions,
+                            selectedCategories = selectedCategories,
+                            onCategoryChange = { selectedCategories.clear(); selectedCategories.addAll(it) },
+                            muscleOptions = muscleOptions,
+                            selectedMuscles = selectedMuscles,
+                            onMuscleChange = { selectedMuscles.clear(); selectedMuscles.addAll(it) },
+                            titleError = titleError,
+                            titleBringIntoViewRequester = titleBringIntoViewRequester
+                        )
+                    }
+                    item(key = "notes") {
+                        LineNotesSection(
+                            note = note,
+                            onNoteChange = { editorVm.note.value = it },
+                            noteBringIntoViewRequester = noteBringIntoViewRequester
+                        )
+                    }
+                    stickyHeader {
+                        PoeticDivider(centerText = stringResource(R.string.movements_prompt))
+                    }
+                    item(key = "picker") {
+                        GaeguButton(text = stringResource(R.string.add_exercise_button), onClick = { showExerciseSheet.value = true }, textColor = Color.Black)
+                        ExercisePickerSheet(
+                            visible = showExerciseSheet.value,
                             allExercises = allExercises,
+                            selectedMuscles = selectedMuscles,
+                            dragState = dragState,
                             dragModifier = dragModifier,
-                            findInsertIndexForDrop = ::findInsertIndexForDrop,
-                            snackbarHostState = snackbarHostState
+                            onExerciseClicked = { ex ->
+                                if (selectedExercises.none { it.id == ex.id }) {
+                                    selectedExercises.add(LineExercise(id = ex.id, name = ex.name, sets = 3, repsOrDuration = "10"))
+                                }
+                                showExerciseSheet.value = false
+                            },
+                            onCreateExercise = onCreateExercise,
+                            onDismiss = { showExerciseSheet.value = false }
                         )
                     }
-
-                    PoeticDivider()
-
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        GaeguButton(
-                            text = stringResource(R.string.cancel),
-                            onClick = onCancel,
-                            textColor = Color.Black,
-                            modifier = Modifier.align(Alignment.CenterStart)
+                    item(key = "exercise_list") {
+                        val exerciseError = showError && selectedExercises.isEmpty()
+                        val exerciseShake by animateFloatAsState(
+                            if (exerciseShakeTrigger) 8f else 0f,
+                            animationSpec = keyframes {
+                                durationMillis = 300
+                                0f at 0
+                                -8f at 50
+                                8f at 100
+                                -8f at 150
+                                0f at 200
+                            }
                         )
-                        WaxSealButton(
-                            label = stringResource(R.string.create_line),
-                            enabled = title.isNotBlank() && selectedExercises.isNotEmpty(),
-                            onClick = {
-                                if (title.isBlank() || selectedExercises.isEmpty()) {
-                                    showError = true
-                                    scope.launch {
-                                        if (title.isBlank()) {
-                                            titleBringIntoViewRequester.bringIntoView()
-                                        } else {
-                                            exerciseBringIntoViewRequester.bringIntoView()
+                        LaunchedEffect(exerciseError) {
+                            if (exerciseError) exerciseShakeTrigger = !exerciseShakeTrigger
+                        }
+                        val exerciseBorderColor by animateColorAsState(
+                            if (exerciseError) Color.Red else Color.Transparent
+                        )
+                        Box(
+                            Modifier
+                                .border(2.dp, exerciseBorderColor)
+                                .graphicsLayer { translationX = exerciseShake }
+                                .bringIntoViewRequester(exerciseBringIntoViewRequester)
+                        ) {
+                            SectionsWithDragDrop(
+                                sections = sections,
+                                selectedExercises = selectedExercises,
+                                supersetState = supersetState,
+                                dragState = dragState,
+                                allExercises = allExercises,
+                                dragModifier = dragModifier,
+                                findInsertIndexForDrop = ::findInsertIndexForDrop,
+                                snackbarHostState = snackbarHostState
+                            )
+                        }
+                    }
+                    item(key = "divider_end") { PoeticDivider() }
+                    item(key = "actions") {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            GaeguButton(
+                                text = stringResource(R.string.cancel),
+                                onClick = onCancel,
+                                textColor = Color.Black,
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
+                            WaxSealButton(
+                                label = stringResource(R.string.create_line),
+                                enabled = title.isNotBlank() && selectedExercises.isNotEmpty(),
+                                onClick = {
+                                    if (title.isBlank() || selectedExercises.isEmpty()) {
+                                        showError = true
+                                        scope.launch {
+                                            if (title.isBlank()) {
+                                                titleBringIntoViewRequester.bringIntoView()
+                                            } else {
+                                                exerciseBringIntoViewRequester.bringIntoView()
+                                            }
+                                            snackbarHostState.showSnackbar(errorMessage)
                                         }
-                                        snackbarHostState.showSnackbar(errorMessage)
+                                        return@WaxSealButton
                                     }
-                                    return@WaxSealButton
-                                }
-                                pendingLine = editorVm.buildLine()
-                                saving = true
-                            },
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                                    pendingLine = editorVm.buildLine()
+                                    saving = true
+                                },
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
                     }
                 }
             }
