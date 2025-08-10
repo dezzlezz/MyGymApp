@@ -663,8 +663,8 @@ fun SectionsWithDragDrop(
                                             )
                                         )
                                     }
-                                    val dismissState = rememberDismissState(confirmValueChange = {
-                                        if (it == DismissValue.DismissedToStart) {
+                                    val dismissState = rememberDismissState(confirmStateChange = { value ->
+                                        if (value == DismissValue.DismissedToStart) {
                                             removeExercise(item)
                                             true
                                         } else {
@@ -810,8 +810,8 @@ fun SectionsWithDragDrop(
                                                 )
                                             )
                                         }
-                                        val dismissState = rememberDismissState(confirmValueChange = {
-                                            if (it == DismissValue.DismissedToStart) {
+                                        val dismissState = rememberDismissState(confirmStateChange = { value ->
+                                            if (value == DismissValue.DismissedToStart) {
                                                 removeExercise(item)
                                                 true
                                             } else {
@@ -965,8 +965,8 @@ fun SectionsWithDragDrop(
                                                     )
                                                 )
                                             }
-                                            val dismissState = rememberDismissState(confirmValueChange = {
-                                                if (it == DismissValue.DismissedToStart) {
+                                            val dismissState = rememberDismissState(confirmStateChange = { value ->
+                                                if (value == DismissValue.DismissedToStart) {
                                                     removeExercise(item)
                                                     true
                                                 } else {
