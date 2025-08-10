@@ -96,22 +96,21 @@ fun LineEditorPage(
         return if (dropY >= center) closest.index + 1 else closest.index
     }
 
-    val dragModifier = remember(allExercises, selectedExercises, supersetState) {
-        { id: Long, name: String, section: String, offset: () -> Offset, start: () -> Unit ->
+    val dragModifier: @Composable (Long, String, String, () -> Offset, () -> Unit) -> Modifier =
+        { id, name, section, offset, start ->
             Modifier.exerciseDrag(
-                dragState,
-                id,
-                name,
-                section,
-                offset,
-                allExercises,
-                selectedExercises,
-                supersetState,
-                ::findInsertIndexForDrop,
-                start
+                state = dragState,
+                exerciseId = id,
+                exerciseName = name,
+                startSection = section,
+                getStartOffset = offset,
+                allExercises = allExercises,
+                selectedExercises = selectedExercises,
+                supersetState = supersetState,
+                findInsertIndex = ::findInsertIndexForDrop,
+                onStart = start
             )
         }
-    }
 
     var saving by remember { mutableStateOf(false) }
     var pendingLine by remember { mutableStateOf<Line?>(null) }
@@ -246,20 +245,21 @@ fun LineEditorPage(
                         }
                     }
                     item(key = "divider_end") { PoeticDivider() }
-                    item(key = "actions") {
-                        val canSave = title.isNotBlank() && selectedExercises.isNotEmpty()
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            GaeguButton(
-                                text = stringResource(R.string.cancel),
-                                onClick = onCancel,
-                                textColor = Color.Black,
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .semantics { contentDescription = stringResource(R.string.cancel) }
-                            )
-                            WaxSealButton(
-                                label = stringResource(R.string.create_line),
-                                onClick = {
+                      item(key = "actions") {
+                          val canSave = title.isNotBlank() && selectedExercises.isNotEmpty()
+                          val cancelLabel = stringResource(R.string.cancel)
+                          Box(modifier = Modifier.fillMaxWidth()) {
+                              GaeguButton(
+                                  text = cancelLabel,
+                                  onClick = onCancel,
+                                  textColor = Color.Black,
+                                  modifier = Modifier
+                                      .align(Alignment.CenterStart)
+                                      .semantics { contentDescription = cancelLabel }
+                              )
+                              WaxSealButton(
+                                  label = stringResource(R.string.create_line),
+                                  onClick = {
                                     if (!canSave) {
                                         showError = true
                                         scope.launch {
