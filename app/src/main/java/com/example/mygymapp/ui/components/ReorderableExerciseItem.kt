@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,8 +28,7 @@ import androidx.compose.ui.draw.rotate
 @Composable
 fun ReorderableExerciseItem(
     index: Int,
-    exercise: com.example.mygymapp.model.Exercise,
-    onRemove: () -> Unit,
+    exercise: LineExercise,
     onMove: () -> Unit,
     modifier: Modifier = Modifier,
     dragHandle: @Composable () -> Unit,
@@ -125,13 +122,6 @@ fun ReorderableExerciseItem(
                         }
                         // Actions
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = onRemove) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.Red
-                                )
-                            }
                             TextButton(onClick = onMove) {
                                 Text(
                                     "Move",
