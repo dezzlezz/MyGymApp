@@ -554,7 +554,8 @@ fun SectionsWithDragDrop(
                             }
                             val pulledApart = rangeSelector.isOutwardPull(pullApartThreshold)
                             val selection = rangeSelector.onPointerEvent(listTop, pointers)
-                            if (active.size == 2 && selection != null) {
+                            val timeoutCommit = rangeSelector.shouldCommit()
+                            if (active.size == 2 && selection != null && !timeoutCommit) {
                                 pendingRangeIds = selection.idsInRange
                                 pendingCaption = if (selection.idsInRange.size < 2) {
                                     "Select at least two"
@@ -565,7 +566,7 @@ fun SectionsWithDragDrop(
                                 } else {
                                     "Create Superset (${selection.idsInRange.size})"
                                 }
-                            } else if (active.isEmpty()) {
+                            } else if (active.isEmpty() || timeoutCommit) {
                                 pendingRangeIds = emptyList()
                                 pendingCaption = null
                                 selection?.let { sel ->
@@ -624,6 +625,9 @@ fun SectionsWithDragDrop(
                                             }
                                         }
                                     }
+                                }
+                                if (timeoutCommit) {
+                                    rangeSelector.reset()
                                 }
                             } else {
                                 pendingRangeIds = emptyList()
