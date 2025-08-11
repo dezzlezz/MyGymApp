@@ -119,6 +119,27 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
         supersets.removeAll { group -> ids.all { it in group } }
     }
 
+    /**
+     * Split an existing group by removing the contiguous [rangeIds] segment and
+     * adding back the remaining left/right segments when they contain two or
+     * more items. If [rangeIds] spans the entire group the group is simply
+     * removed.
+     */
+    fun splitGroupAtRange(rangeIds: List<Long>) {
+        if (rangeIds.isEmpty()) return
+        val group = supersets.firstOrNull { rangeIds.all { id -> id in it } } ?: return
+        val startIdx = group.indexOf(rangeIds.first())
+        val endIdx = group.indexOf(rangeIds.last())
+        if (startIdx == -1 || endIdx == -1) return
+        val from = minOf(startIdx, endIdx)
+        val to = maxOf(startIdx, endIdx)
+        val left = group.subList(0, from).toList()
+        val right = group.subList(to + 1, group.size).toList()
+        supersets.remove(group)
+        if (left.size >= 2) supersets.add(left.toMutableList())
+        if (right.size >= 2) supersets.add(right.toMutableList())
+    }
+
     /** Replace all groups with [groups]. */
     fun replaceAll(groups: List<List<Long>>) {
         supersets.clear()
@@ -622,19 +643,8 @@ fun SectionsWithDragDrop(
                                             if (sameGroup && pulledApart) {
                                                 val before = supersetState.groups
                                                 val rangeIds = sel.idsInRange
-                                                val exactGroup = supersetState.groups.any { group ->
-                                                    group.size == rangeIds.size && group.containsAll(
-                                                        rangeIds
-                                                    )
-                                                }
                                                 Snapshot.withMutableSnapshot {
-                                                    if (exactGroup) {
-                                                        supersetState.removeGroup(rangeIds)
-                                                    } else {
-                                                        rangeIds.forEach {
-                                                            supersetState.removeExercise(it)
-                                                        }
-                                                    }
+                                                    supersetState.splitGroupAtRange(rangeIds)
                                                 }
                                                 scope.launch {
                                                     val result = snackbarHostState.showSnackbar(
