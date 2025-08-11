@@ -29,8 +29,10 @@ class SupersetRangeSelector(private val itemBounds: Map<Long, Pair<Float, Float>
     private var initialDistance: Float? = null
     private var currentDistance: Float = 0f
     private val hysteresisPx = 20f * Resources.getSystem().displayMetrics.density
-    private val boundsTop = itemBounds.minOf { it.value.first }
-    private val boundsBottom = itemBounds.maxOf { it.value.second }
+    // When the list of bounds is empty, `minOf`/`maxOf` would throw, so fall back to
+    // the widest possible range to keep the selector inert rather than crashing.
+    private val boundsTop = itemBounds.minOfOrNull { it.value.first } ?: Float.NEGATIVE_INFINITY
+    private val boundsBottom = itemBounds.maxOfOrNull { it.value.second } ?: Float.POSITIVE_INFINITY
     private val gracePeriodMs = 150L
     private var firstOutsideSince: Long? = null
     private var secondOutsideSince: Long? = null
