@@ -119,6 +119,31 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
         supersets.removeAll { group -> ids.all { it in group } }
     }
 
+    /**
+     * Split an existing group by removing the contiguous [rangeIds] segment and
+     * adding back the remaining left/right segments when they contain two or
+     * more items. If [rangeIds] spans the entire group the group is simply
+     * removed.
+     */
+    fun splitGroupAtRange(rangeIds: List<Long>) {
+        if (rangeIds.isEmpty()) return
+        val first = rangeIds.first()
+        val last = rangeIds.last()
+        val group = supersets.firstOrNull { it.contains(first) && it.contains(last) } ?: return
+        val firstIndex = group.indexOf(first)
+        val lastIndex = group.indexOf(last)
+        if (firstIndex == -1 || lastIndex == -1) return
+        val from = minOf(firstIndex, lastIndex)
+        val to = maxOf(firstIndex, lastIndex)
+        val middle = group.subList(from, to + 1)
+        if (middle.size != rangeIds.size || !middle.containsAll(rangeIds)) return
+        val left = group.take(from)
+        val right = group.drop(to + 1)
+        supersets.remove(group)
+        if (left.size >= 2) supersets.add(left.toMutableList())
+        if (right.size >= 2) supersets.add(right.toMutableList())
+    }
+
     /** Replace all groups with [groups]. */
     fun replaceAll(groups: List<List<Long>>) {
         supersets.clear()
@@ -451,7 +476,7 @@ fun SectionsWithDragDrop(
     var pendingCaption by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val density = LocalDensity.current
-    val minSplitDistance = with(density) { 48.dp.toPx() }
+    val basePullApartPx = with(density) { 48.dp.toPx() }
 
     LaunchedEffect(Unit) {
         snapshotFlow { rawRangeIds to rawCaption }
@@ -581,10 +606,11 @@ fun SectionsWithDragDrop(
                                 )
                             }
                             val selection = rangeSelector.onPointerEvent(dragState.listTop, pointers)
-                            val groupHeight = selection?.idsInRange?.sumOf { id ->
-                                dragState.itemBounds[id]?.let { (it.second - it.first).toDouble() } ?: 0.0
-                            }?.toFloat() ?: 0f
-                            val thresholdPx = kotlin.math.max(minSplitDistance, 0.35f * groupHeight)
+                            val groupHeight = selection?.idsInRange?.fold(0f) { acc, id ->
+                                val bounds = dragState.itemBounds[id]
+                                acc + (bounds?.let { it.second - it.first } ?: 0f)
+                            } ?: 0f
+                            val thresholdPx = kotlin.math.max(basePullApartPx, 0.35f * groupHeight)
                             val pulledApart = rangeSelector.isOutwardPull(thresholdPx)
                             val timeoutCommit = rangeSelector.shouldCommit()
                             if (active.size == 2 && selection != null && !timeoutCommit) {
@@ -622,19 +648,8 @@ fun SectionsWithDragDrop(
                                             if (sameGroup && pulledApart) {
                                                 val before = supersetState.groups
                                                 val rangeIds = sel.idsInRange
-                                                val exactGroup = supersetState.groups.any { group ->
-                                                    group.size == rangeIds.size && group.containsAll(
-                                                        rangeIds
-                                                    )
-                                                }
                                                 Snapshot.withMutableSnapshot {
-                                                    if (exactGroup) {
-                                                        supersetState.removeGroup(rangeIds)
-                                                    } else {
-                                                        rangeIds.forEach {
-                                                            supersetState.removeExercise(it)
-                                                        }
-                                                    }
+                                                    supersetState.splitGroupAtRange(rangeIds)
                                                 }
                                                 scope.launch {
                                                     val result = snackbarHostState.showSnackbar(
