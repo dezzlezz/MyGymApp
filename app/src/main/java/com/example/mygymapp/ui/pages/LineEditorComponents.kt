@@ -472,7 +472,7 @@ fun SectionsWithDragDrop(
     var pendingCaption by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val density = LocalDensity.current
-    val minSplitDistance = with(density) { 48.dp.toPx() }
+    val basePullApartPx = with(density) { 48.dp.toPx() }
 
     LaunchedEffect(Unit) {
         snapshotFlow { rawRangeIds to rawCaption }
@@ -602,10 +602,11 @@ fun SectionsWithDragDrop(
                                 )
                             }
                             val selection = rangeSelector.onPointerEvent(dragState.listTop, pointers)
-                            val groupHeight = selection?.idsInRange?.sumOf { id ->
-                                dragState.itemBounds[id]?.let { (it.second - it.first).toDouble() } ?: 0.0
-                            }?.toFloat() ?: 0f
-                            val thresholdPx = kotlin.math.max(minSplitDistance, 0.35f * groupHeight)
+                            val groupHeight = selection?.idsInRange?.fold(0f) { acc, id ->
+                                val bounds = dragState.itemBounds[id]
+                                acc + (bounds?.let { it.second - it.first } ?: 0f)
+                            } ?: 0f
+                            val thresholdPx = kotlin.math.max(basePullApartPx, 0.35f * groupHeight)
                             val pulledApart = rangeSelector.isOutwardPull(thresholdPx)
                             val timeoutCommit = rangeSelector.shouldCommit()
                             if (active.size == 2 && selection != null && !timeoutCommit) {
