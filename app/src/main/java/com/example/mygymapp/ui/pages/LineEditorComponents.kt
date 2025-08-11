@@ -127,14 +127,18 @@ class SupersetState(private val supersets: SnapshotStateList<MutableList<Long>>)
      */
     fun splitGroupAtRange(rangeIds: List<Long>) {
         if (rangeIds.isEmpty()) return
-        val group = supersets.firstOrNull { rangeIds.all { id -> id in it } } ?: return
-        val startIdx = group.indexOf(rangeIds.first())
-        val endIdx = group.indexOf(rangeIds.last())
-        if (startIdx == -1 || endIdx == -1) return
-        val from = minOf(startIdx, endIdx)
-        val to = maxOf(startIdx, endIdx)
-        val left = group.subList(0, from).toList()
-        val right = group.subList(to + 1, group.size).toList()
+        val first = rangeIds.first()
+        val last = rangeIds.last()
+        val group = supersets.firstOrNull { it.contains(first) && it.contains(last) } ?: return
+        val firstIndex = group.indexOf(first)
+        val lastIndex = group.indexOf(last)
+        if (firstIndex == -1 || lastIndex == -1) return
+        val from = minOf(firstIndex, lastIndex)
+        val to = maxOf(firstIndex, lastIndex)
+        val middle = group.subList(from, to + 1)
+        if (middle.size != rangeIds.size || !middle.containsAll(rangeIds)) return
+        val left = group.take(from)
+        val right = group.drop(to + 1)
         supersets.remove(group)
         if (left.size >= 2) supersets.add(left.toMutableList())
         if (right.size >= 2) supersets.add(right.toMutableList())
