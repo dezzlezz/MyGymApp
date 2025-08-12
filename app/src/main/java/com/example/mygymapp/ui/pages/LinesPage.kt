@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.R
@@ -81,13 +83,13 @@ fun LinesPage(
                 cursorBrush = SolidColor(inkColor),
                 decorationBox = { innerTextField ->
                     if (search.isEmpty()) {
-                        Text("Search lines…", fontFamily = GaeguRegular, color = Color.Gray)
+                        Text("Search lines...", fontFamily = GaeguRegular, fontStyle = FontStyle.Italic, color = Color.Gray)
                     }
                     innerTextField()
                 }
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             Box(Modifier.padding(horizontal = 24.dp)) {
                 FilterChips(
@@ -97,7 +99,7 @@ fun LinesPage(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             PoeticMultiSelectChips(
                 options = listOf("Back", "Legs", "Core", "Shoulders", "Chest", "Arms", "Full Body"),
@@ -119,9 +121,10 @@ fun LinesPage(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "No lines found.",
+                        "No lines yet – this page is waiting for its first sentence.",
                         style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp),
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(12.dp))
                     GaeguButton(
@@ -132,9 +135,9 @@ fun LinesPage(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 16.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(filtered) { line ->
                         LineCard(
@@ -142,7 +145,7 @@ fun LinesPage(
                             onEdit = { onEdit(line) },
                             onAdd = onAdd,
                             onArchive = { onArchive(line) },
-                            modifier = Modifier.padding(vertical = 6.dp, horizontal = 24.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
