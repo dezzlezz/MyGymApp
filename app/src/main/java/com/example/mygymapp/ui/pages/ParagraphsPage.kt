@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mygymapp.R
@@ -64,11 +66,13 @@ fun ParagraphsPage(
                 cursorBrush = SolidColor(inkColor),
                 decorationBox = { innerTextField ->
                     if (search.isEmpty()) {
-                        Text("Search paragraphs…", fontFamily = GaeguRegular, color = Color.Gray)
+                        Text("Search paragraphs...", fontFamily = GaeguRegular, fontStyle = FontStyle.Italic, color = Color.Gray)
                     }
                     innerTextField()
                 }
             )
+
+            Spacer(Modifier.height(12.dp))
 
             PoeticDivider(centerText = "Your paragraphs")
 
@@ -80,9 +84,10 @@ fun ParagraphsPage(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "No paragraphs found.",
+                        "No paragraphs yet – this page is waiting for its first chapter.",
                         style = TextStyle(fontFamily = GaeguRegular, fontSize = 18.sp),
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(12.dp))
                     GaeguButton(
@@ -93,9 +98,9 @@ fun ParagraphsPage(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 16.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(filtered) { paragraph ->
                         ParagraphCard(
@@ -103,7 +108,7 @@ fun ParagraphsPage(
                             onEdit = { onEdit(paragraph) },
                             onPlan = { onPlan(paragraph) },
                             onSaveTemplate = { onSaveTemplate(paragraph) },
-                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }

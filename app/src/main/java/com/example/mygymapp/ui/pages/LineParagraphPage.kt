@@ -4,6 +4,8 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -51,13 +53,23 @@ fun LineParagraphPage(
         Column(Modifier.fillMaxSize()) {
             TabRow(
                 selectedTabIndex = selectedTab,
-                modifier = Modifier.padding(vertical = 8.dp),
-                containerColor = Color.Transparent
+                modifier = Modifier.padding(vertical = 12.dp),
+                containerColor = Color.Transparent,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier
+                            .tabIndicatorOffset(tabPositions[selectedTab])
+                            .padding(horizontal = 16.dp),
+                        color = Color(0xFF556B2F)
+                    )
+                },
+                divider = {}
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
+                        modifier = Modifier.padding(vertical = 12.dp),
                         text = { Text(title, fontFamily = GaeguRegular, color = Color.Black) }
                     )
                 }
