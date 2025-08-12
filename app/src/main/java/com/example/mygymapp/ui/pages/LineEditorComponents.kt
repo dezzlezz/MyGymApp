@@ -646,10 +646,18 @@ fun SectionsWithDragDrop(
                                             val sameGroup = supersetState.partners(sel.startId)
                                                 .contains(sel.endId)
                                             if (sameGroup && pulledApart) {
-                                                val before = supersetState.groups
                                                 val rangeIds = sel.idsInRange
+                                                val before = supersetState.groups
+                                                val exactMatch = before.any { group ->
+                                                    group.size == rangeIds.size &&
+                                                        group.containsAll(rangeIds)
+                                                }
                                                 Snapshot.withMutableSnapshot {
-                                                    supersetState.splitGroupAtRange(rangeIds)
+                                                    if (exactMatch) {
+                                                        supersetState.removeGroup(rangeIds)
+                                                    } else {
+                                                        rangeIds.forEach { supersetState.removeExercise(it) }
+                                                    }
                                                 }
                                                 scope.launch {
                                                     val result = snackbarHostState.showSnackbar(
