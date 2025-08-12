@@ -1173,7 +1173,7 @@ fun SectionsWithDragDrop(
                                                         },
                                                         supersetPartnerIndices = partnerIndices,
                                                         isDraggingPartner = isDraggingPartner,
-                                                     ich will d   isDragTarget = isInRange,
+                                                     isDragTarget = isInRange,
                                                         elevation = elevation
                                                     )
                                                 }
