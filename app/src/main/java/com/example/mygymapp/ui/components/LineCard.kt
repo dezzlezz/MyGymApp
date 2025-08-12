@@ -51,37 +51,30 @@ fun LineCard(
                 MoodChip(mood = it)
             }
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         val supersetWord = if (line.supersets.size == 1) stringResource(R.string.superset_singular) else stringResource(R.string.superset_plural)
         Text(
             text = stringResource(R.string.line_card_summary, line.exercises.size, line.supersets.size, supersetWord),
             style = TextStyle(
                 fontFamily = GaeguRegular,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 color = textColor
             )
         )
         if (line.note.isNotBlank()) {
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.note_prefix, line.note),
                 style = TextStyle(
                     fontFamily = GaeguRegular,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     color = textColor
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
-        if (line.exercises.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            line.exercises.forEach { ex ->
-                ExerciseItem(exercise = ex)
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TextButton(
                 onClick = onEdit,
