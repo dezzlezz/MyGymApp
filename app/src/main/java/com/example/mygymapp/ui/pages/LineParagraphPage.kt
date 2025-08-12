@@ -2,8 +2,6 @@ package com.example.mygymapp.ui.pages
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -18,6 +16,7 @@ import com.example.mygymapp.model.Line
 import com.example.mygymapp.model.Paragraph
 import com.example.mygymapp.store.JournalStore
 import com.example.mygymapp.ui.components.PaperBackground
+import com.example.mygymapp.ui.components.GaeguButton
 import com.example.mygymapp.R
 
 @Composable
@@ -50,7 +49,11 @@ fun LineParagraphPage(
             .imePadding()
     ) {
         Column(Modifier.fillMaxSize()) {
-            TabRow(selectedTabIndex = selectedTab) {
+            TabRow(
+                selectedTabIndex = selectedTab,
+                modifier = Modifier.padding(vertical = 8.dp),
+                containerColor = Color.Transparent
+            ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
@@ -91,7 +94,8 @@ fun LineParagraphPage(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
+            GaeguButton(
+                text = if (selectedTab == 0) stringResource(R.string.compose_new_line_button) else stringResource(R.string.add_paragraph_button),
                 onClick = {
                     if (selectedTab == 0) {
                         editingLine = null
@@ -100,18 +104,12 @@ fun LineParagraphPage(
                         navController.navigate("paragraph_editor")
                     }
                 },
+                textColor = Color.Black,
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text(
-                    text = if (selectedTab == 0) stringResource(R.string.compose_new_line_button) else stringResource(R.string.add_paragraph_button),
-                    fontFamily = GaeguRegular,
-                    color = Color.Black
-                )
-            }
+                    .navigationBarsPadding()
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
